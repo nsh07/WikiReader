@@ -20,6 +20,7 @@ fun AppScreen(
 ) {
     val searchBarState by viewModel.searchBarState.collectAsState()
     val homeScreenState by viewModel.homeScreenState.collectAsState()
+    val listState by viewModel.listState.collectAsState()
 
     viewModel.setDefaultContent(LocalContext.current)
 
@@ -33,6 +34,7 @@ fun AppScreen(
             )
             AppHomeScreen(
                 homeScreenState = homeScreenState,
+                listState = listState,
                 modifier = Modifier
                     .fillMaxSize()
             )

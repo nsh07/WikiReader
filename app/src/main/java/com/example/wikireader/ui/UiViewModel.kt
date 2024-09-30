@@ -1,6 +1,7 @@
 package com.example.wikireader.ui
 
 import android.content.Context
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.wikireader.R
@@ -17,6 +18,9 @@ class UiViewModel : ViewModel() {
 
     private val _homeScreenState = MutableStateFlow(HomeScreenState())
     val homeScreenState: StateFlow<HomeScreenState> = _homeScreenState.asStateFlow()
+
+    private val _listState = MutableStateFlow(LazyListState(0, 0))
+    val listState: StateFlow<LazyListState> = _listState.asStateFlow()
 
     /**
      * Updates history and performs search
@@ -53,6 +57,8 @@ class UiViewModel : ViewModel() {
                         isLoading = false,
                     )
                 }
+
+                listState.value.scrollToItem(0)
             }
         }
 
