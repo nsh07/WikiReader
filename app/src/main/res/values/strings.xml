@@ -4,4 +4,5 @@
     <string name="default_title">Hi</string>
     <string name="default_extract">Tap on the search bar and search for something to get started</string>
     <string name="up_arrow">Go to top</string>
+    <string name="scroll_to_top">Scroll to top</string>
 </resources>

@@ -20,7 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -28,8 +28,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -47,6 +49,24 @@ import com.example.wikireader.R
 import kotlinx.coroutines.launch
 
 @Composable
+private fun LazyListState.isScrollingUp(): Boolean {
+    var previousIndex by remember(this) { mutableIntStateOf(firstVisibleItemIndex) }
+    var previousScrollOffset by remember(this) { mutableIntStateOf(firstVisibleItemScrollOffset) }
+    return remember(this) {
+        derivedStateOf {
+            if (previousIndex != firstVisibleItemIndex) {
+                previousIndex > firstVisibleItemIndex
+            } else {
+                previousScrollOffset >= firstVisibleItemScrollOffset
+            }.also {
+                previousIndex = firstVisibleItemIndex
+                previousScrollOffset = firstVisibleItemScrollOffset
+            }
+        }
+    }.value
+}
+
+@Composable
 fun AppHomeScreen(
     homeScreenState: HomeScreenState,
     listState: LazyListState,
@@ -54,8 +74,12 @@ fun AppHomeScreen(
 ) {
     val photo = homeScreenState.photo
     val photoDesc = homeScreenState.photoDesc
+
     val coroutineScope = rememberCoroutineScope()
+
     val index by remember { derivedStateOf { listState.firstVisibleItemIndex } }
+    val offset by remember { derivedStateOf { listState.firstVisibleItemScrollOffset } }
+    val extendedFab = (listState.isScrollingUp() && offset > 1024)
 
     Box(modifier = modifier) {
         AnimatedVisibility(
@@ -165,13 +189,18 @@ fun AppHomeScreen(
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
         ) {
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
                 onClick = { coroutineScope.launch { listState.animateScrollToItem(0) } },
+                icon = {
+                    Icon(
+                        Icons.Rounded.KeyboardArrowUp,
+                        contentDescription = stringResource(R.string.up_arrow)
+                    )
+                },
+                text = { Text("Scroll to top") },
+                expanded = extendedFab,
                 modifier = Modifier
-
-            ) {
-                Icon(Icons.Rounded.KeyboardArrowUp, contentDescription = stringResource(R.string.up_arrow))
-            }
+            )
         }
     }
 }
