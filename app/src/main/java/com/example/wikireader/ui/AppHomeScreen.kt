@@ -5,6 +5,8 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,18 +16,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -34,6 +44,7 @@ import coil.compose.SubcomposeAsyncImage
 import coil.decode.SvgDecoder
 import coil.request.ImageRequest
 import com.example.wikireader.R
+import kotlinx.coroutines.launch
 
 @Composable
 fun AppHomeScreen(
@@ -43,6 +54,8 @@ fun AppHomeScreen(
 ) {
     val photo = homeScreenState.photo
     val photoDesc = homeScreenState.photoDesc
+    val coroutineScope = rememberCoroutineScope()
+    val index by remember { derivedStateOf { listState.firstVisibleItemIndex } }
 
     Box(modifier = modifier) {
         AnimatedVisibility(
@@ -141,6 +154,23 @@ fun AppHomeScreen(
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(16.dp)
                 )
+            }
+        }
+
+        AnimatedVisibility(
+            index > 1,
+            enter = scaleIn(),
+            exit = scaleOut(),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            FloatingActionButton(
+                onClick = { coroutineScope.launch { listState.animateScrollToItem(0) } },
+                modifier = Modifier
+
+            ) {
+                Icon(Icons.Rounded.KeyboardArrowUp, contentDescription = stringResource(R.string.up_arrow))
             }
         }
     }
