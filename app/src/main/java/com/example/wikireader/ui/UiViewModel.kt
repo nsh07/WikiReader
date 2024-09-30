@@ -42,20 +42,32 @@ class UiViewModel : ViewModel() {
                     currentState.copy(isLoading = true)
                 }
 
-                val apiResponse = WikipediaApi.retrofitService
-                    .searchWikipedia(q)
-                    .query
-                    ?.pages?.get(0)
+                try {
+                    val apiResponse = WikipediaApi.retrofitService
+                        .searchWikipedia(q)
+                        .query
+                        ?.pages?.get(0)
 
-                _homeScreenState.update { currentState ->
-                    currentState.copy(
-                        title = apiResponse?.title ?: "Error",
-                        extract = apiResponse?.extract
-                            ?: "No search results found for search term \"$q\"",
-                        photo = apiResponse?.photo,
-                        photoDesc = apiResponse?.photoDesc,
-                        isLoading = false,
-                    )
+                    _homeScreenState.update { currentState ->
+                        currentState.copy(
+                            title = apiResponse?.title ?: "Error",
+                            extract = apiResponse?.extract
+                                ?: "No search results found for search term \"$q\"",
+                            photo = apiResponse?.photo,
+                            photoDesc = apiResponse?.photoDesc,
+                            isLoading = false
+                        )
+                    }
+                } catch (e: Exception) {
+                    _homeScreenState.update { currentState ->
+                        currentState.copy(
+                            title = "Error",
+                            extract = "No internet connection",
+                            photo = null,
+                            photoDesc = null,
+                            isLoading = false
+                        )
+                    }
                 }
 
                 listState.value.scrollToItem(0)
