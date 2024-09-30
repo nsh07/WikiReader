@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">WikiReader</string>
+    <string name="wikipedia_logo">Wikipedia\'s Logo</string>
+    <string name="default_title">Hi</string>
+    <string name="default_extract">Tap on the search bar and search for something to get started</string>
+    <string name="up_arrow">Go to top</string>
+</resources>
