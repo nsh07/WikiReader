@@ -1,4 +1,4 @@
-package com.example.wikireader.ui
+package org.nsh07.wikireader.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -45,7 +45,7 @@ import coil.ImageLoader
 import coil.compose.SubcomposeAsyncImage
 import coil.decode.SvgDecoder
 import coil.request.ImageRequest
-import com.example.wikireader.R
+import org.nsh07.wikireader.R
 import kotlinx.coroutines.launch
 
 @Composable

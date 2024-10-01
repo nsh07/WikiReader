@@ -1,4 +1,4 @@
-package com.example.wikireader.ui.theme
+package org.nsh07.wikireader.ui.theme
 
 import android.app.Activity
 import android.os.Build

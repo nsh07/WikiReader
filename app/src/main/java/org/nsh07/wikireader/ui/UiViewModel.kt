@@ -1,11 +1,11 @@
-package com.example.wikireader.ui
+package org.nsh07.wikireader.ui
 
 import android.content.Context
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.wikireader.R
-import com.example.wikireader.network.WikipediaApi
+import org.nsh07.wikireader.R
+import org.nsh07.wikireader.network.WikipediaApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

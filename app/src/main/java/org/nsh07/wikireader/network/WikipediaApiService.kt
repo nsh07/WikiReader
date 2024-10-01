@@ -1,6 +1,6 @@
-package com.example.wikireader.network
+package org.nsh07.wikireader.network
 
-import com.example.wikireader.data.WikiApiResponse
+import org.nsh07.wikireader.data.WikiApiResponse
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType

@@ -1,7 +1,7 @@
-package com.example.wikireader.ui
+package org.nsh07.wikireader.ui
 
-import com.example.wikireader.data.WikiPhoto
-import com.example.wikireader.data.WikiPhotoDesc
+import org.nsh07.wikireader.data.WikiPhoto
+import org.nsh07.wikireader.data.WikiPhotoDesc
 
 data class SearchBarState(
     val query: String = "",

@@ -1,4 +1,4 @@
-package com.example.wikireader
+package org.nsh07.wikireader
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,9 +9,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.wikireader.ui.AppHomeScreen
-import com.example.wikireader.ui.AppSearchBar
-import com.example.wikireader.ui.UiViewModel
+import org.nsh07.wikireader.ui.AppHomeScreen
+import org.nsh07.wikireader.ui.AppSearchBar
+import org.nsh07.wikireader.ui.UiViewModel
 
 @Composable
 fun AppScreen(

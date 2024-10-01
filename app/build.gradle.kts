@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.wikireader"
+    namespace = "org.nsh07.wikireader"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.wikireader"
+        applicationId = "org.nsh07.wikireader"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

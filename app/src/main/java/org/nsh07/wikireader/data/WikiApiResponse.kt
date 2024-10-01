@@ -1,4 +1,4 @@
-package com.example.wikireader.data
+package org.nsh07.wikireader.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

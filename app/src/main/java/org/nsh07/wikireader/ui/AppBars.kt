@@ -1,4 +1,4 @@
-package com.example.wikireader.ui
+package org.nsh07.wikireader.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,8 +30,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.wikireader.R
-import com.example.wikireader.ui.theme.WikiReaderTheme
+import org.nsh07.wikireader.R
+import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

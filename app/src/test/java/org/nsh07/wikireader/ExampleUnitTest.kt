@@ -1,4 +1,4 @@
-package com.example.wikireader
+package org.nsh07.wikireader
 
 import org.junit.Test
 
