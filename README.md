@@ -1,16 +1,18 @@
-<div style="text-align: center;">
+<div align="center">
+
+<img src="app/src/main/ic_launcher-playstore.png" width="128">
 
 # WikiReader
 
-A simple Android app for reading Wikipedia articles distraction-free
+</div>
 
-<img src="screenshots/main.png" width="256" alt="App article screen">
-<img src="screenshots/fab.png" width="256" alt="Article scrolled down">
-<img src="screenshots/disambiguation.png" width="256" alt="Disambiguation page">
+A simple Android app for reading Wikipedia articles distraction-free
 
 Supports light mode, dark mode and Material You dynamic colors
 
-<img src="screenshots/dynamic-light.png" width="256" alt="Light theme with dynamic color">
-<img src="screenshots/dynamic.png" width="256" alt="Dark theme with dynamic color">
-
-</div>
+<p align="center" width="100%">
+    <img src="screenshots/main.png" width="24%">
+    <img src="screenshots/fab.png" width="24%">
+    <img src="screenshots/dynamic-light.png" width="24%">
+    <img src="screenshots/dynamic.png" width="24%">
+</p>
