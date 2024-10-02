@@ -5,6 +5,8 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
@@ -28,12 +30,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -45,26 +46,8 @@ import coil.ImageLoader
 import coil.compose.SubcomposeAsyncImage
 import coil.decode.SvgDecoder
 import coil.request.ImageRequest
-import org.nsh07.wikireader.R
 import kotlinx.coroutines.launch
-
-@Composable
-private fun LazyListState.isScrollingUp(): Boolean {
-    var previousIndex by remember(this) { mutableIntStateOf(firstVisibleItemIndex) }
-    var previousScrollOffset by remember(this) { mutableIntStateOf(firstVisibleItemScrollOffset) }
-    return remember(this) {
-        derivedStateOf {
-            if (previousIndex != firstVisibleItemIndex) {
-                previousIndex > firstVisibleItemIndex
-            } else {
-                previousScrollOffset >= firstVisibleItemScrollOffset
-            }.also {
-                previousIndex = firstVisibleItemIndex
-                previousScrollOffset = firstVisibleItemScrollOffset
-            }
-        }
-    }.value
-}
+import org.nsh07.wikireader.R
 
 @Composable
 fun AppHomeScreen(
@@ -78,8 +61,11 @@ fun AppHomeScreen(
     val coroutineScope = rememberCoroutineScope()
 
     val index by remember { derivedStateOf { listState.firstVisibleItemIndex } }
-    val offset by remember { derivedStateOf { listState.firstVisibleItemScrollOffset } }
-    val extendedFab = (listState.isScrollingUp() && offset > 1024)
+    val extendedFab by remember {
+        derivedStateOf {
+            listState.lastScrolledBackward || !listState.canScrollForward
+        }
+    }
 
     Box(modifier = modifier) {
         AnimatedVisibility(
@@ -183,8 +169,10 @@ fun AppHomeScreen(
 
         AnimatedVisibility(
             index > 1,
-            enter = scaleIn(),
-            exit = scaleOut(),
+            enter = scaleIn(transformOrigin = TransformOrigin(1f, 1f)) +
+                    fadeIn(),
+            exit = scaleOut(transformOrigin = TransformOrigin(1f, 1f)) +
+                    fadeOut(),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
