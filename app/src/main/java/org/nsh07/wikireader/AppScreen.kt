@@ -35,6 +35,7 @@ fun AppScreen(
             AppHomeScreen(
                 homeScreenState = homeScreenState,
                 listState = listState,
+                searchAction = { viewModel.focusSearchBar() },
                 modifier = Modifier
                     .fillMaxSize()
             )
