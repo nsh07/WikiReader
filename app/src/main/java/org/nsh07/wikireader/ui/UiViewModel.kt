@@ -4,13 +4,13 @@ import android.content.Context
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import org.nsh07.wikireader.R
-import org.nsh07.wikireader.network.WikipediaApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.nsh07.wikireader.R
+import org.nsh07.wikireader.network.WikipediaApi
 
 class UiViewModel : ViewModel() {
     private val _searchBarState = MutableStateFlow(SearchBarState())
@@ -102,5 +102,9 @@ class UiViewModel : ViewModel() {
                 extract = context.resources.getString(R.string.default_extract)
             )
         }
+    }
+
+    fun focusSearchBar() {
+        searchBarState.value.focusRequester.requestFocus()
     }
 }

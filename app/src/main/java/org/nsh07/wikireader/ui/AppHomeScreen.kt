@@ -20,12 +20,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -53,6 +55,7 @@ import org.nsh07.wikireader.R
 fun AppHomeScreen(
     homeScreenState: HomeScreenState,
     listState: LazyListState,
+    searchAction: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val photo = homeScreenState.photo
@@ -66,6 +69,9 @@ fun AppHomeScreen(
             listState.lastScrolledBackward || !listState.canScrollForward
         }
     }
+
+    val fabEnter = scaleIn(transformOrigin = TransformOrigin(1f, 1f)) + fadeIn()
+    val fabExit = scaleOut(transformOrigin = TransformOrigin(1f, 1f)) + fadeOut()
 
     Box(modifier = modifier) {
         AnimatedVisibility(
@@ -167,28 +173,45 @@ fun AppHomeScreen(
             }
         }
 
-        AnimatedVisibility(
-            index > 1,
-            enter = scaleIn(transformOrigin = TransformOrigin(1f, 1f)) +
-                    fadeIn(),
-            exit = scaleOut(transformOrigin = TransformOrigin(1f, 1f)) +
-                    fadeOut(),
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
+        Column(
+            horizontalAlignment = Alignment.End,
+            modifier = Modifier.align(Alignment.BottomEnd)
         ) {
-            ExtendedFloatingActionButton(
-                onClick = { coroutineScope.launch { listState.animateScrollToItem(0) } },
-                icon = {
-                    Icon(
-                        Icons.Rounded.KeyboardArrowUp,
-                        contentDescription = stringResource(R.string.up_arrow)
-                    )
-                },
-                text = { Text("Scroll to top") },
-                expanded = extendedFab,
+            AnimatedVisibility(
+                index > 1,
+                enter = fabEnter,
+                exit = fabExit,
                 modifier = Modifier
-            )
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                SmallFloatingActionButton(
+                    onClick = searchAction
+                ) {
+                    Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.search))
+                }
+            }
+
+            AnimatedVisibility(
+                index > 1,
+                enter = fabEnter,
+                exit = fabExit,
+                modifier = Modifier
+                    .padding(16.dp)
+            ) {
+                ExtendedFloatingActionButton(
+                    onClick = { coroutineScope.launch { listState.animateScrollToItem(0) } },
+                    icon = {
+                        Icon(
+                            Icons.Rounded.KeyboardArrowUp,
+                            contentDescription = stringResource(R.string.up_arrow)
+                        )
+                    },
+                    text = { Text("Scroll to top") },
+                    expanded = extendedFab,
+                    modifier = Modifier
+                )
+            }
         }
     }
 }
+
