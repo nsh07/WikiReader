@@ -2,6 +2,7 @@ package org.nsh07.wikireader
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -24,8 +25,8 @@ fun AppScreen(
 
     viewModel.setDefaultContent(LocalContext.current)
 
-    Scaffold(modifier = modifier) { _ ->
-        Column(modifier = modifier) {
+    Scaffold(modifier = Modifier.fillMaxSize()) { insets ->
+        Column(modifier = modifier.padding(top = insets.calculateTopPadding())) {
             AppSearchBar(
                 searchBarState = searchBarState,
                 performSearch = { viewModel.performSearch(it) },
