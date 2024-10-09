@@ -1,9 +1,6 @@
 package org.nsh07.wikireader.ui
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -12,7 +9,6 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,8 +17,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -37,19 +31,19 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil.ImageLoader
-import coil.compose.SubcomposeAsyncImage
-import coil.decode.SvgDecoder
-import coil.request.ImageRequest
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
+
+/**
+ * The app home screen composable.
+ *
+ * @param homeScreenState A [HomeScreenState] object provided by the app's ViewModel
+ * @param listState A [LazyListState] object provided by the app's ViewModel
+ * @param searchAction The lambda that gets executed when the search FAB is pressed
+ */
 
 @Composable
 fun AppHomeScreen(
@@ -73,8 +67,8 @@ fun AppHomeScreen(
     val fabEnter = scaleIn(transformOrigin = TransformOrigin(1f, 1f)) + fadeIn()
     val fabExit = scaleOut(transformOrigin = TransformOrigin(1f, 1f)) + fadeOut()
 
-    Box(modifier = modifier) {
-        AnimatedVisibility(
+    Box(modifier = modifier) { // The container for all the composables in the home screen
+        AnimatedVisibility( // The linear progress bar that shows up when the article is loading
             visible = homeScreenState.isLoading,
             enter = expandVertically(expandFrom = Alignment.Top),
             exit = shrinkVertically(shrinkTowards = Alignment.Top)
@@ -82,7 +76,7 @@ fun AppHomeScreen(
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
 
-        LazyColumn(
+        LazyColumn( // The article
             state = listState,
             modifier = modifier.fillMaxSize()
         ) {
@@ -94,74 +88,12 @@ fun AppHomeScreen(
                     modifier = Modifier.padding(16.dp)
                 )
             }
-            item { // Image/description display logic
+            item { // Image/description
                 if (photoDesc != null) {
-                    Card(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier
-                                .animateContentSize(tween(easing = FastOutSlowInEasing))
-                        ) {
-                            if (photo != null) {
-                                SubcomposeAsyncImage(
-                                    model = ImageRequest.Builder(LocalContext.current)
-                                        .data(photo.source)
-                                        .crossfade(true)
-                                        .build(),
-                                    loading = {
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .aspectRatio(
-                                                    photo.width.toFloat() / photo.height.toFloat()
-                                                )
-                                        ) {
-                                            CircularProgressIndicator(
-                                                modifier = Modifier.align(Alignment.Center)
-                                            )
-                                        }
-                                    },
-                                    error = {
-                                        Icon(
-                                            painterResource(R.drawable.error),
-                                            contentDescription = "Error loading image",
-                                            modifier = Modifier.padding(vertical = 16.dp)
-                                        )
-                                    },
-                                    contentDescription = photoDesc.description[0],
-                                    imageLoader = ImageLoader.Builder(LocalContext.current)
-                                        .components {
-                                            add(SvgDecoder.Factory())
-                                        }
-                                        .build(),
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                            Text(
-                                text = photoDesc.label[0],
-                                style = MaterialTheme.typography.titleLarge,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .padding(top = 16.dp, bottom = 8.dp)
-                                    .fillMaxWidth()
-                            )
-                            Text(
-                                text = photoDesc.description[0],
-                                style = MaterialTheme.typography.bodyLarge,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .padding(bottom = 16.dp)
-                                    .fillMaxWidth()
-                            )
-                        }
-                    }
+                    WikiImageCard(
+                        photo = photo,
+                        photoDesc = photoDesc
+                    )
                 }
             }
             item { // Body ("extract")
@@ -173,7 +105,7 @@ fun AppHomeScreen(
             }
         }
 
-        Column(
+        Column( // Floating action buttons
             horizontalAlignment = Alignment.End,
             modifier = Modifier.align(Alignment.BottomEnd)
         ) {
