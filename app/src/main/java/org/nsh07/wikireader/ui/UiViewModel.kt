@@ -1,6 +1,5 @@
 package org.nsh07.wikireader.ui
 
-import android.content.Context
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,7 +8,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.nsh07.wikireader.R
 import org.nsh07.wikireader.network.WikipediaApi
 
 class UiViewModel : ViewModel() {
@@ -92,15 +90,6 @@ class UiViewModel : ViewModel() {
     fun setQuery(query: String) {
         _searchBarState.update { currentState ->
             currentState.copy(query = query)
-        }
-    }
-
-    fun setDefaultContent(context: Context) {
-        _homeScreenState.update { currentState ->
-            currentState.copy(
-                title = context.resources.getString(R.string.default_title),
-                extract = context.resources.getString(R.string.default_extract)
-            )
         }
     }
 

@@ -16,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.ui.AppFab
@@ -32,8 +31,6 @@ fun AppScreen(
     val searchBarState by viewModel.searchBarState.collectAsState()
     val homeScreenState by viewModel.homeScreenState.collectAsState()
     val listState by viewModel.listState.collectAsState()
-
-    viewModel.setDefaultContent(LocalContext.current)
 
     val coroutineScope = rememberCoroutineScope()
 
