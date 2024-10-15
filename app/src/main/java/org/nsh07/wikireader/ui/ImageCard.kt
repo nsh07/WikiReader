@@ -3,6 +3,7 @@ package org.nsh07.wikireader.ui
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -43,13 +44,16 @@ import org.nsh07.wikireader.data.WikiPhotoDesc
 @Composable
 fun WikiImageCard(
     photo: WikiPhoto?,
-    photoDesc: WikiPhotoDesc
+    photoDesc: WikiPhotoDesc,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     Card(
-        modifier = Modifier
+        modifier = modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
+            .clickable(onClick = onClick)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
