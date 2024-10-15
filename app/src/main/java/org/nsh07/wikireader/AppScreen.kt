@@ -1,9 +1,13 @@
 package org.nsh07.wikireader
 
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -30,6 +34,7 @@ import org.nsh07.wikireader.ui.UiViewModel
 
 @Serializable
 object HomeScreen
+
 @Serializable
 object FSImage
 
@@ -58,9 +63,23 @@ fun AppScreen(
 
     NavHost(
         navController = navController,
-        startDestination = HomeScreen
+        startDestination = HomeScreen,
+        modifier = Modifier.background(androidx.compose.ui.graphics.Color.Black)
     ) {
-        composable<HomeScreen> {
+        composable<HomeScreen>(
+            enterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { -it },
+                    animationSpec = tween(600)
+                ) + fadeIn(tween(600))
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { -it },
+                    animationSpec = tween(600)
+                ) + fadeOut(tween(600))
+            }
+        ) {
             Scaffold(
                 floatingActionButton = {
                     AppFab(
@@ -92,7 +111,20 @@ fun AppScreen(
             }
         }
 
-        composable<FSImage> {
+        composable<FSImage>(
+            enterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { it },
+                    animationSpec = tween(300)
+                ) + fadeIn(tween(300))
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { it },
+                    animationSpec = tween(300)
+                ) + fadeOut(tween(300))
+            }
+        ) {
             FullScreenImage(
                 photo = homeScreenState.photo!!,
                 photoDesc = homeScreenState.photoDesc!!,

@@ -52,7 +52,11 @@ fun FullScreenImage(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0f, 0f, 0f, 0.5f),
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
             )
         },
         containerColor = Color.Black,
