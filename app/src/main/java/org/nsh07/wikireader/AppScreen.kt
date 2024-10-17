@@ -69,15 +69,15 @@ fun AppScreen(
         composable<HomeScreen>(
             enterTransition = {
                 slideInHorizontally(
-                    initialOffsetX = { -it },
-                    animationSpec = tween(600)
-                ) + fadeIn(tween(600))
+                    initialOffsetX = { -it/8 },
+                    animationSpec = tween(300)
+                ) + fadeIn(tween(100))
             },
             exitTransition = {
                 slideOutHorizontally(
-                    targetOffsetX = { -it },
-                    animationSpec = tween(600)
-                ) + fadeOut(tween(600))
+                    targetOffsetX = { -it/8 },
+                    animationSpec = tween(300)
+                ) + fadeOut(tween(100))
             }
         ) {
             Scaffold(
@@ -114,15 +114,15 @@ fun AppScreen(
         composable<FSImage>(
             enterTransition = {
                 slideInHorizontally(
-                    initialOffsetX = { it },
+                    initialOffsetX = { it/8 },
                     animationSpec = tween(300)
-                ) + fadeIn(tween(300))
+                ) + fadeIn(tween(100))
             },
             exitTransition = {
                 slideOutHorizontally(
-                    targetOffsetX = { it },
+                    targetOffsetX = { it/8 },
                     animationSpec = tween(300)
-                ) + fadeOut(tween(300))
+                ) + fadeOut(tween(100))
             }
         ) {
             FullScreenImage(
