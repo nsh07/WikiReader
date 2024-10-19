@@ -1,0 +1,3 @@
+An Android app for reading Wikipedia articles distraction-free
+
+Supports light mode, dark mode and Material You dynamic colors
