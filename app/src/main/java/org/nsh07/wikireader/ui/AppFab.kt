@@ -6,8 +6,8 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.KeyboardArrowUp
-import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SmallFloatingActionButton
@@ -39,7 +39,7 @@ fun AppFab(
                 onClick = focusSearch
             ) {
                 Icon(
-                    Icons.Rounded.Search,
+                    Icons.Outlined.Search,
                     contentDescription = stringResource(R.string.search)
                 )
             }
@@ -56,7 +56,7 @@ fun AppFab(
                 onClick = scrollToTop,
                 icon = {
                     Icon(
-                        Icons.Rounded.KeyboardArrowUp,
+                        Icons.Outlined.KeyboardArrowUp,
                         contentDescription = stringResource(R.string.up_arrow)
                     )
                 },

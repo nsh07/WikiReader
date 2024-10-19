@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 fun AppHomeScreen(
     homeScreenState: HomeScreenState,
     listState: LazyListState,
+    onImageClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val photo = homeScreenState.photo
@@ -59,7 +60,8 @@ fun AppHomeScreen(
                 if (photoDesc != null) {
                     WikiImageCard(
                         photo = photo,
-                        photoDesc = photoDesc
+                        photoDesc = photoDesc,
+                        onClick = onImageClick
                     )
                 }
             }
