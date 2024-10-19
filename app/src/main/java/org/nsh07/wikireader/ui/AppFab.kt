@@ -8,10 +8,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SmallFloatingActionButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,10 +23,8 @@ fun AppFab(
     focusSearch: () -> Unit,
     scrollToTop: () -> Unit,
     index: Int,
-    extendedFab: Boolean,
     fabEnter: EnterTransition,
     fabExit: ExitTransition
-
 ) {
     Column(horizontalAlignment = Alignment.End) {
         AnimatedVisibility(
@@ -36,33 +33,22 @@ fun AppFab(
             exit = fabExit
         ) {
             SmallFloatingActionButton(
-                onClick = focusSearch
+                onClick = scrollToTop
             ) {
                 Icon(
-                    Icons.Outlined.Search,
-                    contentDescription = stringResource(R.string.search)
+                    Icons.Outlined.KeyboardArrowUp,
+                    contentDescription = stringResource(R.string.scroll_to_top)
                 )
             }
         }
 
-        AnimatedVisibility(
-            index > 1,
-            enter = fabEnter,
-            exit = fabExit,
-            modifier = Modifier
-                .padding(top = 24.dp)
+        FloatingActionButton(
+            onClick = focusSearch,
+            modifier = Modifier.padding(top = 24.dp)
         ) {
-            ExtendedFloatingActionButton(
-                onClick = scrollToTop,
-                icon = {
-                    Icon(
-                        Icons.Outlined.KeyboardArrowUp,
-                        contentDescription = stringResource(R.string.up_arrow)
-                    )
-                },
-                text = { Text("Scroll to top") },
-                expanded = extendedFab,
-                modifier = Modifier
+            Icon(
+                Icons.Outlined.Search,
+                contentDescription = stringResource(R.string.search)
             )
         }
     }

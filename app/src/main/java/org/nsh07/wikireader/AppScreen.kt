@@ -50,11 +50,6 @@ fun AppScreen(
     val coroutineScope = rememberCoroutineScope()
 
     val index by remember { derivedStateOf { listState.firstVisibleItemIndex } }
-    val extendedFab by remember {
-        derivedStateOf {
-            listState.lastScrolledBackward || !listState.canScrollForward
-        }
-    }
 
     val fabEnter = scaleIn(transformOrigin = TransformOrigin(1f, 1f)) + fadeIn()
     val fabExit = scaleOut(transformOrigin = TransformOrigin(1f, 1f)) + fadeOut()
@@ -86,7 +81,6 @@ fun AppScreen(
                         focusSearch = { viewModel.focusSearchBar() },
                         scrollToTop = { coroutineScope.launch { listState.animateScrollToItem(0) } },
                         index = index,
-                        extendedFab = extendedFab,
                         fabEnter = fabEnter,
                         fabExit = fabExit
                     )
