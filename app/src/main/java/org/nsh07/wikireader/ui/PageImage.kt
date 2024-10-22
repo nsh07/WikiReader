@@ -23,24 +23,25 @@ import org.nsh07.wikireader.data.WikiPhotoDesc
 
 @Composable
 fun PageImage(
-    photo: WikiPhoto,
-    photoDesc: WikiPhotoDesc,
+    photo: WikiPhoto?,
+    photoDesc: WikiPhotoDesc?,
     contentScale: ContentScale,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val width = photo?.width?.toFloat() ?: 1f
+    val height = photo?.width?.toFloat() ?: 1f
+
     SubcomposeAsyncImage(
         model = ImageRequest.Builder(context)
-            .data(photo.source)
+            .data(photo?.source)
             .crossfade(true)
             .build(),
         loading = {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(
-                        photo.width.toFloat() / photo.height.toFloat()
-                    )
+                    .aspectRatio(width / height)
             ) {
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center)
@@ -54,7 +55,7 @@ fun PageImage(
                 modifier = Modifier.padding(vertical = 16.dp)
             )
         },
-        contentDescription = photoDesc.description[0],
+        contentDescription = photoDesc?.description?.get(0),
         imageLoader = ImageLoader.Builder(LocalContext.current)
             .components {
                 add(SvgDecoder.Factory())

@@ -40,15 +40,15 @@ import org.nsh07.wikireader.data.WikiPhotoDesc
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FullScreenImage(
-    photo: WikiPhoto,
-    photoDesc: WikiPhotoDesc,
+    photo: WikiPhoto?,
+    photoDesc: WikiPhotoDesc?,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(photoDesc.label[0]) },
+                title = { Text(photoDesc?.label?.get(0) ?: "") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(

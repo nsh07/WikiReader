@@ -97,7 +97,10 @@ fun AppScreen(
                     AppHomeScreen(
                         homeScreenState = homeScreenState,
                         listState = listState,
-                        onImageClick = { navController.navigate(FSImage) },
+                        onImageClick = {
+                            if (homeScreenState.photo != null)
+                                navController.navigate(FSImage)
+                        },
                         modifier = Modifier
                             .fillMaxSize()
                     )
@@ -119,9 +122,10 @@ fun AppScreen(
                 ) + fadeOut(tween(100))
             }
         ) {
+            if (homeScreenState.photo == null) navController.navigateUp()
             FullScreenImage(
-                photo = homeScreenState.photo!!,
-                photoDesc = homeScreenState.photoDesc!!,
+                photo = homeScreenState.photo,
+                photoDesc = homeScreenState.photoDesc,
                 onBack = { navController.navigateUp() }
             )
         }
