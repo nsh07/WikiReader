@@ -40,15 +40,15 @@ import org.nsh07.wikireader.data.WikiPhotoDesc
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FullScreenImage(
-    photo: WikiPhoto,
-    photoDesc: WikiPhotoDesc,
+    photo: WikiPhoto?,
+    photoDesc: WikiPhotoDesc?,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(photoDesc.label[0]) },
+                title = { Text(photoDesc?.label?.get(0) ?: "") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -87,32 +87,33 @@ fun FullScreenImage(
 
         val coroutineScope = rememberCoroutineScope()
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            PageImage(
-                photo = photo,
-                photoDesc = photoDesc,
-                contentScale = ContentScale.Inside,
-                modifier = Modifier
-                    .onSizeChanged { size = it }
-                    .graphicsLayer(
-                        scaleX = scale,
-                        scaleY = scale,
-                        translationX = offset.x,
-                        translationY = offset.y
-                    )
-                    .transformable(state = state)
-                    .align(Alignment.Center)
-                    .pointerInput(Unit) {
-                        detectTapGestures(onDoubleTap = {
-                            coroutineScope.launch {
-                                if (scale == 1f) // Zoom in only if the image is zoomed out
-                                    state.animateZoomBy(4f)
-                                else
-                                    state.animateZoomBy(0.25f)
-                            }
-                        })
-                    }
-            )
-        }
+        if (photo != null && photoDesc != null)
+            Box(modifier = Modifier.fillMaxSize()) {
+                PageImage(
+                    photo = photo,
+                    photoDesc = photoDesc,
+                    contentScale = ContentScale.Inside,
+                    modifier = Modifier
+                        .onSizeChanged { size = it }
+                        .graphicsLayer(
+                            scaleX = scale,
+                            scaleY = scale,
+                            translationX = offset.x,
+                            translationY = offset.y
+                        )
+                        .transformable(state = state)
+                        .align(Alignment.Center)
+                        .pointerInput(Unit) {
+                            detectTapGestures(onDoubleTap = {
+                                coroutineScope.launch {
+                                    if (scale == 1f) // Zoom in only if the image is zoomed out
+                                        state.animateZoomBy(4f)
+                                    else
+                                        state.animateZoomBy(0.25f)
+                                }
+                            })
+                        }
+                )
+            }
     }
 }
