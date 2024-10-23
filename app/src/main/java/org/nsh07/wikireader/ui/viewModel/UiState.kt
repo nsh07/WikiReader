@@ -12,8 +12,8 @@ data class SearchBarState(
 )
 
 data class HomeScreenState(
-    val title: String = "Hi",
-    val extract: String = "Tap on the search bar and search for something to get started",
+    val title: String = "",
+    val extract: String = "",
     val photo: WikiPhoto? = null,
     val photoDesc: WikiPhotoDesc? = null,
     val isLoading: Boolean = false
