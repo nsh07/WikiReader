@@ -1,4 +1,4 @@
-package org.nsh07.wikireader.ui
+package org.nsh07.wikireader.ui.scaffoldComponents
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition

@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 
 /**
  * The app home screen composable.
