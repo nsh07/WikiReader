@@ -10,6 +10,7 @@ fun parseText(text: String): List<String> {
 
     while (i < l) {
         if (text[i] == '=') {
+            if (i + 2 >= l || i + 1 >= l) break
             if (text[i + 1] == '=' && text[i + 2] != '=' && text[i - 1] != '=') {
                 out += text.slice(start..i - 2)
                 i += 3
@@ -20,7 +21,10 @@ fun parseText(text: String): List<String> {
         i++
     }
 
-    out += text.slice(start..i - 1)
+    out += if (i - 1 >= l)
+        text.slice(start..l - 1)
+    else
+        text.slice(start..i - 1)
 
     return out
 }

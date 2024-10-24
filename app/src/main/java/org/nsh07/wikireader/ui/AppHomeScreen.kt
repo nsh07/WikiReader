@@ -38,7 +38,9 @@ fun AppHomeScreen(
 ) {
     val photo = homeScreenState.photo
     val photoDesc = homeScreenState.photoDesc
-    val s = homeScreenState.extract.size
+    var s = homeScreenState.extract.size
+    if (s > 1) s -= 2
+    else s = 0
 
     Box(modifier = modifier) { // The container for all the composables in the home screen
         AnimatedVisibility( // The linear progress bar that shows up when the article is loading
@@ -79,7 +81,7 @@ fun AppHomeScreen(
                     )
                 }
 
-                items(count = s - 2) { i ->
+                items(count = s) { i ->
                     if (i % 2 == 1)
                         ExpandableSection(
                             title = homeScreenState.extract[i],
