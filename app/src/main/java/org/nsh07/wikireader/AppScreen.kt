@@ -26,11 +26,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import org.nsh07.wikireader.ui.AppFab
 import org.nsh07.wikireader.ui.AppHomeScreen
-import org.nsh07.wikireader.ui.AppSearchBar
 import org.nsh07.wikireader.ui.FullScreenImage
-import org.nsh07.wikireader.ui.UiViewModel
+import org.nsh07.wikireader.ui.scaffoldComponents.AppFab
+import org.nsh07.wikireader.ui.scaffoldComponents.AppSearchBar
+import org.nsh07.wikireader.ui.viewModel.UiViewModel
 
 @Serializable
 object HomeScreen
@@ -101,6 +101,7 @@ fun AppScreen(
                             if (homeScreenState.photo != null)
                                 navController.navigate(FSImage)
                         },
+                        insets = insets,
                         modifier = Modifier
                             .fillMaxSize()
                     )
