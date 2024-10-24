@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.nsh07.wikireader.data.parseText
 import org.nsh07.wikireader.network.WikipediaApi
 
 class UiViewModel : ViewModel() {
@@ -46,11 +47,18 @@ class UiViewModel : ViewModel() {
                         .query
                         ?.pages?.get(0)
 
+                    val extractText = apiResponse
+                        ?.extract ?: ""
+
+                    val extract = if (extractText != "")
+                        parseText(extractText)
+                    else
+                        listOf("No search results found for \"$q\"")
+
                     _homeScreenState.update { currentState ->
                         currentState.copy(
                             title = apiResponse?.title ?: "Error",
-                            extract = apiResponse?.extract
-                                ?: "No search results found for search term \"$q\"",
+                            extract = extract,
                             photo = apiResponse?.photo,
                             photoDesc = apiResponse?.photoDesc,
                             isLoading = false
@@ -60,7 +68,7 @@ class UiViewModel : ViewModel() {
                     _homeScreenState.update { currentState ->
                         currentState.copy(
                             title = "Error",
-                            extract = "No internet connection",
+                            extract = listOf("No internet connection"),
                             photo = null,
                             photoDesc = null,
                             isLoading = false

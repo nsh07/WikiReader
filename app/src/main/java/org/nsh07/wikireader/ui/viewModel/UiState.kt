@@ -13,7 +13,7 @@ data class SearchBarState(
 
 data class HomeScreenState(
     val title: String = "",
-    val extract: String = "",
+    val extract: List<String> = emptyList(),
     val photo: WikiPhoto? = null,
     val photoDesc: WikiPhotoDesc? = null,
     val isLoading: Boolean = false

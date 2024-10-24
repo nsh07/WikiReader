@@ -5,4 +5,6 @@
     <string name="scroll_to_top">Scroll to top</string>
     <string name="search">Search</string>
     <string name="back">Go back</string>
+    <string name="collapse_section">Collapse section</string>
+    <string name="expand_section">Expand section</string>
 </resources>
