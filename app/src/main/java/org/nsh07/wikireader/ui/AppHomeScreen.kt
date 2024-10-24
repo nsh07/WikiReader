@@ -4,8 +4,11 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -34,6 +37,7 @@ fun AppHomeScreen(
     homeScreenState: HomeScreenState,
     listState: LazyListState,
     onImageClick: () -> Unit,
+    insets: PaddingValues,
     modifier: Modifier = Modifier
 ) {
     val photo = homeScreenState.photo
@@ -87,6 +91,10 @@ fun AppHomeScreen(
                             title = homeScreenState.extract[i],
                             body = homeScreenState.extract[i + 1]
                         )
+                }
+
+                item {
+                    Spacer(Modifier.height(insets.calculateBottomPadding() + 152.dp))
                 }
             }
         } else {

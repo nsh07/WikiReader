@@ -101,6 +101,7 @@ fun AppScreen(
                             if (homeScreenState.photo != null)
                                 navController.navigate(FSImage)
                         },
+                        insets = insets,
                         modifier = Modifier
                             .fillMaxSize()
                     )
