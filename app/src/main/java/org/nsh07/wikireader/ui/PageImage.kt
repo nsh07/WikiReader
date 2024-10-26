@@ -54,7 +54,7 @@ fun PageImage(
                 modifier = Modifier.padding(vertical = 16.dp)
             )
         },
-        contentDescription = photoDesc.description[0],
+        contentDescription = photoDesc.description?.get(0) ?: "",
         imageLoader = ImageLoader.Builder(LocalContext.current)
             .components {
                 add(SvgDecoder.Factory())

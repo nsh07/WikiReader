@@ -63,14 +63,14 @@ fun AppHomeScreen(
                 }
                 item { // Image/description
                     if (photoDesc != null) {
-                        WikiImageCard(
+                        ImageCard(
                             photo = photo,
                             photoDesc = photoDesc,
                             onClick = onImageClick
                         )
                     }
                 }
-                item { // Body ("extract")
+                item { // Main description
                     SelectionContainer {
                         Text(
                             text = homeScreenState.extract[0],
@@ -80,8 +80,8 @@ fun AppHomeScreen(
                     }
                 }
 
-                items(count = s) { i ->
-                    if (i % 2 == 1)
+                items(count = s) { i -> // Expandable sections logic
+                    if (i % 2 == 1) // Elements at odd indices are titles
                         SelectionContainer {
                             ExpandableSection(
                                 title = homeScreenState.extract[i],

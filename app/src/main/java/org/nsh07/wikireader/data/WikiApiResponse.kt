@@ -31,5 +31,5 @@ data class WikiPhoto(
 @Serializable
 data class WikiPhotoDesc(
     val label: List<String>,
-    val description: List<String>
+    val description: List<String>? = null
 )
