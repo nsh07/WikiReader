@@ -48,14 +48,6 @@ fun AppHomeScreen(
     else s = 0
 
     Box(modifier = modifier) { // The container for all the composables in the home screen
-        AnimatedVisibility( // The linear progress bar that shows up when the article is loading
-            visible = homeScreenState.isLoading,
-            enter = expandVertically(expandFrom = Alignment.Top),
-            exit = shrinkVertically(shrinkTowards = Alignment.Top)
-        ) {
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-        }
-
         if (homeScreenState.title != "") {
             LazyColumn( // The article
                 state = listState,
@@ -110,6 +102,14 @@ fun AppHomeScreen(
                     .align(Alignment.Center)
                     .fillMaxSize(0.75f)
             )
+        }
+
+        AnimatedVisibility( // The linear progress bar that shows up when the article is loading
+            visible = homeScreenState.isLoading,
+            enter = expandVertically(expandFrom = Alignment.Top),
+            exit = shrinkVertically(shrinkTowards = Alignment.Top)
+        ) {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
     }
 }
