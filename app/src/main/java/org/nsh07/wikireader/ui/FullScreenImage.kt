@@ -31,6 +31,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
@@ -48,7 +49,13 @@ fun FullScreenImage(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(photoDesc?.label?.get(0) ?: "") },
+                title = {
+                    Text(
+                        photoDesc?.label?.get(0) ?: "",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
