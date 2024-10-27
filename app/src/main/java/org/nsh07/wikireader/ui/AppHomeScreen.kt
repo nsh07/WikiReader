@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -47,14 +48,6 @@ fun AppHomeScreen(
     else s = 0
 
     Box(modifier = modifier) { // The container for all the composables in the home screen
-        AnimatedVisibility( // The linear progress bar that shows up when the article is loading
-            visible = homeScreenState.isLoading,
-            enter = expandVertically(expandFrom = Alignment.Top),
-            exit = shrinkVertically(shrinkTowards = Alignment.Top)
-        ) {
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-        }
-
         if (homeScreenState.title != "") {
             LazyColumn( // The article
                 state = listState,
@@ -70,27 +63,31 @@ fun AppHomeScreen(
                 }
                 item { // Image/description
                     if (photoDesc != null) {
-                        WikiImageCard(
+                        ImageCard(
                             photo = photo,
                             photoDesc = photoDesc,
                             onClick = onImageClick
                         )
                     }
                 }
-                item { // Body ("extract")
-                    Text(
-                        text = homeScreenState.extract[0],
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(16.dp)
-                    )
+                item { // Main description
+                    SelectionContainer {
+                        Text(
+                            text = homeScreenState.extract[0],
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
                 }
 
-                items(count = s) { i ->
-                    if (i % 2 == 1)
-                        ExpandableSection(
-                            title = homeScreenState.extract[i],
-                            body = homeScreenState.extract[i + 1]
-                        )
+                items(count = s) { i -> // Expandable sections logic
+                    if (i % 2 == 1) // Elements at odd indices are titles
+                        SelectionContainer {
+                            ExpandableSection(
+                                title = homeScreenState.extract[i],
+                                body = homeScreenState.extract[i + 1]
+                            )
+                        }
                 }
 
                 item {
@@ -105,6 +102,14 @@ fun AppHomeScreen(
                     .align(Alignment.Center)
                     .fillMaxSize(0.75f)
             )
+        }
+
+        AnimatedVisibility( // The linear progress bar that shows up when the article is loading
+            visible = homeScreenState.isLoading,
+            enter = expandVertically(expandFrom = Alignment.Top),
+            exit = shrinkVertically(shrinkTowards = Alignment.Top)
+        ) {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
     }
 }

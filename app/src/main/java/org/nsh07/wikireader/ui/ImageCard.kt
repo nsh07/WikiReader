@@ -33,12 +33,15 @@ import org.nsh07.wikireader.data.WikiPhotoDesc
  */
 
 @Composable
-fun WikiImageCard(
+fun ImageCard(
     photo: WikiPhoto?,
     photoDesc: WikiPhotoDesc,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val labelBottomPadding =
+        if (photoDesc.description == null) 16.dp
+        else 8.dp
     Card(
         modifier = modifier
             .padding(horizontal = 16.dp)
@@ -64,18 +67,20 @@ fun WikiImageCard(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
-                    .padding(top = 16.dp, bottom = 8.dp)
+                    .padding(top = 16.dp, bottom = labelBottomPadding)
                     .fillMaxWidth()
             )
-            Text(
-                text = photoDesc.description[0],
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 16.dp)
-                    .fillMaxWidth()
-            )
+            if (photoDesc.description != null) {
+                Text(
+                    text = photoDesc.description[0],
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 16.dp)
+                        .fillMaxWidth()
+                )
+            }
         }
     }
 }
