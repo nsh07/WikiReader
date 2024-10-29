@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.nsh07.wikireader.data.parseText
-import org.nsh07.wikireader.network.WikipediaApi
+import org.nsh07.wikireader.data.NetworkWikipediaRepository
+import org.nsh07.wikireader.parseText
 
 class UiViewModel : ViewModel() {
     private val _searchBarState = MutableStateFlow(SearchBarState())
@@ -42,7 +42,8 @@ class UiViewModel : ViewModel() {
                 }
 
                 try {
-                    val apiResponse = WikipediaApi.retrofitService
+                    val wikipediaRepository = NetworkWikipediaRepository()
+                    val apiResponse = wikipediaRepository
                         .searchWikipedia(q)
                         .query
                         ?.pages?.get(0)
