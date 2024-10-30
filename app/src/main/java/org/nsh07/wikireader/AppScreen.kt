@@ -20,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -40,8 +39,8 @@ object FSImage
 
 @Composable
 fun AppScreen(
-    modifier: Modifier = Modifier,
-    viewModel: UiViewModel = viewModel(factory = UiViewModel.Factory)
+    viewModel: UiViewModel,
+    modifier: Modifier = Modifier
 ) {
     val searchBarState by viewModel.searchBarState.collectAsState()
     val homeScreenState by viewModel.homeScreenState.collectAsState()

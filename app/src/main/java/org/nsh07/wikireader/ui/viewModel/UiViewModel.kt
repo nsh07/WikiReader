@@ -13,11 +13,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.WikiReaderApplication
+import org.nsh07.wikireader.data.AppPreferencesRepository
 import org.nsh07.wikireader.data.WikipediaRepository
 import org.nsh07.wikireader.data.parseText
 
 class UiViewModel(
-    private val wikipediaRepository: WikipediaRepository
+    private val wikipediaRepository: WikipediaRepository,
+    private val appPreferencesRepository: AppPreferencesRepository
 ) : ViewModel() {
     private val _searchBarState = MutableStateFlow(SearchBarState())
     val searchBarState: StateFlow<SearchBarState> = _searchBarState.asStateFlow()
@@ -28,6 +30,8 @@ class UiViewModel(
     private val _listState = MutableStateFlow(LazyListState(0, 0))
     val listState: StateFlow<LazyListState> = _listState.asStateFlow()
 
+    // TODO: Provide access to appPreferenceRepository through ViewModel  
+    
     /**
      * Updates history and performs search
      *
@@ -117,7 +121,11 @@ class UiViewModel(
             initializer {
                 val application = (this[APPLICATION_KEY] as WikiReaderApplication)
                 val wikipediaRepository = application.container.wikipediaRepository
-                UiViewModel(wikipediaRepository = wikipediaRepository)
+                val appPreferencesRepository = application.container.appPreferencesRepository
+                UiViewModel(
+                    wikipediaRepository = wikipediaRepository,
+                    appPreferencesRepository = appPreferencesRepository
+                )
             }
         }
     }
