@@ -1,4 +1,4 @@
-package org.nsh07.wikireader
+package org.nsh07.wikireader.data
 
 fun parseText(text: String): List<String> {
     val out = emptyList<String>().toMutableList()

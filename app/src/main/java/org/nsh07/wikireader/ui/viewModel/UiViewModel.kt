@@ -2,16 +2,23 @@ package org.nsh07.wikireader.ui.viewModel
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.nsh07.wikireader.data.NetworkWikipediaRepository
-import org.nsh07.wikireader.parseText
+import org.nsh07.wikireader.WikiReaderApplication
+import org.nsh07.wikireader.data.WikipediaRepository
+import org.nsh07.wikireader.data.parseText
 
-class UiViewModel : ViewModel() {
+class UiViewModel(
+    private val wikipediaRepository: WikipediaRepository
+) : ViewModel() {
     private val _searchBarState = MutableStateFlow(SearchBarState())
     val searchBarState: StateFlow<SearchBarState> = _searchBarState.asStateFlow()
 
@@ -42,7 +49,6 @@ class UiViewModel : ViewModel() {
                 }
 
                 try {
-                    val wikipediaRepository = NetworkWikipediaRepository()
                     val apiResponse = wikipediaRepository
                         .searchWikipedia(q)
                         .query
@@ -104,5 +110,15 @@ class UiViewModel : ViewModel() {
 
     fun focusSearchBar() {
         searchBarState.value.focusRequester.requestFocus()
+    }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[APPLICATION_KEY] as WikiReaderApplication)
+                val wikipediaRepository = application.container.wikipediaRepository
+                UiViewModel(wikipediaRepository = wikipediaRepository)
+            }
+        }
     }
 }

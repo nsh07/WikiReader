@@ -41,7 +41,7 @@ object FSImage
 @Composable
 fun AppScreen(
     modifier: Modifier = Modifier,
-    viewModel: UiViewModel = viewModel()
+    viewModel: UiViewModel = viewModel(factory = UiViewModel.Factory)
 ) {
     val searchBarState by viewModel.searchBarState.collectAsState()
     val homeScreenState by viewModel.homeScreenState.collectAsState()
