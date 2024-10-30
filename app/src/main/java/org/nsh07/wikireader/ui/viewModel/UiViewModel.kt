@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.nsh07.wikireader.WikiReaderApplication
 import org.nsh07.wikireader.data.AppPreferencesRepository
 import org.nsh07.wikireader.data.WikipediaRepository
@@ -30,8 +31,9 @@ class UiViewModel(
     private val _listState = MutableStateFlow(LazyListState(0, 0))
     val listState: StateFlow<LazyListState> = _listState.asStateFlow()
 
-    // TODO: Provide access to appPreferenceRepository through ViewModel  
-    
+    private val _appDarkTheme = MutableStateFlow(false)
+    val appDarkTheme = _appDarkTheme.asStateFlow()
+
     /**
      * Updates history and performs search
      *
@@ -114,6 +116,20 @@ class UiViewModel(
 
     fun focusSearchBar() {
         searchBarState.value.focusRequester.requestFocus()
+    }
+
+    fun loadTheme(systemDarkTheme: Boolean = false) {
+        runBlocking { // Run blocking to delay app startup until theme is determined
+            val theme = appPreferencesRepository.readPreference("theme")
+                ?: appPreferencesRepository.savePreference("theme", "default")
+            val darkTheme =
+                if (theme == "default") systemDarkTheme
+                else if (theme == "dark") true
+                else false
+            _appDarkTheme.update {
+                darkTheme
+            }
+        }
     }
 
     companion object {
