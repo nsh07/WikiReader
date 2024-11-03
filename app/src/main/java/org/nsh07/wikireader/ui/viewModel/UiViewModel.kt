@@ -31,8 +31,8 @@ class UiViewModel(
     private val _listState = MutableStateFlow(LazyListState(0, 0))
     val listState: StateFlow<LazyListState> = _listState.asStateFlow()
 
-    private val _appDarkTheme = MutableStateFlow(false)
-    val appDarkTheme = _appDarkTheme.asStateFlow()
+    private val _preferencesState = MutableStateFlow(PreferencesState())
+    val preferencesState: StateFlow<PreferencesState> = _preferencesState.asStateFlow()
 
     /**
      * Updates history and performs search
@@ -77,7 +77,7 @@ class UiViewModel(
                             isLoading = false
                         )
                     }
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     _homeScreenState.update { currentState ->
                         currentState.copy(
                             title = "Error",
@@ -118,17 +118,23 @@ class UiViewModel(
         searchBarState.value.focusRequester.requestFocus()
     }
 
-    fun loadTheme(systemDarkTheme: Boolean = false) {
+    fun loadTheme() {
         runBlocking { // Run blocking to delay app startup until theme is determined
             val theme = appPreferencesRepository.readPreference("theme")
-                ?: appPreferencesRepository.savePreference("theme", "default")
-            val darkTheme =
-                if (theme == "default") systemDarkTheme
-                else if (theme == "dark") true
-                else false
-            _appDarkTheme.update {
-                darkTheme
+                ?: appPreferencesRepository.savePreference("theme", "auto")
+
+            _preferencesState.update { currentState ->
+                currentState.copy(theme = theme)
             }
+        }
+    }
+
+    fun setTheme(theme: String) {
+        viewModelScope.launch {
+            appPreferencesRepository.savePreference("theme", theme)
+        }
+        _preferencesState.update { currentState ->
+            currentState.copy(theme = theme)
         }
     }
 

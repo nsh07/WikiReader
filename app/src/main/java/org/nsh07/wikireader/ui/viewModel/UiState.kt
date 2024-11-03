@@ -18,3 +18,7 @@ data class HomeScreenState(
     val photoDesc: WikiPhotoDesc? = null,
     val isLoading: Boolean = false
 )
+
+data class PreferencesState(
+    val theme: String = "auto"
+)

@@ -19,11 +19,20 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val viewModel: UiViewModel = viewModel(factory = UiViewModel.Factory)
-            viewModel.loadTheme(isSystemInDarkTheme())
-            val appDarkTheme by viewModel.appDarkTheme.collectAsState()
-            WikiReaderTheme(darkTheme = appDarkTheme) {
+            viewModel.loadTheme()
+
+            val preferencesState by viewModel.preferencesState.collectAsState()
+
+            val darkTheme = when (preferencesState.theme) {
+                "dark" -> true
+                "light" -> false
+                else -> isSystemInDarkTheme()
+            }
+
+            WikiReaderTheme(darkTheme = darkTheme) {
                 AppScreen(
                     viewModel = viewModel,
+                    preferencesState = preferencesState,
                     modifier = Modifier.fillMaxSize()
                 )
             }

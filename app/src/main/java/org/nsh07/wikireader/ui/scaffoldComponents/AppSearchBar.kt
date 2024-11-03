@@ -1,9 +1,12 @@
 package org.nsh07.wikireader.ui.scaffoldComponents
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -11,7 +14,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.DockedSearchBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -21,6 +27,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusRequester
@@ -39,9 +47,11 @@ fun AppSearchBar(
     performSearch: (String) -> Unit,
     setExpanded: (Boolean) -> Unit,
     setQuery: (String) -> Unit,
+    onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = searchBarState.focusRequester
+    val dropdownExpanded = remember { mutableStateOf(false) }
     DockedSearchBar(
         inputField = {
             SearchBarDefaults.InputField(
@@ -51,7 +61,34 @@ fun AppSearchBar(
                 expanded = searchBarState.isSearchBarExpanded,
                 onExpandedChange = setExpanded,
                 placeholder = { Text("Search Wikipedia...") },
-                leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = "Search") },
+                leadingIcon = {
+                    Column {
+                        IconButton(onClick = { dropdownExpanded.value = !dropdownExpanded.value }) {
+                            Icon(
+                                painterResource(R.drawable.more_vert),
+                                contentDescription = "More options"
+                            )
+                        }
+                        AnimatedVisibility(dropdownExpanded.value) {
+                            DropdownMenu(
+                                expanded = dropdownExpanded.value,
+                                onDismissRequest = { dropdownExpanded.value = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Settings") },
+                                    onClick = onSettingsClick,
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Outlined.Settings,
+                                            contentDescription = null
+                                        )
+                                    },
+                                    modifier = Modifier.width(200.dp)
+                                )
+                            }
+                        }
+                    }
+                },
                 trailingIcon = {
                     if (searchBarState.query != "") {
                         IconButton(
@@ -86,13 +123,13 @@ fun AppSearchBar(
                 ListItem(
                     leadingContent = {
                         Icon(
-                        Icons.Outlined.Search,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(end = 8.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.outlineVariant)
-                            .padding(4.dp)
+                            Icons.Outlined.Search,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .padding(end = 8.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.outlineVariant)
+                                .padding(4.dp)
                         )
                     },
                     headlineContent = {
@@ -107,8 +144,8 @@ fun AppSearchBar(
                     },
                     trailingContent = {
                         IconButton(
-                        onClick = { setQuery(searchBarState.history[it]) },
-                        modifier = Modifier.wrapContentSize()
+                            onClick = { setQuery(searchBarState.history[it]) },
+                            modifier = Modifier.wrapContentSize()
                         ) {
                             Icon(painterResource(R.drawable.north_west), contentDescription = null)
                         }
@@ -132,7 +169,7 @@ fun AppSearchBarPreview() {
     WikiReaderTheme {
         AppSearchBar(
             searchBarState = SearchBarState(),
-            {}, {}, {}
+            {}, {}, {}, {}
         )
     }
 }

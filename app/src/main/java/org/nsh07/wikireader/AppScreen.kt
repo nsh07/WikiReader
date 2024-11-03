@@ -24,22 +24,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
 import org.nsh07.wikireader.ui.AppHomeScreen
 import org.nsh07.wikireader.ui.FullScreenImage
+import org.nsh07.wikireader.ui.SettingsScreen
 import org.nsh07.wikireader.ui.scaffoldComponents.AppFab
 import org.nsh07.wikireader.ui.scaffoldComponents.AppSearchBar
+import org.nsh07.wikireader.ui.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.viewModel.UiViewModel
-
-@Serializable
-object HomeScreen
-
-@Serializable
-object FSImage
 
 @Composable
 fun AppScreen(
     viewModel: UiViewModel,
+    preferencesState: PreferencesState,
     modifier: Modifier = Modifier
 ) {
     val searchBarState by viewModel.searchBarState.collectAsState()
@@ -57,20 +53,21 @@ fun AppScreen(
 
     NavHost(
         navController = navController,
-        startDestination = HomeScreen,
+        startDestination = "HomeScreen",
         modifier = Modifier.background(androidx.compose.ui.graphics.Color.Black)
     ) {
-        composable<HomeScreen>(
+        composable(
+            "HomeScreen",
             enterTransition = {
                 slideInHorizontally(
-                    initialOffsetX = { -it/8 },
-                    animationSpec = tween(300)
+                    initialOffsetX = { -it / 8 },
+                    animationSpec = tween(200)
                 ) + fadeIn(tween(100))
             },
             exitTransition = {
                 slideOutHorizontally(
-                    targetOffsetX = { -it/8 },
-                    animationSpec = tween(300)
+                    targetOffsetX = { -it / 8 },
+                    animationSpec = tween(200)
                 ) + fadeOut(tween(100))
             }
         ) {
@@ -91,14 +88,15 @@ fun AppScreen(
                         searchBarState = searchBarState,
                         performSearch = { viewModel.performSearch(it) },
                         setExpanded = { viewModel.setExpanded(it) },
-                        setQuery = { viewModel.setQuery(it) }
+                        setQuery = { viewModel.setQuery(it) },
+                        onSettingsClick = { navController.navigate("Settings") }
                     )
                     AppHomeScreen(
                         homeScreenState = homeScreenState,
                         listState = listState,
                         onImageClick = {
                             if (homeScreenState.photo != null)
-                                navController.navigate(FSImage)
+                                navController.navigate("FullScreenImage")
                         },
                         insets = insets,
                         modifier = Modifier
@@ -108,17 +106,18 @@ fun AppScreen(
             }
         }
 
-        composable<FSImage>(
+        composable(
+            "FullScreenImage",
             enterTransition = {
                 slideInHorizontally(
-                    initialOffsetX = { it/8 },
-                    animationSpec = tween(300)
+                    initialOffsetX = { it / 8 },
+                    animationSpec = tween(200)
                 ) + fadeIn(tween(100))
             },
             exitTransition = {
                 slideOutHorizontally(
-                    targetOffsetX = { it/8 },
-                    animationSpec = tween(300)
+                    targetOffsetX = { it / 8 },
+                    animationSpec = tween(200)
                 ) + fadeOut(tween(100))
             }
         ) {
@@ -127,6 +126,16 @@ fun AppScreen(
                 photo = homeScreenState.photo,
                 photoDesc = homeScreenState.photoDesc,
                 onBack = { navController.navigateUp() }
+            )
+        }
+
+        composable(
+            "Settings"
+        ) {
+            SettingsScreen(
+                preferencesState = preferencesState,
+                onBack = { navController.navigateUp() },
+                onThemeChanged = { viewModel.setTheme(it) }
             )
         }
     }
