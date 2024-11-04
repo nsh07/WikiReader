@@ -1,6 +1,7 @@
 package org.nsh07.wikireader.ui
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import androidx.compose.foundation.gestures.animateZoomBy
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -24,7 +26,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntSize
+import androidx.core.view.WindowCompat
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
@@ -39,6 +43,23 @@ fun FullScreenImage(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var currentLightStatusBars = true
+    val view = LocalView.current
+    DisposableEffect(null) {
+        if (!view.isInEditMode) {
+            val window = (view.context as Activity).window
+            currentLightStatusBars =
+                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+        }
+
+        onDispose {
+            val window = (view.context as Activity).window
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
+                currentLightStatusBars
+        }
+    }
+
     Scaffold(
         topBar = { FullScreenImageTopBar(photoDesc = photoDesc, onBack = onBack) },
         containerColor = Color.Black,
