@@ -131,10 +131,9 @@ class UiViewModel(
 
     fun setTheme(theme: String) {
         viewModelScope.launch {
-            appPreferencesRepository.savePreference("theme", theme)
-        }
-        _preferencesState.update { currentState ->
-            currentState.copy(theme = theme)
+            _preferencesState.update { currentState ->
+                currentState.copy(theme = appPreferencesRepository.savePreference("theme", theme))
+            }
         }
     }
 

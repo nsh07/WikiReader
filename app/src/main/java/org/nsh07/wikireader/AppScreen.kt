@@ -54,23 +54,33 @@ fun AppScreen(
     NavHost(
         navController = navController,
         startDestination = "HomeScreen",
+        enterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { it / 8 },
+                animationSpec = tween(200)
+            ) + fadeIn(tween(100))
+        },
+        exitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { -it / 8 },
+                animationSpec = tween(200)
+            ) + fadeOut(tween(100))
+        },
+        popEnterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { -it / 8 },
+                animationSpec = tween(200)
+            ) + fadeIn(tween(200))
+        },
+        popExitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { it / 8 },
+                animationSpec = tween(200)
+            ) + fadeOut(tween(100))
+        },
         modifier = Modifier.background(androidx.compose.ui.graphics.Color.Black)
     ) {
-        composable(
-            "HomeScreen",
-            enterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { -it / 8 },
-                    animationSpec = tween(200)
-                ) + fadeIn(tween(100))
-            },
-            exitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { -it / 8 },
-                    animationSpec = tween(200)
-                ) + fadeOut(tween(100))
-            }
-        ) {
+        composable("HomeScreen") {
             Scaffold(
                 floatingActionButton = {
                     AppFab(
@@ -89,7 +99,10 @@ fun AppScreen(
                         performSearch = { viewModel.performSearch(it) },
                         setExpanded = { viewModel.setExpanded(it) },
                         setQuery = { viewModel.setQuery(it) },
-                        onSettingsClick = { navController.navigate("Settings") }
+                        onSettingsClick = {
+                            navController.navigate("Settings")
+                            it(false)
+                        }
                     )
                     AppHomeScreen(
                         homeScreenState = homeScreenState,
@@ -106,21 +119,7 @@ fun AppScreen(
             }
         }
 
-        composable(
-            "FullScreenImage",
-            enterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { it / 8 },
-                    animationSpec = tween(200)
-                ) + fadeIn(tween(100))
-            },
-            exitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { it / 8 },
-                    animationSpec = tween(200)
-                ) + fadeOut(tween(100))
-            }
-        ) {
+        composable("FullScreenImage") {
             if (homeScreenState.photo == null) navController.navigateUp()
             FullScreenImage(
                 photo = homeScreenState.photo,
@@ -129,9 +128,7 @@ fun AppScreen(
             )
         }
 
-        composable(
-            "Settings"
-        ) {
+        composable("Settings") {
             SettingsScreen(
                 preferencesState = preferencesState,
                 onBack = { navController.navigateUp() },

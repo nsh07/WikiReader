@@ -1,6 +1,5 @@
 package org.nsh07.wikireader.ui.scaffoldComponents
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -47,11 +46,11 @@ fun AppSearchBar(
     performSearch: (String) -> Unit,
     setExpanded: (Boolean) -> Unit,
     setQuery: (String) -> Unit,
-    onSettingsClick: () -> Unit,
+    onSettingsClick: ((Boolean) -> Unit) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = searchBarState.focusRequester
-    val dropdownExpanded = remember { mutableStateOf(false) }
+    val (dropdownExpanded, setDropdownExpanded) = remember { mutableStateOf(false) }
     DockedSearchBar(
         inputField = {
             SearchBarDefaults.InputField(
@@ -63,29 +62,27 @@ fun AppSearchBar(
                 placeholder = { Text("Search Wikipedia...") },
                 leadingIcon = {
                     Column {
-                        IconButton(onClick = { dropdownExpanded.value = !dropdownExpanded.value }) {
+                        IconButton(onClick = { setDropdownExpanded(!dropdownExpanded) }) {
                             Icon(
                                 painterResource(R.drawable.more_vert),
                                 contentDescription = "More options"
                             )
                         }
-                        AnimatedVisibility(dropdownExpanded.value) {
-                            DropdownMenu(
-                                expanded = dropdownExpanded.value,
-                                onDismissRequest = { dropdownExpanded.value = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("Settings") },
-                                    onClick = onSettingsClick,
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Outlined.Settings,
-                                            contentDescription = null
-                                        )
-                                    },
-                                    modifier = Modifier.width(200.dp)
-                                )
-                            }
+                        DropdownMenu(
+                            expanded = dropdownExpanded,
+                            onDismissRequest = { setDropdownExpanded(false) }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Settings") },
+                                onClick = { onSettingsClick(setDropdownExpanded) },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Outlined.Settings,
+                                        contentDescription = null
+                                    )
+                                },
+                                modifier = Modifier.width(200.dp)
+                            )
                         }
                     }
                 },

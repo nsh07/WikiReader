@@ -56,13 +56,13 @@ fun SettingsScreen(
     )
     val theme = preferencesState.theme
 
-    val showThemeDialog = remember { mutableStateOf(false) }
+    val (showThemeDialog, setShowThemeDialog) = remember { mutableStateOf(false) }
 
-    AnimatedVisibility(showThemeDialog.value) {
+    AnimatedVisibility(showThemeDialog) {
         val selectedOption =
             remember { mutableStateOf(themeMap[theme]!!.second) }
         BasicAlertDialog(
-            onDismissRequest = { showThemeDialog.value = false }
+            onDismissRequest = { setShowThemeDialog(false) }
         ) {
             Surface(
                 modifier = Modifier
@@ -106,8 +106,8 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                     TextButton(
                         onClick = {
-                            showThemeDialog.value = false
                             onThemeChanged(reverseThemeMap[selectedOption.value]!!)
+                            setShowThemeDialog(false)
                         },
                         modifier = Modifier.align(Alignment.End)
                     ) {
@@ -134,7 +134,7 @@ fun SettingsScreen(
                 supportingContent = { Text(themeMap[theme]!!.second) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable(onClick = { showThemeDialog.value = true })
+                    .clickable(onClick = { setShowThemeDialog(true) })
             )
         }
     }
