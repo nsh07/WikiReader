@@ -1,7 +1,8 @@
 package org.nsh07.wikireader.ui.scaffoldComponents
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -39,13 +40,14 @@ import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 import org.nsh07.wikireader.ui.viewModel.SearchBarState
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun AppSearchBar(
     searchBarState: SearchBarState,
     performSearch: (String) -> Unit,
     setExpanded: (Boolean) -> Unit,
     setQuery: (String) -> Unit,
+    removeHistoryItem: (String) -> Unit,
     onSettingsClick: ((Boolean) -> Unit) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -116,7 +118,10 @@ fun AppSearchBar(
             modifier = Modifier
                 .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
         ) {
-            items(searchBarState.history.size) {
+            val history = searchBarState.history.toList()
+            val size = history.size
+            items(size) {
+                val currentText = history[size - it - 1]
                 ListItem(
                     leadingContent = {
                         Icon(
@@ -131,7 +136,7 @@ fun AppSearchBar(
                     },
                     headlineContent = {
                         Text(
-                            searchBarState.history[it],
+                            currentText,
                             softWrap = false,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier
@@ -141,7 +146,7 @@ fun AppSearchBar(
                     },
                     trailingContent = {
                         IconButton(
-                            onClick = { setQuery(searchBarState.history[it]) },
+                            onClick = { setQuery(currentText) },
                             modifier = Modifier.wrapContentSize()
                         ) {
                             Icon(painterResource(R.drawable.north_west), contentDescription = null)
@@ -150,7 +155,10 @@ fun AppSearchBar(
                     colors = ListItemDefaults
                         .colors(containerColor = SearchBarDefaults.colors().containerColor),
                     modifier = Modifier
-                        .clickable(onClick = { performSearch(searchBarState.history[it]) })
+                        .combinedClickable(
+                            onClick = { performSearch(currentText) },
+                            onLongClick = { removeHistoryItem(currentText) }
+                        )
                 )
             }
         }
@@ -166,7 +174,7 @@ fun AppSearchBarPreview() {
     WikiReaderTheme {
         AppSearchBar(
             searchBarState = SearchBarState(),
-            {}, {}, {}, {}
+            {}, {}, {}, {}, {}
         )
     }
 }

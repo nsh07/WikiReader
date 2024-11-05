@@ -43,16 +43,18 @@ class UiViewModel(
      */
     fun performSearch(query: String) {
         val q = query.trim()
-        val history = searchBarState.value.history.toMutableList()
+        val history = searchBarState.value.history.toMutableSet()
 
         if (q != "") {
-            history.remove(q)
-            history.add(0, q)
+            history.add(q)
+            if (history.size > 50) history.remove(history.first())
 
             viewModelScope.launch {
                 _homeScreenState.update { currentState ->
                     currentState.copy(isLoading = true)
                 }
+
+                appPreferencesRepository.saveHistory(history)
 
                 try {
                     val apiResponse = wikipediaRepository
@@ -116,6 +118,25 @@ class UiViewModel(
 
     fun focusSearchBar() {
         searchBarState.value.focusRequester.requestFocus()
+    }
+
+    fun loadHistory() {
+        runBlocking {
+            _searchBarState.update { currentState ->
+                currentState.copy(history = appPreferencesRepository.readHistory() ?: emptySet())
+            }
+        }
+    }
+
+    fun removeHistoryItem(item: String) {
+        viewModelScope.launch {
+            val history = searchBarState.value.history.toMutableSet()
+            history.remove(item)
+            _searchBarState.update { currentState ->
+                currentState.copy(history = history)
+            }
+            appPreferencesRepository.saveHistory(history)
+        }
     }
 
     fun loadTheme() {

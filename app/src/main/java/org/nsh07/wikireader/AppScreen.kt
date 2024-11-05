@@ -1,5 +1,6 @@
 package org.nsh07.wikireader
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -9,18 +10,33 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -39,6 +55,9 @@ fun AppScreen(
     preferencesState: PreferencesState,
     modifier: Modifier = Modifier
 ) {
+    LaunchedEffect(null) {
+        viewModel.loadHistory()
+    }
     val searchBarState by viewModel.searchBarState.collectAsState()
     val homeScreenState by viewModel.homeScreenState.collectAsState()
     val listState by viewModel.listState.collectAsState()
@@ -46,6 +65,8 @@ fun AppScreen(
     val coroutineScope = rememberCoroutineScope()
 
     val index by remember { derivedStateOf { listState.firstVisibleItemIndex } }
+    val (showDeleteDialog, setShowDeleteDialog) = remember { mutableStateOf(false) }
+    var (historyItem, setHistoryItem) = remember { mutableStateOf("") }
 
     val fabEnter = scaleIn(transformOrigin = TransformOrigin(1f, 1f)) + fadeIn()
     val fabExit = scaleOut(transformOrigin = TransformOrigin(1f, 1f)) + fadeOut()
@@ -82,6 +103,12 @@ fun AppScreen(
         modifier = Modifier.background(MaterialTheme.colorScheme.background)
     ) {
         composable("HomeScreen") {
+            AnimatedVisibility(showDeleteDialog) {
+                DeleteHistoryItemDialog(
+                    historyItem,
+                    setShowDeleteDialog
+                ) { viewModel.removeHistoryItem(it) }
+            }
             Scaffold(
                 floatingActionButton = {
                     AppFab(
@@ -100,6 +127,10 @@ fun AppScreen(
                         performSearch = { viewModel.performSearch(it) },
                         setExpanded = { viewModel.setExpanded(it) },
                         setQuery = { viewModel.setQuery(it) },
+                        removeHistoryItem = {
+                            setHistoryItem(it)
+                            setShowDeleteDialog(true)
+                        },
                         onSettingsClick = {
                             navController.navigate("Settings")
                             it(false)
@@ -135,6 +166,50 @@ fun AppScreen(
                 onBack = { navController.navigateUp() },
                 onThemeChanged = { viewModel.setTheme(it) }
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DeleteHistoryItemDialog(
+    item: String,
+    setShowDeleteDialog: (Boolean) -> Unit,
+    removeHistoryItem: (String) -> Unit
+) {
+    BasicAlertDialog(
+        onDismissRequest = { setShowDeleteDialog(false) }
+    ) {
+        Surface(
+            modifier = Modifier
+                .wrapContentWidth()
+                .wrapContentHeight(),
+            shape = MaterialTheme.shapes.extraLarge,
+            tonalElevation = AlertDialogDefaults.TonalElevation
+        ) {
+            Column(modifier = Modifier.padding(24.dp)) {
+                Text(
+                    text = "Delete this search from your history?",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                Spacer(modifier = Modifier.padding(16.dp))
+                Text(
+                    text = "\"$item\" will be permanently deleted from your search history.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(modifier = Modifier.align(Alignment.End)) {
+                    TextButton(onClick = { setShowDeleteDialog(false) }) {
+                        Text(text = "Cancel")
+                    }
+                    TextButton(onClick = {
+                        removeHistoryItem(item)
+                        setShowDeleteDialog(false)
+                    }) {
+                        Text(text = "Delete")
+                    }
+                }
+            }
         }
     }
 }

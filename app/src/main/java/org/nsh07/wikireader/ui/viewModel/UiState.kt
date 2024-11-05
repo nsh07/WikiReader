@@ -7,7 +7,7 @@ import org.nsh07.wikireader.data.WikiPhotoDesc
 data class SearchBarState(
     val query: String = "",
     val isSearchBarExpanded: Boolean = false,
-    val history: List<String> = listOf(),
+    val history: Set<String> = setOf(),
     val focusRequester: FocusRequester = FocusRequester()
 )
 
