@@ -46,6 +46,7 @@ class UiViewModel(
         val history = searchBarState.value.history.toMutableSet()
 
         if (q != "") {
+            history.remove(q)
             history.add(q)
             if (history.size > 50) history.remove(history.first())
 
@@ -139,13 +140,16 @@ class UiViewModel(
         }
     }
 
-    fun loadTheme() {
+    fun loadPreferences() {
         runBlocking { // Run blocking to delay app startup until theme is determined
-            val theme = appPreferencesRepository.readPreference("theme")
-                ?: appPreferencesRepository.savePreference("theme", "auto")
+            val theme = appPreferencesRepository.readStringPreference("theme")
+                ?: appPreferencesRepository.saveStringPreference("theme", "auto")
+
+            val fontSize = appPreferencesRepository.readIntPreference("font-size")
+                ?: appPreferencesRepository.saveIntPreference("font-size", 16)
 
             _preferencesState.update { currentState ->
-                currentState.copy(theme = theme)
+                currentState.copy(theme = theme, fontSize = fontSize)
             }
         }
     }
@@ -153,7 +157,21 @@ class UiViewModel(
     fun setTheme(theme: String) {
         viewModelScope.launch {
             _preferencesState.update { currentState ->
-                currentState.copy(theme = appPreferencesRepository.savePreference("theme", theme))
+                currentState.copy(
+                    theme = appPreferencesRepository.saveStringPreference(
+                        "theme",
+                        theme
+                    )
+                )
+            }
+        }
+    }
+
+    fun saveFontSize(fontSize: Int) {
+        viewModelScope.launch {
+            appPreferencesRepository.saveIntPreference("font-size", fontSize)
+            _preferencesState.update { currentState ->
+                currentState.copy(fontSize = fontSize)
             }
         }
     }

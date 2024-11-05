@@ -4,15 +4,19 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.first
 
 interface PreferencesRepository {
-    suspend fun savePreference(key: String, value: String): String
+    suspend fun saveStringPreference(key: String, value: String): String
+    suspend fun saveIntPreference(key: String, value: Int): Int
     suspend fun saveHistory(history: Set<String>)
-    suspend fun readPreference(key: String): String?
+
+    suspend fun readStringPreference(key: String): String?
+    suspend fun readIntPreference(key: String): Int?
     suspend fun readHistory(): Set<String>?
 }
 
@@ -29,8 +33,16 @@ class AppPreferencesRepository(
      *
      * @return a [String] with the same value as [value]
      */
-    override suspend fun savePreference(key: String, value: String): String {
+    override suspend fun saveStringPreference(key: String, value: String): String {
         val dataStoreKey = stringPreferencesKey(key)
+        context.dataStore.edit { preferences ->
+            preferences[dataStoreKey] = value
+        }
+        return value
+    }
+
+    override suspend fun saveIntPreference(key: String, value: Int): Int {
+        val dataStoreKey = intPreferencesKey(key)
         context.dataStore.edit { preferences ->
             preferences[dataStoreKey] = value
         }
@@ -51,8 +63,13 @@ class AppPreferencesRepository(
      *
      * @return a [String] with the value corresponding to the [key]
      */
-    override suspend fun readPreference(key: String): String? {
+    override suspend fun readStringPreference(key: String): String? {
         val dataStoreKey = stringPreferencesKey(key)
+        return context.dataStore.data.first()[dataStoreKey]
+    }
+
+    override suspend fun readIntPreference(key: String): Int? {
+        val dataStoreKey = intPreferencesKey(key)
         return context.dataStore.data.first()[dataStoreKey]
     }
 

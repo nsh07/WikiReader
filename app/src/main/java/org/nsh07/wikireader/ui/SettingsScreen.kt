@@ -21,12 +21,16 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -35,12 +39,14 @@ import androidx.compose.ui.unit.dp
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.scaffoldComponents.SettingsTopBar
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
+import kotlin.math.round
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     preferencesState: PreferencesState,
     onThemeChanged: (String) -> Unit,
+    onFontSizeChangeFinished: (Int) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -57,6 +63,8 @@ fun SettingsScreen(
     val theme = preferencesState.theme
 
     val (showThemeDialog, setShowThemeDialog) = remember { mutableStateOf(false) }
+
+    var fontSizeFloat by remember { mutableFloatStateOf(preferencesState.fontSize.toFloat()) }
 
     AnimatedVisibility(showThemeDialog) {
         val selectedOption =
@@ -135,6 +143,29 @@ fun SettingsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(onClick = { setShowThemeDialog(true) })
+            )
+            ListItem(
+                leadingContent = {
+                    Icon(
+                        painterResource(R.drawable.format_size),
+                        contentDescription = null
+                    )
+                },
+                headlineContent = { Text("Font size") },
+                supportingContent = {
+                    Column {
+                        Text("${round(fontSizeFloat).toInt()}pt")
+                        Slider(
+                            value = fontSizeFloat,
+                            onValueChange = { fontSizeFloat = it },
+                            valueRange = 10f..22f,
+                            steps = 5,
+                            onValueChangeFinished = {
+                                onFontSizeChangeFinished(round(fontSizeFloat).toInt())
+                            }
+                        )
+                    }
+                }
             )
         }
     }

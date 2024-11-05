@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val viewModel: UiViewModel = viewModel(factory = UiViewModel.Factory)
-            viewModel.loadTheme()
+            viewModel.loadPreferences()
 
             val preferencesState by viewModel.preferencesState.collectAsState()
 

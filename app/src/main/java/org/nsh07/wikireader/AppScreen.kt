@@ -144,6 +144,7 @@ fun AppScreen(
                                 navController.navigate("FullScreenImage")
                         },
                         insets = insets,
+                        fontSize = preferencesState.fontSize,
                         modifier = Modifier
                             .fillMaxSize()
                     )
@@ -164,7 +165,8 @@ fun AppScreen(
             SettingsScreen(
                 preferencesState = preferencesState,
                 onBack = { navController.navigateUp() },
-                onThemeChanged = { viewModel.setTheme(it) }
+                onThemeChanged = { viewModel.setTheme(it) },
+                onFontSizeChangeFinished = { viewModel.saveFontSize(it) },
             )
         }
     }
