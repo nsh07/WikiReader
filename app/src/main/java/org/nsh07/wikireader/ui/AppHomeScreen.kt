@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 
@@ -31,6 +32,9 @@ import org.nsh07.wikireader.ui.viewModel.HomeScreenState
  *
  * @param homeScreenState A [HomeScreenState] object provided by the app's ViewModel
  * @param listState A [LazyListState] object provided by the app's ViewModel
+ * @param onImageClick A lambda that is called when the image in the home screen is clicked
+ * @param insets A [PaddingValues] object provided by the parent [androidx.compose.material3.Scaffold]
+ * @param modifier Self explanatory
  */
 
 @Composable
@@ -38,6 +42,7 @@ fun AppHomeScreen(
     homeScreenState: HomeScreenState,
     listState: LazyListState,
     onImageClick: () -> Unit,
+    fontSize: Int,
     insets: PaddingValues,
     modifier: Modifier = Modifier
 ) {
@@ -75,6 +80,8 @@ fun AppHomeScreen(
                         Text(
                             text = homeScreenState.extract[0],
                             style = MaterialTheme.typography.bodyLarge,
+                            fontSize = fontSize.sp,
+                            lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
                             modifier = Modifier.padding(16.dp)
                         )
                     }
@@ -85,7 +92,8 @@ fun AppHomeScreen(
                         SelectionContainer {
                             ExpandableSection(
                                 title = homeScreenState.extract[i],
-                                body = homeScreenState.extract[i + 1]
+                                body = homeScreenState.extract[i + 1],
+                                fontSize = fontSize
                             )
                         }
                 }

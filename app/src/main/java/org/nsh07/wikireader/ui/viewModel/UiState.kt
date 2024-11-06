@@ -7,7 +7,7 @@ import org.nsh07.wikireader.data.WikiPhotoDesc
 data class SearchBarState(
     val query: String = "",
     val isSearchBarExpanded: Boolean = false,
-    val history: List<String> = listOf(),
+    val history: Set<String> = setOf(),
     val focusRequester: FocusRequester = FocusRequester()
 )
 
@@ -17,4 +17,9 @@ data class HomeScreenState(
     val photo: WikiPhoto? = null,
     val photoDesc: WikiPhotoDesc? = null,
     val isLoading: Boolean = false
+)
+
+data class PreferencesState(
+    val theme: String = "auto",
+    val fontSize: Int = 16
 )
