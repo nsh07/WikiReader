@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -89,6 +90,7 @@ fun SettingsScreen(
                                 Modifier
                                     .fillMaxWidth()
                                     .height(56.dp)
+                                    .clip(MaterialTheme.shapes.large)
                                     .selectable(
                                         selected = (text == selectedOption.value),
                                         onClick = {

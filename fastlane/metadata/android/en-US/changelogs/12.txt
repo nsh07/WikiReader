@@ -1,0 +1,11 @@
+Changelog for v1.6.1:
+* New features:
+  * New settings menu
+  * App theme customization
+  * Font size customization
+  * Persistent search history
+  * Support for Android 15 predictive back animations
+
+* Bug fixes:
+  * Fixed invisible status bar icons in the full screen image view in light mode
+  * Fixed buggy status bar icon color if the system theme was changed while the app was running
