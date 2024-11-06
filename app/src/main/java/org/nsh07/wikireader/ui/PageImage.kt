@@ -1,6 +1,5 @@
 package org.nsh07.wikireader.ui
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,11 +13,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import coil3.ImageLoader
-import coil3.compose.SubcomposeAsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
-import coil3.svg.SvgDecoder
+import coil.ImageLoader
+import coil.compose.SubcomposeAsyncImage
+import coil.decode.SvgDecoder
+import coil.request.ImageRequest
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
@@ -50,7 +48,6 @@ fun PageImage(
             }
         },
         error = {
-            Log.e("PageImage", "Error loading image: ${it.result.throwable}")
             Icon(
                 painterResource(R.drawable.error),
                 contentDescription = "Error loading image",

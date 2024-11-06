@@ -11,15 +11,12 @@
 <div align="center">
 
 <a href="https://github.com/nsh07/WikiReader/releases/latest">
-  <img src="https://img.shields.io/github/v/release/nsh07/WikiReader?logo=github&labelColor=1a1a1a">
-</a>
-<a href="https://f-droid.org/packages/org.nsh07.wikireader">
-  <img src="https://img.shields.io/f-droid/v/org.nsh07.wikireader?logo=f-droid&labelColor=1a1a1a">
+  <img src="https://img.shields.io/github/v/release/nsh07/WikiReader?logo=github&labelColor=000000">
 </a>
 <a href="https://github.com/nsh07/WikiReader/blob/main/LICENSE">
-  <img src="https://img.shields.io/github/license/nsh07/wikireader?logo=gnu&color=blue&labelColor=1a1a1a">
+  <img src="https://img.shields.io/github/license/nsh07/wikireader?logo=gnu&color=blue&labelColor=000000">
 </a>
-<img src="https://img.shields.io/badge/API-26+-blue?logo=android&labelColor=1a1a1a">
+<img src="https://img.shields.io/badge/API-26+-blue?logo=android&labelColor=000000">
 
 A lightweight Android app for reading Wikipedia articles distraction-free
 
@@ -27,9 +24,6 @@ Supports light mode, dark mode and Material You dynamic colors
 
 <a href="https://apt.izzysoft.de/fdroid/index/apk/org.nsh07.wikireader">
   <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" width="20%">
-</a>
-<a href="https://f-droid.org/packages/org.nsh07.wikireader">
-    <img src="https://f-droid.org/badge/get-it-on.png" width="20%">
 </a>
 
 </div>
