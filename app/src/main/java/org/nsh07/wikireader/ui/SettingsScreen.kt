@@ -126,14 +126,18 @@ fun SettingsScreen(
                         }
                     }
                     Spacer(modifier = Modifier.height(24.dp))
-                    TextButton(
-                        onClick = {
-                            setShowThemeDialog(false)
-                            onThemeChanged(reverseThemeMap[selectedOption.value]!!)
-                        },
-                        modifier = Modifier.align(Alignment.End)
-                    ) {
-                        Text("Ok")
+                    Row(modifier = Modifier.align(Alignment.End)) {
+                        TextButton(onClick = { setShowThemeDialog(false) }) {
+                            Text("Cancel")
+                        }
+                        TextButton(
+                            onClick = {
+                                setShowThemeDialog(false)
+                                onThemeChanged(reverseThemeMap[selectedOption.value]!!)
+                            }
+                        ) {
+                            Text("Ok")
+                        }
                     }
                 }
             }
