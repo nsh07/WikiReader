@@ -22,6 +22,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -47,6 +48,7 @@ fun SettingsScreen(
     preferencesState: PreferencesState,
     onThemeChanged: (String) -> Unit,
     onFontSizeChangeFinished: (Int) -> Unit,
+    onExpandedSectionsChange: (Boolean) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -61,6 +63,11 @@ fun SettingsScreen(
         "Dark" to "dark"
     )
     val theme = preferencesState.theme
+    var expandedSections by remember { mutableStateOf(preferencesState.expandedSections) }
+
+    val expandedIcon =
+        if (expandedSections) R.drawable.expand_all
+        else R.drawable.collapse_all
 
     val (showThemeDialog, setShowThemeDialog) = remember { mutableStateOf(false) }
 
@@ -166,6 +173,25 @@ fun SettingsScreen(
                             }
                         )
                     }
+                }
+            )
+            ListItem(
+                leadingContent = {
+                    Icon(
+                        painterResource(expandedIcon),
+                        contentDescription = null
+                    )
+                },
+                headlineContent = { Text("Expand sections") },
+                supportingContent = { Text("Expand all sections by default") },
+                trailingContent = {
+                    Switch(
+                        checked = expandedSections,
+                        onCheckedChange = {
+                            expandedSections = it
+                            onExpandedSectionsChange(it)
+                        }
+                    )
                 }
             )
         }

@@ -157,8 +157,16 @@ class UiViewModel(
             val fontSize = appPreferencesRepository.readIntPreference("font-size")
                 ?: appPreferencesRepository.saveIntPreference("font-size", 16)
 
+            val expandedSections =
+                appPreferencesRepository.readBooleanPreference("expanded-sections")
+                    ?: appPreferencesRepository.saveBooleanPreference("expanded-sections", false)
+
             _preferencesState.update { currentState ->
-                currentState.copy(theme = theme, fontSize = fontSize)
+                currentState.copy(
+                    theme = theme,
+                    fontSize = fontSize,
+                    expandedSections = expandedSections
+                )
             }
         }
     }
@@ -181,6 +189,15 @@ class UiViewModel(
             appPreferencesRepository.saveIntPreference("font-size", fontSize)
             _preferencesState.update { currentState ->
                 currentState.copy(fontSize = fontSize)
+            }
+        }
+    }
+
+    fun saveExpandedSections(expandedSections: Boolean) {
+        viewModelScope.launch {
+            appPreferencesRepository.saveBooleanPreference("expanded-sections", expandedSections)
+            _preferencesState.update { currentState ->
+                currentState.copy(expandedSections = expandedSections)
             }
         }
     }

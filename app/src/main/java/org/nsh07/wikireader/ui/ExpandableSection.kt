@@ -33,8 +33,14 @@ import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 
 @Composable
-fun ExpandableSection(title: String, body: String, fontSize: Int, modifier: Modifier = Modifier) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
+fun ExpandableSection(
+    title: String,
+    body: String,
+    fontSize: Int,
+    expanded: Boolean,
+    modifier: Modifier = Modifier
+) {
+    var expanded by rememberSaveable { mutableStateOf(expanded) }
 
     Card(
         colors = CardDefaults.cardColors(
@@ -93,7 +99,8 @@ fun ExpandableSectionPreview() {
         ExpandableSection(
             title = "Title",
             body = "Lorem\nIpsum\nBig\nHonkin\nBody\nText",
-            fontSize = 16
+            fontSize = 16,
+            expanded = false
         )
     }
 }

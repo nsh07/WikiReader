@@ -152,12 +152,12 @@ fun AppScreen(
                 AppHomeScreen(
                     homeScreenState = homeScreenState,
                     listState = listState,
+                    preferencesState = preferencesState,
                     onImageClick = {
                         if (homeScreenState.photo != null)
                             navController.navigate("FullScreenImage")
                     },
                     insets = insets,
-                    fontSize = preferencesState.fontSize,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = insets.calculateTopPadding())
@@ -180,6 +180,7 @@ fun AppScreen(
                 onBack = { navController.navigateUp() },
                 onThemeChanged = { viewModel.setTheme(it) },
                 onFontSizeChangeFinished = { viewModel.saveFontSize(it) },
+                onExpandedSectionsChange = { viewModel.saveExpandedSections(it) }
             )
         }
     }
