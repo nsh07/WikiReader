@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.DropdownMenu
@@ -64,44 +65,45 @@ fun AppSearchBar(
                 expanded = searchBarState.isSearchBarExpanded,
                 onExpandedChange = setExpanded,
                 placeholder = { Text("Search Wikipedia...") },
-                leadingIcon = {
-                    Column {
-                        IconButton(onClick = { setDropdownExpanded(!dropdownExpanded) }) {
-                            Icon(
-                                painterResource(R.drawable.more_vert),
-                                contentDescription = "More options"
-                            )
-                        }
-                        DropdownMenu(
-                            expanded = dropdownExpanded,
-                            onDismissRequest = { setDropdownExpanded(false) }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("Settings") },
-                                onClick = { onSettingsClick(setDropdownExpanded) },
-                                leadingIcon = {
-                                    Icon(
-                                        Icons.Outlined.Settings,
-                                        contentDescription = null
-                                    )
-                                },
-                                modifier = Modifier.width(200.dp)
-                            )
-                        }
-                    }
-                },
+                leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = "Search") },
                 trailingIcon = {
-                    if (searchBarState.query != "") {
-                        IconButton(
-                            onClick = {
-                                setQuery("")
-                                focusRequester.requestFocus()
+                    Row {
+                        if (searchBarState.query != "") {
+                            IconButton(
+                                onClick = {
+                                    setQuery("")
+                                    focusRequester.requestFocus()
+                                }
+                            ) {
+                                Icon(
+                                    Icons.Outlined.Clear,
+                                    contentDescription = "Clear search field"
+                                )
                             }
-                        ) {
-                            Icon(
-                                Icons.Outlined.Clear,
-                                contentDescription = "Clear search field"
-                            )
+                        }
+                        Column {
+                            IconButton(onClick = { setDropdownExpanded(!dropdownExpanded) }) {
+                                Icon(
+                                    painterResource(R.drawable.more_vert),
+                                    contentDescription = "More options"
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = dropdownExpanded,
+                                onDismissRequest = { setDropdownExpanded(false) }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Settings") },
+                                    onClick = { onSettingsClick(setDropdownExpanded) },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Outlined.Settings,
+                                            contentDescription = null
+                                        )
+                                    },
+                                    modifier = Modifier.width(200.dp)
+                                )
+                            }
                         }
                     }
                 },

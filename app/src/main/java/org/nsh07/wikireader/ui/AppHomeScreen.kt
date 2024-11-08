@@ -24,7 +24,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import okio.utf8Size
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
@@ -93,9 +92,7 @@ fun AppHomeScreen(
 
                 for (i in 1..s) {
                     if (i % 2 == 1) // Elements at odd indices are titles
-                        item(
-                            key = homeScreenState.extract[i + 1].utf8Size()
-                        ) { // Expandable sections logic
+                        item { // Expandable sections logic
                             SelectionContainer {
                                 ExpandableSection(
                                     title = homeScreenState.extract[i],
