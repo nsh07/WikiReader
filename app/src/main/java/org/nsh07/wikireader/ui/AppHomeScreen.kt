@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
+import org.nsh07.wikireader.ui.viewModel.PreferencesState
 
 /**
  * The app home screen composable.
@@ -41,13 +42,15 @@ import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 fun AppHomeScreen(
     homeScreenState: HomeScreenState,
     listState: LazyListState,
+    preferencesState: PreferencesState,
     onImageClick: () -> Unit,
-    fontSize: Int,
     insets: PaddingValues,
     modifier: Modifier = Modifier
 ) {
     val photo = homeScreenState.photo
     val photoDesc = homeScreenState.photoDesc
+    val fontSize = preferencesState.fontSize
+
     var s = homeScreenState.extract.size
     if (s > 1) s -= 2
     else s = 0
@@ -56,7 +59,7 @@ fun AppHomeScreen(
         if (homeScreenState.title != "") {
             LazyColumn( // The article
                 state = listState,
-                modifier = modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize()
             ) {
                 item { // Title
                     Text(
@@ -71,7 +74,8 @@ fun AppHomeScreen(
                         ImageCard(
                             photo = photo,
                             photoDesc = photoDesc,
-                            onClick = onImageClick
+                            showPhoto = !preferencesState.dataSaver,
+                            onClick = onImageClick,
                         )
                     }
                 }
@@ -87,14 +91,17 @@ fun AppHomeScreen(
                     }
                 }
 
-                items(count = s) { i -> // Expandable sections logic
+                for (i in 1..s) {
                     if (i % 2 == 1) // Elements at odd indices are titles
-                        SelectionContainer {
-                            ExpandableSection(
-                                title = homeScreenState.extract[i],
-                                body = homeScreenState.extract[i + 1],
-                                fontSize = fontSize
-                            )
+                        item { // Expandable sections logic
+                            SelectionContainer {
+                                ExpandableSection(
+                                    title = homeScreenState.extract[i],
+                                    body = homeScreenState.extract[i + 1],
+                                    fontSize = fontSize,
+                                    expanded = preferencesState.expandedSections
+                                )
+                            }
                         }
                 }
 

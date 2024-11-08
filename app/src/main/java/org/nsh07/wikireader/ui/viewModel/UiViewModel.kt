@@ -140,6 +140,15 @@ class UiViewModel(
         }
     }
 
+    fun clearHistory() {
+        viewModelScope.launch {
+            _searchBarState.update { currentState ->
+                currentState.copy(history = emptySet())
+            }
+            appPreferencesRepository.saveHistory(emptySet())
+        }
+    }
+
     fun loadPreferences() {
         runBlocking { // Run blocking to delay app startup until theme is determined
             val theme = appPreferencesRepository.readStringPreference("theme")
@@ -148,8 +157,20 @@ class UiViewModel(
             val fontSize = appPreferencesRepository.readIntPreference("font-size")
                 ?: appPreferencesRepository.saveIntPreference("font-size", 16)
 
+            val expandedSections =
+                appPreferencesRepository.readBooleanPreference("expanded-sections")
+                    ?: appPreferencesRepository.saveBooleanPreference("expanded-sections", false)
+
+            val dataSaver = appPreferencesRepository.readBooleanPreference("data-saver")
+                ?: appPreferencesRepository.saveBooleanPreference("data-saver", false)
+
             _preferencesState.update { currentState ->
-                currentState.copy(theme = theme, fontSize = fontSize)
+                currentState.copy(
+                    theme = theme,
+                    fontSize = fontSize,
+                    expandedSections = expandedSections,
+                    dataSaver = dataSaver
+                )
             }
         }
     }
@@ -172,6 +193,24 @@ class UiViewModel(
             appPreferencesRepository.saveIntPreference("font-size", fontSize)
             _preferencesState.update { currentState ->
                 currentState.copy(fontSize = fontSize)
+            }
+        }
+    }
+
+    fun saveExpandedSections(expandedSections: Boolean) {
+        viewModelScope.launch {
+            appPreferencesRepository.saveBooleanPreference("expanded-sections", expandedSections)
+            _preferencesState.update { currentState ->
+                currentState.copy(expandedSections = expandedSections)
+            }
+        }
+    }
+
+    fun saveDataSaver(dataSaver: Boolean) {
+        viewModelScope.launch {
+            appPreferencesRepository.saveBooleanPreference("data-saver", dataSaver)
+            _preferencesState.update { currentState ->
+                currentState.copy(dataSaver = dataSaver)
             }
         }
     }

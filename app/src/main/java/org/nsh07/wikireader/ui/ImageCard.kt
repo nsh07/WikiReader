@@ -36,6 +36,7 @@ import org.nsh07.wikireader.data.WikiPhotoDesc
 fun ImageCard(
     photo: WikiPhoto?,
     photoDesc: WikiPhotoDesc,
+    showPhoto: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -53,7 +54,7 @@ fun ImageCard(
             modifier = Modifier
                 .animateContentSize(tween(easing = FastOutSlowInEasing))
         ) {
-            if (photo != null) {
+            if (photo != null && showPhoto) {
                 PageImage(
                     photo = photo,
                     photoDesc = photoDesc,

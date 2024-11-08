@@ -21,5 +21,7 @@ data class HomeScreenState(
 
 data class PreferencesState(
     val theme: String = "auto",
-    val fontSize: Int = 16
+    val fontSize: Int = 16,
+    val expandedSections: Boolean = false,
+    val dataSaver: Boolean = false
 )

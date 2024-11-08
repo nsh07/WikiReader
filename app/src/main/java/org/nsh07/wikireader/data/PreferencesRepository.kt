@@ -3,6 +3,7 @@ package org.nsh07.wikireader.data
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -13,10 +14,12 @@ import kotlinx.coroutines.flow.first
 interface PreferencesRepository {
     suspend fun saveStringPreference(key: String, value: String): String
     suspend fun saveIntPreference(key: String, value: Int): Int
+    suspend fun saveBooleanPreference(key: String, value: Boolean): Boolean
     suspend fun saveHistory(history: Set<String>)
 
     suspend fun readStringPreference(key: String): String?
     suspend fun readIntPreference(key: String): Int?
+    suspend fun readBooleanPreference(key: String): Boolean?
     suspend fun readHistory(): Set<String>?
 }
 
@@ -49,6 +52,14 @@ class AppPreferencesRepository(
         return value
     }
 
+    override suspend fun saveBooleanPreference(key: String, value: Boolean): Boolean {
+        val dataStoreKey = booleanPreferencesKey(key)
+        context.dataStore.edit { preferences ->
+            preferences[dataStoreKey] = value
+        }
+        return value
+    }
+
     override suspend fun saveHistory(history: Set<String>) {
         val dataStoreKey = stringSetPreferencesKey("history")
         context.dataStore.edit { preferences ->
@@ -70,6 +81,11 @@ class AppPreferencesRepository(
 
     override suspend fun readIntPreference(key: String): Int? {
         val dataStoreKey = intPreferencesKey(key)
+        return context.dataStore.data.first()[dataStoreKey]
+    }
+
+    override suspend fun readBooleanPreference(key: String): Boolean? {
+        val dataStoreKey = booleanPreferencesKey(key)
         return context.dataStore.data.first()[dataStoreKey]
     }
 

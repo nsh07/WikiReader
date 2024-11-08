@@ -1,6 +1,5 @@
 package org.nsh07.wikireader
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -12,9 +11,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.AlertDialogDefaults
@@ -49,6 +51,7 @@ import org.nsh07.wikireader.ui.scaffoldComponents.AppSearchBar
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.viewModel.UiViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppScreen(
     viewModel: UiViewModel,
@@ -100,16 +103,41 @@ fun AppScreen(
                 animationSpec = tween(200)
             ) + fadeOut(tween(100))
         },
-        modifier = Modifier.background(MaterialTheme.colorScheme.background)
+        modifier = modifier.background(MaterialTheme.colorScheme.background)
     ) {
         composable("HomeScreen") {
-            AnimatedVisibility(showDeleteDialog) {
+            if (showDeleteDialog)
                 DeleteHistoryItemDialog(
                     historyItem,
                     setShowDeleteDialog
-                ) { viewModel.removeHistoryItem(it) }
-            }
+                ) {
+                    if (historyItem != "") viewModel.removeHistoryItem(it)
+                    else viewModel.clearHistory()
+                }
             Scaffold(
+                topBar = {
+                    AppSearchBar(
+                        searchBarState = searchBarState,
+                        performSearch = { viewModel.performSearch(it) },
+                        setExpanded = { viewModel.setExpanded(it) },
+                        setQuery = { viewModel.setQuery(it) },
+                        clearHistory = {
+                            setHistoryItem("")
+                            setShowDeleteDialog(true)
+                        },
+                        removeHistoryItem = {
+                            setHistoryItem(it)
+                            setShowDeleteDialog(true)
+                        },
+                        onSettingsClick = {
+                            navController.navigate("Settings")
+                            it(false)
+                        },
+                        modifier = Modifier.padding(
+                            top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+                        )
+                    )
+                },
                 floatingActionButton = {
                     AppFab(
                         focusSearch = { viewModel.focusSearchBar() },
@@ -121,34 +149,19 @@ fun AppScreen(
                 },
                 modifier = Modifier.fillMaxSize()
             ) { insets ->
-                Column(modifier = modifier.padding(top = insets.calculateTopPadding())) {
-                    AppSearchBar(
-                        searchBarState = searchBarState,
-                        performSearch = { viewModel.performSearch(it) },
-                        setExpanded = { viewModel.setExpanded(it) },
-                        setQuery = { viewModel.setQuery(it) },
-                        removeHistoryItem = {
-                            setHistoryItem(it)
-                            setShowDeleteDialog(true)
-                        },
-                        onSettingsClick = {
-                            navController.navigate("Settings")
-                            it(false)
-                        }
-                    )
-                    AppHomeScreen(
-                        homeScreenState = homeScreenState,
-                        listState = listState,
-                        onImageClick = {
-                            if (homeScreenState.photo != null)
-                                navController.navigate("FullScreenImage")
-                        },
-                        insets = insets,
-                        fontSize = preferencesState.fontSize,
-                        modifier = Modifier
-                            .fillMaxSize()
-                    )
-                }
+                AppHomeScreen(
+                    homeScreenState = homeScreenState,
+                    listState = listState,
+                    preferencesState = preferencesState,
+                    onImageClick = {
+                        if (homeScreenState.photo != null)
+                            navController.navigate("FullScreenImage")
+                    },
+                    insets = insets,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = insets.calculateTopPadding())
+                )
             }
         }
 
@@ -167,6 +180,8 @@ fun AppScreen(
                 onBack = { navController.navigateUp() },
                 onThemeChanged = { viewModel.setTheme(it) },
                 onFontSizeChangeFinished = { viewModel.saveFontSize(it) },
+                onExpandedSectionsChanged = { viewModel.saveExpandedSections(it) },
+                onDataSaverChanged = { viewModel.saveDataSaver(it) }
             )
         }
     }
@@ -182,6 +197,13 @@ fun DeleteHistoryItemDialog(
     BasicAlertDialog(
         onDismissRequest = { setShowDeleteDialog(false) }
     ) {
+        val titleText =
+            if (item != "") "Delete this search from your history?"
+            else "Delete your search history?"
+        val descText =
+            if (item != "") "\"$item\" will be permanently deleted from your search history."
+            else "Your search history will be permanently deleted."
+
         Surface(
             modifier = Modifier
                 .wrapContentWidth()
@@ -191,12 +213,12 @@ fun DeleteHistoryItemDialog(
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
                 Text(
-                    text = "Delete this search from your history?",
+                    text = titleText,
                     style = MaterialTheme.typography.headlineSmall
                 )
                 Spacer(modifier = Modifier.padding(16.dp))
                 Text(
-                    text = "\"$item\" will be permanently deleted from your search history.",
+                    text = descText,
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(24.dp))
@@ -205,8 +227,8 @@ fun DeleteHistoryItemDialog(
                         Text(text = "Cancel")
                     }
                     TextButton(onClick = {
-                        removeHistoryItem(item)
                         setShowDeleteDialog(false)
+                        removeHistoryItem(item)
                     }) {
                         Text(text = "Delete")
                     }

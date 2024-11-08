@@ -1,6 +1,5 @@
 package org.nsh07.wikireader.ui
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +22,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -48,6 +48,8 @@ fun SettingsScreen(
     preferencesState: PreferencesState,
     onThemeChanged: (String) -> Unit,
     onFontSizeChangeFinished: (Int) -> Unit,
+    onExpandedSectionsChanged: (Boolean) -> Unit,
+    onDataSaverChanged: (Boolean) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -61,13 +63,23 @@ fun SettingsScreen(
         "Light" to "light",
         "Dark" to "dark"
     )
+
     val theme = preferencesState.theme
+    var expandedSections by remember { mutableStateOf(preferencesState.expandedSections) }
+    var dataSaver by remember { mutableStateOf(preferencesState.dataSaver) }
+
+    val expandedIcon =
+        if (expandedSections) R.drawable.expand_all
+        else R.drawable.collapse_all
+    val dataSaverIcon =
+        if (dataSaver) R.drawable.data_saver_on
+        else R.drawable.data_saver_off
 
     val (showThemeDialog, setShowThemeDialog) = remember { mutableStateOf(false) }
 
     var fontSizeFloat by remember { mutableFloatStateOf(preferencesState.fontSize.toFloat()) }
 
-    AnimatedVisibility(showThemeDialog) {
+    if (showThemeDialog) {
         val selectedOption =
             remember { mutableStateOf(themeMap[theme]!!.second) }
         BasicAlertDialog(
@@ -114,14 +126,18 @@ fun SettingsScreen(
                         }
                     }
                     Spacer(modifier = Modifier.height(24.dp))
-                    TextButton(
-                        onClick = {
-                            onThemeChanged(reverseThemeMap[selectedOption.value]!!)
-                            setShowThemeDialog(false)
-                        },
-                        modifier = Modifier.align(Alignment.End)
-                    ) {
-                        Text("Ok")
+                    Row(modifier = Modifier.align(Alignment.End)) {
+                        TextButton(onClick = { setShowThemeDialog(false) }) {
+                            Text("Cancel")
+                        }
+                        TextButton(
+                            onClick = {
+                                setShowThemeDialog(false)
+                                onThemeChanged(reverseThemeMap[selectedOption.value]!!)
+                            }
+                        ) {
+                            Text("Ok")
+                        }
                     }
                 }
             }
@@ -167,6 +183,44 @@ fun SettingsScreen(
                             }
                         )
                     }
+                }
+            )
+            ListItem(
+                leadingContent = {
+                    Icon(
+                        painterResource(expandedIcon),
+                        contentDescription = null
+                    )
+                },
+                headlineContent = { Text("Expand sections") },
+                supportingContent = { Text("Expand all sections by default") },
+                trailingContent = {
+                    Switch(
+                        checked = expandedSections,
+                        onCheckedChange = {
+                            expandedSections = it
+                            onExpandedSectionsChanged(it)
+                        }
+                    )
+                }
+            )
+            ListItem(
+                leadingContent = {
+                    Icon(
+                        painterResource(dataSaverIcon),
+                        contentDescription = null
+                    )
+                },
+                headlineContent = { Text("Data saver") },
+                supportingContent = { Text("Only load page image in fullscreen view") },
+                trailingContent = {
+                    Switch(
+                        checked = dataSaver,
+                        onCheckedChange = {
+                            dataSaver = it
+                            onDataSaverChanged(it)
+                        }
+                    )
                 }
             )
         }

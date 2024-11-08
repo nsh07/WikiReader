@@ -8,7 +8,6 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
@@ -33,8 +32,14 @@ import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 
 @Composable
-fun ExpandableSection(title: String, body: String, fontSize: Int, modifier: Modifier = Modifier) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
+fun ExpandableSection(
+    title: String,
+    body: String,
+    fontSize: Int,
+    expanded: Boolean,
+    modifier: Modifier = Modifier
+) {
+    var expanded by rememberSaveable { mutableStateOf(expanded) }
 
     Card(
         colors = CardDefaults.cardColors(
@@ -46,7 +51,7 @@ fun ExpandableSection(title: String, body: String, fontSize: Int, modifier: Modi
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .clip(RoundedCornerShape(12.dp))
+                .clip(MaterialTheme.shapes.large)
                 .clickable(onClick = { expanded = !expanded })
         ) {
             if (expanded) Icon(
@@ -93,7 +98,8 @@ fun ExpandableSectionPreview() {
         ExpandableSection(
             title = "Title",
             body = "Lorem\nIpsum\nBig\nHonkin\nBody\nText",
-            fontSize = 16
+            fontSize = 16,
+            expanded = false
         )
     }
 }
