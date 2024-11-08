@@ -56,7 +56,7 @@ fun AppHomeScreen(
         if (homeScreenState.title != "") {
             LazyColumn( // The article
                 state = listState,
-                modifier = modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize()
             ) {
                 item { // Title
                     Text(

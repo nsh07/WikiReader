@@ -1,6 +1,5 @@
 package org.nsh07.wikireader.ui
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -67,7 +66,7 @@ fun SettingsScreen(
 
     var fontSizeFloat by remember { mutableFloatStateOf(preferencesState.fontSize.toFloat()) }
 
-    AnimatedVisibility(showThemeDialog) {
+    if (showThemeDialog) {
         val selectedOption =
             remember { mutableStateOf(themeMap[theme]!!.second) }
         BasicAlertDialog(
@@ -116,8 +115,8 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                     TextButton(
                         onClick = {
-                            onThemeChanged(reverseThemeMap[selectedOption.value]!!)
                             setShowThemeDialog(false)
+                            onThemeChanged(reverseThemeMap[selectedOption.value]!!)
                         },
                         modifier = Modifier.align(Alignment.End)
                     ) {

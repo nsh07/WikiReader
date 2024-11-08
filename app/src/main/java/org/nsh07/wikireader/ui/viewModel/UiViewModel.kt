@@ -140,6 +140,15 @@ class UiViewModel(
         }
     }
 
+    fun clearHistory() {
+        viewModelScope.launch {
+            _searchBarState.update { currentState ->
+                currentState.copy(history = emptySet())
+            }
+            appPreferencesRepository.saveHistory(emptySet())
+        }
+    }
+
     fun loadPreferences() {
         runBlocking { // Run blocking to delay app startup until theme is determined
             val theme = appPreferencesRepository.readStringPreference("theme")
