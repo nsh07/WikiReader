@@ -180,7 +180,8 @@ fun AppScreen(
                 onBack = { navController.navigateUp() },
                 onThemeChanged = { viewModel.setTheme(it) },
                 onFontSizeChangeFinished = { viewModel.saveFontSize(it) },
-                onExpandedSectionsChange = { viewModel.saveExpandedSections(it) }
+                onExpandedSectionsChanged = { viewModel.saveExpandedSections(it) },
+                onDataSaverChanged = { viewModel.saveDataSaver(it) }
             )
         }
     }

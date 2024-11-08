@@ -48,7 +48,8 @@ fun SettingsScreen(
     preferencesState: PreferencesState,
     onThemeChanged: (String) -> Unit,
     onFontSizeChangeFinished: (Int) -> Unit,
-    onExpandedSectionsChange: (Boolean) -> Unit,
+    onExpandedSectionsChanged: (Boolean) -> Unit,
+    onDataSaverChanged: (Boolean) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -62,12 +63,17 @@ fun SettingsScreen(
         "Light" to "light",
         "Dark" to "dark"
     )
+
     val theme = preferencesState.theme
     var expandedSections by remember { mutableStateOf(preferencesState.expandedSections) }
+    var dataSaver by remember { mutableStateOf(preferencesState.dataSaver) }
 
     val expandedIcon =
         if (expandedSections) R.drawable.expand_all
         else R.drawable.collapse_all
+    val dataSaverIcon =
+        if (dataSaver) R.drawable.data_saver_on
+        else R.drawable.data_saver_off
 
     val (showThemeDialog, setShowThemeDialog) = remember { mutableStateOf(false) }
 
@@ -189,7 +195,26 @@ fun SettingsScreen(
                         checked = expandedSections,
                         onCheckedChange = {
                             expandedSections = it
-                            onExpandedSectionsChange(it)
+                            onExpandedSectionsChanged(it)
+                        }
+                    )
+                }
+            )
+            ListItem(
+                leadingContent = {
+                    Icon(
+                        painterResource(dataSaverIcon),
+                        contentDescription = null
+                    )
+                },
+                headlineContent = { Text("Data saver") },
+                supportingContent = { Text("Only load page image in fullscreen view") },
+                trailingContent = {
+                    Switch(
+                        checked = dataSaver,
+                        onCheckedChange = {
+                            dataSaver = it
+                            onDataSaverChanged(it)
                         }
                     )
                 }

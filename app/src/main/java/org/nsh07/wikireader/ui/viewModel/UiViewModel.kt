@@ -161,11 +161,15 @@ class UiViewModel(
                 appPreferencesRepository.readBooleanPreference("expanded-sections")
                     ?: appPreferencesRepository.saveBooleanPreference("expanded-sections", false)
 
+            val dataSaver = appPreferencesRepository.readBooleanPreference("data-saver")
+                ?: appPreferencesRepository.saveBooleanPreference("data-saver", false)
+
             _preferencesState.update { currentState ->
                 currentState.copy(
                     theme = theme,
                     fontSize = fontSize,
-                    expandedSections = expandedSections
+                    expandedSections = expandedSections,
+                    dataSaver = dataSaver
                 )
             }
         }
@@ -198,6 +202,15 @@ class UiViewModel(
             appPreferencesRepository.saveBooleanPreference("expanded-sections", expandedSections)
             _preferencesState.update { currentState ->
                 currentState.copy(expandedSections = expandedSections)
+            }
+        }
+    }
+
+    fun saveDataSaver(dataSaver: Boolean) {
+        viewModelScope.launch {
+            appPreferencesRepository.saveBooleanPreference("data-saver", dataSaver)
+            _preferencesState.update { currentState ->
+                currentState.copy(dataSaver = dataSaver)
             }
         }
     }

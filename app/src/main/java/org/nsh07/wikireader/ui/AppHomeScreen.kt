@@ -74,7 +74,8 @@ fun AppHomeScreen(
                         ImageCard(
                             photo = photo,
                             photoDesc = photoDesc,
-                            onClick = onImageClick
+                            showPhoto = !preferencesState.dataSaver,
+                            onClick = onImageClick,
                         )
                     }
                 }
