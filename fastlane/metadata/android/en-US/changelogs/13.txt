@@ -1,0 +1,12 @@
+Changelog for v1.6.2:
+* New features:
+  * New button to clear all history
+  * New option for expanding all sections by default
+  * New data saver feature
+  * Search history items are now animated
+  * New icon layout for search bar
+
+* Bug fixes/Improvements:
+  * Icons next to history items are now "history" icons instead of "search" icons
+  * Theme dialog now has a cancel button
+  * Drastically improve dialog boxes performance
