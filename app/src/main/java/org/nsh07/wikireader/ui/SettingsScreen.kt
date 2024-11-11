@@ -47,6 +47,7 @@ import kotlin.math.round
 fun SettingsScreen(
     preferencesState: PreferencesState,
     onThemeChanged: (String) -> Unit,
+    onBlackThemeChanged: (Boolean) -> Unit,
     onFontSizeChangeFinished: (Int) -> Unit,
     onExpandedSectionsChanged: (Boolean) -> Unit,
     onDataSaverChanged: (Boolean) -> Unit,
@@ -65,6 +66,7 @@ fun SettingsScreen(
     )
 
     val theme = preferencesState.theme
+    var blackTheme by remember { mutableStateOf(preferencesState.blackTheme) }
     var expandedSections by remember { mutableStateOf(preferencesState.expandedSections) }
     var dataSaver by remember { mutableStateOf(preferencesState.dataSaver) }
 
@@ -183,6 +185,25 @@ fun SettingsScreen(
                             }
                         )
                     }
+                }
+            )
+            ListItem(
+                leadingContent = {
+                    Icon(
+                        painterResource(R.drawable.contrast),
+                        contentDescription = null
+                    )
+                },
+                headlineContent = { Text("Black theme") },
+                supportingContent = { Text("Use a pure-black dark theme") },
+                trailingContent = {
+                    Switch(
+                        checked = blackTheme,
+                        onCheckedChange = {
+                            blackTheme = it
+                            onBlackThemeChanged(it)
+                        }
+                    )
                 }
             )
             ListItem(

@@ -42,6 +42,9 @@ class UiViewModel(
             val fontSize = appPreferencesRepository.readIntPreference("font-size")
                 ?: appPreferencesRepository.saveIntPreference("font-size", 16)
 
+            val blackTheme = appPreferencesRepository.readBooleanPreference("black-theme")
+                ?: appPreferencesRepository.saveBooleanPreference("black-theme", false)
+
             val expandedSections =
                 appPreferencesRepository.readBooleanPreference("expanded-sections")
                     ?: appPreferencesRepository.saveBooleanPreference("expanded-sections", false)
@@ -53,6 +56,7 @@ class UiViewModel(
                 currentState.copy(
                     theme = theme,
                     fontSize = fontSize,
+                    blackTheme = blackTheme,
                     expandedSections = expandedSections,
                     dataSaver = dataSaver
                 )
@@ -175,10 +179,19 @@ class UiViewModel(
         viewModelScope.launch {
             _preferencesState.update { currentState ->
                 currentState.copy(
-                    theme = appPreferencesRepository.saveStringPreference(
-                        "theme",
-                        theme
-                    )
+                    theme = appPreferencesRepository
+                        .saveStringPreference("theme", theme)
+                )
+            }
+        }
+    }
+
+    fun setBlackTheme(blackTheme: Boolean) {
+        viewModelScope.launch {
+            _preferencesState.update { currentState ->
+                currentState.copy(
+                    blackTheme = appPreferencesRepository
+                        .saveBooleanPreference("black-theme", blackTheme)
                 )
             }
         }

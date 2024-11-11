@@ -41,6 +41,7 @@ fun WikiReaderTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
+    blackTheme: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -63,6 +64,7 @@ fun WikiReaderTheme(
     DynamicMaterialTheme(
         seedColor = colorScheme.primary,
         useDarkTheme = darkTheme,
+        withAmoled = blackTheme,
         animate = true,
         content = content
     )

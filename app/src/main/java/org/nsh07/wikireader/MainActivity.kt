@@ -27,7 +27,10 @@ class MainActivity : ComponentActivity() {
                 else -> isSystemInDarkTheme()
             }
 
-            WikiReaderTheme(darkTheme = darkTheme) {
+            WikiReaderTheme(
+                darkTheme = darkTheme,
+                blackTheme = preferencesState.blackTheme
+            ) {
                 AppScreen(
                     viewModel = viewModel,
                     preferencesState = preferencesState,

@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.DockedSearchBar
@@ -87,7 +88,7 @@ fun AppSearchBar(
                         Column {
                             IconButton(onClick = { setDropdownExpanded(!dropdownExpanded) }) {
                                 Icon(
-                                    painterResource(R.drawable.more_vert),
+                                    Icons.Outlined.MoreVert,
                                     contentDescription = "More options"
                                 )
                             }

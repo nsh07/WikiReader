@@ -175,6 +175,7 @@ fun AppScreen(
                 preferencesState = preferencesState,
                 onBack = { navController.navigateUp() },
                 onThemeChanged = { viewModel.setTheme(it) },
+                onBlackThemeChanged = { viewModel.setBlackTheme(it) },
                 onFontSizeChangeFinished = { viewModel.saveFontSize(it) },
                 onExpandedSectionsChanged = { viewModel.saveExpandedSections(it) },
                 onDataSaverChanged = { viewModel.saveDataSaver(it) }
