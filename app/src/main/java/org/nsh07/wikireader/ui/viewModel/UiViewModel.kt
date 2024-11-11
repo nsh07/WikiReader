@@ -34,6 +34,36 @@ class UiViewModel(
     private val _preferencesState = MutableStateFlow(PreferencesState())
     val preferencesState: StateFlow<PreferencesState> = _preferencesState.asStateFlow()
 
+    init {
+        runBlocking { // Run blocking to delay app startup until theme is determined
+            val theme = appPreferencesRepository.readStringPreference("theme")
+                ?: appPreferencesRepository.saveStringPreference("theme", "auto")
+
+            val fontSize = appPreferencesRepository.readIntPreference("font-size")
+                ?: appPreferencesRepository.saveIntPreference("font-size", 16)
+
+            val expandedSections =
+                appPreferencesRepository.readBooleanPreference("expanded-sections")
+                    ?: appPreferencesRepository.saveBooleanPreference("expanded-sections", false)
+
+            val dataSaver = appPreferencesRepository.readBooleanPreference("data-saver")
+                ?: appPreferencesRepository.saveBooleanPreference("data-saver", false)
+
+            _preferencesState.update { currentState ->
+                currentState.copy(
+                    theme = theme,
+                    fontSize = fontSize,
+                    expandedSections = expandedSections,
+                    dataSaver = dataSaver
+                )
+            }
+
+            _searchBarState.update { currentState ->
+                currentState.copy(history = appPreferencesRepository.readHistory() ?: emptySet())
+            }
+        }
+    }
+
     /**
      * Updates history and performs search
      *
@@ -121,14 +151,6 @@ class UiViewModel(
         searchBarState.value.focusRequester.requestFocus()
     }
 
-    fun loadHistory() {
-        runBlocking {
-            _searchBarState.update { currentState ->
-                currentState.copy(history = appPreferencesRepository.readHistory() ?: emptySet())
-            }
-        }
-    }
-
     fun removeHistoryItem(item: String) {
         viewModelScope.launch {
             val history = searchBarState.value.history.toMutableSet()
@@ -146,32 +168,6 @@ class UiViewModel(
                 currentState.copy(history = emptySet())
             }
             appPreferencesRepository.saveHistory(emptySet())
-        }
-    }
-
-    fun loadPreferences() {
-        runBlocking { // Run blocking to delay app startup until theme is determined
-            val theme = appPreferencesRepository.readStringPreference("theme")
-                ?: appPreferencesRepository.saveStringPreference("theme", "auto")
-
-            val fontSize = appPreferencesRepository.readIntPreference("font-size")
-                ?: appPreferencesRepository.saveIntPreference("font-size", 16)
-
-            val expandedSections =
-                appPreferencesRepository.readBooleanPreference("expanded-sections")
-                    ?: appPreferencesRepository.saveBooleanPreference("expanded-sections", false)
-
-            val dataSaver = appPreferencesRepository.readBooleanPreference("data-saver")
-                ?: appPreferencesRepository.saveBooleanPreference("data-saver", false)
-
-            _preferencesState.update { currentState ->
-                currentState.copy(
-                    theme = theme,
-                    fontSize = fontSize,
-                    expandedSections = expandedSections,
-                    dataSaver = dataSaver
-                )
-            }
         }
     }
 

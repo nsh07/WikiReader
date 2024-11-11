@@ -19,8 +19,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val viewModel: UiViewModel = viewModel(factory = UiViewModel.Factory)
-            viewModel.loadPreferences()
-
             val preferencesState by viewModel.preferencesState.collectAsState()
 
             val darkTheme = when (preferencesState.theme) {

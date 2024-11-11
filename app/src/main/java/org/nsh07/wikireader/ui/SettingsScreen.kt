@@ -136,7 +136,7 @@ fun SettingsScreen(
                                 onThemeChanged(reverseThemeMap[selectedOption.value]!!)
                             }
                         ) {
-                            Text("Ok")
+                            Text("OK")
                         }
                     }
                 }
