@@ -75,6 +75,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.coil.kt.coil.compose)
     implementation(libs.coil.svg)
+    implementation(libs.material.kolor)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

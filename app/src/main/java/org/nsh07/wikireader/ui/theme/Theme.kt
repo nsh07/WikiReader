@@ -3,7 +3,6 @@ package org.nsh07.wikireader.ui.theme
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -13,6 +12,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.materialkolor.DynamicMaterialTheme
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -60,9 +60,10 @@ fun WikiReaderTheme(
         }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
+    DynamicMaterialTheme(
+        seedColor = colorScheme.primary,
+        useDarkTheme = darkTheme,
+        animate = true,
         content = content
     )
 }
