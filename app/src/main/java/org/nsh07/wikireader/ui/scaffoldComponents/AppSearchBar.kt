@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.DockedSearchBar
@@ -34,6 +35,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,6 +58,7 @@ fun AppSearchBar(
     modifier: Modifier = Modifier
 ) {
     val focusRequester = searchBarState.focusRequester
+    val haptic = LocalHapticFeedback.current
     val (dropdownExpanded, setDropdownExpanded) = remember { mutableStateOf(false) }
     DockedSearchBar(
         inputField = {
@@ -84,7 +88,7 @@ fun AppSearchBar(
                         Column {
                             IconButton(onClick = { setDropdownExpanded(!dropdownExpanded) }) {
                                 Icon(
-                                    painterResource(R.drawable.more_vert),
+                                    Icons.Outlined.MoreVert,
                                     contentDescription = "More options"
                                 )
                             }
@@ -170,7 +174,10 @@ fun AppSearchBar(
                     modifier = Modifier
                         .combinedClickable(
                             onClick = { performSearch(currentText) },
-                            onLongClick = { removeHistoryItem(currentText) }
+                            onLongClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                removeHistoryItem(currentText)
+                            }
                         )
                         .animateItem()
                 )

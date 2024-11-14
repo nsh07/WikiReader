@@ -28,7 +28,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -58,9 +57,6 @@ fun AppScreen(
     preferencesState: PreferencesState,
     modifier: Modifier = Modifier
 ) {
-    LaunchedEffect(null) {
-        viewModel.loadHistory()
-    }
     val searchBarState by viewModel.searchBarState.collectAsState()
     val homeScreenState by viewModel.homeScreenState.collectAsState()
     val listState by viewModel.listState.collectAsState()
@@ -178,10 +174,7 @@ fun AppScreen(
             SettingsScreen(
                 preferencesState = preferencesState,
                 onBack = { navController.navigateUp() },
-                onThemeChanged = { viewModel.setTheme(it) },
-                onFontSizeChangeFinished = { viewModel.saveFontSize(it) },
-                onExpandedSectionsChanged = { viewModel.saveExpandedSections(it) },
-                onDataSaverChanged = { viewModel.saveDataSaver(it) }
+                viewModel = viewModel
             )
         }
     }

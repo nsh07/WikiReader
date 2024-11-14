@@ -1,6 +1,7 @@
 package org.nsh07.wikireader.ui.viewModel
 
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.Color
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
 
@@ -21,7 +22,9 @@ data class HomeScreenState(
 
 data class PreferencesState(
     val theme: String = "auto",
+    val colorScheme: String = Color.White.toString(),
     val fontSize: Int = 16,
+    val blackTheme: Boolean = false,
     val expandedSections: Boolean = false,
     val dataSaver: Boolean = false
 )

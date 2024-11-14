@@ -10,6 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import org.nsh07.wikireader.data.toColor
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 import org.nsh07.wikireader.ui.viewModel.UiViewModel
 
@@ -19,8 +20,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val viewModel: UiViewModel = viewModel(factory = UiViewModel.Factory)
-            viewModel.loadPreferences()
-
             val preferencesState by viewModel.preferencesState.collectAsState()
 
             val darkTheme = when (preferencesState.theme) {
@@ -29,7 +28,13 @@ class MainActivity : ComponentActivity() {
                 else -> isSystemInDarkTheme()
             }
 
-            WikiReaderTheme(darkTheme = darkTheme) {
+            val colorScheme = preferencesState.colorScheme.toColor()
+
+            WikiReaderTheme(
+                darkTheme = darkTheme,
+                seedColor = colorScheme,
+                blackTheme = preferencesState.blackTheme
+            ) {
                 AppScreen(
                     viewModel = viewModel,
                     preferencesState = preferencesState,

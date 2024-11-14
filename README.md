@@ -26,10 +26,10 @@ A lightweight Android app for reading Wikipedia articles distraction-free
 Supports light mode, dark mode and Material You dynamic colors
 
 <a href="https://apt.izzysoft.de/fdroid/index/apk/org.nsh07.wikireader">
-  <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" width="20%">
+  <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" width="200">
 </a>
 <a href="https://f-droid.org/packages/org.nsh07.wikireader">
-    <img src="https://f-droid.org/badge/get-it-on.png" width="20%">
+    <img src="https://f-droid.org/badge/get-it-on.png" width="200">
 </a>
 
 </div>
@@ -60,3 +60,15 @@ Supports light mode, dark mode and Material You dynamic colors
 - **Lightweight:** The app starts instantly, and works smoothly
 - **Material Design 3:** Designed according to the latest Material Design 3 guidelines
 - **Smooth animations:** Smooth and fluent animations
+- **Customizable colors:** Choose from light/dark themes and customize the Material 3 color palette
+- **Customizable font size:** Choose your own comfortable font size
+- **Data saver:** Save your limited data plan by loading text only
+
+## Special Thanks
+
+This app was made possible by the following libraries:
+
+- [Retrofit 2](https://square.github.io/retrofit/)
+- [OkHttp](https://square.github.io/okhttp/)
+- [Coil](https://coil-kt.github.io/coil/)
+- [MaterialKolor](https://github.com/jordond/MaterialKolor) - Library used for custom color themes

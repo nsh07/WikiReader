@@ -1,6 +1,7 @@
 package org.nsh07.wikireader.ui.viewModel
 
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -33,6 +34,47 @@ class UiViewModel(
 
     private val _preferencesState = MutableStateFlow(PreferencesState())
     val preferencesState: StateFlow<PreferencesState> = _preferencesState.asStateFlow()
+
+    init {
+        runBlocking { // Run blocking to delay app startup until theme is determined
+            val theme = appPreferencesRepository.readStringPreference("theme")
+                ?: appPreferencesRepository.saveStringPreference("theme", "auto")
+
+            val colorScheme = appPreferencesRepository.readStringPreference("color-scheme")
+                ?: appPreferencesRepository.saveStringPreference(
+                    "color-scheme",
+                    Color.White.toString()
+                )
+
+            val fontSize = appPreferencesRepository.readIntPreference("font-size")
+                ?: appPreferencesRepository.saveIntPreference("font-size", 16)
+
+            val blackTheme = appPreferencesRepository.readBooleanPreference("black-theme")
+                ?: appPreferencesRepository.saveBooleanPreference("black-theme", false)
+
+            val expandedSections =
+                appPreferencesRepository.readBooleanPreference("expanded-sections")
+                    ?: appPreferencesRepository.saveBooleanPreference("expanded-sections", false)
+
+            val dataSaver = appPreferencesRepository.readBooleanPreference("data-saver")
+                ?: appPreferencesRepository.saveBooleanPreference("data-saver", false)
+
+            _preferencesState.update { currentState ->
+                currentState.copy(
+                    theme = theme,
+                    colorScheme = colorScheme,
+                    fontSize = fontSize,
+                    blackTheme = blackTheme,
+                    expandedSections = expandedSections,
+                    dataSaver = dataSaver
+                )
+            }
+
+            _searchBarState.update { currentState ->
+                currentState.copy(history = appPreferencesRepository.readHistory() ?: emptySet())
+            }
+        }
+    }
 
     /**
      * Updates history and performs search
@@ -121,14 +163,6 @@ class UiViewModel(
         searchBarState.value.focusRequester.requestFocus()
     }
 
-    fun loadHistory() {
-        runBlocking {
-            _searchBarState.update { currentState ->
-                currentState.copy(history = appPreferencesRepository.readHistory() ?: emptySet())
-            }
-        }
-    }
-
     fun removeHistoryItem(item: String) {
         viewModelScope.launch {
             val history = searchBarState.value.history.toMutableSet()
@@ -149,40 +183,34 @@ class UiViewModel(
         }
     }
 
-    fun loadPreferences() {
-        runBlocking { // Run blocking to delay app startup until theme is determined
-            val theme = appPreferencesRepository.readStringPreference("theme")
-                ?: appPreferencesRepository.saveStringPreference("theme", "auto")
-
-            val fontSize = appPreferencesRepository.readIntPreference("font-size")
-                ?: appPreferencesRepository.saveIntPreference("font-size", 16)
-
-            val expandedSections =
-                appPreferencesRepository.readBooleanPreference("expanded-sections")
-                    ?: appPreferencesRepository.saveBooleanPreference("expanded-sections", false)
-
-            val dataSaver = appPreferencesRepository.readBooleanPreference("data-saver")
-                ?: appPreferencesRepository.saveBooleanPreference("data-saver", false)
-
+    fun saveTheme(theme: String) {
+        viewModelScope.launch {
             _preferencesState.update { currentState ->
                 currentState.copy(
-                    theme = theme,
-                    fontSize = fontSize,
-                    expandedSections = expandedSections,
-                    dataSaver = dataSaver
+                    theme = appPreferencesRepository
+                        .saveStringPreference("theme", theme)
                 )
             }
         }
     }
 
-    fun setTheme(theme: String) {
+    fun saveColorScheme(colorScheme: String) {
         viewModelScope.launch {
             _preferencesState.update { currentState ->
                 currentState.copy(
-                    theme = appPreferencesRepository.saveStringPreference(
-                        "theme",
-                        theme
-                    )
+                    colorScheme = appPreferencesRepository
+                        .saveStringPreference("color-scheme", colorScheme)
+                )
+            }
+        }
+    }
+
+    fun saveBlackTheme(blackTheme: Boolean) {
+        viewModelScope.launch {
+            _preferencesState.update { currentState ->
+                currentState.copy(
+                    blackTheme = appPreferencesRepository
+                        .saveBooleanPreference("black-theme", blackTheme)
                 )
             }
         }
