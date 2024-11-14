@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
@@ -102,6 +103,7 @@ fun SettingsScreen(
                 leadingContent = {
                     Icon(
                         painterResource(R.drawable.palette),
+                        tint = MaterialTheme.colorScheme.primary,
                         contentDescription = null
                     )
                 },
