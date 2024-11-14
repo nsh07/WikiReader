@@ -1,0 +1,9 @@
+v1.7.0:
+
+New features:
+  - Haptic feedback on long press
+  - Animated theme changes
+  - Pure black dark theme option
+  - Custom Material 3 colors
+
++ Some minor UI polish
