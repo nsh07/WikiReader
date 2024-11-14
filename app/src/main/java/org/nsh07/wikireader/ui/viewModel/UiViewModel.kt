@@ -1,6 +1,7 @@
 package org.nsh07.wikireader.ui.viewModel
 
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -39,6 +40,12 @@ class UiViewModel(
             val theme = appPreferencesRepository.readStringPreference("theme")
                 ?: appPreferencesRepository.saveStringPreference("theme", "auto")
 
+            val colorScheme = appPreferencesRepository.readStringPreference("color-scheme")
+                ?: appPreferencesRepository.saveStringPreference(
+                    "color-scheme",
+                    Color.White.toString()
+                )
+
             val fontSize = appPreferencesRepository.readIntPreference("font-size")
                 ?: appPreferencesRepository.saveIntPreference("font-size", 16)
 
@@ -55,6 +62,7 @@ class UiViewModel(
             _preferencesState.update { currentState ->
                 currentState.copy(
                     theme = theme,
+                    colorScheme = colorScheme,
                     fontSize = fontSize,
                     blackTheme = blackTheme,
                     expandedSections = expandedSections,
@@ -175,7 +183,7 @@ class UiViewModel(
         }
     }
 
-    fun setTheme(theme: String) {
+    fun saveTheme(theme: String) {
         viewModelScope.launch {
             _preferencesState.update { currentState ->
                 currentState.copy(
@@ -186,7 +194,18 @@ class UiViewModel(
         }
     }
 
-    fun setBlackTheme(blackTheme: Boolean) {
+    fun saveColorScheme(colorScheme: String) {
+        viewModelScope.launch {
+            _preferencesState.update { currentState ->
+                currentState.copy(
+                    colorScheme = appPreferencesRepository
+                        .saveStringPreference("color-scheme", colorScheme)
+                )
+            }
+        }
+    }
+
+    fun saveBlackTheme(blackTheme: Boolean) {
         viewModelScope.launch {
             _preferencesState.update { currentState ->
                 currentState.copy(

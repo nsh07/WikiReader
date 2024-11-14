@@ -2,55 +2,38 @@ package org.nsh07.wikireader.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.material3.AlertDialogDefaults
-import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.dp
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.data.toColor
+import org.nsh07.wikireader.ui.dialogs.ColorSchemePickerDialog
+import org.nsh07.wikireader.ui.dialogs.ThemeDialog
 import org.nsh07.wikireader.ui.scaffoldComponents.SettingsTopBar
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
+import org.nsh07.wikireader.ui.viewModel.UiViewModel
 import kotlin.math.round
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     preferencesState: PreferencesState,
-    onThemeChanged: (String) -> Unit,
-    onBlackThemeChanged: (Boolean) -> Unit,
-    onFontSizeChangeFinished: (Int) -> Unit,
-    onExpandedSectionsChanged: (Boolean) -> Unit,
-    onDataSaverChanged: (Boolean) -> Unit,
+    viewModel: UiViewModel,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -66,6 +49,8 @@ fun SettingsScreen(
     )
 
     val theme = preferencesState.theme
+    val color = preferencesState.colorScheme.toColor()
+
     var blackTheme by remember { mutableStateOf(preferencesState.blackTheme) }
     var expandedSections by remember { mutableStateOf(preferencesState.expandedSections) }
     var dataSaver by remember { mutableStateOf(preferencesState.dataSaver) }
@@ -78,73 +63,23 @@ fun SettingsScreen(
         else R.drawable.data_saver_off
 
     val (showThemeDialog, setShowThemeDialog) = remember { mutableStateOf(false) }
-
+    val (showColorSchemeDialog, setShowColorSchemeDialog) = remember { mutableStateOf(false) }
     var fontSizeFloat by remember { mutableFloatStateOf(preferencesState.fontSize.toFloat()) }
 
-    if (showThemeDialog) {
-        val selectedOption =
-            remember { mutableStateOf(themeMap[theme]!!.second) }
-        BasicAlertDialog(
-            onDismissRequest = { setShowThemeDialog(false) }
-        ) {
-            Surface(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .wrapContentHeight(),
-                shape = MaterialTheme.shapes.extraLarge,
-                tonalElevation = AlertDialogDefaults.TonalElevation
-            ) {
-                Column(modifier = Modifier.padding(24.dp)) {
-                    Text(text = "Choose theme", style = MaterialTheme.typography.headlineSmall)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Column(Modifier.selectableGroup()) {
-                        themeMap.forEach { pair ->
-                            val text = pair.value.second
-                            Row(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .height(56.dp)
-                                    .clip(MaterialTheme.shapes.large)
-                                    .selectable(
-                                        selected = (text == selectedOption.value),
-                                        onClick = {
-                                            selectedOption.value = text
-                                        },
-                                        role = Role.RadioButton
-                                    )
-                                    .padding(horizontal = 16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(
-                                    selected = (text == selectedOption.value),
-                                    onClick = null // null recommended for accessibility with screenreaders
-                                )
-                                Text(
-                                    text = text,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.padding(start = 16.dp)
-                                )
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Row(modifier = Modifier.align(Alignment.End)) {
-                        TextButton(onClick = { setShowThemeDialog(false) }) {
-                            Text("Cancel")
-                        }
-                        TextButton(
-                            onClick = {
-                                setShowThemeDialog(false)
-                                onThemeChanged(reverseThemeMap[selectedOption.value]!!)
-                            }
-                        ) {
-                            Text("OK")
-                        }
-                    }
-                }
-            }
-        }
-    }
+    if (showThemeDialog)
+        ThemeDialog(
+            themeMap = themeMap,
+            reverseThemeMap = reverseThemeMap,
+            theme = theme,
+            setShowThemeDialog = setShowThemeDialog,
+            setTheme = { viewModel.saveTheme(it) }
+        )
+    if (showColorSchemeDialog)
+        ColorSchemePickerDialog(
+            currentColor = color,
+            onColorChange = { viewModel.saveColorScheme(it.toString()) },
+            setShowDialog = setShowColorSchemeDialog
+        )
 
     Scaffold(
         topBar = { SettingsTopBar(onBack = onBack) },
@@ -161,8 +96,22 @@ fun SettingsScreen(
                 headlineContent = { Text("Theme") },
                 supportingContent = { Text(themeMap[theme]!!.second) },
                 modifier = Modifier
-                    .fillMaxWidth()
                     .clickable(onClick = { setShowThemeDialog(true) })
+            )
+            ListItem(
+                leadingContent = {
+                    Icon(
+                        painterResource(R.drawable.palette),
+                        contentDescription = null
+                    )
+                },
+                headlineContent = { Text("Color scheme") },
+                supportingContent = {
+                    if (color == Color.White) Text("Dynamic")
+                    else Text("Color")
+                },
+                modifier = Modifier
+                    .clickable(onClick = { setShowColorSchemeDialog(true) })
             )
             ListItem(
                 leadingContent = {
@@ -181,7 +130,7 @@ fun SettingsScreen(
                             valueRange = 10f..22f,
                             steps = 5,
                             onValueChangeFinished = {
-                                onFontSizeChangeFinished(round(fontSizeFloat).toInt())
+                                viewModel.saveFontSize(round(fontSizeFloat).toInt())
                             }
                         )
                     }
@@ -201,7 +150,7 @@ fun SettingsScreen(
                         checked = blackTheme,
                         onCheckedChange = {
                             blackTheme = it
-                            onBlackThemeChanged(it)
+                            viewModel.saveBlackTheme(it)
                         }
                     )
                 }
@@ -220,7 +169,7 @@ fun SettingsScreen(
                         checked = expandedSections,
                         onCheckedChange = {
                             expandedSections = it
-                            onExpandedSectionsChanged(it)
+                            viewModel.saveExpandedSections(it)
                         }
                     )
                 }
@@ -239,7 +188,7 @@ fun SettingsScreen(
                         checked = dataSaver,
                         onCheckedChange = {
                             dataSaver = it
-                            onDataSaverChanged(it)
+                            viewModel.saveDataSaver(it)
                         }
                     )
                 }

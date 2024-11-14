@@ -10,6 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import org.nsh07.wikireader.data.toColor
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 import org.nsh07.wikireader.ui.viewModel.UiViewModel
 
@@ -27,8 +28,11 @@ class MainActivity : ComponentActivity() {
                 else -> isSystemInDarkTheme()
             }
 
+            val colorScheme = preferencesState.colorScheme.toColor()
+
             WikiReaderTheme(
                 darkTheme = darkTheme,
+                seedColor = colorScheme,
                 blackTheme = preferencesState.blackTheme
             ) {
                 AppScreen(
