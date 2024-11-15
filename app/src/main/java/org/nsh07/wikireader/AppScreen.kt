@@ -3,8 +3,6 @@ package org.nsh07.wikireader
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
@@ -36,7 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -66,9 +63,6 @@ fun AppScreen(
     val index by remember { derivedStateOf { listState.firstVisibleItemIndex } }
     val (showDeleteDialog, setShowDeleteDialog) = remember { mutableStateOf(false) }
     var (historyItem, setHistoryItem) = remember { mutableStateOf("") }
-
-    val fabEnter = scaleIn(transformOrigin = TransformOrigin(1f, 1f)) + fadeIn()
-    val fabExit = scaleOut(transformOrigin = TransformOrigin(1f, 1f)) + fadeOut()
 
     val navController = rememberNavController()
 
@@ -138,9 +132,13 @@ fun AppScreen(
                     AppFab(
                         focusSearch = { viewModel.focusSearchBar() },
                         scrollToTop = { coroutineScope.launch { listState.animateScrollToItem(0) } },
-                        index = index,
-                        fabEnter = fabEnter,
-                        fabExit = fabExit
+                        performRandomPageSearch = {
+                            viewModel.performSearch(
+                                query = null,
+                                random = true
+                            )
+                        },
+                        index = index
                     )
                 },
                 modifier = Modifier.fillMaxSize()
