@@ -4,6 +4,7 @@
 <ul>
     <li><b>Fast loading:</b> The article text is loaded before anything else, so you can get to reading, quick</li>
     <li><b>Article image:</b> View an image of the topic from its Wikipedia page. Click on it to enlarge it and view in full-screen</li>
+    <li><b>Random article:</b> Feeling lucky? Click the random article button to read a random article</li>
     <li><b>One-handed use:</b> Use the floating action buttons at the bottom for a complete one-handed experience</li>
     <li><b>Lightweight:</b> The app starts instantly, and works smoothly</li>
     <li><b>Material Design 3:</b> Designed according to the latest Material Design 3 guidelines</li>

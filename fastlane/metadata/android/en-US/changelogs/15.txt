@@ -1,0 +1,10 @@
+v1.7.1:
+
+New features:
+ - New random article button
+ - New animated splash screen
+
+Enhancements:
+ - Improved image rendering performance because of upgraded image loading system
+ - Add support for animated GIFs
+ - Add support for animated WEBP and HEIF images (Android 9+ only)
