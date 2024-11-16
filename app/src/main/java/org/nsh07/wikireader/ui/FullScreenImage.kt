@@ -29,6 +29,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntSize
 import androidx.core.view.WindowCompat
+import coil3.ImageLoader
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
@@ -40,6 +41,7 @@ import org.nsh07.wikireader.ui.scaffoldComponents.FullScreenImageTopBar
 fun FullScreenImage(
     photo: WikiPhoto?,
     photoDesc: WikiPhotoDesc?,
+    imageLoader: ImageLoader,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -90,6 +92,7 @@ fun FullScreenImage(
                 PageImage(
                     photo = photo,
                     photoDesc = photoDesc,
+                    imageLoader = imageLoader,
                     contentScale = ContentScale.Inside,
                     modifier = Modifier
                         .onSizeChanged { size = it }

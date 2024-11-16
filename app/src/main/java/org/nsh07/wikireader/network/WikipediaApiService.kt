@@ -7,7 +7,13 @@ import retrofit2.http.Query
 private const val API_QUERY =
     "w/api.php?format=json&action=query&prop=extracts|pageimages|pageterms&piprop=original&pilicense=any&explaintext&generator=search&gsrlimit=1&redirects=1&formatversion=2"
 
+private const val RANDOM_QUERY =
+    "w/api.php?format=json&action=query&prop=extracts|pageimages|pageterms&piprop=original&pilicense=any&explaintext&generator=random&redirects=1&formatversion=2&grnnamespace=0"
+
 interface WikipediaApiService {
     @GET(API_QUERY)
-    suspend fun searchWikipedia(@Query("gsrsearch") query: String): WikiApiResponse
+    suspend fun getSearchResult(@Query("gsrsearch") query: String): WikiApiResponse
+
+    @GET(RANDOM_QUERY)
+    suspend fun getRandomResult(): WikiApiResponse
 }

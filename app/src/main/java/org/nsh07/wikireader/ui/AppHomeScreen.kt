@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.ImageLoader
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
@@ -43,6 +44,7 @@ fun AppHomeScreen(
     homeScreenState: HomeScreenState,
     listState: LazyListState,
     preferencesState: PreferencesState,
+    imageLoader: ImageLoader,
     onImageClick: () -> Unit,
     insets: PaddingValues,
     modifier: Modifier = Modifier
@@ -74,6 +76,7 @@ fun AppHomeScreen(
                         ImageCard(
                             photo = photo,
                             photoDesc = photoDesc,
+                            imageLoader = imageLoader,
                             showPhoto = !preferencesState.dataSaver,
                             onClick = onImageClick,
                         )

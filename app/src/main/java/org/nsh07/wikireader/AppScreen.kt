@@ -1,10 +1,9 @@
 package org.nsh07.wikireader
 
+import android.os.Build.VERSION.SDK_INT
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
@@ -36,11 +35,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import coil3.ImageLoader
+import coil3.gif.AnimatedImageDecoder
+import coil3.gif.GifDecoder
+import coil3.svg.SvgDecoder
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.ui.AppHomeScreen
 import org.nsh07.wikireader.ui.FullScreenImage
@@ -60,15 +63,22 @@ fun AppScreen(
     val searchBarState by viewModel.searchBarState.collectAsState()
     val homeScreenState by viewModel.homeScreenState.collectAsState()
     val listState by viewModel.listState.collectAsState()
+    val imageLoader = ImageLoader.Builder(LocalContext.current)
+        .components {
+            add(SvgDecoder.Factory())
+            if (SDK_INT >= 28) {
+                add(AnimatedImageDecoder.Factory())
+            } else {
+                add(GifDecoder.Factory())
+            }
+        }
+        .build()
 
     val coroutineScope = rememberCoroutineScope()
 
     val index by remember { derivedStateOf { listState.firstVisibleItemIndex } }
     val (showDeleteDialog, setShowDeleteDialog) = remember { mutableStateOf(false) }
     var (historyItem, setHistoryItem) = remember { mutableStateOf("") }
-
-    val fabEnter = scaleIn(transformOrigin = TransformOrigin(1f, 1f)) + fadeIn()
-    val fabExit = scaleOut(transformOrigin = TransformOrigin(1f, 1f)) + fadeOut()
 
     val navController = rememberNavController()
 
@@ -138,9 +148,13 @@ fun AppScreen(
                     AppFab(
                         focusSearch = { viewModel.focusSearchBar() },
                         scrollToTop = { coroutineScope.launch { listState.animateScrollToItem(0) } },
-                        index = index,
-                        fabEnter = fabEnter,
-                        fabExit = fabExit
+                        performRandomPageSearch = {
+                            viewModel.performSearch(
+                                query = null,
+                                random = true
+                            )
+                        },
+                        index = index
                     )
                 },
                 modifier = Modifier.fillMaxSize()
@@ -149,6 +163,7 @@ fun AppScreen(
                     homeScreenState = homeScreenState,
                     listState = listState,
                     preferencesState = preferencesState,
+                    imageLoader = imageLoader,
                     onImageClick = {
                         if (homeScreenState.photo != null)
                             navController.navigate("FullScreenImage")
@@ -166,6 +181,7 @@ fun AppScreen(
             FullScreenImage(
                 photo = homeScreenState.photo,
                 photoDesc = homeScreenState.photoDesc,
+                imageLoader = imageLoader,
                 onBack = { navController.navigateUp() }
             )
         }

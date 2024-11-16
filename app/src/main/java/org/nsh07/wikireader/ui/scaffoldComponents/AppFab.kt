@@ -1,10 +1,9 @@
 package org.nsh07.wikireader.ui.scaffoldComponents
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Search
@@ -14,6 +13,7 @@ import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.nsh07.wikireader.R
@@ -22,29 +22,37 @@ import org.nsh07.wikireader.R
 fun AppFab(
     focusSearch: () -> Unit,
     scrollToTop: () -> Unit,
-    index: Int,
-    fabEnter: EnterTransition,
-    fabExit: ExitTransition
+    performRandomPageSearch: () -> Unit,
+    index: Int
 ) {
     Column(horizontalAlignment = Alignment.End) {
-        AnimatedVisibility(
-            index > 1,
-            enter = fabEnter,
-            exit = fabExit
+        SmallFloatingActionButton(
+            onClick = {
+                if (index > 1) scrollToTop()
+                else performRandomPageSearch()
+            }
         ) {
-            SmallFloatingActionButton(
-                onClick = scrollToTop
-            ) {
-                Icon(
-                    Icons.Outlined.KeyboardArrowUp,
-                    contentDescription = stringResource(R.string.scroll_to_top)
-                )
+            Crossfade(targetState = index > 1) { isScrolled ->
+                // note that it's required to use the value passed by Crossfade
+                // instead of your state value
+                if (isScrolled) {
+                    Icon(
+                        Icons.Outlined.KeyboardArrowUp,
+                        contentDescription = stringResource(R.string.scroll_to_top)
+                    )
+                } else {
+                    Icon(
+                        painterResource(R.drawable.shuffle),
+                        contentDescription = "Random article"
+                    )
+                }
             }
         }
 
+        Spacer(Modifier.height(24.dp))
+
         FloatingActionButton(
-            onClick = focusSearch,
-            modifier = Modifier.padding(top = 24.dp)
+            onClick = focusSearch
         ) {
             Icon(
                 Icons.Outlined.Search,

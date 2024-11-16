@@ -8,12 +8,12 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.nsh07.wikireader.WikiReaderApplication
 import org.nsh07.wikireader.data.AppPreferencesRepository
 import org.nsh07.wikireader.data.WikipediaRepository
@@ -35,8 +35,11 @@ class UiViewModel(
     private val _preferencesState = MutableStateFlow(PreferencesState())
     val preferencesState: StateFlow<PreferencesState> = _preferencesState.asStateFlow()
 
+    var isReady = false
+    var isAnimDurationComplete = false
+
     init {
-        runBlocking { // Run blocking to delay app startup until theme is determined
+        viewModelScope.launch { // Run blocking to delay app startup until theme is determined
             val theme = appPreferencesRepository.readStringPreference("theme")
                 ?: appPreferencesRepository.saveStringPreference("theme", "auto")
 
@@ -73,6 +76,15 @@ class UiViewModel(
             _searchBarState.update { currentState ->
                 currentState.copy(history = appPreferencesRepository.readHistory() ?: emptySet())
             }
+
+            isReady = true
+        }
+    }
+
+    fun startAnimDuration() {
+        viewModelScope.launch {
+            delay(600)
+            isAnimDurationComplete = true
         }
     }
 
@@ -83,27 +95,36 @@ class UiViewModel(
      *
      * @param query Search query string
      */
-    fun performSearch(query: String) {
-        val q = query.trim()
+    fun performSearch(query: String?, random: Boolean = false) {
+        val q = query?.trim() ?: " "
         val history = searchBarState.value.history.toMutableSet()
 
         if (q != "") {
-            history.remove(q)
-            history.add(q)
-            if (history.size > 50) history.remove(history.first())
+            if (!random) {
+                history.remove(q)
+                history.add(q)
+                if (history.size > 50) history.remove(history.first())
+            }
 
             viewModelScope.launch {
                 _homeScreenState.update { currentState ->
                     currentState.copy(isLoading = true)
                 }
 
-                appPreferencesRepository.saveHistory(history)
+                if (!random) appPreferencesRepository.saveHistory(history)
 
                 try {
-                    val apiResponse = wikipediaRepository
-                        .searchWikipedia(q)
-                        .query
-                        ?.pages?.get(0)
+                    val apiResponse = when (random) {
+                        false -> wikipediaRepository
+                            .getSearchResult(q)
+                            .query
+                            ?.pages?.get(0)
+
+                        else -> wikipediaRepository
+                            .getRandomResult()
+                            .query
+                            ?.pages?.get(0)
+                    }
 
                     val extractText = apiResponse
                         ?.extract ?: ""
@@ -139,11 +160,14 @@ class UiViewModel(
         }
 
         _searchBarState.update { currentState ->
-            currentState.copy(
-                query = q,
-                isSearchBarExpanded = false,
-                history = history
-            )
+            if (!random)
+                currentState.copy(
+                    query = q,
+                    isSearchBarExpanded = false,
+                    history = history
+                )
+            else
+                currentState.copy(isSearchBarExpanded = false)
         }
     }
 

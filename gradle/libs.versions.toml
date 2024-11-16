@@ -1,5 +1,7 @@
 [versions]
 agp = "8.7.2"
+coilGif = "3.0.3"
+coreSplashscreen = "1.0.1"
 datastorePreferences = "1.1.1"
 kotlin = "2.0.0"
 coreKtx = "1.15.0"
@@ -11,8 +13,7 @@ activityCompose = "1.9.3"
 composeBom = "2024.11.00"
 lifecycleViewmodelCompose = "2.8.7"
 
-coilComposeVersion = "2.6.0"
-coilSvg = "2.7.0"
+coil = "3.0.3"
 kotlinxSerialization = "1.7.1"
 materialKolor = "2.0.0"
 navigationCompose = "2.8.4"
@@ -22,10 +23,10 @@ retrofit2KotlinxSerializationConverter = "1.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
-coil-svg = { module = "io.coil-kt:coil-svg", version.ref = "coilSvg" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -40,7 +41,10 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 
-coil-kt-coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilComposeVersion" }
+coil3-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil3-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
+coil3-coil-svg = { module = "io.coil-kt.coil3:coil-svg", version.ref = "coil" }
+coil3-coil-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coilGif" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 material-kolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
