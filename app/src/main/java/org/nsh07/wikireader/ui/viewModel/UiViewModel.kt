@@ -8,12 +8,12 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.nsh07.wikireader.WikiReaderApplication
 import org.nsh07.wikireader.data.AppPreferencesRepository
 import org.nsh07.wikireader.data.WikipediaRepository
@@ -35,8 +35,11 @@ class UiViewModel(
     private val _preferencesState = MutableStateFlow(PreferencesState())
     val preferencesState: StateFlow<PreferencesState> = _preferencesState.asStateFlow()
 
+    var isReady = false
+    var isAnimDurationComplete = false
+
     init {
-        runBlocking { // Run blocking to delay app startup until theme is determined
+        viewModelScope.launch { // Run blocking to delay app startup until theme is determined
             val theme = appPreferencesRepository.readStringPreference("theme")
                 ?: appPreferencesRepository.saveStringPreference("theme", "auto")
 
@@ -73,6 +76,15 @@ class UiViewModel(
             _searchBarState.update { currentState ->
                 currentState.copy(history = appPreferencesRepository.readHistory() ?: emptySet())
             }
+
+            isReady = true
+        }
+    }
+
+    fun startAnimDuration() {
+        viewModelScope.launch {
+            delay(600)
+            isAnimDurationComplete = true
         }
     }
 
