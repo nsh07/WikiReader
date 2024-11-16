@@ -13,10 +13,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import coil.ImageLoader
-import coil.compose.SubcomposeAsyncImage
-import coil.decode.SvgDecoder
-import coil.request.ImageRequest
+import coil3.ImageLoader
+import coil3.compose.SubcomposeAsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
@@ -25,6 +25,7 @@ import org.nsh07.wikireader.data.WikiPhotoDesc
 fun PageImage(
     photo: WikiPhoto,
     photoDesc: WikiPhotoDesc,
+    imageLoader: ImageLoader,
     contentScale: ContentScale,
     modifier: Modifier = Modifier
 ) {
@@ -55,11 +56,7 @@ fun PageImage(
             )
         },
         contentDescription = photoDesc.description?.get(0) ?: "",
-        imageLoader = ImageLoader.Builder(LocalContext.current)
-            .components {
-                add(SvgDecoder.Factory())
-            }
-            .build(),
+        imageLoader = imageLoader,
         contentScale = contentScale,
         modifier = modifier
     )

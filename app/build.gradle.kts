@@ -73,8 +73,10 @@ dependencies {
     implementation(libs.retrofit2.retrofit)
     implementation(libs.retrofit2.kotlinx.serialization.converter)
     implementation(libs.okhttp)
-    implementation(libs.coil.kt.coil.compose)
-    implementation(libs.coil.svg)
+    implementation(libs.coil3.compose)
+    implementation(libs.coil3.network.okhttp)
+    implementation(libs.coil3.coil.svg)
+    implementation(libs.coil3.coil.gif)
     implementation(libs.material.kolor)
 
     testImplementation(libs.junit)

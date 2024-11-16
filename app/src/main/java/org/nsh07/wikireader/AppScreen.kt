@@ -1,5 +1,6 @@
 package org.nsh07.wikireader
 
+import android.os.Build.VERSION.SDK_INT
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -34,10 +35,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import coil3.ImageLoader
+import coil3.gif.AnimatedImageDecoder
+import coil3.gif.GifDecoder
+import coil3.svg.SvgDecoder
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.ui.AppHomeScreen
 import org.nsh07.wikireader.ui.FullScreenImage
@@ -57,6 +63,16 @@ fun AppScreen(
     val searchBarState by viewModel.searchBarState.collectAsState()
     val homeScreenState by viewModel.homeScreenState.collectAsState()
     val listState by viewModel.listState.collectAsState()
+    val imageLoader = ImageLoader.Builder(LocalContext.current)
+        .components {
+            add(SvgDecoder.Factory())
+            if (SDK_INT >= 28) {
+                add(AnimatedImageDecoder.Factory())
+            } else {
+                add(GifDecoder.Factory())
+            }
+        }
+        .build()
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -147,6 +163,7 @@ fun AppScreen(
                     homeScreenState = homeScreenState,
                     listState = listState,
                     preferencesState = preferencesState,
+                    imageLoader = imageLoader,
                     onImageClick = {
                         if (homeScreenState.photo != null)
                             navController.navigate("FullScreenImage")
@@ -164,6 +181,7 @@ fun AppScreen(
             FullScreenImage(
                 photo = homeScreenState.photo,
                 photoDesc = homeScreenState.photoDesc,
+                imageLoader = imageLoader,
                 onBack = { navController.navigateUp() }
             )
         }

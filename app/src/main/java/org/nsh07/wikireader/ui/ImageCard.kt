@@ -17,7 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil.compose.SubcomposeAsyncImage
+import coil3.ImageLoader
+import coil3.compose.SubcomposeAsyncImage
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
 
@@ -36,6 +37,7 @@ import org.nsh07.wikireader.data.WikiPhotoDesc
 fun ImageCard(
     photo: WikiPhoto?,
     photoDesc: WikiPhotoDesc,
+    imageLoader: ImageLoader,
     showPhoto: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -59,6 +61,7 @@ fun ImageCard(
                     photo = photo,
                     photoDesc = photoDesc,
                     contentScale = ContentScale.Crop,
+                    imageLoader = imageLoader,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
