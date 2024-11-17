@@ -1,5 +1,6 @@
 package org.nsh07.wikireader.ui.viewModel
 
+import android.util.Log
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
@@ -143,7 +144,8 @@ class UiViewModel(
                             isLoading = false
                         )
                     }
-                } catch (_: Exception) {
+                } catch (e: Exception) {
+                    Log.e("ViewModel", "Error in fetching results", e)
                     _homeScreenState.update { currentState ->
                         currentState.copy(
                             title = "Error",

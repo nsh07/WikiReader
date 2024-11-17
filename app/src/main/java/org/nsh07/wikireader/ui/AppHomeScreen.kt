@@ -94,11 +94,10 @@ fun AppHomeScreen(
                     }
                 }
 
-                for (i in 1..s) {
-                    if (i % 2 == 1) // Elements at odd indices are titles
+                for (i in 1..s step 2) {
                         item { // Expandable sections logic
                             SelectionContainer {
-                                ExpandableSection(
+                                    ExpandableSection(
                                     title = homeScreenState.extract[i],
                                     body = homeScreenState.extract[i + 1],
                                     fontSize = fontSize,

@@ -27,9 +27,11 @@ fun String.toColor(): Color {
 }
 
 /**
- * Function to parse a string returned by the Wikipedia API and convert it into a [List] or [String]s
+ * Function to parse a string returned by the Wikipedia API and convert it into a [List] of [String]s
  *
- * Output List is of the format:
+ * @param text The [String] returned by the Wikipedia API
+ *
+ * @return List of the format:
  *
  *      {intro text, heading1, body1, heading2, body2, ...}
  *
@@ -61,6 +63,17 @@ fun parseText(text: String): List<String> {
         text.slice(start..<l)
     else
         text.slice(start..<i)
+
+    val removeList = mutableListOf<String>()
+
+    out.forEachIndexed { index, content ->
+        if (content == "References" || content == "External links" || content == "Further reading") {
+            removeList += out[index]
+            removeList += out[index + 1]
+        }
+    }
+
+    out.removeAll(removeList)
 
     return out
 }
