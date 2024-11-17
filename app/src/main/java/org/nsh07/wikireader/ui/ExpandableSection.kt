@@ -6,6 +6,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -13,6 +16,7 @@ import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -31,12 +35,14 @@ import androidx.compose.ui.unit.sp
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ExpandableSection(
     title: String,
     body: String,
     fontSize: Int,
     expanded: Boolean,
+    onLinkClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by rememberSaveable { mutableStateOf(expanded) }
@@ -80,13 +86,25 @@ fun ExpandableSection(
             enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
             exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
         ) {
-            Text(
-                text = body,
-                style = MaterialTheme.typography.bodyLarge,
-                fontSize = fontSize.sp,
-                lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-            )
+            if (title != "See also")
+                Text(
+                    text = body,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontSize = fontSize.sp,
+                    lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+            else
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    body.split('\n').forEach {
+                        FilledTonalButton(onClick = { onLinkClick(it) }) {
+                            Text(text = it)
+                        }
+                    }
+                }
         }
     }
 }
@@ -99,6 +117,7 @@ fun ExpandableSectionPreview() {
             title = "Title",
             body = "Lorem\nIpsum\nBig\nHonkin\nBody\nText",
             fontSize = 16,
+            onLinkClick = {},
             expanded = false
         )
     }

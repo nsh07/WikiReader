@@ -46,6 +46,7 @@ fun AppHomeScreen(
     preferencesState: PreferencesState,
     imageLoader: ImageLoader,
     onImageClick: () -> Unit,
+    onLinkClick: (String) -> Unit,
     insets: PaddingValues,
     modifier: Modifier = Modifier
 ) {
@@ -95,16 +96,17 @@ fun AppHomeScreen(
                 }
 
                 for (i in 1..s step 2) {
-                        item { // Expandable sections logic
-                            SelectionContainer {
-                                    ExpandableSection(
-                                    title = homeScreenState.extract[i],
-                                    body = homeScreenState.extract[i + 1],
-                                    fontSize = fontSize,
-                                    expanded = preferencesState.expandedSections
-                                )
-                            }
+                    item { // Expandable sections logic
+                        SelectionContainer {
+                            ExpandableSection(
+                                title = homeScreenState.extract[i],
+                                body = homeScreenState.extract[i + 1],
+                                fontSize = fontSize,
+                                expanded = preferencesState.expandedSections,
+                                onLinkClick = onLinkClick
+                            )
                         }
+                    }
                 }
 
                 item {

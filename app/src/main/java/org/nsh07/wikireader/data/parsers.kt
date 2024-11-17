@@ -64,16 +64,19 @@ fun parseText(text: String): List<String> {
     else
         text.slice(start..<i)
 
-    val removeList = mutableListOf<String>()
+    val s = out.lastIndex
 
-    out.forEachIndexed { index, content ->
-        if (content == "References" || content == "External links" || content == "Further reading") {
-            removeList += out[index]
-            removeList += out[index + 1]
+    for (i in s downTo 1) {
+        if (out[i] == "References" || out[i] == "External links" || out[i] == "Further reading") {
+            out.removeAt(i + 1)
+            out.removeAt(i)
+        } else if (i + 1 <= out.lastIndex) {
+            if (out[i + 1].trim('\n') == "") {
+                out.removeAt(i + 1)
+                out.removeAt(i)
+            }
         }
     }
-
-    out.removeAll(removeList)
 
     return out
 }
