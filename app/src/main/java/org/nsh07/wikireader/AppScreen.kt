@@ -169,7 +169,7 @@ fun AppScreen(
                             navController.navigate("FullScreenImage")
                     },
                     insets = insets,
-                    onLinkClick = { viewModel.performSearch(it) },
+                    onLinkClick = { viewModel.performSearch(it, fromLink = true) },
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = insets.calculateTopPadding())

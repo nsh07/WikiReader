@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -32,12 +31,10 @@ fun AppFab(
                 else performRandomPageSearch()
             }
         ) {
-            Crossfade(targetState = index > 1) { isScrolled ->
-                // note that it's required to use the value passed by Crossfade
-                // instead of your state value
+            Crossfade(targetState = index > 1, label = "FAB Icon Crossfade") { isScrolled ->
                 if (isScrolled) {
                     Icon(
-                        Icons.Outlined.KeyboardArrowUp,
+                        painterResource(R.drawable.upward),
                         contentDescription = stringResource(R.string.scroll_to_top)
                     )
                 } else {

@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil3.ImageLoader
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
@@ -85,12 +84,14 @@ fun AppHomeScreen(
                 }
                 item { // Main description
                     SelectionContainer {
-                        Text(
-                            text = homeScreenState.extract[0],
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontSize = fontSize.sp,
-                            lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
-                            modifier = Modifier.padding(16.dp)
+                        ParsedBodyText(
+                            title = "",
+                            pageTitle = homeScreenState.title.substringBefore("(disam").trim(),
+                            body = homeScreenState.extract[0],
+                            fontSize = fontSize,
+                            description = photoDesc?.description?.get(0) ?: "",
+                            intro = true,
+                            onLinkClick = onLinkClick
                         )
                     }
                 }
@@ -100,8 +101,10 @@ fun AppHomeScreen(
                         SelectionContainer {
                             ExpandableSection(
                                 title = homeScreenState.extract[i],
+                                pageTitle = homeScreenState.title.substringBefore("(disam").trim(),
                                 body = homeScreenState.extract[i + 1],
                                 fontSize = fontSize,
+                                description = photoDesc?.description?.get(0) ?: "",
                                 expanded = preferencesState.expandedSections,
                                 onLinkClick = onLinkClick
                             )

@@ -96,12 +96,12 @@ class UiViewModel(
      *
      * @param query Search query string
      */
-    fun performSearch(query: String?, random: Boolean = false) {
+    fun performSearch(query: String?, random: Boolean = false, fromLink: Boolean = false) {
         val q = query?.trim() ?: " "
         val history = searchBarState.value.history.toMutableSet()
 
         if (q != "") {
-            if (!random) {
+            if (!random && !fromLink) {
                 history.remove(q)
                 history.add(q)
                 if (history.size > 50) history.remove(history.first())
@@ -162,7 +162,7 @@ class UiViewModel(
         }
 
         _searchBarState.update { currentState ->
-            if (!random)
+            if (!random && !fromLink)
                 currentState.copy(
                     query = q,
                     isSearchBarExpanded = false,
