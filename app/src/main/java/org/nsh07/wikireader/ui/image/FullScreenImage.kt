@@ -1,4 +1,4 @@
-package org.nsh07.wikireader.ui
+package org.nsh07.wikireader.ui.image
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -33,7 +33,6 @@ import coil3.ImageLoader
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
-import org.nsh07.wikireader.ui.scaffoldComponents.FullScreenImageTopBar
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)

@@ -1,4 +1,4 @@
-package org.nsh07.wikireader.ui
+package org.nsh07.wikireader.ui.image
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing

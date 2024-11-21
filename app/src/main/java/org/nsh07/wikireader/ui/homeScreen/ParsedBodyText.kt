@@ -1,4 +1,4 @@
-package org.nsh07.wikireader.ui
+package org.nsh07.wikireader.ui.homeScreen
 
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.padding
@@ -65,7 +65,10 @@ fun ParsedBodyText(
                             append(curr.substringAfter(')') + '\n')
                         } else {
                             withLink(link) { append(curr.substringBefore(',')) }
-                            append(',' + curr.substringAfter(',') + '\n')
+                            val appendText =
+                                curr.substringAfter(',', missingDelimiterValue = "no-delimiter")
+                            if (appendText != "no-delimiter") append(",$appendText\n")
+                            else append('\n')
                         }
                     }
                 }

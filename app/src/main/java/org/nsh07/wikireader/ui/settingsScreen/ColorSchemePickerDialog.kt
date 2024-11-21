@@ -1,4 +1,4 @@
-package org.nsh07.wikireader.ui.dialogs
+package org.nsh07.wikireader.ui.settingsScreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column

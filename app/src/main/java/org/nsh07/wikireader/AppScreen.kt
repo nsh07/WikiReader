@@ -45,11 +45,11 @@ import coil3.gif.AnimatedImageDecoder
 import coil3.gif.GifDecoder
 import coil3.svg.SvgDecoder
 import kotlinx.coroutines.launch
-import org.nsh07.wikireader.ui.AppHomeScreen
-import org.nsh07.wikireader.ui.FullScreenImage
-import org.nsh07.wikireader.ui.SettingsScreen
-import org.nsh07.wikireader.ui.scaffoldComponents.AppFab
-import org.nsh07.wikireader.ui.scaffoldComponents.AppSearchBar
+import org.nsh07.wikireader.ui.homeScreen.AppFab
+import org.nsh07.wikireader.ui.homeScreen.AppHomeScreen
+import org.nsh07.wikireader.ui.homeScreen.AppSearchBar
+import org.nsh07.wikireader.ui.image.FullScreenImage
+import org.nsh07.wikireader.ui.settingsScreen.SettingsScreen
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.viewModel.UiViewModel
 

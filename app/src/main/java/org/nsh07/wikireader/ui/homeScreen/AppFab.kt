@@ -1,4 +1,4 @@
-package org.nsh07.wikireader.ui.scaffoldComponents
+package org.nsh07.wikireader.ui.homeScreen
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Column

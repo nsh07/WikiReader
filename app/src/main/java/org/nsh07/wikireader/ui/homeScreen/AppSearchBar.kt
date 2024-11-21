@@ -1,4 +1,4 @@
-package org.nsh07.wikireader.ui.scaffoldComponents
+package org.nsh07.wikireader.ui.homeScreen
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable

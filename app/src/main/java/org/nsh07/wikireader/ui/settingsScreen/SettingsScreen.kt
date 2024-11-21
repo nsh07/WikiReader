@@ -1,4 +1,4 @@
-package org.nsh07.wikireader.ui
+package org.nsh07.wikireader.ui.settingsScreen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -23,9 +23,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.toColor
-import org.nsh07.wikireader.ui.dialogs.ColorSchemePickerDialog
-import org.nsh07.wikireader.ui.dialogs.ThemeDialog
-import org.nsh07.wikireader.ui.scaffoldComponents.SettingsTopBar
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.viewModel.UiViewModel
 import kotlin.math.round

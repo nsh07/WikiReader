@@ -1,4 +1,4 @@
-package org.nsh07.wikireader.ui.scaffoldComponents
+package org.nsh07.wikireader.ui.settingsScreen
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
