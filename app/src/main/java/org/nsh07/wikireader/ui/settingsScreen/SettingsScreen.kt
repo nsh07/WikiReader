@@ -2,8 +2,12 @@ package org.nsh07.wikireader.ui.settingsScreen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -12,6 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -20,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.toColor
@@ -48,6 +54,8 @@ fun SettingsScreen(
 
     val theme = preferencesState.theme
     val color = preferencesState.colorScheme.toColor()
+
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     var blackTheme by remember { mutableStateOf(preferencesState.blackTheme) }
     var expandedSections by remember { mutableStateOf(preferencesState.expandedSections) }
@@ -80,10 +88,18 @@ fun SettingsScreen(
         )
 
     Scaffold(
-        topBar = { SettingsTopBar(onBack = onBack) },
-        modifier = modifier.fillMaxSize()
+        topBar = { SettingsTopBar(scrollBehavior = scrollBehavior, onBack = onBack) },
+        modifier = modifier
+            .fillMaxSize()
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { insets ->
-        Column(modifier = Modifier.padding(top = insets.calculateTopPadding())) {
+        Column(
+            modifier = Modifier
+                .padding(top = insets.calculateTopPadding())
+                .verticalScroll(
+                    rememberScrollState()
+                )
+        ) {
             ListItem(
                 leadingContent = {
                     Icon(
@@ -192,6 +208,8 @@ fun SettingsScreen(
                     )
                 }
             )
+
+            Spacer(Modifier.height(insets.calculateBottomPadding()))
         }
     }
 }

@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import org.nsh07.wikireader.data.toColor
+import org.nsh07.wikireader.ui.AppScreen
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 import org.nsh07.wikireader.ui.viewModel.UiViewModel
 

@@ -1,4 +1,4 @@
-package org.nsh07.wikireader.ui.settingsScreen
+package org.nsh07.wikireader.ui.aboutScreen
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -12,11 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import org.nsh07.wikireader.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsTopBar(scrollBehavior: TopAppBarScrollBehavior, onBack: () -> Unit) {
+@OptIn(ExperimentalMaterial3Api::class)
+fun AboutTopAppBar(scrollBehavior: TopAppBarScrollBehavior, onBack: () -> Unit) {
     LargeTopAppBar(
-        title = { Text("Settings") },
+        title = { Text("About") },
         navigationIcon = {
             IconButton(onClick = onBack) {
                 Icon(

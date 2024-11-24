@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
@@ -55,6 +56,7 @@ fun AppSearchBar(
     removeHistoryItem: (String) -> Unit,
     clearHistory: () -> Unit,
     onSettingsClick: ((Boolean) -> Unit) -> Unit,
+    onAboutClick: ((Boolean) -> Unit) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = searchBarState.focusRequester
@@ -102,6 +104,17 @@ fun AppSearchBar(
                                     leadingIcon = {
                                         Icon(
                                             Icons.Outlined.Settings,
+                                            contentDescription = null
+                                        )
+                                    },
+                                    modifier = Modifier.width(200.dp)
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("About") },
+                                    onClick = { onAboutClick(setDropdownExpanded) },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Outlined.Info,
                                             contentDescription = null
                                         )
                                     },
@@ -196,7 +209,7 @@ fun AppSearchBarPreview() {
     WikiReaderTheme {
         AppSearchBar(
             searchBarState = SearchBarState(),
-            {}, {}, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}
         )
     }
 }
