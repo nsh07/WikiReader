@@ -13,7 +13,7 @@ activityCompose = "1.9.3"
 composeBom = "2024.11.00"
 lifecycleViewmodelCompose = "2.8.7"
 
-coil = "3.0.3"
+coil = "3.0.4"
 kotlinxSerialization = "1.7.3"
 materialKolor = "2.0.0"
 navigationCompose = "2.8.4"
