@@ -1,5 +1,6 @@
 package org.nsh07.wikireader.ui.aboutScreen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,8 +37,9 @@ fun AboutScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit
 ) {
-    // TODO: Implement clickable ListItems
+    val uriHandler = LocalUriHandler.current
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
     Scaffold(
         topBar = { AboutTopAppBar(scrollBehavior = scrollBehavior, onBack = onBack) },
         modifier = modifier
@@ -79,21 +82,30 @@ fun AboutScreen(
                             Icon(painterResource(R.drawable.code), null)
                         },
                         headlineContent = { Text("Source code") },
-                        supportingContent = { Text("GitHub") }
+                        supportingContent = { Text("GitHub") },
+                        modifier = Modifier.clickable(onClick = {
+                            uriHandler.openUri("https://github.com/nsh07/WikiReader")
+                        })
                     )
                     ListItem(
                         leadingContent = {
                             Icon(painterResource(R.drawable.gavel), null)
                         },
                         headlineContent = { Text("License") },
-                        supportingContent = { Text("GPL v3.0") }
+                        supportingContent = { Text("GPL v3.0") },
+                        modifier = Modifier.clickable(onClick = {
+                            uriHandler.openUri("https://github.com/nsh07/WikiReader/blob/main/LICENSE")
+                        })
                     )
                     ListItem(
                         leadingContent = {
                             Icon(painterResource(R.drawable.update), null)
                         },
                         headlineContent = { Text("Releases") },
-                        supportingContent = { Text("Check out older and newer versions") }
+                        supportingContent = { Text("Check out older and newer versions") },
+                        modifier = Modifier.clickable(onClick = {
+                            uriHandler.openUri("https://github.com/nsh07/WikiReader/releases")
+                        })
                     )
                 }
             }
@@ -117,7 +129,10 @@ fun AboutScreen(
                             )
                         },
                         headlineContent = { Text("Nishant Mishra") },
-                        supportingContent = { Text("Check out my other projects on GitHub") }
+                        supportingContent = { Text("Check out my other projects on GitHub") },
+                        modifier = Modifier.clickable(onClick = {
+                            uriHandler.openUri("https://github.com/nsh07")
+                        })
                     )
                 }
             }
@@ -129,6 +144,6 @@ fun AboutScreen(
 @Composable
 fun AboutScreenPreview() {
     WikiReaderTheme(darkTheme = true) {
-        AboutScreen() {}
+        AboutScreen {}
     }
 }
