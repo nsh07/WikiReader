@@ -19,8 +19,10 @@ import org.nsh07.wikireader.WikiReaderApplication
 import org.nsh07.wikireader.data.AppPreferencesRepository
 import org.nsh07.wikireader.data.WikipediaRepository
 import org.nsh07.wikireader.data.parseText
+import org.nsh07.wikireader.network.HostSelectionInterceptor
 
 class UiViewModel(
+    private val interceptor: HostSelectionInterceptor,
     private val wikipediaRepository: WikipediaRepository,
     private val appPreferencesRepository: AppPreferencesRepository
 ) : ViewModel() {
@@ -273,9 +275,11 @@ class UiViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = (this[APPLICATION_KEY] as WikiReaderApplication)
+                val interceptor = application.container.interceptor
                 val wikipediaRepository = application.container.wikipediaRepository
                 val appPreferencesRepository = application.container.appPreferencesRepository
                 UiViewModel(
+                    interceptor = interceptor,
                     wikipediaRepository = wikipediaRepository,
                     appPreferencesRepository = appPreferencesRepository
                 )
