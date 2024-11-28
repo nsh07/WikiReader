@@ -84,6 +84,7 @@ class UiViewModel(
                 currentState.copy(history = appPreferencesRepository.readHistory() ?: emptySet())
             }
 
+            interceptor.setHost("$lang.wikipedia.org")
             isReady = true
         }
     }

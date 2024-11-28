@@ -1,0 +1,11 @@
+v1.8.0
+
+New features:
+- Option for choosing Wikipedia language (from over 300 languages!)
+- Page links in the See Also section and on disambiguation pages (currently supported on English only)
+- New About section
+- New themed icon
+
+Improvements:
+- Settings page is now scrollable
+- Removed unnecessary and empty sections
