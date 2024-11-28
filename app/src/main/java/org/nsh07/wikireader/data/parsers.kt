@@ -27,9 +27,11 @@ fun String.toColor(): Color {
 }
 
 /**
- * Function to parse a string returned by the Wikipedia API and convert it into a [List] or [String]s
+ * Function to parse a string returned by the Wikipedia API and convert it into a [List] of [String]s
  *
- * Output List is of the format:
+ * @param text The [String] returned by the Wikipedia API
+ *
+ * @return List of the format:
  *
  *      {intro text, heading1, body1, heading2, body2, ...}
  *
@@ -62,5 +64,27 @@ fun parseText(text: String): List<String> {
     else
         text.slice(start..<i)
 
+    val s = out.lastIndex
+
+    for (i in s downTo 1) {
+        if (out[i] == "References" || out[i] == "External links") {
+            out.removeAt(i + 1)
+            out.removeAt(i)
+        } else if (i + 1 <= out.lastIndex) {
+            if (out[i + 1].trim('\n') == "") {
+                out.removeAt(i + 1)
+                out.removeAt(i)
+            }
+        }
+    }
+
     return out
+}
+
+fun langNameToCode(langName: String): String {
+    return LanguageData.langCodes[LanguageData.langNames.binarySearch(langName)]
+}
+
+fun langCodeToName(langCode: String): String {
+    return LanguageData.langNames[LanguageData.langCodes.indexOf(langCode)]
 }

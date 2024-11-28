@@ -56,6 +56,7 @@ Supports light mode, dark mode and Material You dynamic colors
 - **Article image:** View an image of the topic from its Wikipedia page. Click on it to enlarge it
   and view in full-screen
 - **Random article:** Feeling lucky? Click the random article button to read a random article
+- **Choose your language:** Choose from over 300 languages on Wikipedia
 - **One-handed use:** Use the floating action buttons at the bottom for a complete one-handed
   experience
 - **Lightweight:** The app starts instantly, and works smoothly

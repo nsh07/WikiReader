@@ -1,9 +1,14 @@
-package org.nsh07.wikireader.ui
+package org.nsh07.wikireader.ui.settingsScreen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -12,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -20,12 +26,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.toColor
-import org.nsh07.wikireader.ui.dialogs.ColorSchemePickerDialog
-import org.nsh07.wikireader.ui.dialogs.ThemeDialog
-import org.nsh07.wikireader.ui.scaffoldComponents.SettingsTopBar
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.viewModel.UiViewModel
 import kotlin.math.round
@@ -52,6 +57,8 @@ fun SettingsScreen(
     val theme = preferencesState.theme
     val color = preferencesState.colorScheme.toColor()
 
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
     var blackTheme by remember { mutableStateOf(preferencesState.blackTheme) }
     var expandedSections by remember { mutableStateOf(preferencesState.expandedSections) }
     var dataSaver by remember { mutableStateOf(preferencesState.dataSaver) }
@@ -65,6 +72,7 @@ fun SettingsScreen(
 
     val (showThemeDialog, setShowThemeDialog) = remember { mutableStateOf(false) }
     val (showColorSchemeDialog, setShowColorSchemeDialog) = remember { mutableStateOf(false) }
+    val (showLanguageSheet, setShowLanguageSheet) = remember { mutableStateOf(false) }
     var fontSizeFloat by remember { mutableFloatStateOf(preferencesState.fontSize.toFloat()) }
 
     if (showThemeDialog)
@@ -81,12 +89,27 @@ fun SettingsScreen(
             onColorChange = { viewModel.saveColorScheme(it.toString()) },
             setShowDialog = setShowColorSchemeDialog
         )
+    if (showLanguageSheet)
+        LanguageBottomSheet(
+            lang = preferencesState.lang,
+            setShowSheet = setShowLanguageSheet,
+            setLang = { viewModel.saveLang(it) },
+            modifier = Modifier.statusBarsPadding()
+        )
 
     Scaffold(
-        topBar = { SettingsTopBar(onBack = onBack) },
-        modifier = modifier.fillMaxSize()
+        topBar = { SettingsTopBar(scrollBehavior = scrollBehavior, onBack = onBack) },
+        modifier = modifier
+            .fillMaxSize()
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { insets ->
-        Column(modifier = Modifier.padding(top = insets.calculateTopPadding())) {
+        Column(
+            modifier = Modifier
+                .padding(top = insets.calculateTopPadding())
+                .verticalScroll(
+                    rememberScrollState()
+                )
+        ) {
             ListItem(
                 leadingContent = {
                     Icon(
@@ -114,6 +137,18 @@ fun SettingsScreen(
                 },
                 modifier = Modifier
                     .clickable(onClick = { setShowColorSchemeDialog(true) })
+            )
+            ListItem(
+                leadingContent = {
+                    Icon(
+                        painterResource(R.drawable.translate),
+                        contentDescription = null
+                    )
+                },
+                headlineContent = { Text("Wikipedia Language") },
+                supportingContent = { Text(langCodeToName(preferencesState.lang)) },
+                modifier = Modifier
+                    .clickable(onClick = { setShowLanguageSheet(true) })
             )
             ListItem(
                 leadingContent = {
@@ -184,7 +219,7 @@ fun SettingsScreen(
                     )
                 },
                 headlineContent = { Text("Data saver") },
-                supportingContent = { Text("Only load page image in fullscreen view") },
+                supportingContent = { Text("Only load page image in fullscreen") },
                 trailingContent = {
                     Switch(
                         checked = dataSaver,
@@ -195,6 +230,8 @@ fun SettingsScreen(
                     )
                 }
             )
+
+            Spacer(Modifier.height(insets.calculateBottomPadding()))
         }
     }
 }

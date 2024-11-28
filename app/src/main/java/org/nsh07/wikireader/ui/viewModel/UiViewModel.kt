@@ -1,5 +1,6 @@
 package org.nsh07.wikireader.ui.viewModel
 
+import android.util.Log
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
@@ -18,8 +19,10 @@ import org.nsh07.wikireader.WikiReaderApplication
 import org.nsh07.wikireader.data.AppPreferencesRepository
 import org.nsh07.wikireader.data.WikipediaRepository
 import org.nsh07.wikireader.data.parseText
+import org.nsh07.wikireader.network.HostSelectionInterceptor
 
 class UiViewModel(
+    private val interceptor: HostSelectionInterceptor,
     private val wikipediaRepository: WikipediaRepository,
     private val appPreferencesRepository: AppPreferencesRepository
 ) : ViewModel() {
@@ -43,6 +46,9 @@ class UiViewModel(
             val theme = appPreferencesRepository.readStringPreference("theme")
                 ?: appPreferencesRepository.saveStringPreference("theme", "auto")
 
+            val lang = appPreferencesRepository.readStringPreference("lang")
+                ?: appPreferencesRepository.saveStringPreference("lang", "en")
+
             val colorScheme = appPreferencesRepository.readStringPreference("color-scheme")
                 ?: appPreferencesRepository.saveStringPreference(
                     "color-scheme",
@@ -65,6 +71,7 @@ class UiViewModel(
             _preferencesState.update { currentState ->
                 currentState.copy(
                     theme = theme,
+                    lang = lang,
                     colorScheme = colorScheme,
                     fontSize = fontSize,
                     blackTheme = blackTheme,
@@ -77,6 +84,7 @@ class UiViewModel(
                 currentState.copy(history = appPreferencesRepository.readHistory() ?: emptySet())
             }
 
+            interceptor.setHost("$lang.wikipedia.org")
             isReady = true
         }
     }
@@ -95,12 +103,12 @@ class UiViewModel(
      *
      * @param query Search query string
      */
-    fun performSearch(query: String?, random: Boolean = false) {
+    fun performSearch(query: String?, random: Boolean = false, fromLink: Boolean = false) {
         val q = query?.trim() ?: " "
         val history = searchBarState.value.history.toMutableSet()
 
         if (q != "") {
-            if (!random) {
+            if (!random && !fromLink) {
                 history.remove(q)
                 history.add(q)
                 if (history.size > 50) history.remove(history.first())
@@ -143,7 +151,8 @@ class UiViewModel(
                             isLoading = false
                         )
                     }
-                } catch (_: Exception) {
+                } catch (e: Exception) {
+                    Log.e("ViewModel", "Error in fetching results", e)
                     _homeScreenState.update { currentState ->
                         currentState.copy(
                             title = "Error",
@@ -160,7 +169,7 @@ class UiViewModel(
         }
 
         _searchBarState.update { currentState ->
-            if (!random)
+            if (!random && !fromLink)
                 currentState.copy(
                     query = q,
                     isSearchBarExpanded = false,
@@ -218,6 +227,18 @@ class UiViewModel(
         }
     }
 
+    fun saveLang(lang: String) {
+        viewModelScope.launch {
+            _preferencesState.update { currentState ->
+                currentState.copy(
+                    lang = appPreferencesRepository
+                        .saveStringPreference("lang", lang)
+                )
+            }
+            interceptor.setHost("$lang.wikipedia.org")
+        }
+    }
+
     fun saveColorScheme(colorScheme: String) {
         viewModelScope.launch {
             _preferencesState.update { currentState ->
@@ -271,9 +292,11 @@ class UiViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = (this[APPLICATION_KEY] as WikiReaderApplication)
+                val interceptor = application.container.interceptor
                 val wikipediaRepository = application.container.wikipediaRepository
                 val appPreferencesRepository = application.container.appPreferencesRepository
                 UiViewModel(
+                    interceptor = interceptor,
                     wikipediaRepository = wikipediaRepository,
                     appPreferencesRepository = appPreferencesRepository
                 )

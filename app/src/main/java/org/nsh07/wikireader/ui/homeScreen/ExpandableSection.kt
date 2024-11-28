@@ -1,4 +1,4 @@
-package org.nsh07.wikireader.ui
+package org.nsh07.wikireader.ui.homeScreen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -34,9 +34,12 @@ import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 @Composable
 fun ExpandableSection(
     title: String,
+    pageTitle: String,
     body: String,
     fontSize: Int,
+    description: String,
     expanded: Boolean,
+    onLinkClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by rememberSaveable { mutableStateOf(expanded) }
@@ -80,12 +83,13 @@ fun ExpandableSection(
             enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
             exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
         ) {
-            Text(
-                text = body,
-                style = MaterialTheme.typography.bodyLarge,
-                fontSize = fontSize.sp,
-                lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            ParsedBodyText(
+                title = title,
+                pageTitle = pageTitle,
+                body = body,
+                fontSize = fontSize,
+                description = description,
+                onLinkClick = onLinkClick
             )
         }
     }
@@ -97,8 +101,11 @@ fun ExpandableSectionPreview() {
     WikiReaderTheme {
         ExpandableSection(
             title = "Title",
+            pageTitle = "Hello",
             body = "Lorem\nIpsum\nBig\nHonkin\nBody\nText",
             fontSize = 16,
+            description = "",
+            onLinkClick = {},
             expanded = false
         )
     }
