@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.toColor
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.viewModel.UiViewModel
@@ -70,6 +72,7 @@ fun SettingsScreen(
 
     val (showThemeDialog, setShowThemeDialog) = remember { mutableStateOf(false) }
     val (showColorSchemeDialog, setShowColorSchemeDialog) = remember { mutableStateOf(false) }
+    val (showLanguageSheet, setShowLanguageSheet) = remember { mutableStateOf(false) }
     var fontSizeFloat by remember { mutableFloatStateOf(preferencesState.fontSize.toFloat()) }
 
     if (showThemeDialog)
@@ -85,6 +88,13 @@ fun SettingsScreen(
             currentColor = color,
             onColorChange = { viewModel.saveColorScheme(it.toString()) },
             setShowDialog = setShowColorSchemeDialog
+        )
+    if (showLanguageSheet)
+        LanguageBottomSheet(
+            lang = preferencesState.lang,
+            setShowSheet = setShowLanguageSheet,
+            setLang = { viewModel.saveLang(it) },
+            modifier = Modifier.statusBarsPadding()
         )
 
     Scaffold(
@@ -127,6 +137,18 @@ fun SettingsScreen(
                 },
                 modifier = Modifier
                     .clickable(onClick = { setShowColorSchemeDialog(true) })
+            )
+            ListItem(
+                leadingContent = {
+                    Icon(
+                        painterResource(R.drawable.translate),
+                        contentDescription = null
+                    )
+                },
+                headlineContent = { Text("Wikipedia Language") },
+                supportingContent = { Text(langCodeToName(preferencesState.lang)) },
+                modifier = Modifier
+                    .clickable(onClick = { setShowLanguageSheet(true) })
             )
             ListItem(
                 leadingContent = {

@@ -46,6 +46,9 @@ class UiViewModel(
             val theme = appPreferencesRepository.readStringPreference("theme")
                 ?: appPreferencesRepository.saveStringPreference("theme", "auto")
 
+            val lang = appPreferencesRepository.readStringPreference("lang")
+                ?: appPreferencesRepository.saveStringPreference("lang", "en")
+
             val colorScheme = appPreferencesRepository.readStringPreference("color-scheme")
                 ?: appPreferencesRepository.saveStringPreference(
                     "color-scheme",
@@ -68,6 +71,7 @@ class UiViewModel(
             _preferencesState.update { currentState ->
                 currentState.copy(
                     theme = theme,
+                    lang = lang,
                     colorScheme = colorScheme,
                     fontSize = fontSize,
                     blackTheme = blackTheme,
@@ -219,6 +223,18 @@ class UiViewModel(
                         .saveStringPreference("theme", theme)
                 )
             }
+        }
+    }
+
+    fun saveLang(lang: String) {
+        viewModelScope.launch {
+            _preferencesState.update { currentState ->
+                currentState.copy(
+                    lang = appPreferencesRepository
+                        .saveStringPreference("lang", lang)
+                )
+            }
+            interceptor.setHost("$lang.wikipedia.org")
         }
     }
 
