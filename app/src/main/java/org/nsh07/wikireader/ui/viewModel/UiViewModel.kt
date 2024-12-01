@@ -38,6 +38,9 @@ class UiViewModel(
     private val _preferencesState = MutableStateFlow(PreferencesState())
     val preferencesState: StateFlow<PreferencesState> = _preferencesState.asStateFlow()
 
+    private val backStack = mutableListOf<String>()
+    private var lastQuery: String? = null
+
     var isReady = false
     var isAnimDurationComplete = false
 
@@ -103,23 +106,34 @@ class UiViewModel(
      *
      * @param query Search query string
      */
-    fun performSearch(query: String?, random: Boolean = false, fromLink: Boolean = false) {
+    fun performSearch(
+        query: String?,
+        random: Boolean = false,
+        fromLink: Boolean = false,
+        fromBackStack: Boolean = false
+    ) {
         val q = query?.trim() ?: " "
         val history = searchBarState.value.history.toMutableSet()
 
         if (q != "") {
-            if (!random && !fromLink) {
+            if (!random && !fromLink && !fromBackStack) {
                 history.remove(q)
                 history.add(q)
                 if (history.size > 50) history.remove(history.first())
             }
 
             viewModelScope.launch {
+                if (lastQuery != null) {
+                    if (!fromBackStack) backStack.add(lastQuery!!)
+                    lastQuery = q
+                } else lastQuery = q
+
                 _homeScreenState.update { currentState ->
                     currentState.copy(isLoading = true)
                 }
 
-                if (!random) appPreferencesRepository.saveHistory(history)
+                if (!random && !fromLink && !fromBackStack)
+                    appPreferencesRepository.saveHistory(history)
 
                 try {
                     val apiResponse = when (random) {
@@ -148,7 +162,8 @@ class UiViewModel(
                             extract = extract,
                             photo = apiResponse?.photo,
                             photoDesc = apiResponse?.photoDesc,
-                            isLoading = false
+                            isLoading = false,
+                            isBackStackEmpty = backStack.isEmpty()
                         )
                     }
                 } catch (e: Exception) {
@@ -169,7 +184,7 @@ class UiViewModel(
         }
 
         _searchBarState.update { currentState ->
-            if (!random && !fromLink)
+            if (!random && !fromLink && !fromBackStack)
                 currentState.copy(
                     query = q,
                     isSearchBarExpanded = false,
@@ -178,6 +193,10 @@ class UiViewModel(
             else
                 currentState.copy(isSearchBarExpanded = false)
         }
+    }
+
+    fun popBackStack(): String? {
+        return backStack.removeLastOrNull()
     }
 
     fun setExpanded(expanded: Boolean) {

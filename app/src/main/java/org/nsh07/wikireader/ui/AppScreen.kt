@@ -1,6 +1,7 @@
 package org.nsh07.wikireader.ui
 
 import android.os.Build.VERSION.SDK_INT
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -113,6 +114,10 @@ fun AppScreen(
         modifier = modifier.background(MaterialTheme.colorScheme.background)
     ) {
         composable("HomeScreen") {
+            BackHandler(!homeScreenState.isBackStackEmpty) {
+                viewModel.performSearch(viewModel.popBackStack(), fromBackStack = true)
+            }
+
             if (showDeleteDialog)
                 DeleteHistoryItemDialog(
                     historyItem,
@@ -121,6 +126,7 @@ fun AppScreen(
                     if (historyItem != "") viewModel.removeHistoryItem(it)
                     else viewModel.clearHistory()
                 }
+
             Scaffold(
                 topBar = {
                     AppSearchBar(

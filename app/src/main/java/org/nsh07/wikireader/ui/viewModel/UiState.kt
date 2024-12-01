@@ -17,7 +17,8 @@ data class HomeScreenState(
     val extract: List<String> = emptyList(),
     val photo: WikiPhoto? = null,
     val photoDesc: WikiPhotoDesc? = null,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isBackStackEmpty: Boolean = false
 )
 
 data class PreferencesState(
