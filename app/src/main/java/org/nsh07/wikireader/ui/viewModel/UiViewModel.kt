@@ -180,6 +180,7 @@ class UiViewModel(
                 }
 
                 listState.value.scrollToItem(0)
+                if (fromLink) resetLang()
             }
         }
 
@@ -256,6 +257,14 @@ class UiViewModel(
             }
             interceptor.setHost("$lang.wikipedia.org")
         }
+    }
+
+    fun setLang(lang: String) {
+        interceptor.setHost("$lang.wikipedia.org")
+    }
+
+    fun resetLang() {
+        interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
     }
 
     fun saveColorScheme(colorScheme: String) {

@@ -28,6 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -41,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navDeepLink
 import coil3.ImageLoader
 import coil3.gif.AnimatedImageDecoder
 import coil3.gif.GifDecoder
@@ -86,7 +88,7 @@ fun AppScreen(
 
     NavHost(
         navController = navController,
-        startDestination = "HomeScreen",
+        startDestination = "home",
         enterTransition = {
             slideInHorizontally(
                 initialOffsetX = { it / 8 },
@@ -113,7 +115,23 @@ fun AppScreen(
         },
         modifier = modifier.background(MaterialTheme.colorScheme.background)
     ) {
-        composable("HomeScreen") {
+        composable(
+            "home?query={query}&lang={lang}",
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "https://{lang}.wikipedia.org/wiki/{query}" },
+                navDeepLink { uriPattern = "https://{lang}.m.wikipedia.org/wiki/{query}" },
+                navDeepLink { uriPattern = "http://{lang}.wikipedia.org/wiki/{query}" },
+                navDeepLink { uriPattern = "http://{lang}.m.wikipedia.org/wiki/{query}" }
+            )
+        ) { backStackEntry ->
+            LaunchedEffect(null) {
+                val uriQuery = backStackEntry.arguments?.getString("query") ?: ""
+                if (uriQuery != "") {
+                    viewModel.setLang(backStackEntry.arguments?.getString("lang") ?: "en")
+                    viewModel.performSearch(uriQuery, fromLink = true)
+                }
+            }
+
             BackHandler(!homeScreenState.isBackStackEmpty) {
                 viewModel.performSearch(viewModel.popBackStack(), fromBackStack = true)
             }
