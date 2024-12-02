@@ -202,6 +202,8 @@ fun AppScreen(
                     },
                     insets = insets,
                     onLinkClick = { viewModel.performSearch(it, fromLink = true) },
+                    setLang = { viewModel.saveLang(it) },
+                    performSearch = { viewModel.performSearch(it) },
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = insets.calculateTopPadding())

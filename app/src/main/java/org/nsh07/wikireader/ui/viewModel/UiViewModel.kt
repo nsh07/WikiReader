@@ -113,7 +113,7 @@ class UiViewModel(
         fromLink: Boolean = false,
         fromBackStack: Boolean = false
     ) {
-        val q = query?.trim() ?: " "
+        val q = query?.trim() ?: ""
         val history = searchBarState.value.history.toMutableSet()
 
         if (q != "") {
@@ -126,7 +126,7 @@ class UiViewModel(
 
             viewModelScope.launch {
                 if (lastQuery != null) {
-                    if (!fromBackStack) backStack.add(lastQuery!!)
+                    if (!fromBackStack && q != lastQuery) backStack.add(lastQuery!!)
                     lastQuery = q
                 } else lastQuery = q
 
@@ -164,6 +164,7 @@ class UiViewModel(
                             extract = extract,
                             photo = apiResponse?.photo,
                             photoDesc = apiResponse?.photoDesc,
+                            langs = apiResponse?.langs,
                             isLoading = false,
                             isBackStackEmpty = backStack.isEmpty()
                         )
@@ -174,6 +175,7 @@ class UiViewModel(
                         currentState.copy(
                             title = "Error",
                             extract = listOf("No internet connection"),
+                            langs = null,
                             photo = null,
                             photoDesc = null,
                             isLoading = false
@@ -197,6 +199,19 @@ class UiViewModel(
             else
                 currentState.copy(isSearchBarExpanded = false)
         }
+    }
+
+    fun refreshSearch(
+        random: Boolean = false,
+        fromLink: Boolean = false,
+        fromBackStack: Boolean = false
+    ) {
+        performSearch(
+            lastQuery,
+            random = random,
+            fromLink = fromLink,
+            fromBackStack = fromBackStack
+        )
     }
 
     fun popBackStack(): String? {
@@ -251,6 +266,7 @@ class UiViewModel(
     }
 
     fun saveLang(lang: String) {
+        interceptor.setHost("$lang.wikipedia.org")
         viewModelScope.launch {
             _preferencesState.update { currentState ->
                 currentState.copy(
@@ -258,7 +274,6 @@ class UiViewModel(
                         .saveStringPreference("lang", lang)
                 )
             }
-            interceptor.setHost("$lang.wikipedia.org")
         }
     }
 

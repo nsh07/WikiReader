@@ -81,10 +81,7 @@ fun parseText(text: String): List<String> {
     return out
 }
 
-fun langNameToCode(langName: String): String {
-    return LanguageData.langCodes[LanguageData.langNames.binarySearch(langName)]
-}
-
 fun langCodeToName(langCode: String): String {
-    return LanguageData.langNames[LanguageData.langCodes.indexOf(langCode)]
+    Log.d("Language", "CodeToName called")
+    return LanguageData.langNames[LanguageData.langCodes.binarySearch(langCode)]
 }

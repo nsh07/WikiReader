@@ -1,10 +1,13 @@
 package org.nsh07.wikireader.ui.viewModel
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import org.nsh07.wikireader.data.WikiLang
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
 
+@Immutable
 data class SearchBarState(
     val query: String = "",
     val isSearchBarExpanded: Boolean = false,
@@ -12,15 +15,18 @@ data class SearchBarState(
     val focusRequester: FocusRequester = FocusRequester()
 )
 
+@Immutable
 data class HomeScreenState(
     val title: String = "",
     val extract: List<String> = emptyList(),
     val photo: WikiPhoto? = null,
     val photoDesc: WikiPhotoDesc? = null,
+    val langs: List<WikiLang>? = null,
     val isLoading: Boolean = false,
     val isBackStackEmpty: Boolean = false
 )
 
+@Immutable
 data class PreferencesState(
     val theme: String = "auto",
     val lang: String = "en",

@@ -5,10 +5,10 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 private const val API_QUERY =
-    "w/api.php?format=json&action=query&prop=extracts|pageimages|pageterms&piprop=original&pilicense=any&explaintext&generator=search&gsrlimit=1&redirects=1&formatversion=2"
+    "w/api.php?format=json&action=query&prop=extracts|pageimages|pageterms|langlinks&piprop=original&pilicense=any&lllimit=max&explaintext&generator=search&gsrlimit=1&redirects=1&formatversion=2"
 
 private const val RANDOM_QUERY =
-    "w/api.php?format=json&action=query&prop=extracts|pageimages|pageterms&piprop=original&pilicense=any&explaintext&generator=random&redirects=1&formatversion=2&grnnamespace=0"
+    "w/api.php?format=json&action=query&prop=extracts|pageimages|pageterms|langlinks&piprop=original&pilicense=any&lllimit=max&explaintext&generator=random&redirects=1&formatversion=2&grnnamespace=0"
 
 interface WikipediaApiService {
     @GET(API_QUERY)

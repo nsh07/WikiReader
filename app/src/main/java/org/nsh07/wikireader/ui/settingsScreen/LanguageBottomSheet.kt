@@ -2,13 +2,19 @@ package org.nsh07.wikireader.ui.settingsScreen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -25,12 +31,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import org.nsh07.wikireader.data.LanguageData
+import org.nsh07.wikireader.data.LanguageData.langCodes
+import org.nsh07.wikireader.data.LanguageData.langNames
+import org.nsh07.wikireader.data.LanguageData.wikipediaNames
 import org.nsh07.wikireader.data.langCodeToName
-import org.nsh07.wikireader.data.langNameToCode
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,11 +54,18 @@ fun LanguageBottomSheet(
     val scope = rememberCoroutineScope()
     val bottomSheetState =
         rememberModalBottomSheetState()
+    val insets = WindowInsets.safeDrawing.asPaddingValues()
 
     ModalBottomSheet(
         onDismissRequest = { setShowSheet(false) },
         sheetState = bottomSheetState,
-        modifier = modifier
+        contentWindowInsets = {
+            WindowInsets(
+                left = insets.calculateLeftPadding(LocalLayoutDirection.current),
+                right = insets.calculateRightPadding(LocalLayoutDirection.current)
+            )
+        },
+        modifier = modifier.padding(top = insets.calculateTopPadding())
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
@@ -58,8 +73,12 @@ fun LanguageBottomSheet(
                 style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
+            HorizontalDivider()
             LazyColumn(state = listState) {
-                items(LanguageData.langNames, key = { it }) {
+                itemsIndexed(
+                    langNames,
+                    key = { _: Int, it: String -> it }
+                ) { index: Int, it: String ->
                     ListItem(
                         headlineContent = {
                             Text(
@@ -69,6 +88,7 @@ fun LanguageBottomSheet(
                                 else MaterialTheme.colorScheme.onSurface
                             )
                         },
+                        supportingContent = { Text(wikipediaNames[index]) },
                         trailingContent = {
                             if (selectedOption == it) Icon(
                                 Icons.Outlined.Check,
@@ -79,7 +99,7 @@ fun LanguageBottomSheet(
                         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
                         modifier = Modifier
                             .clickable(onClick = {
-                                setLang(langNameToCode(it))
+                                setLang(langCodes[index])
                                 scope
                                     .launch { bottomSheetState.hide() }
                                     .invokeOnCompletion {
@@ -90,11 +110,12 @@ fun LanguageBottomSheet(
                             })
                     )
                 }
+                item { Spacer(Modifier.height(insets.calculateBottomPadding())) }
             }
         }
     }
     LaunchedEffect(null) {
-        var index = LanguageData.langNames.binarySearch(selectedOption)
+        var index = langCodes.binarySearch(lang)
         if (index >= 2) index -= 2
         listState.scrollToItem(index)
     }
@@ -102,7 +123,7 @@ fun LanguageBottomSheet(
 
 @Preview
 @Composable
-fun LanguageDialogPreview() {
+fun LanguageSheetPreview() {
     WikiReaderTheme {
         LanguageBottomSheet(lang = "en", setShowSheet = {}, setLang = {})
     }
