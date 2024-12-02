@@ -1,4 +1,4 @@
-<p>A lightweight Android app for reading Wikipedia articles distraction-free. Supports light mode, dark mode and Material You dynamic colors, with a customisable simple interface</p>
+<p>A lightweight Android app for reading Wikipedia articles distraction-free. Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia languages, with a customisable simple interface</p>
 
 <p>Features</p>
 <ul>
