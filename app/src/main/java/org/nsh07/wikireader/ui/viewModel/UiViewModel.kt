@@ -108,6 +108,7 @@ class UiViewModel(
      */
     fun performSearch(
         query: String?,
+        lang: String? = null,
         random: Boolean = false,
         fromLink: Boolean = false,
         fromBackStack: Boolean = false
@@ -116,6 +117,7 @@ class UiViewModel(
         val history = searchBarState.value.history.toMutableSet()
 
         if (q != "") {
+            if (lang != null) interceptor.setHost("$lang.wikipedia.org")
             if (!random && !fromLink && !fromBackStack) {
                 history.remove(q)
                 history.add(q)
@@ -180,7 +182,8 @@ class UiViewModel(
                 }
 
                 listState.value.scrollToItem(0)
-                if (fromLink) resetLang()
+                if (lang != null) // If a language was specified, reset it back to the original after search
+                    interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
             }
         }
 
@@ -257,14 +260,6 @@ class UiViewModel(
             }
             interceptor.setHost("$lang.wikipedia.org")
         }
-    }
-
-    fun setLang(lang: String) {
-        interceptor.setHost("$lang.wikipedia.org")
-    }
-
-    fun resetLang() {
-        interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
     }
 
     fun saveColorScheme(colorScheme: String) {

@@ -127,8 +127,11 @@ fun AppScreen(
             LaunchedEffect(null) {
                 val uriQuery = backStackEntry.arguments?.getString("query") ?: ""
                 if (uriQuery != "") {
-                    viewModel.setLang(backStackEntry.arguments?.getString("lang") ?: "en")
-                    viewModel.performSearch(uriQuery, fromLink = true)
+                    viewModel.performSearch(
+                        uriQuery,
+                        fromLink = true,
+                        lang = backStackEntry.arguments?.getString("lang")
+                    )
                 }
             }
 

@@ -67,7 +67,7 @@ fun parseText(text: String): List<String> {
     val s = out.lastIndex
 
     for (i in s downTo 1) {
-        if (out[i] == "References" || out[i] == "External links") {
+        if (out[i] == "References" || out[i] == "External links" || out[i] == "Gallery") {
             out.removeAt(i + 1)
             out.removeAt(i)
         } else if (i + 1 <= out.lastIndex) {
