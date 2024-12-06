@@ -23,7 +23,7 @@ data class HomeScreenState(
     val photoDesc: WikiPhotoDesc? = null,
     val langs: List<WikiLang>? = null,
     val isLoading: Boolean = false,
-    val isBackStackEmpty: Boolean = false
+    val isBackStackEmpty: Boolean = true
 )
 
 @Immutable

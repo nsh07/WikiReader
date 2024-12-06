@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -29,24 +31,31 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.data.WikiLang
 import org.nsh07.wikireader.data.langCodeToName
+import org.nsh07.wikireader.ui.settingsScreen.LanguageSearchBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArticleLanguageBottomSheet(
     langs: List<WikiLang>,
+    searchStr: String,
+    searchQuery: String,
     setShowSheet: (Boolean) -> Unit,
     setLang: (String) -> Unit,
     performSearch: (String) -> Unit,
+    setSearchStr: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val bottomSheetState =
-        rememberModalBottomSheetState()
+        rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val insets = WindowInsets.safeDrawing.asPaddingValues()
 
     ModalBottomSheet(
-        onDismissRequest = { setShowSheet(false) },
+        onDismissRequest = {
+            setShowSheet(false)
+            setSearchStr("")
+        },
         sheetState = bottomSheetState,
         contentWindowInsets = {
            WindowInsets(
@@ -59,11 +68,15 @@ fun ArticleLanguageBottomSheet(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = "Choose Wikipedia Language",
-                style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.padding(bottom = 16.dp)
+                style = MaterialTheme.typography.labelLarge
+            )
+            LanguageSearchBar(
+                searchStr = searchStr,
+                setSearchStr = setSearchStr,
+                modifier = Modifier.fillMaxWidth().padding(16.dp)
             )
             HorizontalDivider()
-            LazyColumn(state = listState) {
+            LazyColumn(state = listState, modifier = Modifier.fillMaxHeight()) {
                 items(langs, key = { it.lang }) {
                     val langName: String? = try {
                         langCodeToName(it.lang)
@@ -71,7 +84,7 @@ fun ArticleLanguageBottomSheet(
                         Log.e("Language", "Language not found: ${it.lang}")
                         null
                     }
-                    if (langName != null)
+                    if (langName != null && langName.contains(searchQuery, ignoreCase = true))
                         ListItem(
                             headlineContent = { Text(langName) },
                             supportingContent = { Text(it.title) },
@@ -85,6 +98,7 @@ fun ArticleLanguageBottomSheet(
                                         .invokeOnCompletion {
                                             if (!bottomSheetState.isVisible) {
                                                 setShowSheet(false)
+                                                setSearchStr("")
                                             }
                                         }
                                 })

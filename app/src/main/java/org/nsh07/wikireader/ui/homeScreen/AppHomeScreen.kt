@@ -21,10 +21,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -42,7 +38,15 @@ import org.nsh07.wikireader.ui.viewModel.PreferencesState
  *
  * @param homeScreenState A [HomeScreenState] object provided by the app's ViewModel
  * @param listState A [LazyListState] object provided by the app's ViewModel
+ * @param preferencesState A [PreferencesState] object provided by the app's ViewModel
+ * @param imageLoader A [ImageLoader] object, used to load the page image
+ * @param languageSearchStr A [String] used for the search string of the language search bar
+ * @param languageSearchQuery A [String] used for the actual language search. This is generally a
+ * debounced state flow.
  * @param onImageClick A lambda that is called when the image in the home screen is clicked
+ * @param onLinkClick A lambda that is called when a page link is clicked
+ * @param setLang A lambda that is called when the user picks a language from the language list
+ * @param setSearchStr A lambda that is called when the user types in the language search bar
  * @param insets A [PaddingValues] object provided by the parent [androidx.compose.material3.Scaffold]
  * @param modifier Self explanatory
  */
@@ -53,18 +57,20 @@ fun AppHomeScreen(
     listState: LazyListState,
     preferencesState: PreferencesState,
     imageLoader: ImageLoader,
+    languageSearchStr: String,
+    languageSearchQuery: String,
+    showLanguageSheet: Boolean,
     onImageClick: () -> Unit,
     onLinkClick: (String) -> Unit,
     setLang: (String) -> Unit,
-    performSearch: (String) -> Unit,
+    setSearchStr: (String) -> Unit,
+    setShowArticleLanguageSheet: (Boolean) -> Unit,
     insets: PaddingValues,
     modifier: Modifier = Modifier
 ) {
     val photo = homeScreenState.photo
     val photoDesc = homeScreenState.photoDesc
     val fontSize = preferencesState.fontSize
-
-    var showLanguageSheet by remember { mutableStateOf(false) }
 
     var s = homeScreenState.extract.size
     if (s > 1) s -= 2
@@ -73,9 +79,12 @@ fun AppHomeScreen(
     if (showLanguageSheet)
         ArticleLanguageBottomSheet(
             langs = homeScreenState.langs ?: emptyList(),
-            setShowSheet = { showLanguageSheet = it },
+            searchStr = languageSearchStr,
+            searchQuery = languageSearchQuery,
+            setShowSheet = setShowArticleLanguageSheet,
             setLang = setLang,
-            performSearch = performSearch
+            performSearch = onLinkClick,
+            setSearchStr = setSearchStr
         )
 
     Box(modifier = modifier) { // The container for all the composables in the home screen
@@ -86,7 +95,7 @@ fun AppHomeScreen(
             ) {
                 item { // Title
                     FilledTonalButton(
-                        onClick = { showLanguageSheet = true },
+                        onClick = { setShowArticleLanguageSheet(true) },
                         enabled = homeScreenState.langs?.isEmpty() == false,
                         modifier = Modifier.padding(16.dp)
                     ) {

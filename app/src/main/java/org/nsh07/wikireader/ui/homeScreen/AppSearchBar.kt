@@ -50,6 +50,7 @@ import org.nsh07.wikireader.ui.viewModel.SearchBarState
 @Composable
 fun AppSearchBar(
     searchBarState: SearchBarState,
+    searchBarEnabled: Boolean,
     performSearch: (String) -> Unit,
     setExpanded: (Boolean) -> Unit,
     setQuery: (String) -> Unit,
@@ -124,6 +125,7 @@ fun AppSearchBar(
                         }
                     }
                 },
+                enabled = searchBarEnabled,
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester)
@@ -208,7 +210,7 @@ fun AppSearchBar(
 fun AppSearchBarPreview() {
     WikiReaderTheme {
         AppSearchBar(
-            searchBarState = SearchBarState(),
+            searchBarState = SearchBarState(), true,
             {}, {}, {}, {}, {}, {}, {}
         )
     }

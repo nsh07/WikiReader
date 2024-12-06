@@ -9,10 +9,12 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.WikiReaderApplication
@@ -37,6 +39,11 @@ class UiViewModel(
 
     private val _preferencesState = MutableStateFlow(PreferencesState())
     val preferencesState: StateFlow<PreferencesState> = _preferencesState.asStateFlow()
+
+    private val _languageSearchStr = MutableStateFlow("")
+    val languageSearchStr: StateFlow<String> = _languageSearchStr.asStateFlow()
+    @OptIn(FlowPreview::class)
+    val languageSearchQuery = languageSearchStr.debounce(500L)
 
     private val backStack = mutableListOf<String>()
     private var lastQuery: String? = null
@@ -323,6 +330,12 @@ class UiViewModel(
             _preferencesState.update { currentState ->
                 currentState.copy(dataSaver = dataSaver)
             }
+        }
+    }
+
+    fun updateLanguageSearchStr(str: String) {
+        _languageSearchStr.update {
+            str
         }
     }
 

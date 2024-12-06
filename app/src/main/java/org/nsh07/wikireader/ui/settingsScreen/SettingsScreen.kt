@@ -18,6 +18,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +43,9 @@ fun SettingsScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val languageSearchStr = viewModel.languageSearchStr.collectAsState()
+    val languageSearchQuery = viewModel.languageSearchQuery.collectAsState("")
+
     val themeMap: Map<String, Pair<Int, String>> = mapOf(
         "auto" to Pair(R.drawable.brightness_auto, "System default"),
         "light" to Pair(R.drawable.light_mode, "Light"),
@@ -91,11 +95,14 @@ fun SettingsScreen(
     if (showLanguageSheet)
         LanguageBottomSheet(
             lang = preferencesState.lang,
+            searchStr = languageSearchStr.value,
+            searchQuery = languageSearchQuery.value,
             setShowSheet = setShowLanguageSheet,
             setLang = {
                 viewModel.saveLang(it)
                 viewModel.refreshSearch()
-            }
+            },
+            setSearchStr = { viewModel.updateLanguageSearchStr(it) }
         )
 
     Scaffold(

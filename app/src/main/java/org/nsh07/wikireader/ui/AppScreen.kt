@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -67,6 +68,10 @@ fun AppScreen(
     val searchBarState by viewModel.searchBarState.collectAsState()
     val homeScreenState by viewModel.homeScreenState.collectAsState()
     val listState by viewModel.listState.collectAsState()
+    val languageSearchStr = viewModel.languageSearchStr.collectAsState()
+    val languageSearchQuery = viewModel.languageSearchQuery.collectAsState("")
+    var showArticleLanguageSheet by remember { mutableStateOf(false) }
+
     val imageLoader = ImageLoader.Builder(LocalContext.current)
         .components {
             add(SvgDecoder.Factory())
@@ -152,6 +157,7 @@ fun AppScreen(
                 topBar = {
                     AppSearchBar(
                         searchBarState = searchBarState,
+                        searchBarEnabled = !showArticleLanguageSheet,
                         performSearch = { viewModel.performSearch(it) },
                         setExpanded = { viewModel.setExpanded(it) },
                         setQuery = { viewModel.setQuery(it) },
@@ -196,6 +202,9 @@ fun AppScreen(
                     listState = listState,
                     preferencesState = preferencesState,
                     imageLoader = imageLoader,
+                    languageSearchStr = languageSearchStr.value,
+                    languageSearchQuery = languageSearchQuery.value,
+                    showLanguageSheet = showArticleLanguageSheet,
                     onImageClick = {
                         if (homeScreenState.photo != null)
                             navController.navigate("FullScreenImage")
@@ -203,7 +212,8 @@ fun AppScreen(
                     insets = insets,
                     onLinkClick = { viewModel.performSearch(it, fromLink = true) },
                     setLang = { viewModel.saveLang(it) },
-                    performSearch = { viewModel.performSearch(it) },
+                    setSearchStr = { viewModel.updateLanguageSearchStr(it) },
+                    setShowArticleLanguageSheet = { showArticleLanguageSheet = it },
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = insets.calculateTopPadding())
