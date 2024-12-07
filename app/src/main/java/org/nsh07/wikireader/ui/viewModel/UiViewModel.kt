@@ -45,8 +45,8 @@ class UiViewModel(
     @OptIn(FlowPreview::class)
     val languageSearchQuery = languageSearchStr.debounce(500L)
 
-    private val backStack = mutableListOf<String>()
-    private var lastQuery: String? = null
+    private val backStack = mutableListOf<Pair<String, String>>()
+    private var lastQuery: Pair<String, String>? = null
 
     var isReady = false
     var isAnimDurationComplete = false
@@ -121,21 +121,30 @@ class UiViewModel(
         fromBackStack: Boolean = false
     ) {
         val q = query?.trim() ?: ""
+        var setLang = preferencesState.value.lang
         val history = searchBarState.value.history.toMutableSet()
 
         if (q != "") {
-            if (lang != null) interceptor.setHost("$lang.wikipedia.org")
-            if (!random && !fromLink && !fromBackStack) {
-                history.remove(q)
-                history.add(q)
-                if (history.size > 50) history.remove(history.first())
-            }
-
             viewModelScope.launch {
+                if (lang != null) {
+                    interceptor.setHost("$lang.wikipedia.org")
+                    _preferencesState.update { currentState ->
+                        currentState.copy(lang = lang)
+                    }
+                    setLang = lang
+                }
+                if (!random && !fromLink && !fromBackStack) {
+                    history.remove(q)
+                    history.add(q)
+                    if (history.size > 50) history.remove(history.first())
+                }
                 if (lastQuery != null) {
-                    if (!fromBackStack && q != lastQuery) backStack.add(lastQuery!!)
-                    lastQuery = q
-                } else lastQuery = q
+                    if (!fromBackStack && (Pair(q, setLang) != lastQuery)) {
+                        backStack.add(lastQuery!!)
+                        Log.d("BackStack", "Add ${lastQuery?.first ?: "null"} : ${lastQuery?.second ?: "null"}")
+                    }
+                    lastQuery = Pair(q, setLang)
+                } else lastQuery = Pair(q, setLang)
 
                 _homeScreenState.update { currentState ->
                     currentState.copy(isLoading = true)
@@ -191,8 +200,6 @@ class UiViewModel(
                 }
 
                 listState.value.scrollToItem(0)
-                if (lang != null) // If a language was specified, reset it back to the original after search
-                    interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
             }
         }
 
@@ -214,15 +221,17 @@ class UiViewModel(
         fromBackStack: Boolean = false
     ) {
         performSearch(
-            lastQuery,
+            lastQuery?.first,
             random = random,
             fromLink = fromLink,
             fromBackStack = fromBackStack
         )
     }
 
-    fun popBackStack(): String? {
-        return backStack.removeLastOrNull()
+    fun popBackStack(): Pair<String, String>? {
+        val res = backStack.removeLastOrNull()
+        Log.d("BackStack", "Pop ${res?.first ?: "null"} : ${res?.second ?: "null"}")
+        return res
     }
 
     fun setExpanded(expanded: Boolean) {
@@ -274,13 +283,13 @@ class UiViewModel(
 
     fun saveLang(lang: String) {
         interceptor.setHost("$lang.wikipedia.org")
+        _preferencesState.update { currentState ->
+            currentState.copy(
+                lang = lang
+            )
+        }
         viewModelScope.launch {
-            _preferencesState.update { currentState ->
-                currentState.copy(
-                    lang = appPreferencesRepository
-                        .saveStringPreference("lang", lang)
-                )
-            }
+            appPreferencesRepository.saveStringPreference("lang", lang)
         }
     }
 

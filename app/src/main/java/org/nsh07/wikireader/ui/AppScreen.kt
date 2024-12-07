@@ -141,7 +141,8 @@ fun AppScreen(
             }
 
             BackHandler(!homeScreenState.isBackStackEmpty) {
-                viewModel.performSearch(viewModel.popBackStack(), fromBackStack = true)
+                val curr = viewModel.popBackStack()
+                viewModel.performSearch(query = curr?.first, lang = curr?.second, fromBackStack = true)
             }
 
             if (showDeleteDialog)
