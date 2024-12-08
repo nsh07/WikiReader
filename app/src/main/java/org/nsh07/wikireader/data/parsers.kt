@@ -67,7 +67,7 @@ fun parseText(text: String): List<String> {
     val s = out.lastIndex
 
     for (i in s downTo 1) {
-        if (out[i] == "References" || out[i] == "External links") {
+        if (out[i] == "References" || out[i] == "External links" || out[i] == "Gallery") {
             out.removeAt(i + 1)
             out.removeAt(i)
         } else if (i + 1 <= out.lastIndex) {
@@ -81,10 +81,7 @@ fun parseText(text: String): List<String> {
     return out
 }
 
-fun langNameToCode(langName: String): String {
-    return LanguageData.langCodes[LanguageData.langNames.binarySearch(langName)]
-}
-
 fun langCodeToName(langCode: String): String {
-    return LanguageData.langNames[LanguageData.langCodes.indexOf(langCode)]
+    Log.d("Language", "CodeToName called")
+    return LanguageData.langNames[LanguageData.langCodes.binarySearch(langCode)]
 }

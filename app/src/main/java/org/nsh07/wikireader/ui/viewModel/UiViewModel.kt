@@ -9,10 +9,12 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.WikiReaderApplication
@@ -37,6 +39,15 @@ class UiViewModel(
 
     private val _preferencesState = MutableStateFlow(PreferencesState())
     val preferencesState: StateFlow<PreferencesState> = _preferencesState.asStateFlow()
+
+    private val _languageSearchStr = MutableStateFlow("")
+    val languageSearchStr: StateFlow<String> = _languageSearchStr.asStateFlow()
+
+    @OptIn(FlowPreview::class)
+    val languageSearchQuery = languageSearchStr.debounce(500L)
+
+    private val backStack = mutableListOf<Pair<String, String>>()
+    private var lastQuery: Pair<String, String>? = null
 
     var isReady = false
     var isAnimDurationComplete = false
@@ -103,23 +114,45 @@ class UiViewModel(
      *
      * @param query Search query string
      */
-    fun performSearch(query: String?, random: Boolean = false, fromLink: Boolean = false) {
-        val q = query?.trim() ?: " "
+    fun performSearch(
+        query: String?,
+        lang: String? = null,
+        random: Boolean = false,
+        fromLink: Boolean = false,
+        fromBackStack: Boolean = false
+    ) {
+        val q = query?.trim() ?: ""
+        var setLang = preferencesState.value.lang
         val history = searchBarState.value.history.toMutableSet()
 
         if (q != "") {
-            if (!random && !fromLink) {
-                history.remove(q)
-                history.add(q)
-                if (history.size > 50) history.remove(history.first())
-            }
-
             viewModelScope.launch {
+                if (lang != null) {
+                    interceptor.setHost("$lang.wikipedia.org")
+                    setLang = lang
+                }
+                if (!random && !fromLink && !fromBackStack) {
+                    history.remove(q)
+                    history.add(q)
+                    if (history.size > 50) history.remove(history.first())
+                }
+                if (lastQuery != null) {
+                    if (!fromBackStack && (Pair(q, setLang) != lastQuery)) {
+                        backStack.add(lastQuery!!)
+                        Log.d(
+                            "BackStack",
+                            "Add ${lastQuery?.first ?: "null"} : ${lastQuery?.second ?: "null"}"
+                        )
+                    }
+                    lastQuery = Pair(q, setLang)
+                } else lastQuery = Pair(q, setLang)
+
                 _homeScreenState.update { currentState ->
                     currentState.copy(isLoading = true)
                 }
 
-                if (!random) appPreferencesRepository.saveHistory(history)
+                if (!random && !fromLink && !fromBackStack)
+                    appPreferencesRepository.saveHistory(history)
 
                 try {
                     val apiResponse = when (random) {
@@ -148,7 +181,9 @@ class UiViewModel(
                             extract = extract,
                             photo = apiResponse?.photo,
                             photoDesc = apiResponse?.photoDesc,
-                            isLoading = false
+                            langs = apiResponse?.langs,
+                            isLoading = false,
+                            isBackStackEmpty = backStack.isEmpty()
                         )
                     }
                 } catch (e: Exception) {
@@ -157,6 +192,7 @@ class UiViewModel(
                         currentState.copy(
                             title = "Error",
                             extract = listOf("No internet connection"),
+                            langs = null,
                             photo = null,
                             photoDesc = null,
                             isLoading = false
@@ -164,12 +200,17 @@ class UiViewModel(
                     }
                 }
 
+                if (lang != null)
+                    _preferencesState.update { currentState ->
+                        currentState.copy(lang = lang)
+                    }
+
                 listState.value.scrollToItem(0)
             }
         }
 
         _searchBarState.update { currentState ->
-            if (!random && !fromLink)
+            if (!random && !fromLink && !fromBackStack)
                 currentState.copy(
                     query = q,
                     isSearchBarExpanded = false,
@@ -178,6 +219,25 @@ class UiViewModel(
             else
                 currentState.copy(isSearchBarExpanded = false)
         }
+    }
+
+    fun refreshSearch(
+        random: Boolean = false,
+        fromLink: Boolean = false,
+        fromBackStack: Boolean = false
+    ) {
+        performSearch(
+            lastQuery?.first,
+            random = random,
+            fromLink = fromLink,
+            fromBackStack = fromBackStack
+        )
+    }
+
+    fun popBackStack(): Pair<String, String>? {
+        val res = backStack.removeLastOrNull()
+        Log.d("BackStack", "Pop ${res?.first ?: "null"} : ${res?.second ?: "null"}")
+        return res
     }
 
     fun setExpanded(expanded: Boolean) {
@@ -228,14 +288,14 @@ class UiViewModel(
     }
 
     fun saveLang(lang: String) {
+        interceptor.setHost("$lang.wikipedia.org")
+        _preferencesState.update { currentState ->
+            currentState.copy(
+                lang = lang
+            )
+        }
         viewModelScope.launch {
-            _preferencesState.update { currentState ->
-                currentState.copy(
-                    lang = appPreferencesRepository
-                        .saveStringPreference("lang", lang)
-                )
-            }
-            interceptor.setHost("$lang.wikipedia.org")
+            appPreferencesRepository.saveStringPreference("lang", lang)
         }
     }
 
@@ -285,6 +345,12 @@ class UiViewModel(
             _preferencesState.update { currentState ->
                 currentState.copy(dataSaver = dataSaver)
             }
+        }
+    }
+
+    fun updateLanguageSearchStr(str: String) {
+        _languageSearchStr.update {
+            str
         }
     }
 

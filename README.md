@@ -23,7 +23,7 @@
 
 A lightweight Android app for reading Wikipedia articles distraction-free
 
-Supports light mode, dark mode and Material You dynamic colors
+Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia languages
 
 <a href="https://apt.izzysoft.de/fdroid/index/apk/org.nsh07.wikireader">
   <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" width="200">
@@ -68,9 +68,22 @@ Supports light mode, dark mode and Material You dynamic colors
 
 ## Special Thanks
 
+- [Wikimedia Foundation](https://wikimediafoundation.org/): For providing [Wikipedia](https://wikipedia.org), the largest and most-read reference work in history, for free
+- All the Wikipedia volunteers, contributors and donors
+
 This app was made possible by the following libraries:
 
 - [Retrofit 2](https://square.github.io/retrofit/)
 - [OkHttp](https://square.github.io/okhttp/)
 - [Coil](https://coil-kt.github.io/coil/)
 - [MaterialKolor](https://github.com/jordond/MaterialKolor) - Library used for custom color themes
+
+## Star History
+
+<a href="https://star-history.com/#nsh07/wikireader&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=nsh07/wikireader&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=nsh07/wikireader&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=nsh07/wikireader&type=Date" />
+ </picture>
+</a>

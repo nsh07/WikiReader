@@ -1,6 +1,7 @@
 package org.nsh07.wikireader.ui
 
 import android.os.Build.VERSION.SDK_INT
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -27,12 +28,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -40,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navDeepLink
 import coil3.ImageLoader
 import coil3.gif.AnimatedImageDecoder
 import coil3.gif.GifDecoder
@@ -64,6 +68,10 @@ fun AppScreen(
     val searchBarState by viewModel.searchBarState.collectAsState()
     val homeScreenState by viewModel.homeScreenState.collectAsState()
     val listState by viewModel.listState.collectAsState()
+    val languageSearchStr = viewModel.languageSearchStr.collectAsState()
+    val languageSearchQuery = viewModel.languageSearchQuery.collectAsState("")
+    var showArticleLanguageSheet by remember { mutableStateOf(false) }
+
     val imageLoader = ImageLoader.Builder(LocalContext.current)
         .components {
             add(SvgDecoder.Factory())
@@ -85,7 +93,7 @@ fun AppScreen(
 
     NavHost(
         navController = navController,
-        startDestination = "HomeScreen",
+        startDestination = "home",
         enterTransition = {
             slideInHorizontally(
                 initialOffsetX = { it / 8 },
@@ -112,7 +120,31 @@ fun AppScreen(
         },
         modifier = modifier.background(MaterialTheme.colorScheme.background)
     ) {
-        composable("HomeScreen") {
+        composable(
+            "home?query={query}&lang={lang}",
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "https://{lang}.wikipedia.org/wiki/{query}" },
+                navDeepLink { uriPattern = "https://{lang}.m.wikipedia.org/wiki/{query}" },
+                navDeepLink { uriPattern = "http://{lang}.wikipedia.org/wiki/{query}" },
+                navDeepLink { uriPattern = "http://{lang}.m.wikipedia.org/wiki/{query}" }
+            )
+        ) { backStackEntry ->
+            LaunchedEffect(null) {
+                val uriQuery = backStackEntry.arguments?.getString("query") ?: ""
+                if (uriQuery != "") {
+                    viewModel.performSearch(
+                        uriQuery,
+                        fromLink = true,
+                        lang = backStackEntry.arguments?.getString("lang")
+                    )
+                }
+            }
+
+            BackHandler(!homeScreenState.isBackStackEmpty) {
+                val curr = viewModel.popBackStack()
+                viewModel.performSearch(query = curr?.first, lang = curr?.second, fromBackStack = true)
+            }
+
             if (showDeleteDialog)
                 DeleteHistoryItemDialog(
                     historyItem,
@@ -121,10 +153,13 @@ fun AppScreen(
                     if (historyItem != "") viewModel.removeHistoryItem(it)
                     else viewModel.clearHistory()
                 }
+
             Scaffold(
                 topBar = {
                     AppSearchBar(
                         searchBarState = searchBarState,
+                        searchBarEnabled = !showArticleLanguageSheet,
+                        index = index,
                         performSearch = { viewModel.performSearch(it) },
                         setExpanded = { viewModel.setExpanded(it) },
                         setQuery = { viewModel.setQuery(it) },
@@ -169,12 +204,18 @@ fun AppScreen(
                     listState = listState,
                     preferencesState = preferencesState,
                     imageLoader = imageLoader,
+                    languageSearchStr = languageSearchStr.value,
+                    languageSearchQuery = languageSearchQuery.value,
+                    showLanguageSheet = showArticleLanguageSheet,
                     onImageClick = {
                         if (homeScreenState.photo != null)
                             navController.navigate("FullScreenImage")
                     },
                     insets = insets,
                     onLinkClick = { viewModel.performSearch(it, fromLink = true) },
+                    setLang = { viewModel.saveLang(it) },
+                    setSearchStr = { viewModel.updateLanguageSearchStr(it) },
+                    setShowArticleLanguageSheet = { showArticleLanguageSheet = it },
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = insets.calculateTopPadding())

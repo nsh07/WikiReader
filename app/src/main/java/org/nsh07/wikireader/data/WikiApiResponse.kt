@@ -18,7 +18,8 @@ data class WikiApiPage(
     val title: String,
     val extract: String,
     @SerialName(value = "original") val photo: WikiPhoto? = null,
-    @SerialName(value = "terms") val photoDesc: WikiPhotoDesc
+    @SerialName(value = "terms") val photoDesc: WikiPhotoDesc,
+    @SerialName(value = "langlinks") val langs: List<WikiLang>? = null
 )
 
 @Serializable
@@ -32,4 +33,10 @@ data class WikiPhoto(
 data class WikiPhotoDesc(
     val label: List<String>,
     val description: List<String>? = null
+)
+
+@Serializable
+data class WikiLang(
+    val lang: String,
+    val title: String
 )

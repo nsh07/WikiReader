@@ -1,5 +1,6 @@
-package org.nsh07.wikireader.ui.settingsScreen
+package org.nsh07.wikireader.ui.homeScreen
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,13 +11,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -25,35 +23,28 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import org.nsh07.wikireader.data.LanguageData.langCodes
-import org.nsh07.wikireader.data.LanguageData.langNames
-import org.nsh07.wikireader.data.LanguageData.wikipediaNames
+import org.nsh07.wikireader.data.WikiLang
 import org.nsh07.wikireader.data.langCodeToName
-import org.nsh07.wikireader.ui.theme.WikiReaderTheme
+import org.nsh07.wikireader.ui.settingsScreen.LanguageSearchBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LanguageBottomSheet(
-    lang: String,
+fun ArticleLanguageBottomSheet(
+    langs: List<WikiLang>,
     searchStr: String,
     searchQuery: String,
     setShowSheet: (Boolean) -> Unit,
     setLang: (String) -> Unit,
+    performSearch: (String) -> Unit,
     setSearchStr: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var selectedOption by remember { mutableStateOf(langCodeToName(lang)) }
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val bottomSheetState =
@@ -67,10 +58,10 @@ fun LanguageBottomSheet(
         },
         sheetState = bottomSheetState,
         contentWindowInsets = {
-            WindowInsets(
-                left = insets.calculateLeftPadding(LocalLayoutDirection.current),
-                right = insets.calculateRightPadding(LocalLayoutDirection.current)
-            )
+           WindowInsets(
+               left = insets.calculateLeftPadding(LocalLayoutDirection.current),
+               right = insets.calculateRightPadding(LocalLayoutDirection.current)
+           )
         },
         modifier = modifier.padding(top = insets.calculateTopPadding())
     ) {
@@ -82,38 +73,26 @@ fun LanguageBottomSheet(
             LanguageSearchBar(
                 searchStr = searchStr,
                 setSearchStr = setSearchStr,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+                modifier = Modifier.fillMaxWidth().padding(16.dp)
             )
             HorizontalDivider()
             LazyColumn(state = listState) {
-                itemsIndexed(
-                    langNames,
-                    key = { _: Int, it: String -> it }
-                ) { index: Int, it: String ->
-                    if (it.contains(searchQuery, ignoreCase = true))
+                items(langs, key = { it.lang }) {
+                    val langName: String? = try {
+                        langCodeToName(it.lang)
+                    } catch (_: Exception) {
+                        Log.e("Language", "Language not found: ${it.lang}")
+                        null
+                    }
+                    if (langName != null && langName.contains(searchQuery, ignoreCase = true))
                         ListItem(
-                            headlineContent = {
-                                Text(
-                                    it,
-                                    color =
-                                    if (selectedOption == it) MaterialTheme.colorScheme.primary
-                                    else MaterialTheme.colorScheme.onSurface
-                                )
-                            },
-                            supportingContent = { Text(wikipediaNames[index]) },
-                            trailingContent = {
-                                if (selectedOption == it) Icon(
-                                    Icons.Outlined.Check,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    contentDescription = "Selected"
-                                )
-                            },
+                            headlineContent = { Text(langName) },
+                            supportingContent = { Text(it.title) },
                             colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
                             modifier = Modifier
                                 .clickable(onClick = {
-                                    setLang(langCodes[index])
+                                    setLang(it.lang)
+                                    performSearch(it.title)
                                     scope
                                         .launch { bottomSheetState.hide() }
                                         .invokeOnCompletion {
@@ -132,14 +111,5 @@ fun LanguageBottomSheet(
     }
     LaunchedEffect(searchQuery) {
         listState.scrollToItem(0)
-    }
-}
-
-@Preview
-@Composable
-fun LanguageSheetPreview() {
-    WikiReaderTheme {
-        LanguageBottomSheet(lang = "en", searchStr = "", searchQuery = "",
-            {}, {}, {})
     }
 }

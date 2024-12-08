@@ -10,9 +10,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -25,6 +28,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.ui.image.ImageCard
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
@@ -34,7 +38,15 @@ import org.nsh07.wikireader.ui.viewModel.PreferencesState
  *
  * @param homeScreenState A [HomeScreenState] object provided by the app's ViewModel
  * @param listState A [LazyListState] object provided by the app's ViewModel
+ * @param preferencesState A [PreferencesState] object provided by the app's ViewModel
+ * @param imageLoader A [ImageLoader] object, used to load the page image
+ * @param languageSearchStr A [String] used for the search string of the language search bar
+ * @param languageSearchQuery A [String] used for the actual language search. This is generally a
+ * debounced state flow.
  * @param onImageClick A lambda that is called when the image in the home screen is clicked
+ * @param onLinkClick A lambda that is called when a page link is clicked
+ * @param setLang A lambda that is called when the user picks a language from the language list
+ * @param setSearchStr A lambda that is called when the user types in the language search bar
  * @param insets A [PaddingValues] object provided by the parent [androidx.compose.material3.Scaffold]
  * @param modifier Self explanatory
  */
@@ -45,8 +57,14 @@ fun AppHomeScreen(
     listState: LazyListState,
     preferencesState: PreferencesState,
     imageLoader: ImageLoader,
+    languageSearchStr: String,
+    languageSearchQuery: String,
+    showLanguageSheet: Boolean,
     onImageClick: () -> Unit,
     onLinkClick: (String) -> Unit,
+    setLang: (String) -> Unit,
+    setSearchStr: (String) -> Unit,
+    setShowArticleLanguageSheet: (Boolean) -> Unit,
     insets: PaddingValues,
     modifier: Modifier = Modifier
 ) {
@@ -58,6 +76,17 @@ fun AppHomeScreen(
     if (s > 1) s -= 2
     else s = 0
 
+    if (showLanguageSheet)
+        ArticleLanguageBottomSheet(
+            langs = homeScreenState.langs ?: emptyList(),
+            searchStr = languageSearchStr,
+            searchQuery = languageSearchQuery,
+            setShowSheet = setShowArticleLanguageSheet,
+            setLang = setLang,
+            performSearch = onLinkClick,
+            setSearchStr = setSearchStr
+        )
+
     Box(modifier = modifier) { // The container for all the composables in the home screen
         if (homeScreenState.title != "") {
             LazyColumn( // The article
@@ -65,14 +94,24 @@ fun AppHomeScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 item { // Title
+                    FilledTonalButton(
+                        onClick = { setShowArticleLanguageSheet(true) },
+                        enabled = homeScreenState.langs?.isEmpty() == false,
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Icon(painterResource(R.drawable.translate), null)
+                        Spacer(Modifier.width(8.dp))
+                        Text(langCodeToName(preferencesState.lang))
+                    }
+                    HorizontalDivider()
+                }
+                item { // Title + Image/description
                     Text(
                         text = homeScreenState.title,
                         style = MaterialTheme.typography.displayMedium,
                         fontFamily = FontFamily.Serif,
                         modifier = Modifier.padding(16.dp)
                     )
-                }
-                item { // Image/description
                     if (photoDesc != null) {
                         ImageCard(
                             photo = photo,
