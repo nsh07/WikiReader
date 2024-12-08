@@ -159,6 +159,7 @@ fun AppScreen(
                     AppSearchBar(
                         searchBarState = searchBarState,
                         searchBarEnabled = !showArticleLanguageSheet,
+                        index = index,
                         performSearch = { viewModel.performSearch(it) },
                         setExpanded = { viewModel.setExpanded(it) },
                         setQuery = { viewModel.setQuery(it) },

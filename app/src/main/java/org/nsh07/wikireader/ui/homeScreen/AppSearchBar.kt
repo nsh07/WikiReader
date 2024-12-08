@@ -21,6 +21,7 @@ import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -51,6 +52,7 @@ import org.nsh07.wikireader.ui.viewModel.SearchBarState
 fun AppSearchBar(
     searchBarState: SearchBarState,
     searchBarEnabled: Boolean,
+    index: Int,
     performSearch: (String) -> Unit,
     setExpanded: (Boolean) -> Unit,
     setQuery: (String) -> Unit,
@@ -63,141 +65,144 @@ fun AppSearchBar(
     val focusRequester = searchBarState.focusRequester
     val haptic = LocalHapticFeedback.current
     val (dropdownExpanded, setDropdownExpanded) = remember { mutableStateOf(false) }
-    DockedSearchBar(
-        inputField = {
-            SearchBarDefaults.InputField(
-                query = searchBarState.query,
-                onQueryChange = setQuery,
-                onSearch = performSearch,
-                expanded = searchBarState.isSearchBarExpanded,
-                onExpandedChange = setExpanded,
-                placeholder = { Text("Search Wikipedia...") },
-                leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = "Search") },
-                trailingIcon = {
-                    Row {
-                        if (searchBarState.query != "") {
-                            IconButton(
-                                onClick = {
-                                    setQuery("")
-                                    focusRequester.requestFocus()
+    Column {
+        DockedSearchBar(
+            inputField = {
+                SearchBarDefaults.InputField(
+                    query = searchBarState.query,
+                    onQueryChange = setQuery,
+                    onSearch = performSearch,
+                    expanded = searchBarState.isSearchBarExpanded,
+                    onExpandedChange = setExpanded,
+                    placeholder = { Text("Search Wikipedia...") },
+                    leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = "Search") },
+                    trailingIcon = {
+                        Row {
+                            if (searchBarState.query != "") {
+                                IconButton(
+                                    onClick = {
+                                        setQuery("")
+                                        focusRequester.requestFocus()
+                                    }
+                                ) {
+                                    Icon(
+                                        Icons.Outlined.Clear,
+                                        contentDescription = "Clear search field"
+                                    )
                                 }
-                            ) {
-                                Icon(
-                                    Icons.Outlined.Clear,
-                                    contentDescription = "Clear search field"
-                                )
+                            }
+                            Column {
+                                IconButton(onClick = { setDropdownExpanded(!dropdownExpanded) }) {
+                                    Icon(
+                                        Icons.Outlined.MoreVert,
+                                        contentDescription = "More options"
+                                    )
+                                }
+                                DropdownMenu(
+                                    expanded = dropdownExpanded,
+                                    onDismissRequest = { setDropdownExpanded(false) }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Settings") },
+                                        onClick = { onSettingsClick(setDropdownExpanded) },
+                                        leadingIcon = {
+                                            Icon(
+                                                Icons.Outlined.Settings,
+                                                contentDescription = null
+                                            )
+                                        },
+                                        modifier = Modifier.width(200.dp)
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("About") },
+                                        onClick = { onAboutClick(setDropdownExpanded) },
+                                        leadingIcon = {
+                                            Icon(
+                                                Icons.Outlined.Info,
+                                                contentDescription = null
+                                            )
+                                        },
+                                        modifier = Modifier.width(200.dp)
+                                    )
+                                }
                             }
                         }
-                        Column {
-                            IconButton(onClick = { setDropdownExpanded(!dropdownExpanded) }) {
-                                Icon(
-                                    Icons.Outlined.MoreVert,
-                                    contentDescription = "More options"
-                                )
-                            }
-                            DropdownMenu(
-                                expanded = dropdownExpanded,
-                                onDismissRequest = { setDropdownExpanded(false) }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("Settings") },
-                                    onClick = { onSettingsClick(setDropdownExpanded) },
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Outlined.Settings,
-                                            contentDescription = null
-                                        )
-                                    },
-                                    modifier = Modifier.width(200.dp)
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("About") },
-                                    onClick = { onAboutClick(setDropdownExpanded) },
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Outlined.Info,
-                                            contentDescription = null
-                                        )
-                                    },
-                                    modifier = Modifier.width(200.dp)
-                                )
-                            }
-                        }
-                    }
-                },
-                enabled = searchBarEnabled,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester)
-            )
-        },
-        expanded = searchBarState.isSearchBarExpanded,
-        onExpandedChange = setExpanded,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 16.dp, horizontal = 16.dp)
-    ) {
-        LazyColumn(
-            modifier = Modifier
-                .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
+                    },
+                    enabled = searchBarEnabled,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester)
+                )
+            },
+            expanded = searchBarState.isSearchBarExpanded,
+            onExpandedChange = setExpanded,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp, horizontal = 16.dp)
         ) {
-            val history = searchBarState.history.toList()
-            val size = history.size
-            item {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        "History",
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                    Spacer(Modifier.weight(1f))
-                    TextButton(
-                        onClick = clearHistory,
-                        enabled = size > 0,
-                        modifier = Modifier.padding(4.dp)
-                    ) {
-                        Text("Clear")
+            LazyColumn(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
+            ) {
+                val history = searchBarState.history.toList()
+                val size = history.size
+                item {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            "History",
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                        Spacer(Modifier.weight(1f))
+                        TextButton(
+                            onClick = clearHistory,
+                            enabled = size > 0,
+                            modifier = Modifier.padding(4.dp)
+                        ) {
+                            Text("Clear")
+                        }
                     }
                 }
-            }
-            items(size, key = { history[size - it - 1] }) {
-                val currentText = history[size - it - 1]
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painterResource(R.drawable.history),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = {
-                        Text(
-                            currentText,
-                            softWrap = false,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
-                    trailingContent = {
-                        IconButton(
-                            onClick = { setQuery(currentText) },
-                            modifier = Modifier.wrapContentSize()
-                        ) {
-                            Icon(painterResource(R.drawable.north_west), contentDescription = null)
-                        }
-                    },
-                    colors = ListItemDefaults
-                        .colors(containerColor = SearchBarDefaults.colors().containerColor),
-                    modifier = Modifier
-                        .combinedClickable(
-                            onClick = { performSearch(currentText) },
-                            onLongClick = {
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                removeHistoryItem(currentText)
+                items(size, key = { history[size - it - 1] }) {
+                    val currentText = history[size - it - 1]
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                painterResource(R.drawable.history),
+                                contentDescription = null
+                            )
+                        },
+                        headlineContent = {
+                            Text(
+                                currentText,
+                                softWrap = false,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
+                        trailingContent = {
+                            IconButton(
+                                onClick = { setQuery(currentText) },
+                                modifier = Modifier.wrapContentSize()
+                            ) {
+                                Icon(painterResource(R.drawable.north_west), contentDescription = null)
                             }
-                        )
-                        .animateItem()
-                )
+                        },
+                        colors = ListItemDefaults
+                            .colors(containerColor = SearchBarDefaults.colors().containerColor),
+                        modifier = Modifier
+                            .combinedClickable(
+                                onClick = { performSearch(currentText) },
+                                onLongClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    removeHistoryItem(currentText)
+                                }
+                            )
+                            .animateItem()
+                    )
+                }
             }
         }
+        if (index > 0) HorizontalDivider()
     }
 }
 
@@ -210,7 +215,7 @@ fun AppSearchBar(
 fun AppSearchBarPreview() {
     WikiReaderTheme {
         AppSearchBar(
-            searchBarState = SearchBarState(), true,
+            searchBarState = SearchBarState(), true, 0,
             {}, {}, {}, {}, {}, {}, {}
         )
     }

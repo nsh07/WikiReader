@@ -104,14 +104,14 @@ fun AppHomeScreen(
                         Text(langCodeToName(preferencesState.lang))
                     }
                     HorizontalDivider()
+                }
+                item { // Title + Image/description
                     Text(
                         text = homeScreenState.title,
                         style = MaterialTheme.typography.displayMedium,
                         fontFamily = FontFamily.Serif,
                         modifier = Modifier.padding(16.dp)
                     )
-                }
-                item { // Image/description
                     if (photoDesc != null) {
                         ImageCard(
                             photo = photo,
