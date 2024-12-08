@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -23,6 +22,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -76,7 +76,7 @@ fun ArticleLanguageBottomSheet(
                 modifier = Modifier.fillMaxWidth().padding(16.dp)
             )
             HorizontalDivider()
-            LazyColumn(state = listState, modifier = Modifier.fillMaxHeight()) {
+            LazyColumn(state = listState) {
                 items(langs, key = { it.lang }) {
                     val langName: String? = try {
                         langCodeToName(it.lang)
@@ -106,6 +106,10 @@ fun ArticleLanguageBottomSheet(
                 }
                 item { Spacer(Modifier.height(insets.calculateBottomPadding())) }
             }
+            Spacer(Modifier.weight(1f))
         }
+    }
+    LaunchedEffect(searchQuery) {
+        listState.scrollToItem(0)
     }
 }

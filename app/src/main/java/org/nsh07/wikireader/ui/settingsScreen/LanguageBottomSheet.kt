@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -88,7 +87,7 @@ fun LanguageBottomSheet(
                     .padding(16.dp)
             )
             HorizontalDivider()
-            LazyColumn(state = listState, modifier = Modifier.fillMaxHeight()) {
+            LazyColumn(state = listState) {
                 itemsIndexed(
                     langNames,
                     key = { _: Int, it: String -> it }
@@ -128,12 +127,11 @@ fun LanguageBottomSheet(
                 }
                 item { Spacer(Modifier.height(insets.calculateBottomPadding())) }
             }
+            Spacer(Modifier.weight(1f))
         }
     }
     LaunchedEffect(searchQuery) {
-        var index = langCodes.binarySearch(lang)
-        if (index >= 2) index -= 2
-        listState.scrollToItem(index)
+        listState.scrollToItem(0)
     }
 }
 
