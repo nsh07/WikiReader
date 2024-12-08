@@ -42,6 +42,7 @@ class UiViewModel(
 
     private val _languageSearchStr = MutableStateFlow("")
     val languageSearchStr: StateFlow<String> = _languageSearchStr.asStateFlow()
+
     @OptIn(FlowPreview::class)
     val languageSearchQuery = languageSearchStr.debounce(500L)
 
@@ -128,9 +129,6 @@ class UiViewModel(
             viewModelScope.launch {
                 if (lang != null) {
                     interceptor.setHost("$lang.wikipedia.org")
-                    _preferencesState.update { currentState ->
-                        currentState.copy(lang = lang)
-                    }
                     setLang = lang
                 }
                 if (!random && !fromLink && !fromBackStack) {
@@ -141,7 +139,10 @@ class UiViewModel(
                 if (lastQuery != null) {
                     if (!fromBackStack && (Pair(q, setLang) != lastQuery)) {
                         backStack.add(lastQuery!!)
-                        Log.d("BackStack", "Add ${lastQuery?.first ?: "null"} : ${lastQuery?.second ?: "null"}")
+                        Log.d(
+                            "BackStack",
+                            "Add ${lastQuery?.first ?: "null"} : ${lastQuery?.second ?: "null"}"
+                        )
                     }
                     lastQuery = Pair(q, setLang)
                 } else lastQuery = Pair(q, setLang)
@@ -198,6 +199,11 @@ class UiViewModel(
                         )
                     }
                 }
+
+                if (lang != null)
+                    _preferencesState.update { currentState ->
+                        currentState.copy(lang = lang)
+                    }
 
                 listState.value.scrollToItem(0)
             }
