@@ -1,0 +1,10 @@
+New features:
+- The app can now open Wikipedia links! To enable this, go into App Info > Open by default > Add Link > Enable '*.wikipedia.org'
+- New page language button on home screen
+- New search bars on language menus
+
+Bug fixes/Enhancements:
+- Pressing back or using the back gesture loads the previously viewed article
+- New divider to separate search bar from page content
+- Enhanced language menus with text in the corresponding language
+- Fix crash when opening certain links (1.8.2)
