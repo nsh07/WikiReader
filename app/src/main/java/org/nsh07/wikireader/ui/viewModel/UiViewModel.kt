@@ -187,11 +187,11 @@ class UiViewModel(
                         )
                     }
                 } catch (e: Exception) {
-                    Log.e("ViewModel", "Error in fetching results", e)
+                    Log.e("ViewModel", "Error in fetching results: ${e.message}")
                     _homeScreenState.update { currentState ->
                         currentState.copy(
                             title = "Error",
-                            extract = listOf("No internet connection"),
+                            extract = listOf("An error occurred :(\nPlease check your internet connection"),
                             langs = null,
                             photo = null,
                             photoDesc = null,

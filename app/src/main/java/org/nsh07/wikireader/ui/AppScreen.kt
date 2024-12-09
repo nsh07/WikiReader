@@ -123,10 +123,8 @@ fun AppScreen(
         composable(
             "home?query={query}&lang={lang}",
             deepLinks = listOf(
-                navDeepLink { uriPattern = "https://{lang}.wikipedia.org/wiki/{query}" },
-                navDeepLink { uriPattern = "https://{lang}.m.wikipedia.org/wiki/{query}" },
-                navDeepLink { uriPattern = "http://{lang}.wikipedia.org/wiki/{query}" },
-                navDeepLink { uriPattern = "http://{lang}.m.wikipedia.org/wiki/{query}" }
+                navDeepLink { uriPattern = "{lang}.m.wikipedia.org/wiki/{query}" },
+                navDeepLink { uriPattern = "{lang}.wikipedia.org/wiki/{query}" }
             )
         ) { backStackEntry ->
             LaunchedEffect(null) {
