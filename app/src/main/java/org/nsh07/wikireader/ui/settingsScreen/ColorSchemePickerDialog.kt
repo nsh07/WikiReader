@@ -25,8 +25,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 
 @Composable
@@ -42,7 +44,15 @@ fun ColorPickerButton(
             .clip(CircleShape)
             .background(color)
     ) {
-        if (isSelected) Icon(Icons.Outlined.Check, tint = Color.Black, contentDescription = null)
+        when (isSelected) {
+            true -> Icon(Icons.Outlined.Check, tint = Color.Black, contentDescription = null)
+            false ->
+                if (color == Color.White) Icon(
+                    painterResource(R.drawable.colors),
+                    tint = Color.Black,
+                    contentDescription = null
+                )
+        }
     }
 }
 
