@@ -107,6 +107,19 @@ class UiViewModel(
         }
     }
 
+    private fun updateBackstack(q: String, setLang: String, fromBackStack: Boolean) {
+        if (lastQuery != null) {
+            if (!fromBackStack && (Pair(q, setLang) != lastQuery)) {
+                backStack.add(lastQuery!!)
+                Log.d(
+                    "BackStack",
+                    "Add ${lastQuery?.first ?: "null"} : ${lastQuery?.second ?: "null"}"
+                )
+            }
+            lastQuery = Pair(q, setLang)
+        } else lastQuery = Pair(q, setLang)
+    }
+
     /**
      * Updates history and performs search
      *
@@ -121,7 +134,7 @@ class UiViewModel(
         fromLink: Boolean = false,
         fromBackStack: Boolean = false
     ) {
-        val q = query?.trim() ?: ""
+        val q = query?.trim() ?: " "
         var setLang = preferencesState.value.lang
         val history = searchBarState.value.history.toMutableSet()
 
@@ -136,16 +149,8 @@ class UiViewModel(
                     history.add(q)
                     if (history.size > 50) history.remove(history.first())
                 }
-                if (lastQuery != null) {
-                    if (!fromBackStack && (Pair(q, setLang) != lastQuery)) {
-                        backStack.add(lastQuery!!)
-                        Log.d(
-                            "BackStack",
-                            "Add ${lastQuery?.first ?: "null"} : ${lastQuery?.second ?: "null"}"
-                        )
-                    }
-                    lastQuery = Pair(q, setLang)
-                } else lastQuery = Pair(q, setLang)
+
+                if (!random) updateBackstack(q, setLang, fromBackStack)
 
                 _homeScreenState.update { currentState ->
                     currentState.copy(isLoading = true)
@@ -174,6 +179,13 @@ class UiViewModel(
                         parseText(extractText)
                     else
                         listOf("No search results found for \"$q\"")
+
+                    if (random && apiResponse != null)
+                        updateBackstack(
+                            apiResponse.title,
+                            setLang,
+                            fromBackStack
+                        )
 
                     _homeScreenState.update { currentState ->
                         currentState.copy(

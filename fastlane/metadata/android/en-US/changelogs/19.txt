@@ -1,0 +1,7 @@
+v1.8.3:
+
+Enhancements:
+- New icon for dynamic color theme option
+
+Bug fixes:
+- Fixed random article button not working
