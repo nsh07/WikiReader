@@ -21,6 +21,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -127,11 +131,12 @@ fun ColorSchemePickerDialog(
 @Preview
 @Composable
 fun ColorPickerDialogPreview() {
+    var currentColor by remember { mutableStateOf(Color(0xfffeb4a7)) }
     WikiReaderTheme(darkTheme = true) {
         ColorSchemePickerDialog(
-            Color(0xfffeb4a7),
+            currentColor,
             setShowDialog = {},
-            onColorChange = {}
+            onColorChange = { currentColor = it }
         )
     }
 }
