@@ -17,11 +17,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.nsh07.wikireader.WikiReaderApplication
 import org.nsh07.wikireader.data.AppPreferencesRepository
+import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikipediaRepository
 import org.nsh07.wikireader.data.parseText
 import org.nsh07.wikireader.network.HostSelectionInterceptor
+import java.io.File
+import java.io.FileOutputStream
 
 class UiViewModel(
     private val interceptor: HostSelectionInterceptor,
@@ -48,6 +53,7 @@ class UiViewModel(
 
     private val backStack = mutableListOf<Pair<String, String>>()
     private var lastQuery: Pair<String, String>? = null
+    private var filesDir: String = ""
 
     var isReady = false
     var isAnimDurationComplete = false
@@ -107,6 +113,10 @@ class UiViewModel(
         }
     }
 
+    fun setFilesDir(path: String) {
+        filesDir = path
+    }
+
     private fun updateBackstack(q: String, setLang: String, fromBackStack: Boolean) {
         if (lastQuery != null) {
             if (!fromBackStack && (Pair(q, setLang) != lastQuery)) {
@@ -135,11 +145,12 @@ class UiViewModel(
         fromBackStack: Boolean = false
     ) {
         val q = query?.trim() ?: " "
-        var setLang = preferencesState.value.lang
         val history = searchBarState.value.history.toMutableSet()
 
         if (q != "") {
             viewModelScope.launch {
+                var setLang = preferencesState.value.lang
+
                 if (lang != null) {
                     interceptor.setHost("$lang.wikipedia.org")
                     setLang = lang
@@ -175,10 +186,27 @@ class UiViewModel(
                     val extractText = apiResponse
                         ?.extract ?: ""
 
-                    val extract = if (extractText != "")
-                        parseText(extractText)
-                    else
-                        listOf("No search results found for \"$q\"")
+                    val extract: List<String>
+                    val status: WRStatus
+                    var saved = false
+                    if (extractText != "") {
+                        extract = parseText(extractText)
+                        status = WRStatus.SUCCESS
+
+                        try {
+                            val articlesDir = File(filesDir, "savedArticles")
+
+                            val file = File(
+                                articlesDir,
+                                "${apiResponse!!.pageId}.${apiResponse.title}.${lastQuery!!.second}"
+                            )
+                            if (file.exists()) saved = true
+                        } catch (_: Exception) {
+                        }
+                    } else {
+                        extract = listOf("No search results found for \"$q\"")
+                        status = WRStatus.NO_SEARCH_RESULT
+                    }
 
                     if (random && apiResponse != null)
                         updateBackstack(
@@ -194,8 +222,12 @@ class UiViewModel(
                             photo = apiResponse?.photo,
                             photoDesc = apiResponse?.photoDesc,
                             langs = apiResponse?.langs,
+                            currentLang = setLang,
+                            status = status,
+                            pageId = apiResponse?.pageId,
                             isLoading = false,
-                            isBackStackEmpty = backStack.isEmpty()
+                            isBackStackEmpty = backStack.isEmpty(),
+                            isSaved = saved
                         )
                     }
                 } catch (e: Exception) {
@@ -205,9 +237,13 @@ class UiViewModel(
                             title = "Error",
                             extract = listOf("An error occurred :(\nPlease check your internet connection"),
                             langs = null,
+                            currentLang = null,
                             photo = null,
                             photoDesc = null,
-                            isLoading = false
+                            status = WRStatus.NETWORK_ERROR,
+                            pageId = null,
+                            isLoading = false,
+                            isSaved = false
                         )
                     }
                 }
@@ -244,6 +280,100 @@ class UiViewModel(
             fromLink = fromLink,
             fromBackStack = fromBackStack
         )
+    }
+
+    /**
+     * Saves the current article to the given directory
+     *
+     * @return A [WRStatus] enum value indicating the status of the save operation
+     */
+    suspend fun saveArticle(): WRStatus {
+        if (homeScreenState.value.status == WRStatus.UNINITIALIZED) {
+            Log.e("SaveArticle", "Cannot save article, HomeScreenState not initialized")
+            return WRStatus.OTHER
+        }
+
+        val currentLang = preferencesState.value.lang
+        interceptor.setHost("${homeScreenState.value.currentLang}.wikipedia.org")
+
+        try {
+            val apiResponse = wikipediaRepository
+                .getSearchResult(homeScreenState.value.title)
+
+            val apiResponseQuery = apiResponse
+                .query
+                ?.pages?.get(0)
+
+            if (apiResponseQuery == null) {
+                Log.e("SaveArticle", "Cannot save article, apiResponse is null")
+                interceptor.setHost("$currentLang.wikipedia.org")
+                return WRStatus.NO_SEARCH_RESULT
+            }
+
+            try {
+                val articlesDir = File(filesDir, "savedArticles")
+                articlesDir.mkdirs()
+
+                val file = File(
+                    articlesDir,
+                    "${apiResponseQuery.pageId}.${apiResponseQuery.title}.${homeScreenState.value.currentLang}"
+                )
+                FileOutputStream(file).use {
+                    it.write(Json.encodeToString(apiResponse).toByteArray())
+                }
+                _homeScreenState.update { currentState ->
+                    currentState.copy(isSaved = true)
+                }
+                Log.d("HomeScreenState", "Updated saved state to ${homeScreenState.value.isSaved}")
+                return WRStatus.SUCCESS
+            } catch (e: Exception) {
+                Log.e(
+                    "SaveArticle",
+                    "Cannot save article, file IO error"
+                )
+                e.printStackTrace()
+                interceptor.setHost("$currentLang.wikipedia.org")
+                return WRStatus.IO_ERROR
+            }
+        } catch (_: Exception) {
+            Log.e("SaveArticle", "Cannot save article, network error")
+            interceptor.setHost("$currentLang.wikipedia.org")
+            return WRStatus.NETWORK_ERROR
+        }
+
+        return WRStatus.OTHER
+    }
+
+    /**
+     * Deletes the current article
+     *
+     * @return A [WRStatus] enum value indicating the status of the delete operation
+     */
+    fun deleteArticle(): WRStatus {
+        if (homeScreenState.value.status == WRStatus.UNINITIALIZED) {
+            Log.e("SaveArticle", "Cannot save article, HomeScreenState is uninitialized")
+            return WRStatus.OTHER
+        }
+
+        try {
+            val articlesDir = File(filesDir, "savedArticles")
+            val file = File(
+                articlesDir,
+                "${homeScreenState.value.pageId}.${homeScreenState.value.title}.${homeScreenState.value.currentLang}"
+            )
+            val deleted = file.delete()
+            if (deleted) {
+                _homeScreenState.update { currentState ->
+                    currentState.copy(isSaved = false)
+                }
+                return WRStatus.SUCCESS
+            }
+            else return WRStatus.IO_ERROR
+        } catch(e: Exception) {
+            Log.e("DeleteArticle", "Cannot delete article")
+            e.printStackTrace()
+            return WRStatus.IO_ERROR
+        }
     }
 
     fun popBackStack(): Pair<String, String>? {

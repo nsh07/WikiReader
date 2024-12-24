@@ -24,6 +24,8 @@ import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -48,7 +50,9 @@ import coil3.ImageLoader
 import coil3.gif.AnimatedImageDecoder
 import coil3.gif.GifDecoder
 import coil3.svg.SvgDecoder
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.ui.aboutScreen.AboutScreen
 import org.nsh07.wikireader.ui.homeScreen.AppFab
 import org.nsh07.wikireader.ui.homeScreen.AppHomeScreen
@@ -84,8 +88,10 @@ fun AppScreen(
         .build()
 
     val coroutineScope = rememberCoroutineScope()
+    val snackBarHostState = remember { SnackbarHostState() }
 
     val index by remember { derivedStateOf { listState.firstVisibleItemIndex } }
+    var showSmallFAB by remember { mutableStateOf(true) }
     val (showDeleteDialog, setShowDeleteDialog) = remember { mutableStateOf(false) }
     var (historyItem, setHistoryItem) = remember { mutableStateOf("") }
 
@@ -140,7 +146,11 @@ fun AppScreen(
 
             BackHandler(!homeScreenState.isBackStackEmpty) {
                 val curr = viewModel.popBackStack()
-                viewModel.performSearch(query = curr?.first, lang = curr?.second, fromBackStack = true)
+                viewModel.performSearch(
+                    query = curr?.first,
+                    lang = curr?.second,
+                    fromBackStack = true
+                )
             }
 
             if (showDeleteDialog)
@@ -184,6 +194,8 @@ fun AppScreen(
                 },
                 floatingActionButton = {
                     AppFab(
+                        index = index,
+                        showSmallFAB = showSmallFAB,
                         focusSearch = { viewModel.focusSearchBar() },
                         scrollToTop = { coroutineScope.launch { listState.animateScrollToItem(0) } },
                         performRandomPageSearch = {
@@ -191,10 +203,10 @@ fun AppScreen(
                                 query = null,
                                 random = true
                             )
-                        },
-                        index = index
+                        }
                     )
                 },
+                snackbarHost = { SnackbarHost(snackBarHostState) },
                 modifier = Modifier.fillMaxSize()
             ) { insets ->
                 AppHomeScreen(
@@ -214,6 +226,28 @@ fun AppScreen(
                     setLang = { viewModel.saveLang(it) },
                     setSearchStr = { viewModel.updateLanguageSearchStr(it) },
                     setShowArticleLanguageSheet = { showArticleLanguageSheet = it },
+                    saveArticle = {
+                        coroutineScope.launch {
+                            if (!homeScreenState.isSaved) {
+                                val status = viewModel.saveArticle()
+                                showSmallFAB = false
+                                if (status == WRStatus.SUCCESS)
+                                    snackBarHostState.showSnackbar("Article saved for offline reading")
+                                else
+                                    snackBarHostState.showSnackbar("Unable to save article: ${status.name}")
+                                delay(100L)
+                                showSmallFAB = true
+                            } else {
+                                val status = viewModel.deleteArticle()
+                                showSmallFAB = false
+                                if (status == WRStatus.SUCCESS)
+                                    snackBarHostState.showSnackbar("Article deleted")
+                                else
+                                    snackBarHostState.showSnackbar("Unable to delete article: ${status.name}")
+                                showSmallFAB = true
+                            }
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = insets.calculateTopPadding())

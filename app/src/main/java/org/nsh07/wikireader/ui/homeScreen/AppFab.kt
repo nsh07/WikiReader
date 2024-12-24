@@ -19,34 +19,37 @@ import org.nsh07.wikireader.R
 
 @Composable
 fun AppFab(
+    index: Int,
+    showSmallFAB: Boolean,
     focusSearch: () -> Unit,
     scrollToTop: () -> Unit,
-    performRandomPageSearch: () -> Unit,
-    index: Int
+    performRandomPageSearch: () -> Unit
 ) {
     Column(horizontalAlignment = Alignment.End) {
-        SmallFloatingActionButton(
-            onClick = {
-                if (index > 1) scrollToTop()
-                else performRandomPageSearch()
-            }
-        ) {
-            Crossfade(targetState = index > 1, label = "FAB Icon Crossfade") { isScrolled ->
-                if (isScrolled) {
-                    Icon(
-                        painterResource(R.drawable.upward),
-                        contentDescription = stringResource(R.string.scroll_to_top)
-                    )
-                } else {
-                    Icon(
-                        painterResource(R.drawable.shuffle),
-                        contentDescription = "Random article"
-                    )
+        if (showSmallFAB) {
+            SmallFloatingActionButton(
+                onClick = {
+                    if (index > 1) scrollToTop()
+                    else performRandomPageSearch()
+                }
+            ) {
+                Crossfade(targetState = index > 1, label = "FAB Icon Crossfade") { isScrolled ->
+                    if (isScrolled) {
+                        Icon(
+                            painterResource(R.drawable.upward),
+                            contentDescription = stringResource(R.string.scroll_to_top)
+                        )
+                    } else {
+                        Icon(
+                            painterResource(R.drawable.shuffle),
+                            contentDescription = "Random article"
+                        )
+                    }
                 }
             }
-        }
 
-        Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(24.dp))
+        }
 
         FloatingActionButton(
             onClick = focusSearch

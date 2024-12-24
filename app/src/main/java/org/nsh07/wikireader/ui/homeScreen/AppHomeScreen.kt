@@ -1,10 +1,12 @@
 package org.nsh07.wikireader.ui.homeScreen
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -28,6 +31,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.ui.image.ImageCard
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
@@ -65,6 +69,7 @@ fun AppHomeScreen(
     setLang: (String) -> Unit,
     setSearchStr: (String) -> Unit,
     setShowArticleLanguageSheet: (Boolean) -> Unit,
+    saveArticle: () -> Unit,
     insets: PaddingValues,
     modifier: Modifier = Modifier
 ) {
@@ -88,20 +93,39 @@ fun AppHomeScreen(
         )
 
     Box(modifier = modifier) { // The container for all the composables in the home screen
-        if (homeScreenState.title != "") {
+        if (homeScreenState.status != WRStatus.UNINITIALIZED) {
             LazyColumn( // The article
                 state = listState,
                 modifier = Modifier.fillMaxSize()
             ) {
                 item { // Title
-                    FilledTonalButton(
-                        onClick = { setShowArticleLanguageSheet(true) },
-                        enabled = homeScreenState.langs?.isEmpty() == false,
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        Icon(painterResource(R.drawable.translate), null)
-                        Spacer(Modifier.width(8.dp))
-                        Text(langCodeToName(preferencesState.lang))
+                    Row(modifier = Modifier.padding(16.dp)) {
+                        FilledTonalButton(
+                            onClick = { setShowArticleLanguageSheet(true) },
+                            enabled = homeScreenState.langs?.isEmpty() == false
+                        ) {
+                            Icon(painterResource(R.drawable.translate), null)
+                            Spacer(Modifier.width(8.dp))
+                            Text(langCodeToName(preferencesState.lang))
+                        }
+                        Spacer(Modifier.weight(1f))
+                        FilledTonalIconButton(
+                            onClick = saveArticle,
+                            enabled = homeScreenState.status == WRStatus.SUCCESS
+                        ) {
+                            Crossfade(homeScreenState.isSaved, label = "saveAnimation") { saved ->
+                                if (saved)
+                                    Icon(
+                                        painterResource(R.drawable.download_done),
+                                        contentDescription = "Delete downloaded article"
+                                    )
+                                else
+                                    Icon(
+                                        painterResource(R.drawable.download),
+                                        contentDescription = "Download article"
+                                    )
+                            }
+                        }
                     }
                     HorizontalDivider()
                 }
