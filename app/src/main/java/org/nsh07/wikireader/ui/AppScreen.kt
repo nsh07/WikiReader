@@ -58,6 +58,7 @@ import org.nsh07.wikireader.ui.homeScreen.AppFab
 import org.nsh07.wikireader.ui.homeScreen.AppHomeScreen
 import org.nsh07.wikireader.ui.homeScreen.AppSearchBar
 import org.nsh07.wikireader.ui.image.FullScreenImage
+import org.nsh07.wikireader.ui.savedArticlesScreen.SavedArticlesScreen
 import org.nsh07.wikireader.ui.settingsScreen.SettingsScreen
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.viewModel.UiViewModel
@@ -91,7 +92,6 @@ fun AppScreen(
     val snackBarHostState = remember { SnackbarHostState() }
 
     val index by remember { derivedStateOf { listState.firstVisibleItemIndex } }
-    var showSmallFAB by remember { mutableStateOf(true) }
     val (showDeleteDialog, setShowDeleteDialog) = remember { mutableStateOf(false) }
     var (historyItem, setHistoryItem) = remember { mutableStateOf("") }
 
@@ -179,12 +179,16 @@ fun AppScreen(
                             setHistoryItem(it)
                             setShowDeleteDialog(true)
                         },
+                        onSavedArticlesClick = {
+                            navController.navigate("savedArticles")
+                            it(false)
+                        },
                         onSettingsClick = {
-                            navController.navigate("Settings")
+                            navController.navigate("settings")
                             it(false)
                         },
                         onAboutClick = {
-                            navController.navigate("About")
+                            navController.navigate("about")
                             it(false)
                         },
                         modifier = Modifier.padding(
@@ -195,7 +199,6 @@ fun AppScreen(
                 floatingActionButton = {
                     AppFab(
                         index = index,
-                        showSmallFAB = showSmallFAB,
                         focusSearch = { viewModel.focusSearchBar() },
                         scrollToTop = { coroutineScope.launch { listState.animateScrollToItem(0) } },
                         performRandomPageSearch = {
@@ -219,7 +222,7 @@ fun AppScreen(
                     showLanguageSheet = showArticleLanguageSheet,
                     onImageClick = {
                         if (homeScreenState.photo != null)
-                            navController.navigate("FullScreenImage")
+                            navController.navigate("fullScreenImage")
                     },
                     insets = insets,
                     onLinkClick = { viewModel.performSearch(it, fromLink = true) },
@@ -230,21 +233,17 @@ fun AppScreen(
                         coroutineScope.launch {
                             if (!homeScreenState.isSaved) {
                                 val status = viewModel.saveArticle()
-                                showSmallFAB = false
                                 if (status == WRStatus.SUCCESS)
                                     snackBarHostState.showSnackbar("Article saved for offline reading")
                                 else
                                     snackBarHostState.showSnackbar("Unable to save article: ${status.name}")
-                                delay(100L)
-                                showSmallFAB = true
+                                delay(150L)
                             } else {
                                 val status = viewModel.deleteArticle()
-                                showSmallFAB = false
                                 if (status == WRStatus.SUCCESS)
                                     snackBarHostState.showSnackbar("Article deleted")
                                 else
                                     snackBarHostState.showSnackbar("Unable to delete article: ${status.name}")
-                                showSmallFAB = true
                             }
                         }
                     },
@@ -255,7 +254,7 @@ fun AppScreen(
             }
         }
 
-        composable("FullScreenImage") {
+        composable("fullScreenImage") {
             if (homeScreenState.photo == null) navController.navigateUp()
             FullScreenImage(
                 photo = homeScreenState.photo,
@@ -265,7 +264,21 @@ fun AppScreen(
             )
         }
 
-        composable("Settings") {
+        composable("savedArticles") {
+            SavedArticlesScreen(
+                loadArticles = { viewModel.listArticles() },
+                openSavedArticle = {
+                    viewModel.loadSavedArticle(it)
+                    navController.navigateUp()
+                },
+                articlesSize = { viewModel.totalArticlesSize() },
+                deleteArticle = { viewModel.deleteArticle(it) },
+                deleteAll = { viewModel.deleteAllArticles() },
+                onBack = { navController.navigateUp() }
+            )
+        }
+
+        composable("settings") {
             SettingsScreen(
                 preferencesState = preferencesState,
                 onBack = { navController.navigateUp() },
@@ -273,7 +286,7 @@ fun AppScreen(
             )
         }
 
-        composable("About") {
+        composable("about") {
             AboutScreen(
                 onBack = { navController.navigateUp() }
             )

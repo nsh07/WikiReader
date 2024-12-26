@@ -22,11 +22,13 @@ import kotlinx.serialization.json.Json
 import org.nsh07.wikireader.WikiReaderApplication
 import org.nsh07.wikireader.data.AppPreferencesRepository
 import org.nsh07.wikireader.data.WRStatus
+import org.nsh07.wikireader.data.WikiApiResponse
 import org.nsh07.wikireader.data.WikipediaRepository
 import org.nsh07.wikireader.data.parseText
 import org.nsh07.wikireader.network.HostSelectionInterceptor
 import java.io.File
 import java.io.FileOutputStream
+import kotlin.io.path.listDirectoryEntries
 
 class UiViewModel(
     private val interceptor: HostSelectionInterceptor,
@@ -198,7 +200,7 @@ class UiViewModel(
 
                             val file = File(
                                 articlesDir,
-                                "${apiResponse!!.pageId}.${apiResponse.title}.${lastQuery!!.second}"
+                                "${apiResponse!!.title}.${apiResponse.pageId}.${lastQuery!!.second}"
                             )
                             if (file.exists()) saved = true
                         } catch (_: Exception) {
@@ -311,16 +313,20 @@ class UiViewModel(
             }
 
             try {
+                val fileName =
+                    "${apiResponseQuery.title}.${apiResponseQuery.pageId}.${homeScreenState.value.currentLang}"
                 val articlesDir = File(filesDir, "savedArticles")
                 articlesDir.mkdirs()
 
                 val file = File(
                     articlesDir,
-                    "${apiResponseQuery.pageId}.${apiResponseQuery.title}.${homeScreenState.value.currentLang}"
+                    fileName
                 )
+
                 FileOutputStream(file).use {
                     it.write(Json.encodeToString(apiResponse).toByteArray())
                 }
+
                 _homeScreenState.update { currentState ->
                     currentState.copy(isSaved = true)
                 }
@@ -349,28 +355,118 @@ class UiViewModel(
      *
      * @return A [WRStatus] enum value indicating the status of the delete operation
      */
-    fun deleteArticle(): WRStatus {
-        if (homeScreenState.value.status == WRStatus.UNINITIALIZED) {
-            Log.e("SaveArticle", "Cannot save article, HomeScreenState is uninitialized")
+    fun deleteArticle(fileName: String? = null): WRStatus {
+        if (homeScreenState.value.status == WRStatus.UNINITIALIZED && fileName == null) {
+            Log.e("DeleteArticle", "Cannot delete article, HomeScreenState is uninitialized")
             return WRStatus.OTHER
         }
 
         try {
             val articlesDir = File(filesDir, "savedArticles")
-            val file = File(
-                articlesDir,
-                "${homeScreenState.value.pageId}.${homeScreenState.value.title}.${homeScreenState.value.currentLang}"
-            )
+            val file = if (fileName == null)
+                File(
+                    articlesDir,
+                    "${homeScreenState.value.title}.${homeScreenState.value.pageId}.${homeScreenState.value.currentLang}"
+                )
+            else
+                File(articlesDir, fileName)
+
             val deleted = file.delete()
             if (deleted) {
                 _homeScreenState.update { currentState ->
                     currentState.copy(isSaved = false)
                 }
                 return WRStatus.SUCCESS
-            }
-            else return WRStatus.IO_ERROR
-        } catch(e: Exception) {
+            } else return WRStatus.IO_ERROR
+        } catch (e: Exception) {
             Log.e("DeleteArticle", "Cannot delete article")
+            e.printStackTrace()
+            return WRStatus.IO_ERROR
+        }
+    }
+
+    fun deleteAllArticles(): WRStatus {
+        try {
+            val articlesDir = File(filesDir, "savedArticles")
+            val deleted = articlesDir.deleteRecursively()
+            return if (deleted) WRStatus.SUCCESS
+            else WRStatus.IO_ERROR
+        } catch (e: Exception) {
+            Log.e("DeleteArticle", "Cannot delete all articles")
+            e.printStackTrace()
+            return WRStatus.IO_ERROR
+        }
+    }
+
+    fun listArticles(): List<String> {
+        try {
+            val articlesDir = File(filesDir, "savedArticles")
+            val directoryEntries = articlesDir.toPath().listDirectoryEntries()
+            val out = mutableListOf<String>()
+            directoryEntries.forEach {
+                out.add(it.fileName.toString())
+            }
+            out.sort()
+            Log.d("ListArticles", "${out.size} articles loaded")
+            return out.toList()
+        } catch (e: Exception) {
+            Log.e("ListArticles", "Cannot load list of downloaded articles, IO error")
+            e.printStackTrace()
+            return listOf<String>()
+        }
+    }
+
+    fun totalArticlesSize(): Long {
+        try {
+            val size = File(filesDir, "savedArticles")
+                .walkTopDown()
+                .map { it.length() }
+                .sum()
+            Log.d("ArticlesSize", "Articles size loaded: $size")
+            return size
+        } catch (e: Exception) {
+            Log.e("ArticlesSize", "Cannot load total article size, IO error")
+            e.printStackTrace()
+            return 0
+        }
+    }
+
+    fun loadSavedArticle(fileName: String): WRStatus {
+        try {
+            val articlesDir = File(filesDir, "savedArticles")
+            val file = File(articlesDir, fileName)
+            val apiResponse =
+                Json.decodeFromString<WikiApiResponse>(file.readText()).query?.pages?.get(0)
+
+            val extract: List<String> = if (apiResponse?.extract != null)
+                parseText(apiResponse.extract)
+            else
+                listOf("Unknown error")
+
+            _preferencesState.update { currentState ->
+                currentState.copy(
+                    lang = fileName.substringAfterLast('.')
+                )
+            }
+            _homeScreenState.update { currentState ->
+                currentState.copy(
+                    title = apiResponse?.title ?: "Error",
+                    extract = extract,
+                    photo = apiResponse?.photo,
+                    photoDesc = apiResponse?.photoDesc,
+                    langs = apiResponse?.langs,
+                    currentLang = preferencesState.value.lang,
+                    status = WRStatus.SUCCESS,
+                    pageId = apiResponse?.pageId,
+                    isLoading = false,
+                    isBackStackEmpty = backStack.isEmpty(),
+                    isSaved = true
+                )
+            }
+
+            return WRStatus.SUCCESS
+        } catch (e: Exception) {
+            Log.e("LoadSavedArticle", "Cannot load saved article, IO error")
             e.printStackTrace()
             return WRStatus.IO_ERROR
         }
