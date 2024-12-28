@@ -1,5 +1,7 @@
 package org.nsh07.wikireader.ui.homeScreen
 
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asComposeColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.LinkAnnotation
@@ -34,12 +37,13 @@ fun ParsedBodyText(
     body: String,
     fontSize: Int,
     description: String,
-    intro: Boolean = false,
     renderMath: Boolean,
+    darkTheme: Boolean,
+    intro: Boolean = false,
     onLinkClick: (String) -> Unit
 ) {
     if (!description.contains("disambiguation") && title != "See also") {
-        if (renderMath) {
+        if (renderMath) { // Split content by newlines and render LaTeX if line starts with \{displaystyle
             val context = LocalContext.current
             val dpi = context.resources.displayMetrics.density
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -68,13 +72,20 @@ fun ParsedBodyText(
                                 placeholder = painterResource(R.drawable.more_horiz),
                                 error = painterResource(R.drawable.error),
                                 contentDescription = null,
+                                colorFilter = if (darkTheme)
+                                    PorterDuffColorFilter(
+                                        0xffffffff.toInt(),
+                                        PorterDuff.Mode.SRC_IN
+                                    ).asComposeColorFilter()
+                                else null,
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                             )
                         }
                 }
             }
-        } else {
-            val pattern = remember{ "\n {6}\n {4}\n {3} \\{\\\\displaystyle.*\\}\n {2}\n".toRegex() }
+        } else { // Clean up string and then display
+            val pattern =
+                remember { "\n {6}\n {4}\n {3} \\{\\\\displaystyle.*\\}\n {2}\n".toRegex() }
             val multipleSpaces = remember { "[^\\S\\n]{2,}".toRegex() }
             Text(
                 text = body

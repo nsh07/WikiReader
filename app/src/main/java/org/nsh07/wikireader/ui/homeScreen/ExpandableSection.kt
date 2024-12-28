@@ -40,6 +40,7 @@ fun ExpandableSection(
     description: String,
     expanded: Boolean,
     renderMath: Boolean,
+    darkTheme: Boolean,
     onLinkClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -91,7 +92,8 @@ fun ExpandableSection(
                 fontSize = fontSize,
                 description = description,
                 onLinkClick = onLinkClick,
-                renderMath = renderMath
+                renderMath = renderMath,
+                darkTheme = darkTheme
             )
         }
     }
@@ -109,7 +111,8 @@ fun ExpandableSectionPreview() {
             description = "",
             onLinkClick = {},
             expanded = false,
-            renderMath = true
+            renderMath = true,
+            darkTheme = false
         )
     }
 }

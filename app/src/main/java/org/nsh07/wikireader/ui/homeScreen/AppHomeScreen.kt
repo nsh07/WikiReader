@@ -34,6 +34,7 @@ import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.ui.image.ImageCard
+import org.nsh07.wikireader.ui.theme.isDark
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
 
@@ -156,6 +157,7 @@ fun AppHomeScreen(
                             description = photoDesc?.description?.get(0) ?: "",
                             intro = true,
                             renderMath = preferencesState.renderMath,
+                            darkTheme = MaterialTheme.colorScheme.isDark(),
                             onLinkClick = onLinkClick
                         )
                     }
@@ -172,6 +174,7 @@ fun AppHomeScreen(
                                 description = photoDesc?.description?.get(0) ?: "",
                                 expanded = preferencesState.expandedSections,
                                 onLinkClick = onLinkClick,
+                                darkTheme = MaterialTheme.colorScheme.isDark(),
                                 renderMath = preferencesState.renderMath
                             )
                         }
