@@ -226,6 +226,7 @@ fun AppScreen(
                     },
                     insets = insets,
                     onLinkClick = { viewModel.performSearch(it, fromLink = true) },
+                    refreshSearch = { viewModel.refreshSearch(true) },
                     setLang = { viewModel.saveLang(it) },
                     setSearchStr = { viewModel.updateLanguageSearchStr(it) },
                     setShowArticleLanguageSheet = { showArticleLanguageSheet = it },

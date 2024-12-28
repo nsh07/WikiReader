@@ -276,16 +276,23 @@ class UiViewModel(
     }
 
     fun refreshSearch(
-        random: Boolean = false,
-        fromLink: Boolean = false,
-        fromBackStack: Boolean = false
+        persistLang: Boolean = false
     ) {
-        performSearch(
-            lastQuery?.first,
-            random = random,
-            fromLink = fromLink,
-            fromBackStack = fromBackStack
-        )
+        if (persistLang)
+            performSearch(
+                lastQuery?.first,
+                lang = lastQuery?.second,
+                random = false,
+                fromLink = true,
+                fromBackStack = false
+            )
+        else
+            performSearch(
+                lastQuery?.first,
+                random = false,
+                fromLink = true,
+                fromBackStack = false
+            )
     }
 
     /**
