@@ -87,6 +87,9 @@ class UiViewModel(
             val dataSaver = appPreferencesRepository.readBooleanPreference("data-saver")
                 ?: appPreferencesRepository.saveBooleanPreference("data-saver", false)
 
+            val renderMath = appPreferencesRepository.readBooleanPreference("render-math")
+                ?: appPreferencesRepository.saveBooleanPreference("render-math", true)
+
             _preferencesState.update { currentState ->
                 currentState.copy(
                     theme = theme,
@@ -95,7 +98,8 @@ class UiViewModel(
                     fontSize = fontSize,
                     blackTheme = blackTheme,
                     expandedSections = expandedSections,
-                    dataSaver = dataSaver
+                    dataSaver = dataSaver,
+                    renderMath = renderMath
                 )
             }
 
@@ -573,6 +577,15 @@ class UiViewModel(
             appPreferencesRepository.saveBooleanPreference("expanded-sections", expandedSections)
             _preferencesState.update { currentState ->
                 currentState.copy(expandedSections = expandedSections)
+            }
+        }
+    }
+
+    fun saveRenderMath(renderMath: Boolean) {
+        viewModelScope.launch {
+            appPreferencesRepository.saveBooleanPreference("render-math", renderMath)
+            _preferencesState.update { currentState ->
+                currentState.copy(renderMath = renderMath)
             }
         }
     }

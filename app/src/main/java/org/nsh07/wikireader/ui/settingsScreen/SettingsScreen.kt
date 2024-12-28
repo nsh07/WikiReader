@@ -65,6 +65,7 @@ fun SettingsScreen(
     var blackTheme by remember { mutableStateOf(preferencesState.blackTheme) }
     var expandedSections by remember { mutableStateOf(preferencesState.expandedSections) }
     var dataSaver by remember { mutableStateOf(preferencesState.dataSaver) }
+    var renderMath by remember { mutableStateOf(preferencesState.renderMath) }
 
     val expandedIcon =
         if (expandedSections) R.drawable.expand_all
@@ -234,6 +235,27 @@ fun SettingsScreen(
                         onCheckedChange = {
                             dataSaver = it
                             viewModel.saveDataSaver(it)
+                        }
+                    )
+                }
+            )
+            ListItem(
+                leadingContent = {
+                    Icon(
+                        painterResource(R.drawable.function),
+                        contentDescription = null
+                    )
+                },
+                headlineContent = { Text("Render math expressions") },
+                supportingContent = {
+                    Text("Requires small amounts of additional data. Turn off to improve performance at the cost of readability")
+                },
+                trailingContent = {
+                    Switch(
+                        checked = renderMath,
+                        onCheckedChange = {
+                            renderMath = it
+                            viewModel.saveRenderMath(it)
                         }
                     )
                 }

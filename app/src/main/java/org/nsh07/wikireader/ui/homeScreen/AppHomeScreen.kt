@@ -155,6 +155,7 @@ fun AppHomeScreen(
                             fontSize = fontSize,
                             description = photoDesc?.description?.get(0) ?: "",
                             intro = true,
+                            renderMath = preferencesState.renderMath,
                             onLinkClick = onLinkClick
                         )
                     }
@@ -170,7 +171,8 @@ fun AppHomeScreen(
                                 fontSize = fontSize,
                                 description = photoDesc?.description?.get(0) ?: "",
                                 expanded = preferencesState.expandedSections,
-                                onLinkClick = onLinkClick
+                                onLinkClick = onLinkClick,
+                                renderMath = preferencesState.renderMath
                             )
                         }
                     }

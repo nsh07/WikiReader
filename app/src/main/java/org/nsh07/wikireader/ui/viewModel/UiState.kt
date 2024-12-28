@@ -39,5 +39,6 @@ data class PreferencesState(
     val fontSize: Int = 16,
     val blackTheme: Boolean = false,
     val expandedSections: Boolean = false,
-    val dataSaver: Boolean = false
+    val dataSaver: Boolean = false,
+    val renderMath: Boolean = true
 )
