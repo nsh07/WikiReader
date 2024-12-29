@@ -165,6 +165,7 @@ class UiViewModel(
                     history.remove(q)
                     history.add(q)
                     if (history.size > 50) history.remove(history.first())
+                    appPreferencesRepository.saveHistory(history)
                 }
 
                 if (!random) updateBackstack(q, setLang, fromBackStack)
@@ -172,9 +173,6 @@ class UiViewModel(
                 _homeScreenState.update { currentState ->
                     currentState.copy(isLoading = true)
                 }
-
-                if (!random && !fromLink && !fromBackStack)
-                    appPreferencesRepository.saveHistory(history)
 
                 try {
                     val apiResponse = when (random) {
@@ -474,6 +472,8 @@ class UiViewModel(
                     isSaved = true
                 )
             }
+
+            if (apiResponse != null) updateBackstack(apiResponse.title, fileName.substringAfterLast('.'), false)
 
             return WRStatus.SUCCESS
         } catch (e: Exception) {
