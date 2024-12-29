@@ -1,0 +1,6 @@
+v1.9.0:
+
+New features:
+- Rendering math expressions is now supported
+- You can now pull down when completely scrolled up to reload the page
+- You can now save articles to your device and read them when offline
