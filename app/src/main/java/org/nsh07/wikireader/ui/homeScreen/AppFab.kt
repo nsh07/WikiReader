@@ -19,10 +19,10 @@ import org.nsh07.wikireader.R
 
 @Composable
 fun AppFab(
+    index: Int,
     focusSearch: () -> Unit,
     scrollToTop: () -> Unit,
-    performRandomPageSearch: () -> Unit,
-    index: Int
+    performRandomPageSearch: () -> Unit
 ) {
     Column(horizontalAlignment = Alignment.End) {
         SmallFloatingActionButton(

@@ -57,6 +57,7 @@ Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia l
   and view in full-screen
 - **Random article:** Feeling lucky? Click the random article button to read a random article
 - **Choose your language:** Choose from over 300 languages on Wikipedia
+- **Save articles:** Download articles to your device for offline reading
 - **One-handed use:** Use the floating action buttons at the bottom for a complete one-handed
   experience
 - **Lightweight:** The app starts instantly, and works smoothly
@@ -65,6 +66,7 @@ Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia l
 - **Customizable colors:** Choose from light/dark themes and customize the Material 3 color palette
 - **Customizable font size:** Choose your own comfortable font size
 - **Data saver:** Save your limited data plan by loading text only
+- **Math expressions:** View properly rendered mathematical expressions for easily reading mathematical articles
 
 ## Special Thanks
 

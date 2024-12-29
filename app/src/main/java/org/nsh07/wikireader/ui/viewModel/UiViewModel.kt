@@ -17,11 +17,18 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.nsh07.wikireader.WikiReaderApplication
 import org.nsh07.wikireader.data.AppPreferencesRepository
+import org.nsh07.wikireader.data.WRStatus
+import org.nsh07.wikireader.data.WikiApiResponse
 import org.nsh07.wikireader.data.WikipediaRepository
 import org.nsh07.wikireader.data.parseText
 import org.nsh07.wikireader.network.HostSelectionInterceptor
+import java.io.File
+import java.io.FileOutputStream
+import kotlin.io.path.listDirectoryEntries
 
 class UiViewModel(
     private val interceptor: HostSelectionInterceptor,
@@ -48,6 +55,7 @@ class UiViewModel(
 
     private val backStack = mutableListOf<Pair<String, String>>()
     private var lastQuery: Pair<String, String>? = null
+    private var filesDir: String = ""
 
     var isReady = false
     var isAnimDurationComplete = false
@@ -79,6 +87,9 @@ class UiViewModel(
             val dataSaver = appPreferencesRepository.readBooleanPreference("data-saver")
                 ?: appPreferencesRepository.saveBooleanPreference("data-saver", false)
 
+            val renderMath = appPreferencesRepository.readBooleanPreference("render-math")
+                ?: appPreferencesRepository.saveBooleanPreference("render-math", true)
+
             _preferencesState.update { currentState ->
                 currentState.copy(
                     theme = theme,
@@ -87,7 +98,8 @@ class UiViewModel(
                     fontSize = fontSize,
                     blackTheme = blackTheme,
                     expandedSections = expandedSections,
-                    dataSaver = dataSaver
+                    dataSaver = dataSaver,
+                    renderMath = renderMath
                 )
             }
 
@@ -105,6 +117,10 @@ class UiViewModel(
             delay(600)
             isAnimDurationComplete = true
         }
+    }
+
+    fun setFilesDir(path: String) {
+        filesDir = path
     }
 
     private fun updateBackstack(q: String, setLang: String, fromBackStack: Boolean) {
@@ -135,11 +151,12 @@ class UiViewModel(
         fromBackStack: Boolean = false
     ) {
         val q = query?.trim() ?: " "
-        var setLang = preferencesState.value.lang
         val history = searchBarState.value.history.toMutableSet()
 
         if (q != "") {
             viewModelScope.launch {
+                var setLang = preferencesState.value.lang
+
                 if (lang != null) {
                     interceptor.setHost("$lang.wikipedia.org")
                     setLang = lang
@@ -148,6 +165,7 @@ class UiViewModel(
                     history.remove(q)
                     history.add(q)
                     if (history.size > 50) history.remove(history.first())
+                    appPreferencesRepository.saveHistory(history)
                 }
 
                 if (!random) updateBackstack(q, setLang, fromBackStack)
@@ -155,9 +173,6 @@ class UiViewModel(
                 _homeScreenState.update { currentState ->
                     currentState.copy(isLoading = true)
                 }
-
-                if (!random && !fromLink && !fromBackStack)
-                    appPreferencesRepository.saveHistory(history)
 
                 try {
                     val apiResponse = when (random) {
@@ -175,10 +190,27 @@ class UiViewModel(
                     val extractText = apiResponse
                         ?.extract ?: ""
 
-                    val extract = if (extractText != "")
-                        parseText(extractText)
-                    else
-                        listOf("No search results found for \"$q\"")
+                    val extract: List<String>
+                    val status: WRStatus
+                    var saved = false
+                    if (extractText != "") {
+                        extract = parseText(extractText)
+                        status = WRStatus.SUCCESS
+
+                        try {
+                            val articlesDir = File(filesDir, "savedArticles")
+
+                            val file = File(
+                                articlesDir,
+                                "${apiResponse!!.title}.${apiResponse.pageId}.${lastQuery!!.second}"
+                            )
+                            if (file.exists()) saved = true
+                        } catch (_: Exception) {
+                        }
+                    } else {
+                        extract = listOf("No search results found for \"$q\"")
+                        status = WRStatus.NO_SEARCH_RESULT
+                    }
 
                     if (random && apiResponse != null)
                         updateBackstack(
@@ -194,8 +226,12 @@ class UiViewModel(
                             photo = apiResponse?.photo,
                             photoDesc = apiResponse?.photoDesc,
                             langs = apiResponse?.langs,
+                            currentLang = setLang,
+                            status = status,
+                            pageId = apiResponse?.pageId,
                             isLoading = false,
-                            isBackStackEmpty = backStack.isEmpty()
+                            isBackStackEmpty = backStack.isEmpty(),
+                            isSaved = saved
                         )
                     }
                 } catch (e: Exception) {
@@ -205,9 +241,13 @@ class UiViewModel(
                             title = "Error",
                             extract = listOf("An error occurred :(\nPlease check your internet connection"),
                             langs = null,
+                            currentLang = null,
                             photo = null,
                             photoDesc = null,
-                            isLoading = false
+                            status = WRStatus.NETWORK_ERROR,
+                            pageId = null,
+                            isLoading = false,
+                            isSaved = false
                         )
                     }
                 }
@@ -234,16 +274,213 @@ class UiViewModel(
     }
 
     fun refreshSearch(
-        random: Boolean = false,
-        fromLink: Boolean = false,
-        fromBackStack: Boolean = false
+        persistLang: Boolean = false
     ) {
-        performSearch(
-            lastQuery?.first,
-            random = random,
-            fromLink = fromLink,
-            fromBackStack = fromBackStack
-        )
+        if (persistLang)
+            performSearch(
+                lastQuery?.first,
+                lang = lastQuery?.second,
+                random = false,
+                fromLink = true,
+                fromBackStack = false
+            )
+        else
+            performSearch(
+                lastQuery?.first,
+                random = false,
+                fromLink = true,
+                fromBackStack = false
+            )
+    }
+
+    /**
+     * Saves the current article to the given directory
+     *
+     * @return A [WRStatus] enum value indicating the status of the save operation
+     */
+    suspend fun saveArticle(): WRStatus {
+        if (homeScreenState.value.status == WRStatus.UNINITIALIZED) {
+            Log.e("SaveArticle", "Cannot save article, HomeScreenState not initialized")
+            return WRStatus.OTHER
+        }
+
+        val currentLang = preferencesState.value.lang
+        interceptor.setHost("${homeScreenState.value.currentLang}.wikipedia.org")
+
+        try {
+            val apiResponse = wikipediaRepository
+                .getSearchResult(homeScreenState.value.title)
+
+            val apiResponseQuery = apiResponse
+                .query
+                ?.pages?.get(0)
+
+            if (apiResponseQuery == null) {
+                Log.e("SaveArticle", "Cannot save article, apiResponse is null")
+                interceptor.setHost("$currentLang.wikipedia.org")
+                return WRStatus.NO_SEARCH_RESULT
+            }
+
+            try {
+                val fileName =
+                    "${apiResponseQuery.title}.${apiResponseQuery.pageId}.${homeScreenState.value.currentLang}"
+                val articlesDir = File(filesDir, "savedArticles")
+                articlesDir.mkdirs()
+
+                val file = File(
+                    articlesDir,
+                    fileName
+                )
+
+                FileOutputStream(file).use {
+                    it.write(Json.encodeToString(apiResponse).toByteArray())
+                }
+
+                _homeScreenState.update { currentState ->
+                    currentState.copy(isSaved = true)
+                }
+                Log.d("HomeScreenState", "Updated saved state to ${homeScreenState.value.isSaved}")
+                return WRStatus.SUCCESS
+            } catch (e: Exception) {
+                Log.e(
+                    "SaveArticle",
+                    "Cannot save article, file IO error"
+                )
+                e.printStackTrace()
+                interceptor.setHost("$currentLang.wikipedia.org")
+                return WRStatus.IO_ERROR
+            }
+        } catch (_: Exception) {
+            Log.e("SaveArticle", "Cannot save article, network error")
+            interceptor.setHost("$currentLang.wikipedia.org")
+            return WRStatus.NETWORK_ERROR
+        }
+
+        return WRStatus.OTHER
+    }
+
+    /**
+     * Deletes the current article
+     *
+     * @return A [WRStatus] enum value indicating the status of the delete operation
+     */
+    fun deleteArticle(fileName: String? = null): WRStatus {
+        if (homeScreenState.value.status == WRStatus.UNINITIALIZED && fileName == null) {
+            Log.e("DeleteArticle", "Cannot delete article, HomeScreenState is uninitialized")
+            return WRStatus.OTHER
+        }
+
+        try {
+            val articlesDir = File(filesDir, "savedArticles")
+            val file = if (fileName == null)
+                File(
+                    articlesDir,
+                    "${homeScreenState.value.title}.${homeScreenState.value.pageId}.${homeScreenState.value.currentLang}"
+                )
+            else
+                File(articlesDir, fileName)
+
+            val deleted = file.delete()
+            if (deleted) {
+                _homeScreenState.update { currentState ->
+                    currentState.copy(isSaved = false)
+                }
+                return WRStatus.SUCCESS
+            } else return WRStatus.IO_ERROR
+        } catch (e: Exception) {
+            Log.e("DeleteArticle", "Cannot delete article")
+            e.printStackTrace()
+            return WRStatus.IO_ERROR
+        }
+    }
+
+    fun deleteAllArticles(): WRStatus {
+        try {
+            val articlesDir = File(filesDir, "savedArticles")
+            val deleted = articlesDir.deleteRecursively()
+            return if (deleted) WRStatus.SUCCESS
+            else WRStatus.IO_ERROR
+        } catch (e: Exception) {
+            Log.e("DeleteArticle", "Cannot delete all articles")
+            e.printStackTrace()
+            return WRStatus.IO_ERROR
+        }
+    }
+
+    fun listArticles(): List<String> {
+        try {
+            val articlesDir = File(filesDir, "savedArticles")
+            val directoryEntries = articlesDir.toPath().listDirectoryEntries()
+            val out = mutableListOf<String>()
+            directoryEntries.forEach {
+                out.add(it.fileName.toString())
+            }
+            out.sort()
+            Log.d("ListArticles", "${out.size} articles loaded")
+            return out.toList()
+        } catch (e: Exception) {
+            Log.e("ListArticles", "Cannot load list of downloaded articles, IO error")
+            e.printStackTrace()
+            return listOf<String>()
+        }
+    }
+
+    fun totalArticlesSize(): Long {
+        try {
+            val size = File(filesDir, "savedArticles")
+                .walkTopDown()
+                .map { it.length() }
+                .sum()
+            Log.d("ArticlesSize", "Articles size loaded: $size")
+            return size
+        } catch (e: Exception) {
+            Log.e("ArticlesSize", "Cannot load total article size, IO error")
+            e.printStackTrace()
+            return 0
+        }
+    }
+
+    fun loadSavedArticle(fileName: String): WRStatus {
+        try {
+            val articlesDir = File(filesDir, "savedArticles")
+            val file = File(articlesDir, fileName)
+            val apiResponse =
+                Json.decodeFromString<WikiApiResponse>(file.readText()).query?.pages?.get(0)
+
+            val extract: List<String> = if (apiResponse?.extract != null)
+                parseText(apiResponse.extract)
+            else
+                listOf("Unknown error")
+
+            _preferencesState.update { currentState ->
+                currentState.copy(
+                    lang = fileName.substringAfterLast('.')
+                )
+            }
+            _homeScreenState.update { currentState ->
+                currentState.copy(
+                    title = apiResponse?.title ?: "Error",
+                    extract = extract,
+                    photo = apiResponse?.photo,
+                    photoDesc = apiResponse?.photoDesc,
+                    langs = apiResponse?.langs,
+                    currentLang = preferencesState.value.lang,
+                    status = WRStatus.SUCCESS,
+                    pageId = apiResponse?.pageId,
+                    isLoading = false,
+                    isBackStackEmpty = backStack.isEmpty(),
+                    isSaved = true
+                )
+            }
+
+            if (apiResponse != null) updateBackstack(apiResponse.title, fileName.substringAfterLast('.'), false)
+
+            return WRStatus.SUCCESS
+        } catch (e: Exception) {
+            Log.e("LoadSavedArticle", "Cannot load saved article, IO error")
+            e.printStackTrace()
+            return WRStatus.IO_ERROR
+        }
     }
 
     fun popBackStack(): Pair<String, String>? {
@@ -347,6 +584,15 @@ class UiViewModel(
             appPreferencesRepository.saveBooleanPreference("expanded-sections", expandedSections)
             _preferencesState.update { currentState ->
                 currentState.copy(expandedSections = expandedSections)
+            }
+        }
+    }
+
+    fun saveRenderMath(renderMath: Boolean) {
+        viewModelScope.launch {
+            appPreferencesRepository.saveBooleanPreference("render-math", renderMath)
+            _preferencesState.update { currentState ->
+                currentState.copy(renderMath = renderMath)
             }
         }
     }

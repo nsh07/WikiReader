@@ -81,12 +81,27 @@ fun parseText(text: String): List<String> {
     return out
 }
 
+fun bytesToHumanReadableSize(bytes: Double) = when {
+    bytes >= 1 shl 30 -> "%.1f GB".format(bytes / (1 shl 30))
+    bytes >= 1 shl 20 -> "%.1f MB".format(bytes / (1 shl 20))
+    bytes >= 1 shl 10 -> "%.0f kB".format(bytes / (1 shl 10))
+    else -> "$bytes bytes"
+}
+
 fun langCodeToName(langCode: String): String {
-    Log.d("Language", "CodeToName called")
     try {
         return LanguageData.langNames[LanguageData.langCodes.binarySearch(langCode)]
     } catch(_: Exception) {
         Log.e("Language", "Unknown Language: $langCode")
-        return "Unknown Language: $langCode"
+        return langCode
+    }
+}
+
+fun langCodeToWikiName(langCode: String): String {
+    try {
+        return LanguageData.wikipediaNames[LanguageData.langCodes.binarySearch(langCode)]
+    } catch(_: Exception) {
+        Log.e("Language", "Unknown Language: $langCode")
+        return langCode
     }
 }

@@ -17,6 +17,7 @@ data class WikiApiQuery(
 data class WikiApiPage(
     val title: String,
     val extract: String,
+    @SerialName(value = "pageid") val pageId: Int? = null,
     @SerialName(value = "original") val photo: WikiPhoto? = null,
     @SerialName(value = "terms") val photoDesc: WikiPhotoDesc? = null,
     @SerialName(value = "langlinks") val langs: List<WikiLang>? = null

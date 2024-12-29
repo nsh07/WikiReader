@@ -58,6 +58,7 @@ fun AppSearchBar(
     setQuery: (String) -> Unit,
     removeHistoryItem: (String) -> Unit,
     clearHistory: () -> Unit,
+    onSavedArticlesClick: ((Boolean) -> Unit) -> Unit,
     onSettingsClick: ((Boolean) -> Unit) -> Unit,
     onAboutClick: ((Boolean) -> Unit) -> Unit,
     modifier: Modifier = Modifier
@@ -102,6 +103,18 @@ fun AppSearchBar(
                                     expanded = dropdownExpanded,
                                     onDismissRequest = { setDropdownExpanded(false) }
                                 ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Saved articles") },
+                                        onClick = { onSavedArticlesClick(setDropdownExpanded) },
+                                        leadingIcon = {
+                                            Icon(
+                                                painterResource(R.drawable.download_done),
+                                                contentDescription = null
+                                            )
+                                        },
+                                        modifier = Modifier.width(200.dp)
+                                    )
+                                    HorizontalDivider(Modifier.padding(vertical = 8.dp))
                                     DropdownMenuItem(
                                         text = { Text("Settings") },
                                         onClick = { onSettingsClick(setDropdownExpanded) },
@@ -216,7 +229,7 @@ fun AppSearchBarPreview() {
     WikiReaderTheme {
         AppSearchBar(
             searchBarState = SearchBarState(), true, 0,
-            {}, {}, {}, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }

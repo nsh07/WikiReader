@@ -26,6 +26,7 @@ class MainActivity : ComponentActivity() {
         installSplashScreen().setKeepOnScreenCondition {
             !viewModel.isReady || !viewModel.isAnimDurationComplete
         }
+        viewModel.setFilesDir(filesDir.path)
         enableEdgeToEdge()
 
         setContent {

@@ -6,6 +6,7 @@
     <li><b>Article image:</b> View an image of the topic from its Wikipedia page. Click on it to enlarge it and view in full-screen</li>
     <li><b>Random article:</b> Feeling lucky? Click the random article button to read a random article</li>
     <li><b>Choose your language: Choose from over 300 languages on Wikipedia</b></li>
+    <li><b>Save articles:</b> Download articles to your device for offline reading</li>
     <li><b>One-handed use:</b> Use the floating action buttons at the bottom for a complete one-handed experience</li>
     <li><b>Lightweight:</b> The app starts instantly, and works smoothly</li>
     <li><b>Material Design 3:</b> Designed according to the latest Material Design 3 guidelines</li>
@@ -13,4 +14,5 @@
     <li><b>Customizable colors:</b> Choose from light/dark themes and customize the Material 3 color palette</li>
     <li><b>Customizable font size:</b> Choose your own comfortable font size</li>
     <li><b>Data saver:</b> Save your limited data plan by loading text only</li>
+    <li><b>Math expressions:</b> View properly rendered mathematical expressions for easily reading mathematical articles</li>
 </ul>
