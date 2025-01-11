@@ -14,7 +14,7 @@ composeBom = "2024.12.01"
 lifecycleViewmodelCompose = "2.8.7"
 
 coil = "3.0.4"
-kotlinxSerialization = "1.7.3"
+kotlinxSerialization = "1.8.0"
 materialKolor = "2.0.0"
 navigationCompose = "2.8.5"
 okhttp = "4.12.0"
