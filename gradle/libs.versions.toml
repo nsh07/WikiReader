@@ -1,5 +1,5 @@
 [versions]
-activityCompose = "1.9.3"
+activityCompose = "1.10.0"
 agp = "8.8.0"
 coil = "3.0.4"
 coilGif = "3.0.4"
