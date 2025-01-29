@@ -37,6 +37,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowWidthSizeClass
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WRStatus
@@ -52,6 +54,7 @@ fun SavedArticlesScreen(
     openSavedArticle: (String) -> Unit,
     deleteArticle: (String) -> WRStatus,
     deleteAll: () -> WRStatus,
+    windowSizeClass: WindowSizeClass,
     onBack: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -61,6 +64,13 @@ fun SavedArticlesScreen(
     var savedArticlesSize by remember { mutableLongStateOf(articlesSize()) }
     var toDelete: String? by remember { mutableStateOf("") }
     var showArticleDeleteDialog by remember { mutableStateOf(false) }
+    val weight = remember {
+        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM ||
+            windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED
+        )
+            1f
+        else 0f
+    }
 
     if (showArticleDeleteDialog)
         DeleteArticleDialog(
@@ -93,65 +103,70 @@ fun SavedArticlesScreen(
             .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { insets ->
         if (savedArticles.isNotEmpty())
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = insets.calculateTopPadding())
-            ) {
-                item {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            "${savedArticles.size} articles, ${
-                                bytesToHumanReadableSize(
-                                    savedArticlesSize.toDouble()
-                                )
-                            } total",
-                            style = MaterialTheme.typography.labelLarge,
-                            modifier = Modifier.padding(16.dp)
-                        )
-                        Spacer(Modifier.weight(1f))
-                        TextButton(
-                            onClick = {
-                                toDelete = null
-                                showArticleDeleteDialog = true
-                            },
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        ) { Text("Delete all") }
-                    }
-                    HorizontalDivider()
-                }
-                items(savedArticles, key = { it }) {
-                    ListItem(
-                        headlineContent = {
+            Row {
+                if (weight != 0f) Spacer(Modifier.weight(weight))
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = insets.calculateTopPadding())
+                        .weight(4f)
+                ) {
+                    item {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                remember { it.substringBeforeLast(".").substringBeforeLast('.') },
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        },
-                        supportingContent = {
-                            Text(remember {
-                                langCodeToWikiName(
-                                    it.substringAfterLast(
-                                        '.'
+                                "${savedArticles.size} articles, ${
+                                    bytesToHumanReadableSize(
+                                        savedArticlesSize.toDouble()
                                     )
-                                )
-                            })
-                        },
-                        modifier = Modifier
-                            .combinedClickable(
-                                onClick = { openSavedArticle(it) },
-                                onLongClick = {
-                                    toDelete = it
-                                    showArticleDeleteDialog = true
-                                }
+                                } total",
+                                style = MaterialTheme.typography.labelLarge,
+                                modifier = Modifier.padding(16.dp)
                             )
-                            .animateItem()
-                    )
+                            Spacer(Modifier.weight(1f))
+                            TextButton(
+                                onClick = {
+                                    toDelete = null
+                                    showArticleDeleteDialog = true
+                                },
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            ) { Text("Delete all") }
+                        }
+                        HorizontalDivider()
+                    }
+                    items(savedArticles, key = { it }) {
+                        ListItem(
+                            headlineContent = {
+                                Text(
+                                    remember { it.substringBeforeLast(".").substringBeforeLast('.') },
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            },
+                            supportingContent = {
+                                Text(remember {
+                                    langCodeToWikiName(
+                                        it.substringAfterLast(
+                                            '.'
+                                        )
+                                    )
+                                })
+                            },
+                            modifier = Modifier
+                                .combinedClickable(
+                                    onClick = { openSavedArticle(it) },
+                                    onLongClick = {
+                                        toDelete = it
+                                        showArticleDeleteDialog = true
+                                    }
+                                )
+                                .animateItem()
+                        )
+                    }
+                    item {
+                        Spacer(modifier.height(insets.calculateBottomPadding()))
+                    }
                 }
-                item {
-                    Spacer(modifier.height(insets.calculateBottomPadding()))
-                }
+                if (weight != 0f) Spacer(Modifier.weight(weight))
             }
         else
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

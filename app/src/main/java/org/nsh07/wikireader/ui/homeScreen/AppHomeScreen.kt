@@ -36,6 +36,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WRStatus
@@ -81,11 +83,19 @@ fun AppHomeScreen(
     setShowArticleLanguageSheet: (Boolean) -> Unit,
     saveArticle: () -> Unit,
     insets: PaddingValues,
+    windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier
 ) {
     val photo = homeScreenState.photo
     val photoDesc = homeScreenState.photoDesc
     val fontSize = preferencesState.fontSize
+    val weight = remember {
+        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM ||
+            windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED
+        )
+            1f
+        else 0f
+    }
 
     var isRefreshing by remember { mutableStateOf(false) }
 
@@ -106,108 +116,116 @@ fun AppHomeScreen(
 
     Box(modifier = modifier) { // The container for all the composables in the home screen
         if (homeScreenState.status != WRStatus.UNINITIALIZED) {
-            LaunchedEffect(isRefreshing) { isRefreshing = false } // hide refresh indicator instantly
-            PullToRefreshBox(
-                isRefreshing = isRefreshing,
-                onRefresh = {
-                    refreshSearch()
-                    isRefreshing = true
-                }
-            ) {
-                LazyColumn( // The article
-                    state = listState,
-                    modifier = Modifier.fillMaxSize()
+            LaunchedEffect(isRefreshing) {
+                isRefreshing = false
+            } // hide refresh indicator instantly
+            Row {
+                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
+                PullToRefreshBox(
+                    isRefreshing = isRefreshing,
+                    onRefresh = {
+                        refreshSearch()
+                        isRefreshing = true
+                    },
+                    modifier = Modifier.weight(4f)
                 ) {
-                    item { // Title
-                        Row(modifier = Modifier.padding(16.dp)) {
-                            FilledTonalButton(
-                                onClick = { setShowArticleLanguageSheet(true) },
-                                enabled = homeScreenState.langs?.isEmpty() == false
-                            ) {
-                                Icon(painterResource(R.drawable.translate), null)
-                                Spacer(Modifier.width(8.dp))
-                                Text(langCodeToName(preferencesState.lang))
-                            }
-                            Spacer(Modifier.weight(1f))
-                            FilledTonalIconButton(
-                                onClick = saveArticle,
-                                enabled = homeScreenState.status == WRStatus.SUCCESS
-                            ) {
-                                Crossfade(
-                                    homeScreenState.isSaved,
-                                    label = "saveAnimation"
-                                ) { saved ->
-                                    if (saved)
-                                        Icon(
-                                            painterResource(R.drawable.download_done),
-                                            contentDescription = "Delete downloaded article"
-                                        )
-                                    else
-                                        Icon(
-                                            painterResource(R.drawable.download),
-                                            contentDescription = "Download article"
-                                        )
+                    LazyColumn( // The article
+                        state = listState,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        item { // Title
+                            Row(modifier = Modifier.padding(16.dp)) {
+                                FilledTonalButton(
+                                    onClick = { setShowArticleLanguageSheet(true) },
+                                    enabled = homeScreenState.langs?.isEmpty() == false
+                                ) {
+                                    Icon(painterResource(R.drawable.translate), null)
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(langCodeToName(preferencesState.lang))
+                                }
+                                Spacer(Modifier.weight(1f))
+                                FilledTonalIconButton(
+                                    onClick = saveArticle,
+                                    enabled = homeScreenState.status == WRStatus.SUCCESS
+                                ) {
+                                    Crossfade(
+                                        homeScreenState.isSaved,
+                                        label = "saveAnimation"
+                                    ) { saved ->
+                                        if (saved)
+                                            Icon(
+                                                painterResource(R.drawable.download_done),
+                                                contentDescription = "Delete downloaded article"
+                                            )
+                                        else
+                                            Icon(
+                                                painterResource(R.drawable.download),
+                                                contentDescription = "Download article"
+                                            )
+                                    }
                                 }
                             }
+                            HorizontalDivider()
                         }
-                        HorizontalDivider()
-                    }
-                    item { // Title + Image/description
-                        Text(
-                            text = homeScreenState.title,
-                            style = MaterialTheme.typography.displayMedium,
-                            fontFamily = FontFamily.Serif,
-                            modifier = Modifier.padding(16.dp)
-                        )
-                        if (photoDesc != null) {
-                            ImageCard(
-                                photo = photo,
-                                photoDesc = photoDesc,
-                                imageLoader = imageLoader,
-                                showPhoto = !preferencesState.dataSaver,
-                                onClick = onImageClick,
+                        item { // Title + Image/description
+                            Text(
+                                text = homeScreenState.title,
+                                style = MaterialTheme.typography.displayMedium,
+                                fontFamily = FontFamily.Serif,
+                                modifier = Modifier.padding(16.dp)
                             )
-                        }
-                    }
-                    item { // Main description
-                        SelectionContainer {
-                            ParsedBodyText(
-                                title = "",
-                                pageTitle = homeScreenState.title.substringBefore("(disam").trim(),
-                                body = homeScreenState.extract[0],
-                                fontSize = fontSize,
-                                description = photoDesc?.description?.get(0) ?: "",
-                                intro = true,
-                                renderMath = preferencesState.renderMath,
-                                darkTheme = MaterialTheme.colorScheme.isDark(),
-                                onLinkClick = onLinkClick
-                            )
-                        }
-                    }
-
-                    for (i in 1..s step 2) {
-                        item { // Expandable sections logic
-                            SelectionContainer {
-                                ExpandableSection(
-                                    title = homeScreenState.extract[i],
-                                    pageTitle = homeScreenState.title.substringBefore("(disam")
-                                        .trim(),
-                                    body = homeScreenState.extract[i + 1],
-                                    fontSize = fontSize,
-                                    description = photoDesc?.description?.get(0) ?: "",
-                                    expanded = preferencesState.expandedSections,
-                                    onLinkClick = onLinkClick,
-                                    darkTheme = MaterialTheme.colorScheme.isDark(),
-                                    renderMath = preferencesState.renderMath
+                            if (photoDesc != null) {
+                                ImageCard(
+                                    photo = photo,
+                                    photoDesc = photoDesc,
+                                    imageLoader = imageLoader,
+                                    showPhoto = !preferencesState.dataSaver,
+                                    onClick = onImageClick,
                                 )
                             }
                         }
-                    }
+                        item { // Main description
+                            SelectionContainer {
+                                ParsedBodyText(
+                                    title = "",
+                                    pageTitle = homeScreenState.title.substringBefore("(disam")
+                                        .trim(),
+                                    body = homeScreenState.extract[0],
+                                    fontSize = fontSize,
+                                    description = photoDesc?.description?.get(0) ?: "",
+                                    intro = true,
+                                    renderMath = preferencesState.renderMath,
+                                    darkTheme = MaterialTheme.colorScheme.isDark(),
+                                    onLinkClick = onLinkClick
+                                )
+                            }
+                        }
 
-                    item {
-                        Spacer(Modifier.height(insets.calculateBottomPadding() + 152.dp))
+                        for (i in 1..s step 2) {
+                            item { // Expandable sections logic
+                                SelectionContainer {
+                                    ExpandableSection(
+                                        title = homeScreenState.extract[i],
+                                        pageTitle = homeScreenState.title.substringBefore("(disam")
+                                            .trim(),
+                                        body = homeScreenState.extract[i + 1],
+                                        fontSize = fontSize,
+                                        description = photoDesc?.description?.get(0) ?: "",
+                                        expanded = preferencesState.expandedSections,
+                                        onLinkClick = onLinkClick,
+                                        darkTheme = MaterialTheme.colorScheme.isDark(),
+                                        renderMath = preferencesState.renderMath
+                                    )
+                                }
+                            }
+                        }
+
+                        item {
+                            Spacer(Modifier.height(insets.calculateBottomPadding() + 152.dp))
+                        }
                     }
                 }
+                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
             }
         } else {
             Icon(

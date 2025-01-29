@@ -2,6 +2,7 @@ package org.nsh07.wikireader.ui.settingsScreen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -28,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
+import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowWidthSizeClass
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.toColor
@@ -41,6 +44,7 @@ fun SettingsScreen(
     preferencesState: PreferencesState,
     viewModel: UiViewModel,
     onBack: () -> Unit,
+    windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier
 ) {
     val languageSearchStr = viewModel.languageSearchStr.collectAsState()
@@ -66,6 +70,13 @@ fun SettingsScreen(
     var expandedSections by remember { mutableStateOf(preferencesState.expandedSections) }
     var dataSaver by remember { mutableStateOf(preferencesState.dataSaver) }
     var renderMath by remember { mutableStateOf(preferencesState.renderMath) }
+    val weight = remember {
+        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM ||
+            windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED
+        )
+            1f
+        else 0f
+    }
 
     val expandedIcon =
         if (expandedSections) R.drawable.expand_all
@@ -112,156 +123,161 @@ fun SettingsScreen(
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { insets ->
-        Column(
-            modifier = Modifier
-                .padding(top = insets.calculateTopPadding())
-                .verticalScroll(
-                    rememberScrollState()
+        Row {
+            if (weight != 0f) Spacer(Modifier.weight(weight))
+            Column(
+                modifier = Modifier
+                    .padding(top = insets.calculateTopPadding())
+                    .weight(4f)
+                    .verticalScroll(
+                        rememberScrollState()
+                    )
+            ) {
+                ListItem(
+                    leadingContent = {
+                        Icon(
+                            painterResource(themeMap[theme]!!.first),
+                            contentDescription = null
+                        )
+                    },
+                    headlineContent = { Text("Theme") },
+                    supportingContent = { Text(themeMap[theme]!!.second) },
+                    modifier = Modifier
+                        .clickable(onClick = { setShowThemeDialog(true) })
                 )
-        ) {
-            ListItem(
-                leadingContent = {
-                    Icon(
-                        painterResource(themeMap[theme]!!.first),
-                        contentDescription = null
-                    )
-                },
-                headlineContent = { Text("Theme") },
-                supportingContent = { Text(themeMap[theme]!!.second) },
-                modifier = Modifier
-                    .clickable(onClick = { setShowThemeDialog(true) })
-            )
-            ListItem(
-                leadingContent = {
-                    Icon(
-                        painterResource(R.drawable.palette),
-                        tint = MaterialTheme.colorScheme.primary,
-                        contentDescription = null
-                    )
-                },
-                headlineContent = { Text("Color scheme") },
-                supportingContent = {
-                    if (color == Color.White) Text("Dynamic")
-                    else Text("Color")
-                },
-                modifier = Modifier
-                    .clickable(onClick = { setShowColorSchemeDialog(true) })
-            )
-            ListItem(
-                leadingContent = {
-                    Icon(
-                        painterResource(R.drawable.translate),
-                        contentDescription = null
-                    )
-                },
-                headlineContent = { Text("Wikipedia Language") },
-                supportingContent = { Text(langCodeToName(preferencesState.lang)) },
-                modifier = Modifier
-                    .clickable(onClick = { setShowLanguageSheet(true) })
-            )
-            ListItem(
-                leadingContent = {
-                    Icon(
-                        painterResource(R.drawable.format_size),
-                        contentDescription = null
-                    )
-                },
-                headlineContent = { Text("Font size") },
-                supportingContent = {
-                    Column {
-                        Text("${round(fontSizeFloat).toInt()}pt")
-                        Slider(
-                            value = fontSizeFloat,
-                            onValueChange = { fontSizeFloat = it },
-                            valueRange = 10f..22f,
-                            steps = 5,
-                            onValueChangeFinished = {
-                                viewModel.saveFontSize(round(fontSizeFloat).toInt())
+                ListItem(
+                    leadingContent = {
+                        Icon(
+                            painterResource(R.drawable.palette),
+                            tint = MaterialTheme.colorScheme.primary,
+                            contentDescription = null
+                        )
+                    },
+                    headlineContent = { Text("Color scheme") },
+                    supportingContent = {
+                        if (color == Color.White) Text("Dynamic")
+                        else Text("Color")
+                    },
+                    modifier = Modifier
+                        .clickable(onClick = { setShowColorSchemeDialog(true) })
+                )
+                ListItem(
+                    leadingContent = {
+                        Icon(
+                            painterResource(R.drawable.translate),
+                            contentDescription = null
+                        )
+                    },
+                    headlineContent = { Text("Wikipedia Language") },
+                    supportingContent = { Text(langCodeToName(preferencesState.lang)) },
+                    modifier = Modifier
+                        .clickable(onClick = { setShowLanguageSheet(true) })
+                )
+                ListItem(
+                    leadingContent = {
+                        Icon(
+                            painterResource(R.drawable.format_size),
+                            contentDescription = null
+                        )
+                    },
+                    headlineContent = { Text("Font size") },
+                    supportingContent = {
+                        Column {
+                            Text("${round(fontSizeFloat).toInt()}pt")
+                            Slider(
+                                value = fontSizeFloat,
+                                onValueChange = { fontSizeFloat = it },
+                                valueRange = 10f..22f,
+                                steps = 5,
+                                onValueChangeFinished = {
+                                    viewModel.saveFontSize(round(fontSizeFloat).toInt())
+                                }
+                            )
+                        }
+                    }
+                )
+                ListItem(
+                    leadingContent = {
+                        Icon(
+                            painterResource(R.drawable.contrast),
+                            contentDescription = null
+                        )
+                    },
+                    headlineContent = { Text("Black theme") },
+                    supportingContent = { Text("Use a pure-black dark theme") },
+                    trailingContent = {
+                        Switch(
+                            checked = blackTheme,
+                            onCheckedChange = {
+                                blackTheme = it
+                                viewModel.saveBlackTheme(it)
                             }
                         )
                     }
-                }
-            )
-            ListItem(
-                leadingContent = {
-                    Icon(
-                        painterResource(R.drawable.contrast),
-                        contentDescription = null
-                    )
-                },
-                headlineContent = { Text("Black theme") },
-                supportingContent = { Text("Use a pure-black dark theme") },
-                trailingContent = {
-                    Switch(
-                        checked = blackTheme,
-                        onCheckedChange = {
-                            blackTheme = it
-                            viewModel.saveBlackTheme(it)
-                        }
-                    )
-                }
-            )
-            ListItem(
-                leadingContent = {
-                    Icon(
-                        painterResource(expandedIcon),
-                        contentDescription = null
-                    )
-                },
-                headlineContent = { Text("Expand sections") },
-                supportingContent = { Text("Expand all sections by default") },
-                trailingContent = {
-                    Switch(
-                        checked = expandedSections,
-                        onCheckedChange = {
-                            expandedSections = it
-                            viewModel.saveExpandedSections(it)
-                        }
-                    )
-                }
-            )
-            ListItem(
-                leadingContent = {
-                    Icon(
-                        painterResource(dataSaverIcon),
-                        contentDescription = null
-                    )
-                },
-                headlineContent = { Text("Data saver") },
-                supportingContent = { Text("Only load page image in fullscreen") },
-                trailingContent = {
-                    Switch(
-                        checked = dataSaver,
-                        onCheckedChange = {
-                            dataSaver = it
-                            viewModel.saveDataSaver(it)
-                        }
-                    )
-                }
-            )
-            ListItem(
-                leadingContent = {
-                    Icon(
-                        painterResource(R.drawable.function),
-                        contentDescription = null
-                    )
-                },
-                headlineContent = { Text("Render math expressions") },
-                supportingContent = {
-                    Text("Requires small amounts of additional data. Turn off to improve performance at the cost of readability")
-                },
-                trailingContent = {
-                    Switch(
-                        checked = renderMath,
-                        onCheckedChange = {
-                            renderMath = it
-                            viewModel.saveRenderMath(it)
-                        }
-                    )
-                }
-            )
+                )
+                ListItem(
+                    leadingContent = {
+                        Icon(
+                            painterResource(expandedIcon),
+                            contentDescription = null
+                        )
+                    },
+                    headlineContent = { Text("Expand sections") },
+                    supportingContent = { Text("Expand all sections by default") },
+                    trailingContent = {
+                        Switch(
+                            checked = expandedSections,
+                            onCheckedChange = {
+                                expandedSections = it
+                                viewModel.saveExpandedSections(it)
+                            }
+                        )
+                    }
+                )
+                ListItem(
+                    leadingContent = {
+                        Icon(
+                            painterResource(dataSaverIcon),
+                            contentDescription = null
+                        )
+                    },
+                    headlineContent = { Text("Data saver") },
+                    supportingContent = { Text("Only load page image in fullscreen") },
+                    trailingContent = {
+                        Switch(
+                            checked = dataSaver,
+                            onCheckedChange = {
+                                dataSaver = it
+                                viewModel.saveDataSaver(it)
+                            }
+                        )
+                    }
+                )
+                ListItem(
+                    leadingContent = {
+                        Icon(
+                            painterResource(R.drawable.function),
+                            contentDescription = null
+                        )
+                    },
+                    headlineContent = { Text("Render math expressions") },
+                    supportingContent = {
+                        Text("Requires small amounts of additional data. Turn off to improve performance at the cost of readability")
+                    },
+                    trailingContent = {
+                        Switch(
+                            checked = renderMath,
+                            onCheckedChange = {
+                                renderMath = it
+                                viewModel.saveRenderMath(it)
+                            }
+                        )
+                    }
+                )
 
-            Spacer(Modifier.height(insets.calculateBottomPadding()))
+                Spacer(Modifier.height(insets.calculateBottomPadding()))
+            }
+            if (weight != 0f) Spacer(Modifier.weight(weight))
         }
     }
 }
