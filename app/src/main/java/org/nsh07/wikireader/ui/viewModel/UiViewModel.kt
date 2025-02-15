@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.nsh07.wikireader.WikiReaderApplication
 import org.nsh07.wikireader.data.AppPreferencesRepository
@@ -109,6 +108,7 @@ class UiViewModel(
 
             interceptor.setHost("$lang.wikipedia.org")
             isReady = true
+            loadFeed()
         }
     }
 
@@ -291,6 +291,23 @@ class UiViewModel(
                 fromLink = true,
                 fromBackStack = false
             )
+    }
+
+    fun loadFeed() {
+        viewModelScope.launch {
+            _homeScreenState.update { currentState ->
+                currentState.copy(isLoading = true)
+            }
+            val feed = wikipediaRepository.getFeed(lang = preferencesState.value.lang)
+            _homeScreenState.update { currentState ->
+                currentState.copy(
+                    title = "Feed",
+                    extract = listOf(Json.encodeToString(feed)),
+                    isLoading = false,
+                    status = WRStatus.SUCCESS
+                )
+            }
+        }
     }
 
     /**
