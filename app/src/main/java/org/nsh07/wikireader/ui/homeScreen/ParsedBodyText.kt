@@ -63,7 +63,9 @@ fun ParsedBodyText(
                             AsyncImage(
                                 model = ImageRequest.Builder(context)
                                     .data(
-                                        "https://latex.codecogs.com/png.image?\\dpi{${(dpi * 160).toInt()}}${
+                                        "https://latex.codecogs.com/png.image?\\dpi{${
+                                            (dpi * 160 * (fontSize / 16.0)).toInt()
+                                        }}${
                                             it.trim()
                                         }"
                                     )
@@ -72,7 +74,7 @@ fun ParsedBodyText(
                                 placeholder = painterResource(R.drawable.more_horiz),
                                 error = painterResource(R.drawable.error),
                                 contentDescription = null,
-                                colorFilter = if (darkTheme)
+                                colorFilter = if (darkTheme) // Invert colors in dark theme
                                     PorterDuffColorFilter(
                                         0xffffffff.toInt(),
                                         PorterDuff.Mode.SRC_IN

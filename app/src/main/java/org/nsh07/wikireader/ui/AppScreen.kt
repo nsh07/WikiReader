@@ -29,6 +29,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -46,6 +47,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
+import androidx.window.core.layout.WindowSizeClass
 import coil3.ImageLoader
 import coil3.gif.AnimatedImageDecoder
 import coil3.gif.GifDecoder
@@ -68,6 +70,7 @@ import org.nsh07.wikireader.ui.viewModel.UiViewModel
 fun AppScreen(
     viewModel: UiViewModel,
     preferencesState: PreferencesState,
+    windowSizeClass: WindowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
     modifier: Modifier = Modifier
 ) {
     val searchBarState by viewModel.searchBarState.collectAsState()
@@ -248,6 +251,7 @@ fun AppScreen(
                             }
                         }
                     },
+                    windowSizeClass = windowSizeClass,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = insets.calculateTopPadding())
@@ -275,7 +279,8 @@ fun AppScreen(
                 articlesSize = { viewModel.totalArticlesSize() },
                 deleteArticle = { viewModel.deleteArticle(it) },
                 deleteAll = { viewModel.deleteAllArticles() },
-                onBack = { navController.navigateUp() }
+                onBack = { navController.navigateUp() },
+                windowSizeClass = windowSizeClass
             )
         }
 
@@ -283,12 +288,14 @@ fun AppScreen(
             SettingsScreen(
                 preferencesState = preferencesState,
                 onBack = { navController.navigateUp() },
-                viewModel = viewModel
+                viewModel = viewModel,
+                windowSizeClass = windowSizeClass
             )
         }
 
         composable("about") {
             AboutScreen(
+                windowSizeClass = windowSizeClass,
                 onBack = { navController.navigateUp() }
             )
         }
