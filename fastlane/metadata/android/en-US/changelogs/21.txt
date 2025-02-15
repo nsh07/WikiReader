@@ -1,0 +1,9 @@
+v1.9.1
+
+Bug fixes:
+- Math expressions are now scaled properly for the current set font size
+
+Enhancements:
+- Tablet UI optimizations
+- Internal library upgrades
+- Improved image loading performance
