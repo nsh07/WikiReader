@@ -31,8 +31,7 @@ fun ArticleViewsGraph(viewCounts: List<Int>, modifier: Modifier = Modifier) {
                     label = "",
                     values = viewCounts.map { it.toDouble() },
                     color = SolidColor(colorScheme.primary),
-                    strokeAnimationSpec = tween(2000, easing = FastOutSlowInEasing),
-                    gradientAnimationDelay = 1000,
+                    strokeAnimationSpec = tween(1500, easing = FastOutSlowInEasing),
                     drawStyle = DrawStyle.Stroke(width = 2.dp)
                 )
             )

@@ -81,8 +81,8 @@ fun ArticleFeed(
         state = listState,
         modifier = modifier.fillMaxSize()
     ) {
-        item {
-            if (feedState.tfa != null) {
+        if (feedState.tfa != null) {
+            item {
                 Text(
                     "Featured Article",
                     style = MaterialTheme.typography.headlineMedium,
@@ -97,24 +97,24 @@ fun ArticleFeed(
                 )
             }
         }
-        item {
-            if (feedState.tfa != null) {
+        if (feedState.tfa != null) {
+            item {
                 ElevatedCard(
-                    onClick = { performSearch(feedState.tfa.titles.canonical) },
+                    onClick = { performSearch(feedState.tfa.titles?.canonical ?: "") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
                     FeedImage(
-                        source = feedState.tfa.originalImage.source,
-                        description = feedState.tfa.titles.normalized,
-                        width = feedState.tfa.originalImage.width,
-                        height = feedState.tfa.originalImage.height,
+                        source = feedState.tfa.originalImage?.source,
+                        description = feedState.tfa.titles?.normalized,
+                        width = feedState.tfa.originalImage?.width ?: 1,
+                        height = feedState.tfa.originalImage?.height ?: 1,
                         imageLoader = imageLoader,
                         modifier = Modifier.fillMaxWidth()
                     )
                     Text(
-                        feedState.tfa.titles.normalized,
+                        feedState.tfa.titles?.normalized ?: "(No Title)",
                         style = MaterialTheme.typography.headlineMedium,
                         fontFamily = FontFamily.Serif,
                         modifier = Modifier
@@ -122,14 +122,14 @@ fun ArticleFeed(
                             .padding(top = 16.dp)
                     )
                     Text(
-                        feedState.tfa.description,
+                        feedState.tfa.description ?: "(No description)",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier
                             .padding(horizontal = 16.dp, vertical = 4.dp)
                     )
                     Text(
-                        feedState.tfa.extract,
+                        feedState.tfa.extract ?: "(No extract)",
                         maxLines = 5,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
@@ -139,8 +139,8 @@ fun ArticleFeed(
                 }
             }
         }
-        item {
-            if (feedState.mostReadArticles != null) {
+        if (feedState.mostReadArticles != null) {
+            item {
                 Text(
                     "Most Read",
                     style = MaterialTheme.typography.titleLarge,
@@ -165,7 +165,7 @@ fun ArticleFeed(
                                 modifier = Modifier
                                     .clickable(
                                         onClick = {
-                                            performSearch(feedState.mostReadArticles[i].titles.normalized)
+                                            performSearch(feedState.mostReadArticles[i].titles?.normalized ?: "(No title)")
                                         }
                                     )
                             ) {
@@ -175,12 +175,12 @@ fun ArticleFeed(
                                         .padding(start = 16.dp)
                                 ) {
                                     Text(
-                                        feedState.mostReadArticles[i].titles.normalized,
+                                        feedState.mostReadArticles[i].titles?.normalized ?: "(No title)",
                                         style = MaterialTheme.typography.titleMedium,
                                         modifier = Modifier.padding(top = 16.dp)
                                     )
                                     Text(
-                                        feedState.mostReadArticles[i].description,
+                                        feedState.mostReadArticles[i].description ?: "(No description)",
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis
                                     )
@@ -189,7 +189,7 @@ fun ArticleFeed(
                                         modifier = Modifier.padding(bottom = 8.dp)
                                     ) {
                                         ArticleViewsGraph(
-                                            feedState.mostReadArticles[i].viewHistory.map { it.views },
+                                            feedState.mostReadArticles[i].viewHistory?.map { it.views ?: 0 } ?: emptyList(),
                                             modifier = Modifier
                                                 .size(width = 96.dp, height = 32.dp)
                                                 .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -204,7 +204,7 @@ fun ArticleFeed(
                                 if (feedState.mostReadArticles[i].thumbnail != null)
                                     FeedImage(
                                         source = feedState.mostReadArticles[i].thumbnail!!.source,
-                                        description = feedState.mostReadArticles[i].titles.normalized,
+                                        description = feedState.mostReadArticles[i].titles?.normalized,
                                         imageLoader = imageLoader,
                                         modifier = Modifier
                                             .padding(16.dp)
@@ -218,8 +218,8 @@ fun ArticleFeed(
                 }
             }
         }
-        item {
-            if (feedState.image != null) {
+        if (feedState.image != null) {
+            item {
                 Text(
                     "Picture of the Day",
                     style = MaterialTheme.typography.titleLarge,
@@ -228,28 +228,28 @@ fun ArticleFeed(
                         .padding(top = 32.dp)
                 )
                 ElevatedCard(
-                    onClick = { uriHandler.openUri(feedState.image.filePage) },
+                    onClick = { uriHandler.openUri(feedState.image.filePage ?: "") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
                     FeedImage(
-                        source = feedState.image.image.source,
-                        description = feedState.image.description.text,
-                        width = feedState.image.image.width,
-                        height = feedState.image.image.height,
+                        source = feedState.image.image?.source,
+                        description = feedState.image.description?.text,
+                        width = feedState.image.image?.width ?: 1,
+                        height = feedState.image.image?.height ?: 1,
                         imageLoader = imageLoader,
                         modifier = Modifier.fillMaxWidth()
                     )
                     Text(
-                        feedState.image.description.text,
+                        feedState.image.description?.text ?: "(No text)",
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .padding(top = 16.dp)
                     )
                     Text(
-                        "By " + feedState.image.artist.text +
-                                " (" + feedState.image.credit.text.substringBefore(';') + ")",
+                        "By " + feedState.image.artist?.text +
+                                " (" + feedState.image.credit?.text?.substringBefore(';') + ")",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
@@ -258,8 +258,8 @@ fun ArticleFeed(
                 }
             }
         }
-        item {
-            if (feedState.news != null) {
+        if (feedState.news != null) {
+            item {
                 val carouselState = rememberCarouselState(0) { feedState.news.size }
                 Text(
                     "In the News",
@@ -279,8 +279,8 @@ fun ArticleFeed(
                     Box {
                         FeedImage(
                             source = feedState.news[i].links
-                                .find { it.originalImage != null }
-                            !!.originalImage!!.source,
+                                ?.find { it.originalImage != null }
+                            ?.originalImage?.source,
                             description = null,
                             imageLoader = imageLoader,
                             modifier = Modifier
@@ -302,7 +302,9 @@ fun ArticleFeed(
                         ) {}
                         Column(modifier = Modifier.align(Alignment.BottomStart)) {
                             Text(
-                                feedState.news[i].story.parseAsHtml().toString(),
+                                feedState.news[i].story?.parseAsHtml().toString(),
+                                maxLines = 10,
+                                overflow = TextOverflow.Ellipsis,
                                 color = Color.White,
                                 modifier = Modifier
                                     .padding(horizontal = 16.dp)
@@ -322,18 +324,18 @@ fun ArticleFeed(
                             ) {
                                 feedState.news[i].links
                                     // Sort the list to optimize the arrangement of elements
-                                    .sortedBy { it.titles.normalized.utf8Size() }
-                                    .subList(0, min(3, feedState.news[i].links.size))
-                                    .forEach {
+                                    ?.sortedBy { it.titles?.normalized?.utf8Size() }
+                                    ?.subList(0, min(3, feedState.news[i].links?.size ?: 0))
+                                    ?.forEach {
                                         OutlinedButton(
                                             border = BorderStroke(
                                                 width = ButtonDefaults.outlinedButtonBorder().width,
                                                 color = Color.LightGray
                                             ),
-                                            onClick = { performSearch(it.titles.canonical) }
+                                            onClick = { performSearch(it.titles?.canonical ?: "") }
                                         ) {
                                             Text(
-                                                it.titles.normalized,
+                                                it.titles?.normalized ?: "",
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis,
                                                 color = Color.White
@@ -346,8 +348,8 @@ fun ArticleFeed(
                 }
             }
         }
-        item {
-            if (feedState.onThisDay != null) {
+        if (feedState.onThisDay != null) {
+            item {
                 val carouselState = rememberCarouselState(0) { feedState.onThisDay.size }
                 Text(
                     "On This Day",
@@ -374,8 +376,8 @@ fun ArticleFeed(
                         Box {
                             FeedImage(
                                 source = feedState.onThisDay[i].pages
-                                    .find { it.originalImage != null }
-                                !!.originalImage!!.source,
+                                    ?.find { it.originalImage != null }
+                                ?.originalImage?.source,
                                 description = null,
                                 imageLoader = imageLoader,
                                 modifier = Modifier
@@ -397,7 +399,9 @@ fun ArticleFeed(
                             ) {}
                             Column(modifier = Modifier.align(Alignment.BottomStart)) {
                                 Text(
-                                    feedState.onThisDay[i].text,
+                                    feedState.onThisDay[i].text ?: "(No text)",
+                                    maxLines = 10,
+                                    overflow = TextOverflow.Ellipsis,
                                     color = Color.White,
                                     modifier = Modifier
                                         .padding(horizontal = 16.dp)
@@ -417,18 +421,18 @@ fun ArticleFeed(
                                 ) {
                                     feedState.onThisDay[i].pages
                                         // Sort the list to optimize the arrangement of elements
-                                        .sortedBy { it.titles.normalized.utf8Size() }
-                                        .subList(0, min(3, feedState.onThisDay[i].pages.size))
-                                        .forEach {
+                                        ?.sortedBy { it.titles?.normalized?.utf8Size() }
+                                        ?.subList(0, min(3, feedState.onThisDay[i].pages?.size ?: 0))
+                                        ?.forEach {
                                             OutlinedButton(
                                                 border = BorderStroke(
                                                     width = ButtonDefaults.outlinedButtonBorder().width,
                                                     color = Color.LightGray
                                                 ),
-                                                onClick = { performSearch(it.titles.canonical) }
+                                                onClick = { performSearch(it.titles?.canonical ?: "") }
                                             ) {
                                                 Text(
-                                                    it.titles.normalized,
+                                                    it.titles?.normalized ?: "(No title)",
                                                     maxLines = 1,
                                                     overflow = TextOverflow.Ellipsis,
                                                     color = Color.White
