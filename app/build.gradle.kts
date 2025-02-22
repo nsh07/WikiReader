@@ -78,6 +78,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.retrofit2.kotlinx.serialization.converter)
     implementation(libs.retrofit2.retrofit)
+    implementation(libs.ehsannarmani.compose.charts)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

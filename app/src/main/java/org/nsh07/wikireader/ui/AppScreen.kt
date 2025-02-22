@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -77,6 +78,7 @@ fun AppScreen(
     val homeScreenState by viewModel.homeScreenState.collectAsState()
     val feedState by viewModel.feedState.collectAsState()
     val listState by viewModel.listState.collectAsState()
+    val feedListState = rememberLazyListState()
     val languageSearchStr = viewModel.languageSearchStr.collectAsState()
     val languageSearchQuery = viewModel.languageSearchQuery.collectAsState("")
     var showArticleLanguageSheet by remember { mutableStateOf(false) }
@@ -96,6 +98,7 @@ fun AppScreen(
     val snackBarHostState = remember { SnackbarHostState() }
 
     val index by remember { derivedStateOf { listState.firstVisibleItemIndex } }
+    val feedIndex by remember { derivedStateOf { feedListState.firstVisibleItemIndex } }
     val (showDeleteDialog, setShowDeleteDialog) = remember { mutableStateOf(false) }
     var (historyItem, setHistoryItem) = remember { mutableStateOf("") }
 
@@ -148,8 +151,10 @@ fun AppScreen(
                 }
             }
 
-            BackHandler(!homeScreenState.isBackStackEmpty ||
-                    homeScreenState.status != WRStatus.FEED_LOADED) {
+            BackHandler(
+                !homeScreenState.isBackStackEmpty ||
+                        homeScreenState.status != WRStatus.FEED_LOADED
+            ) {
                 if (!homeScreenState.isBackStackEmpty) {
                     val curr = viewModel.popBackStack()
                     viewModel.performSearch(
@@ -208,9 +213,16 @@ fun AppScreen(
                 },
                 floatingActionButton = {
                     AppFab(
-                        index = index,
+                        index = if (homeScreenState.status != WRStatus.FEED_LOADED) index else feedIndex,
                         focusSearch = { viewModel.focusSearchBar() },
-                        scrollToTop = { coroutineScope.launch { listState.animateScrollToItem(0) } },
+                        scrollToTop = {
+                            coroutineScope.launch {
+                                if (homeScreenState.status != WRStatus.FEED_LOADED)
+                                    listState.animateScrollToItem(0)
+                                else
+                                    feedListState.animateScrollToItem(0)
+                            }
+                        },
                         performRandomPageSearch = {
                             viewModel.performSearch(
                                 query = null,
@@ -227,6 +239,7 @@ fun AppScreen(
                     listState = listState,
                     preferencesState = preferencesState,
                     feedState = feedState,
+                    feedListState = feedListState,
                     imageLoader = imageLoader,
                     languageSearchStr = languageSearchStr.value,
                     languageSearchQuery = languageSearchQuery.value,

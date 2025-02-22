@@ -5,6 +5,7 @@ agp = "8.8.1"
 coil = "3.1.0"
 coilGif = "3.1.0"
 composeBom = "2025.02.00"
+composeChartsVersion = "0.1.2"
 coreKtx = "1.15.0"
 coreSplashscreen = "1.0.1"
 datastorePreferences = "1.1.2"
@@ -40,6 +41,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+ehsannarmani-compose-charts = { module = "io.github.ehsannarmani:compose-charts", version.ref = "composeChartsVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 
 coil3-coil-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coilGif" }

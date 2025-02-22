@@ -22,11 +22,11 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
@@ -95,7 +95,11 @@ fun ArticleFeed(
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
-                OutlinedCard(
+            }
+        }
+        item {
+            if (feedState.tfa != null) {
+                ElevatedCard(
                     onClick = { performSearch(feedState.tfa.titles.canonical) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -150,7 +154,7 @@ fun ArticleFeed(
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                 )
-                OutlinedCard(
+                ElevatedCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
@@ -180,12 +184,22 @@ fun ArticleFeed(
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis
                                     )
-                                    Text(
-                                        df.format(feedState.mostReadArticles[i].views) + " views",
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.padding(bottom = 16.dp)
-                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.padding(bottom = 8.dp)
+                                    ) {
+                                        ArticleViewsGraph(
+                                            feedState.mostReadArticles[i].viewHistory.map { it.views },
+                                            modifier = Modifier
+                                                .size(width = 96.dp, height = 32.dp)
+                                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                        )
+                                        Text(
+                                            df.format(feedState.mostReadArticles[i].views),
+                                            style = MaterialTheme.typography.titleSmall,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
                                 }
                                 if (feedState.mostReadArticles[i].thumbnail != null)
                                     FeedImage(
@@ -213,7 +227,7 @@ fun ArticleFeed(
                         .padding(horizontal = 16.dp)
                         .padding(top = 32.dp)
                 )
-                OutlinedCard(
+                ElevatedCard(
                     onClick = { uriHandler.openUri(feedState.image.filePage) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -280,7 +294,7 @@ fun ArticleFeed(
                                     brush = Brush.verticalGradient(
                                         colors = listOf(
                                             Color.Transparent,
-                                            MaterialTheme.colorScheme.onSurface
+                                            Color.Black
                                         )
                                     )
                                 )
@@ -289,7 +303,7 @@ fun ArticleFeed(
                         Column(modifier = Modifier.align(Alignment.BottomStart)) {
                             Text(
                                 feedState.news[i].story.parseAsHtml().toString(),
-                                color = MaterialTheme.colorScheme.surface,
+                                color = Color.White,
                                 modifier = Modifier
                                     .padding(horizontal = 16.dp)
                                     .fillMaxWidth()
@@ -314,7 +328,7 @@ fun ArticleFeed(
                                         OutlinedButton(
                                             border = BorderStroke(
                                                 width = ButtonDefaults.outlinedButtonBorder().width,
-                                                color = MaterialTheme.colorScheme.surfaceDim
+                                                color = Color.LightGray
                                             ),
                                             onClick = { performSearch(it.titles.canonical) }
                                         ) {
@@ -375,7 +389,7 @@ fun ArticleFeed(
                                         brush = Brush.verticalGradient(
                                             colors = listOf(
                                                 Color.Transparent,
-                                                MaterialTheme.colorScheme.onSurface
+                                                Color.Black
                                             )
                                         )
                                     )
@@ -384,7 +398,7 @@ fun ArticleFeed(
                             Column(modifier = Modifier.align(Alignment.BottomStart)) {
                                 Text(
                                     feedState.onThisDay[i].text,
-                                    color = MaterialTheme.colorScheme.surface,
+                                    color = Color.White,
                                     modifier = Modifier
                                         .padding(horizontal = 16.dp)
                                         .fillMaxWidth()
@@ -409,7 +423,7 @@ fun ArticleFeed(
                                             OutlinedButton(
                                                 border = BorderStroke(
                                                     width = ButtonDefaults.outlinedButtonBorder().width,
-                                                    color = MaterialTheme.colorScheme.surfaceDim
+                                                    color = Color.LightGray
                                                 ),
                                                 onClick = { performSearch(it.titles.canonical) }
                                             ) {
