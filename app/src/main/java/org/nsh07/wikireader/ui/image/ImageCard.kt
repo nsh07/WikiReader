@@ -37,6 +37,7 @@ import org.nsh07.wikireader.data.WikiPhotoDesc
 fun ImageCard(
     photo: WikiPhoto?,
     photoDesc: WikiPhotoDesc,
+    title: String,
     imageLoader: ImageLoader,
     showPhoto: Boolean,
     onClick: () -> Unit,
@@ -65,15 +66,15 @@ fun ImageCard(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-            Text(
-                text = photoDesc.label[0],
-                style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 16.dp, bottom = labelBottomPadding)
-                    .fillMaxWidth()
-            )
+                Text(
+                    text = photoDesc.label?.get(0) ?: title,
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 16.dp, bottom = labelBottomPadding)
+                        .fillMaxWidth()
+                )
             if (photoDesc.description != null) {
                 Text(
                     text = photoDesc.description[0],

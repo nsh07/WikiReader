@@ -75,6 +75,7 @@ fun AppScreen(
 ) {
     val searchBarState by viewModel.searchBarState.collectAsState()
     val homeScreenState by viewModel.homeScreenState.collectAsState()
+    val feedState by viewModel.feedState.collectAsState()
     val listState by viewModel.listState.collectAsState()
     val languageSearchStr = viewModel.languageSearchStr.collectAsState()
     val languageSearchQuery = viewModel.languageSearchQuery.collectAsState("")
@@ -147,13 +148,19 @@ fun AppScreen(
                 }
             }
 
-            BackHandler(!homeScreenState.isBackStackEmpty) {
-                val curr = viewModel.popBackStack()
-                viewModel.performSearch(
-                    query = curr?.first,
-                    lang = curr?.second,
-                    fromBackStack = true
-                )
+            BackHandler(!homeScreenState.isBackStackEmpty ||
+                    homeScreenState.status != WRStatus.FEED_LOADED) {
+                if (!homeScreenState.isBackStackEmpty) {
+                    val curr = viewModel.popBackStack()
+                    viewModel.performSearch(
+                        query = curr?.first,
+                        lang = curr?.second,
+                        fromBackStack = true
+                    )
+                } else {
+                    viewModel.popBackStack()
+                    viewModel.loadFeed()
+                }
             }
 
             if (showDeleteDialog)
@@ -219,6 +226,7 @@ fun AppScreen(
                     homeScreenState = homeScreenState,
                     listState = listState,
                     preferencesState = preferencesState,
+                    feedState = feedState,
                     imageLoader = imageLoader,
                     languageSearchStr = languageSearchStr.value,
                     languageSearchQuery = languageSearchQuery.value,
@@ -230,6 +238,7 @@ fun AppScreen(
                     insets = insets,
                     onLinkClick = { viewModel.performSearch(it, fromLink = true) },
                     refreshSearch = { viewModel.refreshSearch(true) },
+                    refreshFeed = { viewModel.loadFeed() },
                     setLang = { viewModel.saveLang(it) },
                     setSearchStr = { viewModel.updateLanguageSearchStr(it) },
                     setShowArticleLanguageSheet = { showArticleLanguageSheet = it },
@@ -264,6 +273,7 @@ fun AppScreen(
             FullScreenImage(
                 photo = homeScreenState.photo,
                 photoDesc = homeScreenState.photoDesc,
+                title = homeScreenState.title,
                 imageLoader = imageLoader,
                 onBack = { navController.navigateUp() }
             )

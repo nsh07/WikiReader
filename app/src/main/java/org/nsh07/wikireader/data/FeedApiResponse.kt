@@ -19,7 +19,8 @@ data class FeedApiTFA(
     @SerialName("originalimage") val originalImage: Image,
     val lang: String,
     val description: String,
-    val extract: String
+    val extract: String,
+    val timestamp: String
 )
 
 @Serializable
@@ -35,7 +36,8 @@ data class FeedApiImage(
     val image: Image,
     val artist: Artist,
     val credit: Credit,
-    val description: Description
+    val description: Description,
+    @SerialName("file_page") val filePage: String
 )
 
 @Serializable
@@ -47,7 +49,8 @@ data class FeedApiNews(
 @Serializable
 data class FeedApiOTD(
     val text: String,
-    val pages: List<Article>
+    val pages: List<Article>,
+    val year: Int?
 )
 
 @Serializable

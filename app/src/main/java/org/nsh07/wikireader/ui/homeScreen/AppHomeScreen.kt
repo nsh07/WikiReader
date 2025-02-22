@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
@@ -44,6 +45,7 @@ import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.ui.image.ImageCard
 import org.nsh07.wikireader.ui.theme.isDark
+import org.nsh07.wikireader.ui.viewModel.FeedState
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
 
@@ -71,6 +73,7 @@ fun AppHomeScreen(
     homeScreenState: HomeScreenState,
     listState: LazyListState,
     preferencesState: PreferencesState,
+    feedState: FeedState,
     imageLoader: ImageLoader,
     languageSearchStr: String,
     languageSearchQuery: String,
@@ -78,6 +81,7 @@ fun AppHomeScreen(
     onImageClick: () -> Unit,
     onLinkClick: (String) -> Unit,
     refreshSearch: () -> Unit,
+    refreshFeed: () -> Unit,
     setLang: (String) -> Unit,
     setSearchStr: (String) -> Unit,
     setShowArticleLanguageSheet: (Boolean) -> Unit,
@@ -98,6 +102,7 @@ fun AppHomeScreen(
     }
 
     var isRefreshing by remember { mutableStateOf(false) }
+    val feedListState = rememberLazyListState()
 
     var s = homeScreenState.extract.size
     if (s > 1) s -= 2
@@ -115,7 +120,9 @@ fun AppHomeScreen(
         )
 
     Box(modifier = modifier) { // The container for all the composables in the home screen
-        if (homeScreenState.status != WRStatus.UNINITIALIZED) {
+        if (homeScreenState.status != WRStatus.UNINITIALIZED &&
+            homeScreenState.status != WRStatus.FEED_LOADED
+        ) {
             LaunchedEffect(isRefreshing) {
                 isRefreshing = false
             } // hide refresh indicator instantly
@@ -124,7 +131,10 @@ fun AppHomeScreen(
                 PullToRefreshBox(
                     isRefreshing = isRefreshing,
                     onRefresh = {
-                        refreshSearch()
+                        if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR)
+                            refreshFeed()
+                        else
+                            refreshSearch()
                         isRefreshing = true
                     },
                     modifier = Modifier.weight(4f)
@@ -178,6 +188,7 @@ fun AppHomeScreen(
                                 ImageCard(
                                     photo = photo,
                                     photoDesc = photoDesc,
+                                    title = homeScreenState.title,
                                     imageLoader = imageLoader,
                                     showPhoto = !preferencesState.dataSaver,
                                     onClick = onImageClick,
@@ -227,13 +238,21 @@ fun AppHomeScreen(
                 }
                 if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
             }
-        } else {
+        } else if (homeScreenState.status == WRStatus.UNINITIALIZED) {
             Icon(
                 painterResource(R.drawable.ic_launcher_foreground),
                 contentDescription = null,
                 modifier = Modifier
                     .align(Alignment.Center)
                     .fillMaxSize(0.75f)
+            )
+        } else {
+            ArticleFeed(
+                feedState = feedState,
+                imageLoader = imageLoader,
+                insets = insets,
+                performSearch = onLinkClick,
+                listState = feedListState
             )
         }
 

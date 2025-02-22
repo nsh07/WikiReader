@@ -19,12 +19,13 @@ import org.nsh07.wikireader.data.WikiPhotoDesc
 @Composable
 fun FullScreenImageTopBar(
     photoDesc: WikiPhotoDesc?,
+    title: String,
     onBack: () -> Unit,
 ) {
     TopAppBar(
         title = {
             Text(
-                photoDesc?.label?.get(0) ?: "",
+                photoDesc?.label?.get(0) ?: title,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
