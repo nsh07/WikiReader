@@ -86,6 +86,7 @@ fun AppHomeScreen(
     setSearchStr: (String) -> Unit,
     setShowArticleLanguageSheet: (Boolean) -> Unit,
     saveArticle: () -> Unit,
+    showFeedErrorSnackBar: () -> Unit,
     insets: PaddingValues,
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier
@@ -120,7 +121,8 @@ fun AppHomeScreen(
 
     Box(modifier = modifier) { // The container for all the composables in the home screen
         if (homeScreenState.status != WRStatus.UNINITIALIZED &&
-            homeScreenState.status != WRStatus.FEED_LOADED
+            homeScreenState.status != WRStatus.FEED_LOADED &&
+            homeScreenState.status != WRStatus.FEED_NETWORK_ERROR
         ) {
             LaunchedEffect(isRefreshing) {
                 isRefreshing = false
@@ -237,7 +239,8 @@ fun AppHomeScreen(
                 }
                 if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
             }
-        } else if (homeScreenState.status == WRStatus.UNINITIALIZED) {
+        } else if (homeScreenState.status == WRStatus.UNINITIALIZED ||
+            homeScreenState.status == WRStatus.FEED_NETWORK_ERROR) {
             Icon(
                 painterResource(R.drawable.ic_launcher_foreground),
                 contentDescription = null,
@@ -262,6 +265,11 @@ fun AppHomeScreen(
         ) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
+    }
+
+    LaunchedEffect(homeScreenState.status) {
+        if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR)
+            showFeedErrorSnackBar()
     }
 }
 

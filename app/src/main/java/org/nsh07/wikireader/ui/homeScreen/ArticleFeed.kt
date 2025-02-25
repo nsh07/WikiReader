@@ -46,7 +46,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.text.parseAsHtml
 import coil3.ImageLoader
-import okio.utf8Size
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.viewModel.FeedState
 import java.time.LocalDate
@@ -64,6 +63,10 @@ fun ArticleFeed(
     performSearch: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // TODO: Skeleton/Shimmer loader,
+    //  feed refresh,
+    //  replace fillmaxwidth with a given width in carousel
+    //  give credit to compose charts in readme
     val context = LocalContext.current
     val df = remember {
         CompactDecimalFormat.getInstance(
@@ -165,7 +168,10 @@ fun ArticleFeed(
                                 modifier = Modifier
                                     .clickable(
                                         onClick = {
-                                            performSearch(feedState.mostReadArticles[i].titles?.normalized ?: "(No title)")
+                                            performSearch(
+                                                feedState.mostReadArticles[i].titles?.normalized
+                                                    ?: "(No title)"
+                                            )
                                         }
                                     )
                             ) {
@@ -175,12 +181,14 @@ fun ArticleFeed(
                                         .padding(start = 16.dp)
                                 ) {
                                     Text(
-                                        feedState.mostReadArticles[i].titles?.normalized ?: "(No title)",
+                                        feedState.mostReadArticles[i].titles?.normalized
+                                            ?: "(No title)",
                                         style = MaterialTheme.typography.titleMedium,
                                         modifier = Modifier.padding(top = 16.dp)
                                     )
                                     Text(
-                                        feedState.mostReadArticles[i].description ?: "(No description)",
+                                        feedState.mostReadArticles[i].description
+                                            ?: "(No description)",
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis
                                     )
@@ -189,7 +197,9 @@ fun ArticleFeed(
                                         modifier = Modifier.padding(bottom = 8.dp)
                                     ) {
                                         ArticleViewsGraph(
-                                            feedState.mostReadArticles[i].viewHistory?.map { it.views ?: 0 } ?: emptyList(),
+                                            feedState.mostReadArticles[i].viewHistory?.map {
+                                                it.views ?: 0
+                                            } ?: emptyList(),
                                             modifier = Modifier
                                                 .size(width = 96.dp, height = 32.dp)
                                                 .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -242,13 +252,14 @@ fun ArticleFeed(
                         modifier = Modifier.fillMaxWidth()
                     )
                     Text(
-                        feedState.image.description?.text ?: "(No text)",
+                        feedState.image.description?.text?.parseAsHtml().toString(),
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .padding(top = 16.dp)
                     )
                     Text(
-                        "By " + feedState.image.artist?.text +
+                        (feedState.image.artist?.name
+                            ?: feedState.image.artist?.text)?.substringBefore('\n') +
                                 " (" + feedState.image.credit?.text?.substringBefore(';') + ")",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier
@@ -280,7 +291,7 @@ fun ArticleFeed(
                         FeedImage(
                             source = feedState.news[i].links
                                 ?.find { it.originalImage != null }
-                            ?.originalImage?.source,
+                                ?.originalImage?.source,
                             description = null,
                             imageLoader = imageLoader,
                             modifier = Modifier
@@ -323,8 +334,6 @@ fun ArticleFeed(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 feedState.news[i].links
-                                    // Sort the list to optimize the arrangement of elements
-                                    ?.sortedBy { it.titles?.normalized?.utf8Size() }
                                     ?.subList(0, min(3, feedState.news[i].links?.size ?: 0))
                                     ?.forEach {
                                         OutlinedButton(
@@ -377,7 +386,7 @@ fun ArticleFeed(
                             FeedImage(
                                 source = feedState.onThisDay[i].pages
                                     ?.find { it.originalImage != null }
-                                ?.originalImage?.source,
+                                    ?.originalImage?.source,
                                 description = null,
                                 imageLoader = imageLoader,
                                 modifier = Modifier
@@ -420,16 +429,21 @@ fun ArticleFeed(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     feedState.onThisDay[i].pages
-                                        // Sort the list to optimize the arrangement of elements
-                                        ?.sortedBy { it.titles?.normalized?.utf8Size() }
-                                        ?.subList(0, min(3, feedState.onThisDay[i].pages?.size ?: 0))
+                                        ?.subList(
+                                            0,
+                                            min(3, feedState.onThisDay[i].pages?.size ?: 0)
+                                        )
                                         ?.forEach {
                                             OutlinedButton(
                                                 border = BorderStroke(
                                                     width = ButtonDefaults.outlinedButtonBorder().width,
                                                     color = Color.LightGray
                                                 ),
-                                                onClick = { performSearch(it.titles?.canonical ?: "") }
+                                                onClick = {
+                                                    performSearch(
+                                                        it.titles?.canonical ?: ""
+                                                    )
+                                                }
                                             ) {
                                                 Text(
                                                     it.titles?.normalized ?: "(No title)",

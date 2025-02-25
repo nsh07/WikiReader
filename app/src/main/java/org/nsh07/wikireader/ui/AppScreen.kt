@@ -273,6 +273,11 @@ fun AppScreen(
                             }
                         }
                     },
+                    showFeedErrorSnackBar = {
+                        coroutineScope.launch {
+                            snackBarHostState.showSnackbar("Unable to load feed: ${homeScreenState.status.name}")
+                        }
+                    },
                     windowSizeClass = windowSizeClass,
                     modifier = Modifier
                         .fillMaxSize()
@@ -310,6 +315,7 @@ fun AppScreen(
         composable("settings") {
             SettingsScreen(
                 preferencesState = preferencesState,
+                homeScreenState = homeScreenState,
                 onBack = { navController.navigateUp() },
                 viewModel = viewModel,
                 windowSizeClass = windowSizeClass

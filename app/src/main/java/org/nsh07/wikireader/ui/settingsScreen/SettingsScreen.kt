@@ -32,8 +32,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.toColor
+import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.viewModel.UiViewModel
 import kotlin.math.round
@@ -42,6 +44,7 @@ import kotlin.math.round
 @Composable
 fun SettingsScreen(
     preferencesState: PreferencesState,
+    homeScreenState: HomeScreenState,
     viewModel: UiViewModel,
     onBack: () -> Unit,
     windowSizeClass: WindowSizeClass,
@@ -112,7 +115,11 @@ fun SettingsScreen(
             setShowSheet = setShowLanguageSheet,
             setLang = {
                 viewModel.saveLang(it)
-                viewModel.refreshSearch()
+                if (homeScreenState.status != WRStatus.FEED_NETWORK_ERROR &&
+                    homeScreenState.status != WRStatus.FEED_LOADED)
+                    viewModel.refreshSearch()
+                else
+                    viewModel.loadFeed()
             },
             setSearchStr = { viewModel.updateLanguageSearchStr(it) }
         )
