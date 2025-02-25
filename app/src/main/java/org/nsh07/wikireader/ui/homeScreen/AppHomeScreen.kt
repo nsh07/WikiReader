@@ -254,6 +254,7 @@ fun AppHomeScreen(
                 imageLoader = imageLoader,
                 insets = insets,
                 performSearch = onLinkClick,
+                refreshFeed = refreshFeed,
                 listState = feedListState
             )
         }
