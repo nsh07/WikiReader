@@ -1,7 +1,7 @@
 [versions]
 activityCompose = "1.10.0"
 adaptive = "1.1.0-beta02"
-agp = "8.8.1"
+agp = "8.8.2"
 coil = "3.1.0"
 coilGif = "3.1.0"
 composeBom = "2025.02.00"
