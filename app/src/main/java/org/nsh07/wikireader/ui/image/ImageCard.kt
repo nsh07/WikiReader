@@ -3,12 +3,11 @@ package org.nsh07.wikireader.ui.image
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,11 +45,11 @@ fun ImageCard(
     val labelBottomPadding =
         if (photoDesc.description == null) 16.dp
         else 8.dp
-    Card(
+    ElevatedCard(
+        onClick = onClick,
         modifier = modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .clickable(onClick = onClick)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

@@ -153,7 +153,9 @@ fun AppScreen(
 
             BackHandler(
                 !homeScreenState.isBackStackEmpty ||
-                        homeScreenState.status != WRStatus.FEED_LOADED
+                        (homeScreenState.status != WRStatus.FEED_LOADED &&
+                                homeScreenState.status != WRStatus.FEED_NETWORK_ERROR &&
+                                homeScreenState.status != WRStatus.UNINITIALIZED)
             ) {
                 if (!homeScreenState.isBackStackEmpty) {
                     val curr = viewModel.popBackStack()

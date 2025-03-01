@@ -56,6 +56,7 @@ import org.nsh07.wikireader.ui.viewModel.FeedState
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import kotlin.math.absoluteValue
 import kotlin.math.min
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -131,8 +132,7 @@ fun ArticleFeed(
                             description = feedState.tfa.titles?.normalized,
                             width = feedState.tfa.originalImage?.width ?: 1,
                             height = feedState.tfa.originalImage?.height ?: 1,
-                            imageLoader = imageLoader,
-                            modifier = Modifier.fillMaxWidth()
+                            imageLoader = imageLoader
                         )
                         Text(
                             feedState.tfa.titles?.normalized ?: "(No Title)",
@@ -266,8 +266,7 @@ fun ArticleFeed(
                             description = feedState.image.description?.text,
                             width = feedState.image.image?.width ?: 1,
                             height = feedState.image.image?.height ?: 1,
-                            imageLoader = imageLoader,
-                            modifier = Modifier.fillMaxWidth()
+                            imageLoader = imageLoader
                         )
                         Text(
                             feedState.image.description?.text?.parseAsHtml().toString(),
@@ -299,7 +298,7 @@ fun ArticleFeed(
                     )
                     HorizontalMultiBrowseCarousel(
                         state = carouselState,
-                        itemSpacing = 16.dp,
+                        itemSpacing = 8.dp,
                         modifier = Modifier
                             .padding(16.dp)
                             .aspectRatio(1f),
@@ -313,7 +312,6 @@ fun ArticleFeed(
                                 description = null,
                                 imageLoader = imageLoader,
                                 modifier = Modifier
-                                    .fillMaxWidth()
                                     .maskClip(MaterialTheme.shapes.extraLarge)
                             )
                             Box(
@@ -387,7 +385,7 @@ fun ArticleFeed(
                     )
                     HorizontalMultiBrowseCarousel(
                         state = carouselState,
-                        itemSpacing = 16.dp,
+                        itemSpacing = 8.dp,
                         modifier = Modifier
                             .padding(horizontal = 16.dp, vertical = 8.dp)
                             .aspectRatio(0.9f),
@@ -395,7 +393,11 @@ fun ArticleFeed(
                     ) { i ->
                         Column {
                             Text(
-                                feedState.onThisDay[i].year.toString(),
+                                if ((feedState.onThisDay[i].year ?: 9999) > 1) {
+                                    feedState.onThisDay[i].year.toString()
+                                } else {
+                                    feedState.onThisDay[i].year?.absoluteValue.toString() + " BC"
+                                },
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.padding(bottom = 16.dp)
@@ -408,7 +410,6 @@ fun ArticleFeed(
                                     description = null,
                                     imageLoader = imageLoader,
                                     modifier = Modifier
-                                        .fillMaxWidth()
                                         .maskClip(MaterialTheme.shapes.extraLarge)
                                 )
                                 Box(

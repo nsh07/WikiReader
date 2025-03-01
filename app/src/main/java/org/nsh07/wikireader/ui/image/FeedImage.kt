@@ -15,8 +15,8 @@ import coil3.request.crossfade
 fun FeedImage(
     source: String?,
     description: String? = null,
-    width: Int = 1,
-    height: Int = 1,
+    width: Int? = null,
+    height: Int? = null,
     imageLoader: ImageLoader,
     contentScale: ContentScale = ContentScale.Crop,
     modifier: Modifier = Modifier
@@ -30,8 +30,12 @@ fun FeedImage(
         contentDescription = description,
         imageLoader = imageLoader,
         contentScale = contentScale,
-        modifier = modifier
-            .fillMaxWidth()
-            .aspectRatio(width.toFloat() / height.toFloat())
+        modifier =
+        if (width != null && height != null)
+            modifier
+                .fillMaxWidth()
+                .aspectRatio(width.toFloat() / height.toFloat())
+        else
+            modifier.fillMaxWidth()
     )
 }

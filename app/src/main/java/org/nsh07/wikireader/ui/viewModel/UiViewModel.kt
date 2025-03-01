@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -58,6 +59,11 @@ class UiViewModel(
     private val backStack = mutableListOf<Pair<String, String>>()
     private var lastQuery: Pair<String, String>? = null
     private var filesDir: String = ""
+    private var job = Job()
+        get() {
+            if (field.isCancelled) field = Job()
+            return field
+        }
 
     var isReady = false
     var isAnimDurationComplete = false
@@ -158,6 +164,8 @@ class UiViewModel(
 
         if (q != "") {
             viewModelScope.launch {
+                job.cancel()
+                Log.d("ViewModel", "Cancelled all jobs")
                 var setLang = preferencesState.value.lang
 
                 if (lang != null) {
@@ -237,6 +245,7 @@ class UiViewModel(
                             isSaved = saved
                         )
                     }
+                    Log.d("ViewModel", "Search: HomeScreenState updated")
                 } catch (e: Exception) {
                     Log.e("ViewModel", "Error in fetching results: ${e.message}")
                     _homeScreenState.update { currentState ->
@@ -253,6 +262,7 @@ class UiViewModel(
                             isSaved = false
                         )
                     }
+                    Log.d("ViewModel", "Search: HomeScreenState updated")
                 }
 
                 if (lang != null)
@@ -303,7 +313,7 @@ class UiViewModel(
      * text is updated to the error
      */
     fun loadFeed() {
-        viewModelScope.launch {
+        viewModelScope.launch(job) {
             _homeScreenState.update { currentState ->
                 currentState.copy(isLoading = true)
             }
@@ -328,6 +338,7 @@ class UiViewModel(
                         status = WRStatus.FEED_LOADED
                     )
                 }
+                Log.d("ViewModel", "Feed: HomeScreenState updated")
             } catch (e: Exception) {
                 Log.e("ViewModel", "Error in loading feed: ${e.message}")
                 _homeScreenState.update { currentState ->
@@ -345,6 +356,7 @@ class UiViewModel(
                         isSaved = false
                     )
                 }
+                Log.d("ViewModel", "Feed: HomeScreenState updated")
             }
         }
     }

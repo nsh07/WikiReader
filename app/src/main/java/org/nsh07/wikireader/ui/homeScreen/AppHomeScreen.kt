@@ -43,6 +43,8 @@ import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.ui.image.ImageCard
+import org.nsh07.wikireader.ui.shimmer.AnimatedShimmer
+import org.nsh07.wikireader.ui.shimmer.FeedLoader
 import org.nsh07.wikireader.ui.theme.isDark
 import org.nsh07.wikireader.ui.viewModel.FeedState
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
@@ -239,8 +241,11 @@ fun AppHomeScreen(
                 }
                 if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
             }
-        } else if (homeScreenState.status == WRStatus.UNINITIALIZED ||
-            homeScreenState.status == WRStatus.FEED_NETWORK_ERROR) {
+        } else if (homeScreenState.status == WRStatus.UNINITIALIZED) {
+            AnimatedShimmer {
+                FeedLoader(brush = it, insets = insets)
+            }
+        } else if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR) {
             Icon(
                 painterResource(R.drawable.ic_launcher_foreground),
                 contentDescription = null,
@@ -260,7 +265,7 @@ fun AppHomeScreen(
         }
 
         AnimatedVisibility( // The linear progress bar that shows up when the article is loading
-            visible = homeScreenState.isLoading,
+            visible = homeScreenState.isLoading && homeScreenState.status != WRStatus.UNINITIALIZED,
             enter = expandVertically(expandFrom = Alignment.Top),
             exit = shrinkVertically(shrinkTowards = Alignment.Top)
         ) {
