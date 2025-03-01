@@ -1,5 +1,6 @@
 package org.nsh07.wikireader.ui.homeScreen
 
+import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.expandVertically
@@ -33,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -110,6 +112,20 @@ fun AppHomeScreen(
     if (s > 1) s -= 2
     else s = 0
 
+    val sendIntent: Intent = Intent()
+        .apply {
+            action = Intent.ACTION_SEND
+            putExtra(
+                Intent.EXTRA_TEXT,
+                "https://${preferencesState.lang}.wikipedia.org/wiki/${
+                    homeScreenState.title.replace(' ', '_')
+                }"
+            )
+            type = "text/plain"
+        }
+    val shareIntent = Intent.createChooser(sendIntent, null)
+    val context = LocalContext.current
+
     if (showLanguageSheet)
         ArticleLanguageBottomSheet(
             langs = homeScreenState.langs ?: emptyList(),
@@ -157,6 +173,18 @@ fun AppHomeScreen(
                                     Text(langCodeToName(preferencesState.lang))
                                 }
                                 Spacer(Modifier.weight(1f))
+                                FilledTonalIconButton(
+                                    onClick = {
+                                        context.startActivity(shareIntent)
+                                    },
+                                    enabled = homeScreenState.status == WRStatus.SUCCESS,
+                                    modifier = Modifier.padding(end = 8.dp)
+                                ) {
+                                    Icon(
+                                        painterResource(R.drawable.share),
+                                        contentDescription = "Share page"
+                                    )
+                                }
                                 FilledTonalIconButton(
                                     onClick = saveArticle,
                                     enabled = homeScreenState.status == WRStatus.SUCCESS
