@@ -312,7 +312,7 @@ class UiViewModel(
      * If an error is encountered, app status is set to [WRStatus.FEED_NETWORK_ERROR] and home screen
      * text is updated to the error
      */
-    fun loadFeed() {
+    fun loadFeed(fromBack: Boolean = false) {
         viewModelScope.launch(job) {
             _homeScreenState.update { currentState ->
                 currentState.copy(isLoading = true)
@@ -332,20 +332,31 @@ class UiViewModel(
                     )
                 }
 
-                _homeScreenState.update { currentState ->
+                if (!listOf(
+                        WRStatus.SUCCESS,
+                        WRStatus.NO_SEARCH_RESULT,
+                        WRStatus.NETWORK_ERROR
+                    ).contains(homeScreenState.value.status) || fromBack
+                ) _homeScreenState.update { currentState ->
                     currentState.copy(
                         isLoading = false,
                         status = WRStatus.FEED_LOADED
                     )
                 }
+                else _homeScreenState.update { currentState ->
+                    currentState.copy(isLoading = false)
+                }
+
                 Log.d("ViewModel", "Feed: HomeScreenState updated")
             } catch (e: Exception) {
                 Log.e("ViewModel", "Error in loading feed: ${e.message}")
                 _homeScreenState.update { currentState ->
                     currentState.copy(
                         title = "Error",
-                        extract = listOf("An error occurred, feed could not be loaded :(\nPlease " +
-                            "check your internet connection"),
+                        extract = listOf(
+                            "An error occurred, feed could not be loaded :(\nPlease " +
+                                    "check your internet connection"
+                        ),
                         langs = null,
                         currentLang = null,
                         photo = null,

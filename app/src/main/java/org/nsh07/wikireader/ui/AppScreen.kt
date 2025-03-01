@@ -1,6 +1,7 @@
 package org.nsh07.wikireader.ui
 
 import android.os.Build.VERSION.SDK_INT
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -140,9 +141,10 @@ fun AppScreen(
                 navDeepLink { uriPattern = "{lang}.wikipedia.org/wiki/{query}" }
             )
         ) { backStackEntry ->
-            LaunchedEffect(null) {
-                val uriQuery = backStackEntry.arguments?.getString("query") ?: ""
+            val uriQuery = remember { backStackEntry.arguments?.getString("query") ?: "" }
+            LaunchedEffect(uriQuery) {
                 if (uriQuery != "") {
+                    Log.d("AppScreen", "Deep link handled: uriQuery: $uriQuery")
                     viewModel.performSearch(
                         uriQuery,
                         fromLink = true,
@@ -166,7 +168,7 @@ fun AppScreen(
                     )
                 } else {
                     viewModel.popBackStack()
-                    viewModel.loadFeed()
+                    viewModel.loadFeed(fromBack = true)
                 }
             }
 
