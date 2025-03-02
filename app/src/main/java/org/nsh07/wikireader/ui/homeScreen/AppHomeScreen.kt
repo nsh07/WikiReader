@@ -270,26 +270,39 @@ fun AppHomeScreen(
                 if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
             }
         } else if (homeScreenState.status == WRStatus.UNINITIALIZED) {
-            AnimatedShimmer {
-                FeedLoader(brush = it, insets = insets)
+            Row {
+                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
+                AnimatedShimmer {
+                    FeedLoader(brush = it, insets = insets, modifier = Modifier.weight(4f))
+                }
+                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
             }
         } else if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR) {
-            Icon(
-                painterResource(R.drawable.ic_launcher_foreground),
-                contentDescription = null,
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .fillMaxSize(0.75f)
-            )
+            Row(Modifier.align(Alignment.Center)) {
+                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
+                Icon(
+                    painterResource(R.drawable.ic_launcher_foreground),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize(0.75f)
+                        .weight(4f)
+                )
+                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
+            }
         } else {
-            ArticleFeed(
-                feedState = feedState,
-                imageLoader = imageLoader,
-                insets = insets,
-                performSearch = onLinkClick,
-                refreshFeed = refreshFeed,
-                listState = feedListState
-            )
+            Row {
+                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
+                ArticleFeed(
+                    feedState = feedState,
+                    imageLoader = imageLoader,
+                    insets = insets,
+                    performSearch = onLinkClick,
+                    refreshFeed = refreshFeed,
+                    listState = feedListState,
+                    modifier = Modifier.weight(4f)
+                )
+                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
+            }
         }
 
         AnimatedVisibility( // The linear progress bar that shows up when the article is loading

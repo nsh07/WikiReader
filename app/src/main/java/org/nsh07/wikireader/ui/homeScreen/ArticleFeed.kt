@@ -97,7 +97,8 @@ fun ArticleFeed(
         onRefresh = {
             isRefreshing = true
             refreshFeed()
-        }
+        },
+        modifier = modifier
     ) {
         LazyColumn(
             state = listState,

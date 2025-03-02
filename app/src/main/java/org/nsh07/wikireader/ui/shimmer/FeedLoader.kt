@@ -23,12 +23,12 @@ import androidx.compose.ui.unit.dp
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 
 @Composable
-fun FeedLoader(brush: Brush, insets: PaddingValues) {
+fun FeedLoader(brush: Brush, insets: PaddingValues, modifier: Modifier = Modifier) {
     val xl = MaterialTheme.shapes.extraLarge
     val l = MaterialTheme.shapes.large
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .verticalScroll(
                 rememberScrollState()
@@ -80,7 +80,7 @@ fun FeedLoader(brush: Brush, insets: PaddingValues) {
                 .clip(l)
                 .background(brush)
         )
-        for (i in 0..1) {
+        repeat(2) {
             Spacer(
                 Modifier
                     .padding(horizontal = 16.dp)
