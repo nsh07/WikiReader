@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -113,6 +114,18 @@ fun ColorSchemePickerDialog(
                     modifier = Modifier.padding(8.dp)
                 ) {
                     onColorChange(colorSchemes.last())
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Outlined.Info,
+                        tint = MaterialTheme.colorScheme.primary,
+                        contentDescription = "Information"
+                    )
+                    Text(
+                        "Selecting dynamic theme\nwill refresh the app.",
+                        modifier = Modifier.padding(8.dp)
+                    )
                 }
 
                 Spacer(Modifier.height(24.dp))
