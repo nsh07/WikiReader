@@ -299,6 +299,7 @@ fun AppHomeScreen(
                     performSearch = onLinkClick,
                     refreshFeed = refreshFeed,
                     listState = feedListState,
+                    windowSizeClass = windowSizeClass,
                     modifier = Modifier.weight(4f)
                 )
                 if (weight != 0f) Spacer(modifier = Modifier.weight(weight))

@@ -43,13 +43,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.text.parseAsHtml
+import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.viewModel.FeedState
@@ -66,6 +67,7 @@ fun ArticleFeed(
     imageLoader: ImageLoader,
     insets: PaddingValues,
     listState: LazyListState,
+    windowSizeClass: WindowSizeClass,
     performSearch: (String) -> Unit,
     refreshFeed: () -> Unit,
     modifier: Modifier = Modifier
@@ -75,6 +77,7 @@ fun ArticleFeed(
     //  give credit to compose charts in readme
     val context = LocalContext.current
     var isRefreshing by remember { mutableStateOf(false) }
+    val wide = remember { windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED }
     val df = remember {
         CompactDecimalFormat.getInstance(
             context.resources.configuration.getLocales().get(0),
@@ -300,10 +303,15 @@ fun ArticleFeed(
                     HorizontalMultiBrowseCarousel(
                         state = carouselState,
                         itemSpacing = 8.dp,
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .aspectRatio(1f),
-                        preferredItemWidth = LocalConfiguration.current.screenWidthDp.dp - 32.dp
+                        modifier = if (!wide)
+                            Modifier
+                                .padding(16.dp)
+                                .aspectRatio(1f)
+                        else
+                            Modifier
+                                .padding(16.dp)
+                                .height(512.dp),
+                        preferredItemWidth = 512.dp
                     ) { i ->
                         Box {
                             FeedImage(
@@ -358,7 +366,11 @@ fun ArticleFeed(
                                                     width = ButtonDefaults.outlinedButtonBorder().width,
                                                     color = Color.LightGray
                                                 ),
-                                                onClick = { performSearch(it.titles?.canonical ?: "") }
+                                                onClick = {
+                                                    performSearch(
+                                                        it.titles?.canonical ?: ""
+                                                    )
+                                                }
                                             ) {
                                                 Text(
                                                     it.titles?.normalized ?: "",
@@ -387,10 +399,16 @@ fun ArticleFeed(
                     HorizontalMultiBrowseCarousel(
                         state = carouselState,
                         itemSpacing = 8.dp,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                            .aspectRatio(0.9f),
-                        preferredItemWidth = LocalConfiguration.current.screenWidthDp.dp - 32.dp
+                        modifier =
+                        if (!wide)
+                            Modifier
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .aspectRatio(0.94f)
+                        else
+                            Modifier
+                                .padding(16.dp)
+                                .height(512.dp),
+                        preferredItemWidth = 512.dp
                     ) { i ->
                         Column {
                             Text(
