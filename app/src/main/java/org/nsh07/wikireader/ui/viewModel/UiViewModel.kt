@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +18,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.nsh07.wikireader.WikiReaderApplication
 import org.nsh07.wikireader.data.AppPreferencesRepository
@@ -41,6 +41,9 @@ class UiViewModel(
     private val _homeScreenState = MutableStateFlow(HomeScreenState())
     val homeScreenState: StateFlow<HomeScreenState> = _homeScreenState.asStateFlow()
 
+    private val _feedState = MutableStateFlow(FeedState())
+    val feedState: StateFlow<FeedState> = _feedState.asStateFlow()
+
     private val _listState = MutableStateFlow(LazyListState(0, 0))
     val listState: StateFlow<LazyListState> = _listState.asStateFlow()
 
@@ -56,6 +59,11 @@ class UiViewModel(
     private val backStack = mutableListOf<Pair<String, String>>()
     private var lastQuery: Pair<String, String>? = null
     private var filesDir: String = ""
+    private var job = Job()
+        get() {
+            if (field.isCancelled) field = Job()
+            return field
+        }
 
     var isReady = false
     var isAnimDurationComplete = false
@@ -109,6 +117,7 @@ class UiViewModel(
 
             interceptor.setHost("$lang.wikipedia.org")
             isReady = true
+            loadFeed()
         }
     }
 
@@ -128,7 +137,7 @@ class UiViewModel(
             if (!fromBackStack && (Pair(q, setLang) != lastQuery)) {
                 backStack.add(lastQuery!!)
                 Log.d(
-                    "BackStack",
+                    "ViewModel",
                     "Add ${lastQuery?.first ?: "null"} : ${lastQuery?.second ?: "null"}"
                 )
             }
@@ -155,6 +164,8 @@ class UiViewModel(
 
         if (q != "") {
             viewModelScope.launch {
+                job.cancel()
+                Log.d("ViewModel", "Cancelled all jobs")
                 var setLang = preferencesState.value.lang
 
                 if (lang != null) {
@@ -234,6 +245,7 @@ class UiViewModel(
                             isSaved = saved
                         )
                     }
+                    Log.d("ViewModel", "Search: HomeScreenState updated")
                 } catch (e: Exception) {
                     Log.e("ViewModel", "Error in fetching results: ${e.message}")
                     _homeScreenState.update { currentState ->
@@ -250,6 +262,7 @@ class UiViewModel(
                             isSaved = false
                         )
                     }
+                    Log.d("ViewModel", "Search: HomeScreenState updated")
                 }
 
                 if (lang != null)
@@ -294,13 +307,79 @@ class UiViewModel(
     }
 
     /**
+     * Loads feed, updates the [FeedState] and sets the app status to [WRStatus.FEED_LOADED]
+     *
+     * If an error is encountered, app status is set to [WRStatus.FEED_NETWORK_ERROR] and home screen
+     * text is updated to the error
+     */
+    fun loadFeed(fromBack: Boolean = false) {
+        viewModelScope.launch(job) {
+            _homeScreenState.update { currentState ->
+                currentState.copy(isLoading = true)
+            }
+
+            try {
+                val feed = wikipediaRepository.getFeed(lang = preferencesState.value.lang)
+
+                _feedState.update { currentState ->
+                    currentState.copy(
+                        tfa = feed.tfa,
+                        mostReadArticles = feed.mostRead?.articles?.sortedBy { it.rank }
+                            ?.subList(0, 5),
+                        image = feed.image,
+                        news = feed.news,
+                        onThisDay = feed.onThisDay
+                    )
+                }
+
+                if (!listOf(
+                        WRStatus.SUCCESS,
+                        WRStatus.NO_SEARCH_RESULT,
+                        WRStatus.NETWORK_ERROR
+                    ).contains(homeScreenState.value.status) || fromBack
+                ) _homeScreenState.update { currentState ->
+                    currentState.copy(
+                        isLoading = false,
+                        status = WRStatus.FEED_LOADED
+                    )
+                }
+                else _homeScreenState.update { currentState ->
+                    currentState.copy(isLoading = false)
+                }
+
+                Log.d("ViewModel", "Feed: HomeScreenState updated")
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Error in loading feed: ${e.message}")
+                _homeScreenState.update { currentState ->
+                    currentState.copy(
+                        title = "Error",
+                        extract = listOf(
+                            "An error occurred, feed could not be loaded :(\nPlease " +
+                                    "check your internet connection"
+                        ),
+                        langs = null,
+                        currentLang = null,
+                        photo = null,
+                        photoDesc = null,
+                        status = WRStatus.FEED_NETWORK_ERROR,
+                        pageId = null,
+                        isLoading = false,
+                        isSaved = false
+                    )
+                }
+                Log.d("ViewModel", "Feed: HomeScreenState updated")
+            }
+        }
+    }
+
+    /**
      * Saves the current article to the given directory
      *
      * @return A [WRStatus] enum value indicating the status of the save operation
      */
     suspend fun saveArticle(): WRStatus {
         if (homeScreenState.value.status == WRStatus.UNINITIALIZED) {
-            Log.e("SaveArticle", "Cannot save article, HomeScreenState not initialized")
+            Log.e("ViewModel", "Cannot save article, HomeScreenState not initialized")
             return WRStatus.OTHER
         }
 
@@ -316,7 +395,7 @@ class UiViewModel(
                 ?.pages?.get(0)
 
             if (apiResponseQuery == null) {
-                Log.e("SaveArticle", "Cannot save article, apiResponse is null")
+                Log.e("ViewModel", "Cannot save article, apiResponse is null")
                 interceptor.setHost("$currentLang.wikipedia.org")
                 return WRStatus.NO_SEARCH_RESULT
             }
@@ -339,11 +418,11 @@ class UiViewModel(
                 _homeScreenState.update { currentState ->
                     currentState.copy(isSaved = true)
                 }
-                Log.d("HomeScreenState", "Updated saved state to ${homeScreenState.value.isSaved}")
+                Log.d("ViewModel", "Updated saved state to ${homeScreenState.value.isSaved}")
                 return WRStatus.SUCCESS
             } catch (e: Exception) {
                 Log.e(
-                    "SaveArticle",
+                    "ViewModel",
                     "Cannot save article, file IO error"
                 )
                 e.printStackTrace()
@@ -351,7 +430,7 @@ class UiViewModel(
                 return WRStatus.IO_ERROR
             }
         } catch (_: Exception) {
-            Log.e("SaveArticle", "Cannot save article, network error")
+            Log.e("ViewModel", "Cannot save article, network error")
             interceptor.setHost("$currentLang.wikipedia.org")
             return WRStatus.NETWORK_ERROR
         }
@@ -366,7 +445,7 @@ class UiViewModel(
      */
     fun deleteArticle(fileName: String? = null): WRStatus {
         if (homeScreenState.value.status == WRStatus.UNINITIALIZED && fileName == null) {
-            Log.e("DeleteArticle", "Cannot delete article, HomeScreenState is uninitialized")
+            Log.e("ViewModel", "Cannot delete article, HomeScreenState is uninitialized")
             return WRStatus.OTHER
         }
 
@@ -388,7 +467,7 @@ class UiViewModel(
                 return WRStatus.SUCCESS
             } else return WRStatus.IO_ERROR
         } catch (e: Exception) {
-            Log.e("DeleteArticle", "Cannot delete article")
+            Log.e("ViewModel", "Cannot delete article")
             e.printStackTrace()
             return WRStatus.IO_ERROR
         }
@@ -401,7 +480,7 @@ class UiViewModel(
             return if (deleted) WRStatus.SUCCESS
             else WRStatus.IO_ERROR
         } catch (e: Exception) {
-            Log.e("DeleteArticle", "Cannot delete all articles")
+            Log.e("ViewModel", "Cannot delete all articles")
             e.printStackTrace()
             return WRStatus.IO_ERROR
         }
@@ -416,10 +495,10 @@ class UiViewModel(
                 out.add(it.fileName.toString())
             }
             out.sort()
-            Log.d("ListArticles", "${out.size} articles loaded")
+            Log.d("ViewModel", "${out.size} articles loaded")
             return out.toList()
         } catch (e: Exception) {
-            Log.e("ListArticles", "Cannot load list of downloaded articles, IO error")
+            Log.e("ViewModel", "Cannot load list of downloaded articles, IO error")
             e.printStackTrace()
             return listOf<String>()
         }
@@ -431,10 +510,10 @@ class UiViewModel(
                 .walkTopDown()
                 .map { it.length() }
                 .sum()
-            Log.d("ArticlesSize", "Articles size loaded: $size")
+            Log.d("ViewModel", "Articles size loaded: $size")
             return size
         } catch (e: Exception) {
-            Log.e("ArticlesSize", "Cannot load total article size, IO error")
+            Log.e("ViewModel", "Cannot load total article size, IO error")
             e.printStackTrace()
             return 0
         }
@@ -473,11 +552,15 @@ class UiViewModel(
                 )
             }
 
-            if (apiResponse != null) updateBackstack(apiResponse.title, fileName.substringAfterLast('.'), false)
+            if (apiResponse != null) updateBackstack(
+                apiResponse.title,
+                fileName.substringAfterLast('.'),
+                false
+            )
 
             return WRStatus.SUCCESS
         } catch (e: Exception) {
-            Log.e("LoadSavedArticle", "Cannot load saved article, IO error")
+            Log.e("ViewModel", "Cannot load saved article, IO error")
             e.printStackTrace()
             return WRStatus.IO_ERROR
         }
@@ -485,7 +568,8 @@ class UiViewModel(
 
     fun popBackStack(): Pair<String, String>? {
         val res = backStack.removeLastOrNull()
-        Log.d("BackStack", "Pop ${res?.first ?: "null"} : ${res?.second ?: "null"}")
+        if (backStack.isEmpty()) lastQuery = null
+        Log.d("ViewModel", "Pop ${res?.first ?: "null"} : ${res?.second ?: "null"}")
         return res
     }
 

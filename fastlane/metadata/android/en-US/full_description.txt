@@ -3,6 +3,7 @@
 <p>Features</p>
 <ul>
     <li><b>Fast loading:</b> The article text is loaded before anything else, so you can get to reading, quick</li>
+    <li><b>Feed:</b> Read the article of the day, find trending articles and get up to speed on the news with the Wikipedia Feed</li>
     <li><b>Article image:</b> View an image of the topic from its Wikipedia page. Click on it to enlarge it and view in full-screen</li>
     <li><b>Random article:</b> Feeling lucky? Click the random article button to read a random article</li>
     <li><b>Choose your language: Choose from over 300 languages on Wikipedia</b></li>

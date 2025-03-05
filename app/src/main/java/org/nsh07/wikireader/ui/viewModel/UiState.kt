@@ -3,6 +3,11 @@ package org.nsh07.wikireader.ui.viewModel
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import org.nsh07.wikireader.data.FeedApiImage
+import org.nsh07.wikireader.data.FeedApiNews
+import org.nsh07.wikireader.data.FeedApiOTD
+import org.nsh07.wikireader.data.FeedApiTFA
+import org.nsh07.wikireader.data.MostReadArticle
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiLang
 import org.nsh07.wikireader.data.WikiPhoto
@@ -41,4 +46,13 @@ data class PreferencesState(
     val expandedSections: Boolean = false,
     val dataSaver: Boolean = false,
     val renderMath: Boolean = true
+)
+
+@Immutable
+data class FeedState(
+    val tfa: FeedApiTFA? = null,
+    val mostReadArticles: List<MostReadArticle>? = null,
+    val image: FeedApiImage? = null,
+    val news: List<FeedApiNews>? = null,
+    val onThisDay: List<FeedApiOTD>? = null
 )

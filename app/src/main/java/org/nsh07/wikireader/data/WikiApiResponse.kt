@@ -32,7 +32,7 @@ data class WikiPhoto(
 
 @Serializable
 data class WikiPhotoDesc(
-    val label: List<String>,
+    val label: List<String>? = null,
     val description: List<String>? = null
 )
 

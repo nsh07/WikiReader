@@ -40,6 +40,7 @@ import org.nsh07.wikireader.data.WikiPhotoDesc
 fun FullScreenImage(
     photo: WikiPhoto?,
     photoDesc: WikiPhotoDesc?,
+    title: String,
     imageLoader: ImageLoader,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
@@ -62,7 +63,7 @@ fun FullScreenImage(
     }
 
     Scaffold(
-        topBar = { FullScreenImageTopBar(photoDesc = photoDesc, onBack = onBack) },
+        topBar = { FullScreenImageTopBar(photoDesc = photoDesc, title = title, onBack = onBack) },
         containerColor = Color.Black,
         modifier = modifier
     ) { _ ->

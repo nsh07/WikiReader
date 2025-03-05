@@ -1,5 +1,6 @@
 package org.nsh07.wikireader.ui.homeScreen
 
+import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.expandVertically
@@ -33,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -43,7 +45,10 @@ import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.ui.image.ImageCard
+import org.nsh07.wikireader.ui.shimmer.AnimatedShimmer
+import org.nsh07.wikireader.ui.shimmer.FeedLoader
 import org.nsh07.wikireader.ui.theme.isDark
+import org.nsh07.wikireader.ui.viewModel.FeedState
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
 
@@ -71,6 +76,8 @@ fun AppHomeScreen(
     homeScreenState: HomeScreenState,
     listState: LazyListState,
     preferencesState: PreferencesState,
+    feedState: FeedState,
+    feedListState: LazyListState,
     imageLoader: ImageLoader,
     languageSearchStr: String,
     languageSearchQuery: String,
@@ -78,10 +85,12 @@ fun AppHomeScreen(
     onImageClick: () -> Unit,
     onLinkClick: (String) -> Unit,
     refreshSearch: () -> Unit,
+    refreshFeed: () -> Unit,
     setLang: (String) -> Unit,
     setSearchStr: (String) -> Unit,
     setShowArticleLanguageSheet: (Boolean) -> Unit,
     saveArticle: () -> Unit,
+    showFeedErrorSnackBar: () -> Unit,
     insets: PaddingValues,
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier
@@ -103,6 +112,20 @@ fun AppHomeScreen(
     if (s > 1) s -= 2
     else s = 0
 
+    val sendIntent: Intent = Intent()
+        .apply {
+            action = Intent.ACTION_SEND
+            putExtra(
+                Intent.EXTRA_TEXT,
+                "https://${preferencesState.lang}.wikipedia.org/wiki/${
+                    homeScreenState.title.replace(' ', '_')
+                }"
+            )
+            type = "text/plain"
+        }
+    val shareIntent = Intent.createChooser(sendIntent, null)
+    val context = LocalContext.current
+
     if (showLanguageSheet)
         ArticleLanguageBottomSheet(
             langs = homeScreenState.langs ?: emptyList(),
@@ -115,7 +138,10 @@ fun AppHomeScreen(
         )
 
     Box(modifier = modifier) { // The container for all the composables in the home screen
-        if (homeScreenState.status != WRStatus.UNINITIALIZED) {
+        if (homeScreenState.status != WRStatus.UNINITIALIZED &&
+            homeScreenState.status != WRStatus.FEED_LOADED &&
+            homeScreenState.status != WRStatus.FEED_NETWORK_ERROR
+        ) {
             LaunchedEffect(isRefreshing) {
                 isRefreshing = false
             } // hide refresh indicator instantly
@@ -124,7 +150,10 @@ fun AppHomeScreen(
                 PullToRefreshBox(
                     isRefreshing = isRefreshing,
                     onRefresh = {
-                        refreshSearch()
+                        if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR)
+                            refreshFeed()
+                        else
+                            refreshSearch()
                         isRefreshing = true
                     },
                     modifier = Modifier.weight(4f)
@@ -144,6 +173,18 @@ fun AppHomeScreen(
                                     Text(langCodeToName(preferencesState.lang))
                                 }
                                 Spacer(Modifier.weight(1f))
+                                FilledTonalIconButton(
+                                    onClick = {
+                                        context.startActivity(shareIntent)
+                                    },
+                                    enabled = homeScreenState.status == WRStatus.SUCCESS,
+                                    modifier = Modifier.padding(end = 8.dp)
+                                ) {
+                                    Icon(
+                                        painterResource(R.drawable.share),
+                                        contentDescription = "Share page"
+                                    )
+                                }
                                 FilledTonalIconButton(
                                     onClick = saveArticle,
                                     enabled = homeScreenState.status == WRStatus.SUCCESS
@@ -178,6 +219,7 @@ fun AppHomeScreen(
                                 ImageCard(
                                     photo = photo,
                                     photoDesc = photoDesc,
+                                    title = homeScreenState.title,
                                     imageLoader = imageLoader,
                                     showPhoto = !preferencesState.dataSaver,
                                     onClick = onImageClick,
@@ -227,23 +269,55 @@ fun AppHomeScreen(
                 }
                 if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
             }
+        } else if (homeScreenState.status == WRStatus.UNINITIALIZED) {
+            Row {
+                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
+                AnimatedShimmer {
+                    FeedLoader(brush = it, insets = insets, modifier = Modifier.weight(4f))
+                }
+                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
+            }
+        } else if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR) {
+            Row(Modifier.align(Alignment.Center)) {
+                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
+                Icon(
+                    painterResource(R.drawable.ic_launcher_foreground),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize(0.75f)
+                        .weight(4f)
+                )
+                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
+            }
         } else {
-            Icon(
-                painterResource(R.drawable.ic_launcher_foreground),
-                contentDescription = null,
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .fillMaxSize(0.75f)
-            )
+            Row {
+                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
+                ArticleFeed(
+                    feedState = feedState,
+                    imageLoader = imageLoader,
+                    insets = insets,
+                    performSearch = onLinkClick,
+                    refreshFeed = refreshFeed,
+                    listState = feedListState,
+                    windowSizeClass = windowSizeClass,
+                    modifier = Modifier.weight(4f)
+                )
+                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
+            }
         }
 
         AnimatedVisibility( // The linear progress bar that shows up when the article is loading
-            visible = homeScreenState.isLoading,
+            visible = homeScreenState.isLoading && homeScreenState.status != WRStatus.UNINITIALIZED,
             enter = expandVertically(expandFrom = Alignment.Top),
             exit = shrinkVertically(shrinkTowards = Alignment.Top)
         ) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
+    }
+
+    LaunchedEffect(homeScreenState.status) {
+        if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR)
+            showFeedErrorSnackBar()
     }
 }
 

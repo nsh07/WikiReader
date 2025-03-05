@@ -3,7 +3,6 @@ package org.nsh07.wikireader.ui.image
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -37,6 +36,7 @@ import org.nsh07.wikireader.data.WikiPhotoDesc
 fun ImageCard(
     photo: WikiPhoto?,
     photoDesc: WikiPhotoDesc,
+    title: String,
     imageLoader: ImageLoader,
     showPhoto: Boolean,
     onClick: () -> Unit,
@@ -46,10 +46,10 @@ fun ImageCard(
         if (photoDesc.description == null) 16.dp
         else 8.dp
     Card(
+        onClick = onClick,
         modifier = modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .clickable(onClick = onClick)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -65,15 +65,15 @@ fun ImageCard(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-            Text(
-                text = photoDesc.label[0],
-                style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 16.dp, bottom = labelBottomPadding)
-                    .fillMaxWidth()
-            )
+                Text(
+                    text = photoDesc.label?.get(0) ?: title,
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 16.dp, bottom = labelBottomPadding)
+                        .fillMaxWidth()
+                )
             if (photoDesc.description != null) {
                 Text(
                     text = photoDesc.description[0],

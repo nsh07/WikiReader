@@ -38,21 +38,58 @@ Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia l
 
 ## Screenshots
 
+<details>
+<summary>Phone screenshots</summary>
 <p align="center" width="100%">
     <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="30%">
-    <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="30%">
     <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="30%">
+    <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="30%">
 </p>
 <p align="center" width="100%">
-    <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="30%">
     <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="30%">
-    <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width="30%">
+    <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width="30%">
+    <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/9.png" width="30%">
 </p>
+</details>
+
+<details>
+<summary>Foldable screenshots</summary>
+<p align="center" width="100%">
+    <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/1.png" width="45%">
+    <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/3.png" width="45%">
+</p>
+<p align="center" width="100%">
+    <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/4.png" width="45%">
+    <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/5.png" width="45%">
+</p>
+<p align="center" width="100%">
+    <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/7.png" width="45%">
+    <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/9.png" width="45%">
+</p>
+</details>
+
+<details>
+<summary>Tablet screenshots</summary>
+<p align="center" width="100%">
+    <img src="fastlane/metadata/android/en-US/images/tenInchScreenshots/1.png" width="45%">
+    <img src="fastlane/metadata/android/en-US/images/tenInchScreenshots/3.png" width="45%">
+</p>
+<p align="center" width="100%">
+    <img src="fastlane/metadata/android/en-US/images/tenInchScreenshots/4.png" width="45%">
+    <img src="fastlane/metadata/android/en-US/images/tenInchScreenshots/5.png" width="45%">
+</p>
+<p align="center" width="100%">
+    <img src="fastlane/metadata/android/en-US/images/tenInchScreenshots/7.png" width="45%">
+    <img src="fastlane/metadata/android/en-US/images/tenInchScreenshots/9.png" width="45%">
+</p>
+</details>
 
 ## Features
 
 - **Fast loading:** The article text is loaded before anything else, so you can get to reading,
   quick.
+- **Feed:** Read the article of the day, find trending articles and get up to speed on the news with
+  the Wikipedia Feed
 - **Article image:** View an image of the topic from its Wikipedia page. Click on it to enlarge it
   and view in full-screen
 - **Random article:** Feeling lucky? Click the random article button to read a random article
@@ -66,11 +103,14 @@ Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia l
 - **Customizable colors:** Choose from light/dark themes and customize the Material 3 color palette
 - **Customizable font size:** Choose your own comfortable font size
 - **Data saver:** Save your limited data plan by loading text only
-- **Math expressions:** View properly rendered mathematical expressions for easily reading mathematical articles
+- **Math expressions:** View properly rendered mathematical expressions for easily reading
+  mathematical articles
 
 ## Special Thanks
 
-- [Wikimedia Foundation](https://wikimediafoundation.org/): For providing [Wikipedia](https://wikipedia.org), the largest and most-read reference work in history, for free
+- [Wikimedia Foundation](https://wikimediafoundation.org/): For
+  providing [Wikipedia](https://wikipedia.org), the largest and most-read reference work in history,
+  for free
 - All the Wikipedia volunteers, contributors and donors
 
 This app was made possible by the following libraries:
@@ -79,6 +119,8 @@ This app was made possible by the following libraries:
 - [OkHttp](https://square.github.io/okhttp/)
 - [Coil](https://coil-kt.github.io/coil/)
 - [MaterialKolor](https://github.com/jordond/MaterialKolor) - Library used for custom color themes
+- [ComposeCharts](https://github.com/ehsannarmani/ComposeCharts) - Library used for the view history
+  graph in the feed
 
 ## Star History
 
