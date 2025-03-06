@@ -269,7 +269,7 @@ fun AppHomeScreen(
                 }
                 if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
             }
-        } else if (homeScreenState.status == WRStatus.UNINITIALIZED) {
+        } else if ((homeScreenState.status == WRStatus.UNINITIALIZED) && !preferencesState.dataSaver) {
             Row {
                 if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
                 AnimatedShimmer {
@@ -277,14 +277,14 @@ fun AppHomeScreen(
                 }
                 if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
             }
-        } else if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR) {
+        } else if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR || homeScreenState.status == WRStatus.UNINITIALIZED) {
             Row(Modifier.align(Alignment.Center)) {
                 if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
                 Icon(
                     painterResource(R.drawable.ic_launcher_foreground),
                     contentDescription = null,
                     modifier = Modifier
-                        .fillMaxSize(0.75f)
+                        .fillMaxSize(0.5f)
                         .weight(4f)
                 )
                 if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
@@ -307,7 +307,8 @@ fun AppHomeScreen(
         }
 
         AnimatedVisibility( // The linear progress bar that shows up when the article is loading
-            visible = homeScreenState.isLoading && homeScreenState.status != WRStatus.UNINITIALIZED,
+            visible = homeScreenState.isLoading &&
+                    (homeScreenState.status != WRStatus.UNINITIALIZED || preferencesState.dataSaver),
             enter = expandVertically(expandFrom = Alignment.Top),
             exit = shrinkVertically(shrinkTowards = Alignment.Top)
         ) {

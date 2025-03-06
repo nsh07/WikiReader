@@ -314,60 +314,66 @@ class UiViewModel(
      */
     fun loadFeed(fromBack: Boolean = false) {
         viewModelScope.launch(job) {
-            _homeScreenState.update { currentState ->
-                currentState.copy(isLoading = true)
-            }
-
-            try {
-                val feed = wikipediaRepository.getFeed(lang = preferencesState.value.lang)
-
-                _feedState.update { currentState ->
-                    currentState.copy(
-                        tfa = feed.tfa,
-                        mostReadArticles = feed.mostRead?.articles?.sortedBy { it.rank }
-                            ?.subList(0, 5),
-                        image = feed.image,
-                        news = feed.news,
-                        onThisDay = feed.onThisDay
-                    )
-                }
-
-                if (!listOf(
-                        WRStatus.SUCCESS,
-                        WRStatus.NO_SEARCH_RESULT,
-                        WRStatus.NETWORK_ERROR
-                    ).contains(homeScreenState.value.status) || fromBack
-                ) _homeScreenState.update { currentState ->
-                    currentState.copy(
-                        isLoading = false,
-                        status = WRStatus.FEED_LOADED
-                    )
-                }
-                else _homeScreenState.update { currentState ->
-                    currentState.copy(isLoading = false)
-                }
-
-                Log.d("ViewModel", "Feed: HomeScreenState updated")
-            } catch (e: Exception) {
-                Log.e("ViewModel", "Error in loading feed: ${e.message}")
+            if (!preferencesState.value.dataSaver) {
                 _homeScreenState.update { currentState ->
-                    currentState.copy(
-                        title = "Error",
-                        extract = listOf(
-                            "An error occurred, feed could not be loaded :(\nPlease " +
-                                    "check your internet connection"
-                        ),
-                        langs = null,
-                        currentLang = null,
-                        photo = null,
-                        photoDesc = null,
-                        status = WRStatus.FEED_NETWORK_ERROR,
-                        pageId = null,
-                        isLoading = false,
-                        isSaved = false
-                    )
+                    currentState.copy(isLoading = true)
                 }
-                Log.d("ViewModel", "Feed: HomeScreenState updated")
+
+                try {
+                    val feed = wikipediaRepository.getFeed(lang = preferencesState.value.lang)
+
+                    _feedState.update { currentState ->
+                        currentState.copy(
+                            tfa = feed.tfa,
+                            mostReadArticles = feed.mostRead?.articles?.sortedBy { it.rank }
+                                ?.subList(0, 5),
+                            image = feed.image,
+                            news = feed.news,
+                            onThisDay = feed.onThisDay
+                        )
+                    }
+
+                    if (!listOf(
+                            WRStatus.SUCCESS,
+                            WRStatus.NO_SEARCH_RESULT,
+                            WRStatus.NETWORK_ERROR
+                        ).contains(homeScreenState.value.status) || fromBack
+                    ) _homeScreenState.update { currentState ->
+                        currentState.copy(
+                            isLoading = false,
+                            status = WRStatus.FEED_LOADED
+                        )
+                    }
+                    else _homeScreenState.update { currentState ->
+                        currentState.copy(isLoading = false)
+                    }
+
+                    Log.d("ViewModel", "Feed: HomeScreenState updated")
+                } catch (e: Exception) {
+                    Log.e("ViewModel", "Error in loading feed: ${e.message}")
+                    _homeScreenState.update { currentState ->
+                        currentState.copy(
+                            title = "Error",
+                            extract = listOf(
+                                "An error occurred, feed could not be loaded :(\nPlease " +
+                                        "check your internet connection"
+                            ),
+                            langs = null,
+                            currentLang = null,
+                            photo = null,
+                            photoDesc = null,
+                            status = WRStatus.FEED_NETWORK_ERROR,
+                            pageId = null,
+                            isLoading = false,
+                            isSaved = false
+                        )
+                    }
+                    Log.d("ViewModel", "Feed: HomeScreenState updated")
+                }
+            } else {
+                _homeScreenState.update { currentState ->
+                    currentState.copy(status = WRStatus.UNINITIALIZED)
+                }
             }
         }
     }

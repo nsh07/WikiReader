@@ -249,7 +249,7 @@ fun SettingsScreen(
                         )
                     },
                     headlineContent = { Text("Data saver") },
-                    supportingContent = { Text("Only load page image in fullscreen") },
+                    supportingContent = { Text("Only load page image in fullscreen and disable feed") },
                     trailingContent = {
                         Switch(
                             checked = dataSaver,
