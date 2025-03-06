@@ -1,0 +1,12 @@
+v1.10.0
+
+New features:
+- New Wikipedia feed: catch up on trending articles, news and the current day in history
+- New share button to share the current article's link
+- Improved tablet UI
+
+Bug fixes:
+- Fix dynamic color not being applied from the system
+
+Fixes in 1.10.1:
+- Disable feed when data saver is enabled
