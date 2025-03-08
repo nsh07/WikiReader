@@ -1,0 +1,8 @@
+v1.10.2
+
+Bug fixes:
+- Fix pure black dark theme not working when dynamic theme was selected
+- Fix article sections becoming unusable for some articles
+
+Improvements:
+- Drastically improved article handling
