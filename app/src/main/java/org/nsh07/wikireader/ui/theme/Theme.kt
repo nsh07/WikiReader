@@ -4,7 +4,6 @@ import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -66,20 +65,16 @@ fun WikiReaderTheme(
         }
     }
 
-    if (seedColor != Color.White)
-        DynamicMaterialTheme(
-            seedColor = seedColor,
-            useDarkTheme = darkTheme,
-            withAmoled = blackTheme,
-            animate = true,
-            content = content
-        )
-    else
-        MaterialTheme(
-            colorScheme = colorScheme,
-            typography = Typography,
-            content = content
-        )
+    DynamicMaterialTheme(
+        seedColor = when (seedColor) {
+            Color.White -> colorScheme.primary
+            else -> seedColor
+        },
+        useDarkTheme = darkTheme,
+        withAmoled = blackTheme,
+        animate = true,
+        content = content
+    )
 }
 
 @Composable
