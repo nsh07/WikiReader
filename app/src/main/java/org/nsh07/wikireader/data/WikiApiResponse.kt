@@ -16,7 +16,7 @@ data class WikiApiQuery(
 @Serializable
 data class WikiApiPage(
     val title: String,
-    val extract: String,
+    val extract: String? = null,
     @SerialName(value = "pageid") val pageId: Int? = null,
     @SerialName(value = "original") val photo: WikiPhoto? = null,
     @SerialName(value = "terms") val photoDesc: WikiPhotoDesc? = null,

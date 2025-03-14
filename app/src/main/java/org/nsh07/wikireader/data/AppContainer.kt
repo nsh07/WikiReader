@@ -9,6 +9,7 @@ import org.nsh07.wikireader.network.FeedApiService
 import org.nsh07.wikireader.network.HostSelectionInterceptor
 import org.nsh07.wikireader.network.WikipediaApiService
 import retrofit2.Retrofit
+import retrofit2.converter.scalars.ScalarsConverterFactory
 
 interface AppContainer {
     val interceptor: HostSelectionInterceptor
@@ -35,6 +36,12 @@ class DefaultAppContainer(context: Context) : AppContainer {
         .client(okHttpClient)
         .build()
 
+    private val wikipediaPageRetrofit = Retrofit.Builder()
+        .addConverterFactory(ScalarsConverterFactory.create())
+        .baseUrl(baseUrl)
+        .client(okHttpClient)
+        .build()
+
     private val feedRetrofit = Retrofit.Builder()
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .baseUrl(feedBaseUrl)
@@ -44,12 +51,16 @@ class DefaultAppContainer(context: Context) : AppContainer {
         wikipediaRetrofit.create(WikipediaApiService::class.java)
     }
 
+    private val wikipediaPageRetrofitService: WikipediaApiService by lazy {
+        wikipediaPageRetrofit.create(WikipediaApiService::class.java)
+    }
+
     private val feedRetrofitService: FeedApiService by lazy {
         feedRetrofit.create(FeedApiService::class.java)
     }
 
     override val wikipediaRepository: WikipediaRepository by lazy {
-        NetworkWikipediaRepository(wikipediaRetrofitService, feedRetrofitService)
+        NetworkWikipediaRepository(wikipediaRetrofitService, wikipediaPageRetrofitService, feedRetrofitService)
     }
 
     override val appPreferencesRepository: AppPreferencesRepository by lazy {

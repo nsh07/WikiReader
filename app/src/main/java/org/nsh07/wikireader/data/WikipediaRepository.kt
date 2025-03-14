@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter
 
 interface WikipediaRepository {
     suspend fun getSearchResult(query: String): WikiApiResponse
+    suspend fun getPageContent(title: String): String
     suspend fun getRandomResult(): WikiApiResponse
     suspend fun getFeed(
         lang: String,
@@ -18,10 +19,15 @@ interface WikipediaRepository {
 
 class NetworkWikipediaRepository(
     private val wikipediaApiService: WikipediaApiService,
+    private val wikipediaPageApiService: WikipediaApiService,
     private val feedApiService: FeedApiService
 ) : WikipediaRepository {
     override suspend fun getSearchResult(query: String): WikiApiResponse {
         return wikipediaApiService.getSearchResult(query)
+    }
+
+    override suspend fun getPageContent(title: String): String {
+        return wikipediaPageApiService.getPageContent(title)
     }
 
     override suspend fun getRandomResult(): WikiApiResponse {
