@@ -2,6 +2,14 @@ package org.nsh07.wikireader.data
 
 import android.util.Log
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withLink
+import androidx.compose.ui.text.withStyle
 
 /**
  * Extension function for [String] to convert it to a [androidx.compose.ui.graphics.Color]
@@ -26,6 +34,47 @@ fun String.toColor(): Color {
     return Color(r, g, b, a)
 }
 
+fun String.toWikitextAnnotatedString(
+    highlightColor: Color,
+    performSearch: (String) -> Unit
+): AnnotatedString {
+    // TODO: Complete this
+    // TODO: Improve formatting handling (headings, italics)
+    // Split by [[ and ]], if first line starts with [[ then first is link, second non-link and so on and vice versa
+    val input = this
+    var isLink = input.trimStart().startsWith("[[")
+    return buildAnnotatedString {
+        input.split("\\[\\[|]]".toRegex()).forEach { curr ->
+            if (isLink) {
+                withLink(
+                    LinkAnnotation.Url(
+                        "",
+                        TextLinkStyles(
+                            SpanStyle(color = highlightColor)
+                        )
+                    ) {
+                        performSearch(curr.substringBefore('|'))
+                    }
+                ) { append(curr.substringAfter('|')) }
+            } else {
+                var bold = curr.startsWith("'''")
+                curr.split("'''".toRegex()).forEach {
+                    if (bold) {
+                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(it)
+                        }
+                    } else {
+                        append(it)
+                    }
+                    if (it != "") bold = !bold
+                }
+            }
+            if (curr != "") isLink = !isLink
+        }
+        append('\n')
+    }
+}
+
 /**
  * Function to parse a string returned by the Wikipedia API and convert it into a [List] of [String]s
  *
@@ -39,12 +88,11 @@ fun String.toColor(): Color {
  * either side)
  */
 fun parseText(text: String): List<String> {
-    val out = text.split("\n== | ==\n".toRegex()).toMutableList()
+    val out = text.split("\n==(?!=)|(?<!=)==[\n ]".toRegex()).toMutableList()
 
-    val s = out.lastIndex
-
-    for (i in s downTo 1) {
-        if (out[i] == "References" || out[i] == "External links" || out[i] == "Gallery") {
+    for (i in out.lastIndex downTo 1) {
+        val curr = out[i].trim()
+        if (curr in listOf("References", "External links", "Gallery", "Footnotes")) {
             out.removeAt(i + 1)
             out.removeAt(i)
         } else if (i + 1 <= out.lastIndex) {
@@ -68,7 +116,7 @@ fun bytesToHumanReadableSize(bytes: Double) = when {
 fun langCodeToName(langCode: String): String {
     try {
         return LanguageData.langNames[LanguageData.langCodes.binarySearch(langCode)]
-    } catch(_: Exception) {
+    } catch (_: Exception) {
         Log.e("Language", "Unknown Language: $langCode")
         return langCode
     }
@@ -77,7 +125,7 @@ fun langCodeToName(langCode: String): String {
 fun langCodeToWikiName(langCode: String): String {
     try {
         return LanguageData.wikipediaNames[LanguageData.langCodes.binarySearch(langCode)]
-    } catch(_: Exception) {
+    } catch (_: Exception) {
         Log.e("Language", "Unknown Language: $langCode")
         return langCode
     }

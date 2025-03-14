@@ -35,6 +35,7 @@ class UiViewModel(
     private val wikipediaRepository: WikipediaRepository,
     private val appPreferencesRepository: AppPreferencesRepository
 ) : ViewModel() {
+    // TODO: Fix page saving and loading
     private val _searchBarState = MutableStateFlow(SearchBarState())
     val searchBarState: StateFlow<SearchBarState> = _searchBarState.asStateFlow()
 
@@ -118,6 +119,7 @@ class UiViewModel(
             interceptor.setHost("$lang.wikipedia.org")
             isReady = true
             loadFeed()
+
         }
     }
 
@@ -198,9 +200,9 @@ class UiViewModel(
                             ?.pages?.get(0)
                     }
 
-                    val extractText = apiResponse
-                        ?.extract ?: ""
-
+                    val extractText = if (apiResponse != null)
+                        wikipediaRepository.getPageContent(apiResponse.title)
+                    else ""
                     val extract: List<String>
                     val status: WRStatus
                     var saved = false

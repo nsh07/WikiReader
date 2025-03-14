@@ -72,7 +72,7 @@ fun ExpandableSection(
 
             Text(
                 text = title,
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.headlineMedium,
                 fontSize = (24 * (fontSize / 16.0)).toInt().sp,
                 modifier = Modifier
                     .weight(1f)

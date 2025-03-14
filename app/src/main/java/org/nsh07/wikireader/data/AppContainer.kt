@@ -8,6 +8,7 @@ import okhttp3.OkHttpClient
 import org.nsh07.wikireader.network.HostSelectionInterceptor
 import org.nsh07.wikireader.network.WikipediaApiService
 import retrofit2.Retrofit
+import retrofit2.converter.scalars.ScalarsConverterFactory
 
 interface AppContainer {
     val interceptor: HostSelectionInterceptor
@@ -33,12 +34,22 @@ class DefaultAppContainer(context: Context) : AppContainer {
         .client(okHttpClient)
         .build()
 
+    private val wikipediaPageRetrofit = Retrofit.Builder()
+        .addConverterFactory(ScalarsConverterFactory.create())
+        .baseUrl(baseUrl)
+        .client(okHttpClient)
+        .build()
+
     private val wikipediaRetrofitService: WikipediaApiService by lazy {
         wikipediaRetrofit.create(WikipediaApiService::class.java)
     }
 
+    private val wikipediaPageRetrofitService: WikipediaApiService by lazy {
+        wikipediaPageRetrofit.create(WikipediaApiService::class.java)
+    }
+
     override val wikipediaRepository: WikipediaRepository by lazy {
-        NetworkWikipediaRepository(wikipediaRetrofitService)
+        NetworkWikipediaRepository(wikipediaRetrofitService, wikipediaPageRetrofitService)
     }
 
     override val appPreferencesRepository: AppPreferencesRepository by lazy {

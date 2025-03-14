@@ -38,11 +38,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.core.text.parseAsHtml
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WRStatus
+import org.nsh07.wikireader.data.WikitextParser
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.ui.image.ImageCard
 import org.nsh07.wikireader.ui.shimmer.AnimatedShimmer
@@ -223,6 +225,7 @@ fun AppHomeScreen(
                                     imageLoader = imageLoader,
                                     showPhoto = !preferencesState.dataSaver,
                                     onClick = onImageClick,
+                                    modifier = Modifier.padding(bottom = 8.dp)
                                 )
                             }
                         }
@@ -247,7 +250,10 @@ fun AppHomeScreen(
                             item { // Expandable sections logic
                                 SelectionContainer {
                                     ExpandableSection(
-                                        title = homeScreenState.extract[i],
+                                        title = WikitextParser(
+                                            homeScreenState.extract[i].trim().parseAsHtml()
+                                                .toString()
+                                        ).bodyText,
                                         pageTitle = homeScreenState.title.substringBefore("(disam")
                                             .trim(),
                                         body = homeScreenState.extract[i + 1],
