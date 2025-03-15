@@ -35,7 +35,6 @@ class UiViewModel(
     private val wikipediaRepository: WikipediaRepository,
     private val appPreferencesRepository: AppPreferencesRepository
 ) : ViewModel() {
-    // TODO: Fix page saving and loading
     private val _searchBarState = MutableStateFlow(SearchBarState())
     val searchBarState: StateFlow<SearchBarState> = _searchBarState.asStateFlow()
 
@@ -213,11 +212,11 @@ class UiViewModel(
                         try {
                             val articlesDir = File(filesDir, "savedArticles")
 
-                            val file = File(
+                            val apiFile = File(
                                 articlesDir,
-                                "${apiResponse!!.title}.${apiResponse.pageId}.${lastQuery!!.second}"
+                                "${apiResponse!!.title}.${apiResponse.pageId}-api.${lastQuery!!.second}"
                             )
-                            if (file.exists()) saved = true
+                            if (apiFile.exists()) saved = true
                         } catch (_: Exception) {
                         }
                     } else {
@@ -408,19 +407,31 @@ class UiViewModel(
                 return WRStatus.NO_SEARCH_RESULT
             }
 
+            val pageContent = wikipediaRepository.getPageContent(apiResponseQuery.title)
+
             try {
-                val fileName =
-                    "${apiResponseQuery.title}.${apiResponseQuery.pageId}.${homeScreenState.value.currentLang}"
+                val apiFileName =
+                    "${apiResponseQuery.title}.${apiResponseQuery.pageId}-api.${homeScreenState.value.currentLang}"
+                val contentFileName =
+                    "${apiResponseQuery.title}.${apiResponseQuery.pageId}-content.${homeScreenState.value.currentLang}"
+
                 val articlesDir = File(filesDir, "savedArticles")
                 articlesDir.mkdirs()
 
-                val file = File(
+                val apiFile = File(
                     articlesDir,
-                    fileName
+                    apiFileName
+                )
+                val contentFile = File(
+                    articlesDir,
+                    contentFileName
                 )
 
-                FileOutputStream(file).use {
+                FileOutputStream(apiFile).use {
                     it.write(Json.encodeToString(apiResponse).toByteArray())
+                }
+                FileOutputStream(contentFile).use {
+                    it.write(pageContent.toByteArray())
                 }
 
                 _homeScreenState.update { currentState ->
@@ -451,23 +462,31 @@ class UiViewModel(
      *
      * @return A [WRStatus] enum value indicating the status of the delete operation
      */
-    fun deleteArticle(fileName: String? = null): WRStatus {
-        if (homeScreenState.value.status == WRStatus.UNINITIALIZED && fileName == null) {
+    fun deleteArticle(apiFileName: String? = null): WRStatus {
+        if (homeScreenState.value.status == WRStatus.UNINITIALIZED && apiFileName == null) {
             Log.e("ViewModel", "Cannot delete article, HomeScreenState is uninitialized")
             return WRStatus.OTHER
         }
 
         try {
             val articlesDir = File(filesDir, "savedArticles")
-            val file = if (fileName == null)
+
+            val apiFile = if (apiFileName == null)
                 File(
                     articlesDir,
-                    "${homeScreenState.value.title}.${homeScreenState.value.pageId}.${homeScreenState.value.currentLang}"
+                    "${homeScreenState.value.title}.${homeScreenState.value.pageId}-api.${homeScreenState.value.currentLang}"
                 )
             else
-                File(articlesDir, fileName)
+                File(articlesDir, apiFileName)
+            val contentFile = if (apiFileName == null)
+                File(
+                    articlesDir,
+                    "${homeScreenState.value.title}.${homeScreenState.value.pageId}-content.${homeScreenState.value.currentLang}"
+                )
+            else
+                File(articlesDir, apiFileName.replace("-api.", "-content."))
 
-            val deleted = file.delete()
+            val deleted = apiFile.delete() && contentFile.delete()
             if (deleted) {
                 _homeScreenState.update { currentState ->
                     currentState.copy(isSaved = false)
@@ -500,11 +519,11 @@ class UiViewModel(
             val directoryEntries = articlesDir.toPath().listDirectoryEntries()
             val out = mutableListOf<String>()
             directoryEntries.forEach {
-                out.add(it.fileName.toString())
+                    out.add(it.fileName.toString())
             }
             out.sort()
             Log.d("ViewModel", "${out.size} articles loaded")
-            return out.toList()
+            return out.filter { it.contains("-api.") }
         } catch (e: Exception) {
             Log.e("ViewModel", "Cannot load list of downloaded articles, IO error")
             e.printStackTrace()
@@ -527,21 +546,19 @@ class UiViewModel(
         }
     }
 
-    fun loadSavedArticle(fileName: String): WRStatus {
+    fun loadSavedArticle(apiFileName: String): WRStatus {
         try {
             val articlesDir = File(filesDir, "savedArticles")
-            val file = File(articlesDir, fileName)
+            val apiFile = File(articlesDir, apiFileName)
+            val contentFile = File(articlesDir, apiFileName.replace("-api.", "-content."))
             val apiResponse =
-                Json.decodeFromString<WikiApiResponse>(file.readText()).query?.pages?.get(0)
+                Json.decodeFromString<WikiApiResponse>(apiFile.readText()).query?.pages?.get(0)
 
-            val extract: List<String> = if (apiResponse?.extract != null)
-                parseText(apiResponse.extract)
-            else
-                listOf("Unknown error")
+            val extract: List<String> = parseText(contentFile.readText())
 
             _preferencesState.update { currentState ->
                 currentState.copy(
-                    lang = fileName.substringAfterLast('.')
+                    lang = apiFileName.substringAfterLast('.')
                 )
             }
             _homeScreenState.update { currentState ->
@@ -562,7 +579,7 @@ class UiViewModel(
 
             if (apiResponse != null) updateBackstack(
                 apiResponse.title,
-                fileName.substringAfterLast('.'),
+                apiFileName.substringAfterLast('.'),
                 false
             )
 
