@@ -304,6 +304,7 @@ fun AppHomeScreen(
                     insets = insets,
                     performSearch = onLinkClick,
                     refreshFeed = refreshFeed,
+                    onImageClick = onImageClick,
                     listState = feedListState,
                     windowSizeClass = windowSizeClass,
                     modifier = Modifier.weight(4f)

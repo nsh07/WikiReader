@@ -45,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.text.parseAsHtml
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -57,6 +58,8 @@ import coil3.svg.SvgDecoder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.data.WRStatus
+import org.nsh07.wikireader.data.WikiPhoto
+import org.nsh07.wikireader.data.WikiPhotoDesc
 import org.nsh07.wikireader.ui.aboutScreen.AboutScreen
 import org.nsh07.wikireader.ui.homeScreen.AppFab
 import org.nsh07.wikireader.ui.homeScreen.AppHomeScreen
@@ -249,7 +252,7 @@ fun AppScreen(
                     languageSearchQuery = languageSearchQuery.value,
                     showLanguageSheet = showArticleLanguageSheet,
                     onImageClick = {
-                        if (homeScreenState.photo != null)
+                        if (homeScreenState.photo != null || homeScreenState.status == WRStatus.FEED_LOADED)
                             navController.navigate("fullScreenImage")
                     },
                     insets = insets,
@@ -291,14 +294,35 @@ fun AppScreen(
         }
 
         composable("fullScreenImage") {
-            if (homeScreenState.photo == null) navController.navigateUp()
-            FullScreenImage(
-                photo = homeScreenState.photo,
-                photoDesc = homeScreenState.photoDesc,
-                title = homeScreenState.title,
-                imageLoader = imageLoader,
-                onBack = { navController.navigateUp() }
-            )
+            if (homeScreenState.status != WRStatus.FEED_LOADED) {
+                if (homeScreenState.photo == null) navController.navigateUp()
+                FullScreenImage(
+                    photo = homeScreenState.photo,
+                    photoDesc = homeScreenState.photoDesc,
+                    title = homeScreenState.title,
+                    imageLoader = imageLoader,
+                    link = homeScreenState.photo?.source,
+                    onBack = { navController.navigateUp() }
+                )
+            } else {
+                FullScreenImage(
+                    photo = WikiPhoto(
+                        source = feedState.image?.image?.source ?: "",
+                        width = feedState.image?.image?.width ?: 1,
+                        height = feedState.image?.image?.height ?: 1
+                    ),
+                    photoDesc = WikiPhotoDesc(
+                        label = listOf(
+                            feedState.image?.description?.text?.parseAsHtml().toString()
+                        ),
+                        description = null
+                    ),
+                    title = feedState.image?.title ?: "",
+                    imageLoader = imageLoader,
+                    link = feedState.image?.filePage,
+                    onBack = { navController.navigateUp() }
+                )
+            }
         }
 
         composable("savedArticles") {
