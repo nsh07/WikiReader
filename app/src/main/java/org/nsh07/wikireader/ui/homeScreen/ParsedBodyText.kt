@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.nsh07.wikireader.data.WikitextParser
@@ -53,7 +54,7 @@ fun ParsedBodyText(
                                 colorScheme.primary,
                                 performSearch = onLinkClick
                             ),
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = MaterialTheme.typography.bodyLarge.copy(hyphens = Hyphens.Auto),
                             fontSize = fontSize.sp,
                             lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
                             modifier = Modifier
@@ -77,7 +78,7 @@ fun ParsedBodyText(
                 colorScheme.primary,
                 performSearch = onLinkClick
             ),
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyLarge.copy(hyphens = Hyphens.Auto),
             fontSize = fontSize.sp,
             lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
             modifier = Modifier

@@ -1,6 +1,6 @@
 package org.nsh07.wikireader.ui.shimmer
 
-import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -23,19 +23,19 @@ fun AnimatedShimmer(content: @Composable (Brush) -> Unit) {
     val transition = rememberInfiniteTransition()
     val translateAnimation = transition.animateFloat(
         initialValue = 0f,
-        targetValue = 1000f,
+        targetValue = 5000f,
         animationSpec = infiniteRepeatable(
             animation = tween(
-                durationMillis = 1000,
-                easing = FastOutSlowInEasing
+                durationMillis = 2500,
+                easing = LinearEasing
             ),
-            repeatMode = RepeatMode.Reverse
+            repeatMode = RepeatMode.Restart
         )
     )
 
     val brush = Brush.linearGradient(
         colors = shimmerColors,
-        start = Offset.Zero,
+        start = Offset(x = translateAnimation.value - 500, y = translateAnimation.value - 500),
         end = Offset(x = translateAnimation.value, y = translateAnimation.value)
     )
 
