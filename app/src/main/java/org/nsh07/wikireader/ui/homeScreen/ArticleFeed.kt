@@ -44,7 +44,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -70,6 +69,7 @@ fun ArticleFeed(
     windowSizeClass: WindowSizeClass,
     performSearch: (String) -> Unit,
     refreshFeed: () -> Unit,
+    onImageClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     // TODO: Skeleton/Shimmer loader,
@@ -89,7 +89,6 @@ fun ArticleFeed(
             .ofLocalizedDate(FormatStyle.LONG)
             .withLocale(context.resources.configuration.getLocales().get(0))
     }
-    val uriHandler = LocalUriHandler.current
 
     LaunchedEffect(isRefreshing) {
         isRefreshing = false
@@ -260,7 +259,7 @@ fun ArticleFeed(
                             .padding(top = 32.dp)
                     )
                     ElevatedCard(
-                        onClick = { uriHandler.openUri(feedState.image.filePage ?: "") },
+                        onClick = onImageClick,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)

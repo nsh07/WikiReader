@@ -45,8 +45,9 @@ fun FullScreenImage(
     photoDesc: WikiPhotoDesc?,
     title: String,
     imageLoader: ImageLoader,
+    modifier: Modifier = Modifier,
+    link: String? = null,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     var currentLightStatusBars = true
     val view = LocalView.current
@@ -73,7 +74,12 @@ fun FullScreenImage(
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                FullScreenImageTopBar(photoDesc = photoDesc, title = title, onBack = onBack)
+                FullScreenImageTopBar(
+                    photoDesc = photoDesc,
+                    title = title,
+                    link = link,
+                    onBack = onBack
+                )
             }
         },
         containerColor = Color.Black,
