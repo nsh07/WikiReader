@@ -27,6 +27,7 @@ class MainActivity : ComponentActivity() {
             !viewModel.isReady || !viewModel.isAnimDurationComplete
         }
         viewModel.setFilesDir(filesDir.path)
+        viewModel.migrateArticles()
         enableEdgeToEdge()
 
         setContent {

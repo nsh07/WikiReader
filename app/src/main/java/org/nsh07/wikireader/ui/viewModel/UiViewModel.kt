@@ -118,7 +118,6 @@ class UiViewModel(
             interceptor.setHost("$lang.wikipedia.org")
             isReady = true
             loadFeed()
-
         }
     }
 
@@ -384,18 +383,22 @@ class UiViewModel(
      *
      * @return A [WRStatus] enum value indicating the status of the save operation
      */
-    suspend fun saveArticle(): WRStatus {
-        if (homeScreenState.value.status == WRStatus.UNINITIALIZED) {
+    suspend fun saveArticle(
+        title: String? = null,
+        lang: String? = null
+    ): WRStatus {
+        if (homeScreenState.value.status == WRStatus.UNINITIALIZED && title == null) {
             Log.e("ViewModel", "Cannot save article, HomeScreenState not initialized")
             return WRStatus.OTHER
         }
 
-        val currentLang = preferencesState.value.lang
-        interceptor.setHost("${homeScreenState.value.currentLang}.wikipedia.org")
+        val currentLang = lang ?: preferencesState.value.lang
+        interceptor.setHost("${currentLang}.wikipedia.org")
 
         try {
+            val pageTitle = title ?: homeScreenState.value.title
             val apiResponse = wikipediaRepository
-                .getSearchResult(homeScreenState.value.title)
+                .getSearchResult(pageTitle)
 
             val apiResponseQuery = apiResponse
                 .query
@@ -403,7 +406,7 @@ class UiViewModel(
 
             if (apiResponseQuery == null) {
                 Log.e("ViewModel", "Cannot save article, apiResponse is null")
-                interceptor.setHost("$currentLang.wikipedia.org")
+                interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
                 return WRStatus.NO_SEARCH_RESULT
             }
 
@@ -411,9 +414,9 @@ class UiViewModel(
 
             try {
                 val apiFileName =
-                    "${apiResponseQuery.title}.${apiResponseQuery.pageId}-api.${homeScreenState.value.currentLang}"
+                    "${apiResponseQuery.title}.${apiResponseQuery.pageId}-api.${currentLang}"
                 val contentFileName =
-                    "${apiResponseQuery.title}.${apiResponseQuery.pageId}-content.${homeScreenState.value.currentLang}"
+                    "${apiResponseQuery.title}.${apiResponseQuery.pageId}-content.${currentLang}"
 
                 val articlesDir = File(filesDir, "savedArticles")
                 articlesDir.mkdirs()
@@ -434,9 +437,10 @@ class UiViewModel(
                     it.write(pageContent.toByteArray())
                 }
 
-                _homeScreenState.update { currentState ->
-                    currentState.copy(isSaved = true)
-                }
+                if (title == null)
+                    _homeScreenState.update { currentState ->
+                        currentState.copy(isSaved = true)
+                    }
                 Log.d("ViewModel", "Updated saved state to ${homeScreenState.value.isSaved}")
                 return WRStatus.SUCCESS
             } catch (e: Exception) {
@@ -445,16 +449,45 @@ class UiViewModel(
                     "Cannot save article, file IO error"
                 )
                 e.printStackTrace()
-                interceptor.setHost("$currentLang.wikipedia.org")
+                interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
                 return WRStatus.IO_ERROR
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
             Log.e("ViewModel", "Cannot save article, network error")
-            interceptor.setHost("$currentLang.wikipedia.org")
+            e.printStackTrace()
+            interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
             return WRStatus.NETWORK_ERROR
         }
 
         return WRStatus.OTHER
+    }
+
+    /**
+     * Migrates articles downloaded in the pre-2.0 format (single file) to the new format (split api
+     * and content files). The old file corresponding to an article is only deleted when the new files
+     * have been successfully written, so accidental data loss is not a concern.
+     *
+     * It is recommended to run this function on every startup to ensure any pending migrations are
+     * completed
+     */
+    fun migrateArticles() {
+        Log.d("ViewModel", "Migrating pre-2.0 articles")
+        val articleList = listArticles(filter = false).filterNot { it.contains("-api.") || it.contains("-content.") }
+        val articlesDir = File(filesDir, "savedArticles")
+        viewModelScope.launch {
+            articleList.forEach { // Sequentially reload and save articles, then delete old files
+                val oldFile = File(articlesDir, it)
+                Log.d("ViewModel", "Migrating ${it.substringBefore('.')} : ${it.substringAfterLast('.')}")
+                val saved =
+                    saveArticle(title = it.substringBefore('.'), lang = it.substringAfterLast('.'))
+                if (saved == WRStatus.SUCCESS) {
+                    oldFile.delete()
+                    Log.d("ViewModel", "Migrated $it")
+                }
+            }
+            Log.d("ViewModel", "${articleList.size} articles migrated")
+            interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
+        }
     }
 
     /**
@@ -513,17 +546,17 @@ class UiViewModel(
         }
     }
 
-    fun listArticles(): List<String> {
+    fun listArticles(filter: Boolean = true): List<String> {
         try {
             val articlesDir = File(filesDir, "savedArticles")
             val directoryEntries = articlesDir.toPath().listDirectoryEntries()
             val out = mutableListOf<String>()
             directoryEntries.forEach {
-                    out.add(it.fileName.toString())
+                out.add(it.fileName.toString())
             }
             out.sort()
             Log.d("ViewModel", "${out.size} articles loaded")
-            return out.filter { it.contains("-api.") }
+            return if (filter) out.filter { it.contains("-api.") } else out
         } catch (e: Exception) {
             Log.e("ViewModel", "Cannot load list of downloaded articles, IO error")
             e.printStackTrace()
