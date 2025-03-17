@@ -75,8 +75,8 @@ import org.nsh07.wikireader.ui.viewModel.UiViewModel
 fun AppScreen(
     viewModel: UiViewModel,
     preferencesState: PreferencesState,
-    windowSizeClass: WindowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    windowSizeClass: WindowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
 ) {
     val searchBarState by viewModel.searchBarState.collectAsState()
     val homeScreenState by viewModel.homeScreenState.collectAsState()
