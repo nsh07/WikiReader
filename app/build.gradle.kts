@@ -13,8 +13,8 @@ android {
         applicationId = "org.nsh07.wikireader"
         minSdk = 26
         targetSdk = 35
-        versionCode = 27
-        versionName = "1.10.3"
+        versionCode = 25
+        versionName = "2.0.0-01-alpha"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
