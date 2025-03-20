@@ -3,7 +3,8 @@ package org.nsh07.wikireader.ui.homeScreen
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -12,23 +13,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.nsh07.wikireader.data.WikitextParser
+import org.nsh07.wikireader.data.cleanUpWikitext
 import org.nsh07.wikireader.data.toWikitextAnnotatedString
 
 @Composable
 fun ParsedBodyText(
-    title: String,
-    pageTitle: String,
     body: String,
     fontSize: Int,
-    description: String,
     renderMath: Boolean,
     darkTheme: Boolean,
-    intro: Boolean = false,
     onLinkClick: (String) -> Unit
 ) {
-    val parsed = WikitextParser(body).bodyText
-    val colorScheme = MaterialTheme.colorScheme
+    val parsed = cleanUpWikitext(body)
     if (renderMath) {
         val context = LocalContext.current
         val dpi = context.resources.displayMetrics.density
@@ -51,10 +47,11 @@ fun ParsedBodyText(
                     if (it.trim() != "")
                         Text(
                             text = it.toWikitextAnnotatedString(
-                                colorScheme.primary,
+                                colorScheme = colorScheme,
+                                typography = typography,
                                 performSearch = onLinkClick
                             ),
-                            style = MaterialTheme.typography.bodyLarge.copy(hyphens = Hyphens.Auto),
+                            style = typography.bodyLarge.copy(hyphens = Hyphens.Auto),
                             fontSize = fontSize.sp,
                             lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
                             modifier = Modifier
@@ -75,10 +72,11 @@ fun ParsedBodyText(
     } else {
         Text(
             text = parsed.toWikitextAnnotatedString(
-                colorScheme.primary,
+                colorScheme = colorScheme,
+                typography = typography,
                 performSearch = onLinkClick
             ),
-            style = MaterialTheme.typography.bodyLarge.copy(hyphens = Hyphens.Auto),
+            style = typography.bodyLarge.copy(hyphens = Hyphens.Auto),
             fontSize = fontSize.sp,
             lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
             modifier = Modifier

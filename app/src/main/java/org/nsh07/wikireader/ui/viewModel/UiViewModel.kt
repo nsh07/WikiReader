@@ -24,7 +24,7 @@ import org.nsh07.wikireader.data.AppPreferencesRepository
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiApiResponse
 import org.nsh07.wikireader.data.WikipediaRepository
-import org.nsh07.wikireader.data.parseText
+import org.nsh07.wikireader.data.parseSections
 import org.nsh07.wikireader.network.HostSelectionInterceptor
 import java.io.File
 import java.io.FileOutputStream
@@ -205,7 +205,7 @@ class UiViewModel(
                     val status: WRStatus
                     var saved = false
                     if (extractText != "") {
-                        extract = parseText(extractText)
+                        extract = parseSections(extractText)
                         status = WRStatus.SUCCESS
 
                         try {
@@ -587,7 +587,7 @@ class UiViewModel(
             val apiResponse =
                 Json.decodeFromString<WikiApiResponse>(apiFile.readText()).query?.pages?.get(0)
 
-            val extract: List<String> = parseText(contentFile.readText())
+            val extract: List<String> = parseSections(contentFile.readText())
 
             _preferencesState.update { currentState ->
                 currentState.copy(
