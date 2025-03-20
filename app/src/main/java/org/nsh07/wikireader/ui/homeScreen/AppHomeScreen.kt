@@ -44,7 +44,7 @@ import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WRStatus
-import org.nsh07.wikireader.data.WikitextParser
+import org.nsh07.wikireader.data.cleanUpWikitext
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.ui.image.ImageCard
 import org.nsh07.wikireader.ui.shimmer.AnimatedShimmer
@@ -232,13 +232,8 @@ fun AppHomeScreen(
                         item { // Main description
                             SelectionContainer {
                                 ParsedBodyText(
-                                    title = "",
-                                    pageTitle = homeScreenState.title.substringBefore("(disam")
-                                        .trim(),
                                     body = homeScreenState.extract[0],
                                     fontSize = fontSize,
-                                    description = photoDesc?.description?.get(0) ?: "",
-                                    intro = true,
                                     renderMath = preferencesState.renderMath,
                                     darkTheme = MaterialTheme.colorScheme.isDark(),
                                     onLinkClick = onLinkClick
@@ -250,15 +245,12 @@ fun AppHomeScreen(
                             item { // Expandable sections logic
                                 SelectionContainer {
                                     ExpandableSection(
-                                        title = WikitextParser(
+                                        title = cleanUpWikitext(
                                             homeScreenState.extract[i].trim().parseAsHtml()
                                                 .toString()
-                                        ).bodyText,
-                                        pageTitle = homeScreenState.title.substringBefore("(disam")
-                                            .trim(),
+                                        ),
                                         body = homeScreenState.extract[i + 1],
                                         fontSize = fontSize,
-                                        description = photoDesc?.description?.get(0) ?: "",
                                         expanded = preferencesState.expandedSections,
                                         onLinkClick = onLinkClick,
                                         darkTheme = MaterialTheme.colorScheme.isDark(),

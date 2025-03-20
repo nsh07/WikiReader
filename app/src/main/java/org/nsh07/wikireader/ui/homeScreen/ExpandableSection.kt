@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,10 +35,8 @@ import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 @Composable
 fun ExpandableSection(
     title: String,
-    pageTitle: String,
     body: String,
     fontSize: Int,
-    description: String,
     expanded: Boolean,
     renderMath: Boolean,
     darkTheme: Boolean,
@@ -73,7 +72,9 @@ fun ExpandableSection(
             Text(
                 text = title,
                 style = MaterialTheme.typography.headlineMedium,
-                fontSize = (24 * (fontSize / 16.0)).toInt().sp,
+                fontFamily = FontFamily.Serif,
+                fontSize = (28 * (fontSize / 16.0)).toInt().sp,
+                lineHeight = (36 * (fontSize / 16.0)).toInt().sp,
                 modifier = Modifier
                     .weight(1f)
                     .padding(top = 16.dp, bottom = 16.dp, end = 16.dp)
@@ -86,11 +87,8 @@ fun ExpandableSection(
             exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
         ) {
             ParsedBodyText(
-                title = title,
-                pageTitle = pageTitle,
                 body = body,
                 fontSize = fontSize,
-                description = description,
                 onLinkClick = onLinkClick,
                 renderMath = renderMath,
                 darkTheme = darkTheme
@@ -105,10 +103,8 @@ fun ExpandableSectionPreview() {
     WikiReaderTheme {
         ExpandableSection(
             title = "Title",
-            pageTitle = "Hello",
             body = "Lorem\nIpsum\nBig\nHonkin\nBody\nText",
             fontSize = 16,
-            description = "",
             onLinkClick = {},
             expanded = false,
             renderMath = true,
