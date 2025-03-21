@@ -39,7 +39,8 @@ fun ParsedBodyText(
                             text = curr.toWikitextAnnotatedString(
                                 colorScheme = colorScheme,
                                 typography = typography,
-                                performSearch = onLinkClick
+                                performSearch = onLinkClick,
+                                fontSize = fontSize
                             ),
                             style = typography.bodyLarge.copy(hyphens = Hyphens.Auto),
                             fontSize = fontSize.sp,
@@ -66,7 +67,8 @@ fun ParsedBodyText(
                 text = curr.toWikitextAnnotatedString(
                     colorScheme = colorScheme,
                     typography = typography,
-                    performSearch = onLinkClick
+                    performSearch = onLinkClick,
+                    fontSize = fontSize
                 ),
                 style = typography.bodyLarge.copy(hyphens = Hyphens.Auto),
                 fontSize = fontSize.sp,
@@ -81,7 +83,8 @@ fun ParsedBodyText(
             text = parsed.toWikitextAnnotatedString(
                 colorScheme = colorScheme,
                 typography = typography,
-                performSearch = onLinkClick
+                performSearch = onLinkClick,
+                fontSize = fontSize
             ),
             style = typography.bodyLarge.copy(hyphens = Hyphens.Auto),
             fontSize = fontSize.sp,
