@@ -80,6 +80,7 @@ dependencies {
     implementation(libs.retrofit2.converter.scalars)
     implementation(libs.retrofit2.kotlinx.serialization.converter)
     implementation(libs.retrofit2.retrofit)
+    implementation(libs.latex2unicode.x.x3)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

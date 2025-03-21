@@ -28,25 +28,15 @@ fun ParsedBodyText(
     if (renderMath) {
         val context = LocalContext.current
         val dpi = context.resources.displayMetrics.density
-        var math = false
+        var curr = ""
+        var i = 0
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            parsed.split('\n').forEach {
-                if (it == "<math display=\"block\">" || it == "<math display=block>") {
-                    math = true
-                } else if (it == "</math>") {
-                    math = false
-                } else if (it.startsWith("<math display=block>")) {
-                    EquationImage(
-                        context = context,
-                        dpi = dpi,
-                        latex = it.substringAfter('>').substringBeforeLast('<'),
-                        fontSize = fontSize,
-                        darkTheme = darkTheme
-                    )
-                } else if (!math) {
-                    if (it.trim() != "")
+            while (i < parsed.length) {
+                if (parsed[i] == '<') {
+                    val currSubstring = parsed.substring(i)
+                    if (currSubstring.startsWith("<math display")) {
                         Text(
-                            text = it.toWikitextAnnotatedString(
+                            text = curr.toWikitextAnnotatedString(
                                 colorScheme = colorScheme,
                                 typography = typography,
                                 performSearch = onLinkClick
@@ -58,16 +48,33 @@ fun ParsedBodyText(
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp)
                         )
-                } else {
-                    EquationImage(
-                        context = context,
-                        dpi = dpi,
-                        latex = it,
-                        fontSize = fontSize,
-                        darkTheme = darkTheme
-                    )
-                }
+                        curr = currSubstring.substringAfter('>').substringBefore("</math>")
+                        EquationImage(
+                            context = context,
+                            dpi = dpi,
+                            latex = curr,
+                            fontSize = fontSize,
+                            darkTheme = darkTheme
+                        )
+                        i += currSubstring.substringBefore('>').length + curr.length + "</math>".length
+                        curr = ""
+                    } else curr += parsed[i]
+                } else curr += parsed[i]
+                i++
             }
+            Text(
+                text = curr.toWikitextAnnotatedString(
+                    colorScheme = colorScheme,
+                    typography = typography,
+                    performSearch = onLinkClick
+                ),
+                style = typography.bodyLarge.copy(hyphens = Hyphens.Auto),
+                fontSize = fontSize.sp,
+                lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            )
         }
     } else {
         Text(
