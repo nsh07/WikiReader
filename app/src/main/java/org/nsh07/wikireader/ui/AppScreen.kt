@@ -329,8 +329,10 @@ fun AppScreen(
             SavedArticlesScreen(
                 loadArticles = { viewModel.listArticles() },
                 openSavedArticle = {
-                    viewModel.loadSavedArticle(it)
-                    navController.navigateUp()
+                    coroutineScope.launch {
+                        viewModel.loadSavedArticle(it)
+                        navController.navigateUp()
+                    }
                 },
                 articlesSize = { viewModel.totalArticlesSize() },
                 deleteArticle = { viewModel.deleteArticle(it) },
