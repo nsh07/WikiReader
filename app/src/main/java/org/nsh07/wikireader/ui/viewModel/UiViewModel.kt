@@ -2,13 +2,19 @@ package org.nsh07.wikireader.ui.viewModel
 
 import android.util.Log
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.Typography
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -18,13 +24,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import org.nsh07.wikireader.WikiReaderApplication
 import org.nsh07.wikireader.data.AppPreferencesRepository
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiApiResponse
 import org.nsh07.wikireader.data.WikipediaRepository
+import org.nsh07.wikireader.data.cleanUpWikitext
 import org.nsh07.wikireader.data.parseSections
+import org.nsh07.wikireader.data.toWikitextAnnotatedString
 import org.nsh07.wikireader.network.HostSelectionInterceptor
 import java.io.File
 import java.io.FileOutputStream
@@ -64,6 +73,8 @@ class UiViewModel(
             if (field.isCancelled) field = Job()
             return field
         }
+    private var colorScheme: ColorScheme = lightColorScheme()
+    private var typography: Typography = Typography()
 
     var isReady = false
     var isAnimDurationComplete = false
@@ -132,6 +143,11 @@ class UiViewModel(
         filesDir = path
     }
 
+    fun setCompositionLocals(cs: ColorScheme, tg: Typography) {
+        colorScheme = cs
+        typography = tg
+    }
+
     private fun updateBackstack(q: String, setLang: String, fromBackStack: Boolean) {
         if (lastQuery != null) {
             if (!fromBackStack && (Pair(q, setLang) != lastQuery)) {
@@ -163,8 +179,8 @@ class UiViewModel(
         val history = searchBarState.value.history.toMutableSet()
 
         if (q != "") {
-            viewModelScope.launch {
-                job.cancel()
+            job.cancel()
+            viewModelScope.launch(job) {
                 Log.d("ViewModel", "Cancelled all jobs")
                 var setLang = preferencesState.value.lang
 
@@ -230,10 +246,12 @@ class UiViewModel(
                             fromBackStack
                         )
 
+                    val parsedExtract = extract.map { parseWikitext(it) }
+
                     _homeScreenState.update { currentState ->
                         currentState.copy(
                             title = apiResponse?.title ?: "Error",
-                            extract = extract,
+                            extract = parsedExtract,
                             photo = apiResponse?.photo,
                             photoDesc = apiResponse?.photoDesc,
                             langs = apiResponse?.langs,
@@ -248,10 +266,15 @@ class UiViewModel(
                     Log.d("ViewModel", "Search: HomeScreenState updated")
                 } catch (e: Exception) {
                     Log.e("ViewModel", "Error in fetching results: ${e.message}")
+                    e.printStackTrace()
                     _homeScreenState.update { currentState ->
                         currentState.copy(
                             title = "Error",
-                            extract = listOf("An error occurred :(\nPlease check your internet connection"),
+                            extract = listOf("An error occurred :(\nPlease check your internet connection").map {
+                                parseWikitext(
+                                    it
+                                )
+                            },
                             langs = null,
                             currentLang = null,
                             photo = null,
@@ -355,8 +378,14 @@ class UiViewModel(
                         currentState.copy(
                             title = "Error",
                             extract = listOf(
-                                "An error occurred, feed could not be loaded :(\nPlease " +
-                                        "check your internet connection"
+                                listOf(
+                                    buildAnnotatedString {
+                                        append(
+                                            "An error occurred, feed could not be loaded :(\nPlease " +
+                                                    "check your internet connection"
+                                        )
+                                    }
+                                )
                             ),
                             langs = null,
                             currentLang = null,
@@ -472,12 +501,16 @@ class UiViewModel(
      */
     fun migrateArticles() {
         Log.d("ViewModel", "Migrating pre-2.0 articles")
-        val articleList = listArticles(filter = false).filterNot { it.contains("-api.") || it.contains("-content.") }
+        val articleList =
+            listArticles(filter = false).filterNot { it.contains("-api.") || it.contains("-content.") }
         val articlesDir = File(filesDir, "savedArticles")
         viewModelScope.launch {
             articleList.forEach { // Sequentially reload and save articles, then delete old files
                 val oldFile = File(articlesDir, it)
-                Log.d("ViewModel", "Migrating ${it.substringBefore('.')} : ${it.substringAfterLast('.')}")
+                Log.d(
+                    "ViewModel",
+                    "Migrating ${it.substringBefore('.')} : ${it.substringAfterLast('.')}"
+                )
                 val saved =
                     saveArticle(title = it.substringBefore('.'), lang = it.substringAfterLast('.'))
                 if (saved == WRStatus.SUCCESS) {
@@ -579,50 +612,92 @@ class UiViewModel(
         }
     }
 
-    fun loadSavedArticle(apiFileName: String): WRStatus {
-        try {
-            val articlesDir = File(filesDir, "savedArticles")
-            val apiFile = File(articlesDir, apiFileName)
-            val contentFile = File(articlesDir, apiFileName.replace("-api.", "-content."))
-            val apiResponse =
-                Json.decodeFromString<WikiApiResponse>(apiFile.readText()).query?.pages?.get(0)
+    suspend fun loadSavedArticle(apiFileName: String): WRStatus =
+        withContext(Dispatchers.IO) {
+            try {
+                val articlesDir = File(filesDir, "savedArticles")
+                val apiFile = File(articlesDir, apiFileName)
+                val contentFile = File(articlesDir, apiFileName.replace("-api.", "-content."))
+                val apiResponse =
+                    Json.decodeFromString<WikiApiResponse>(apiFile.readText()).query?.pages?.get(0)
 
-            val extract: List<String> = parseSections(contentFile.readText())
+                val extract: List<String> = parseSections(contentFile.readText())
 
-            _preferencesState.update { currentState ->
-                currentState.copy(
-                    lang = apiFileName.substringAfterLast('.')
+                val parsedExtract = extract.map { parseWikitext(it) }
+
+                _preferencesState.update { currentState ->
+                    currentState.copy(
+                        lang = apiFileName.substringAfterLast('.')
+                    )
+                }
+                _homeScreenState.update { currentState ->
+                    currentState.copy(
+                        title = apiResponse?.title ?: "Error",
+                        extract = parsedExtract,
+                        photo = apiResponse?.photo,
+                        photoDesc = apiResponse?.photoDesc,
+                        langs = apiResponse?.langs,
+                        currentLang = preferencesState.value.lang,
+                        status = WRStatus.SUCCESS,
+                        pageId = apiResponse?.pageId,
+                        isLoading = false,
+                        isBackStackEmpty = backStack.isEmpty(),
+                        isSaved = true
+                    )
+                }
+
+                if (apiResponse != null) updateBackstack(
+                    apiResponse.title,
+                    apiFileName.substringAfterLast('.'),
+                    false
                 )
-            }
-            _homeScreenState.update { currentState ->
-                currentState.copy(
-                    title = apiResponse?.title ?: "Error",
-                    extract = extract,
-                    photo = apiResponse?.photo,
-                    photoDesc = apiResponse?.photoDesc,
-                    langs = apiResponse?.langs,
-                    currentLang = preferencesState.value.lang,
-                    status = WRStatus.SUCCESS,
-                    pageId = apiResponse?.pageId,
-                    isLoading = false,
-                    isBackStackEmpty = backStack.isEmpty(),
-                    isSaved = true
-                )
-            }
 
-            if (apiResponse != null) updateBackstack(
-                apiResponse.title,
-                apiFileName.substringAfterLast('.'),
-                false
-            )
-
-            return WRStatus.SUCCESS
-        } catch (e: Exception) {
-            Log.e("ViewModel", "Cannot load saved article, IO error")
-            e.printStackTrace()
-            return WRStatus.IO_ERROR
+                return@withContext WRStatus.SUCCESS
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Cannot load saved article, IO error")
+                e.printStackTrace()
+                return@withContext WRStatus.IO_ERROR
+            }
         }
-    }
+
+    suspend fun parseWikitext(wikitext: String): List<AnnotatedString> =
+        withContext(Dispatchers.IO) {
+            val parsed = cleanUpWikitext(wikitext)
+            var curr = ""
+            var i = 0
+            val out = mutableListOf<AnnotatedString>()
+
+            while (i < parsed.length) {
+                if (parsed[i] == '<') {
+                    val currSubstring = parsed.substring(i)
+                    if (currSubstring.startsWith("<math display")) {
+                        out.add(
+                            curr.toWikitextAnnotatedString(
+                                colorScheme = colorScheme,
+                                typography = typography,
+                                performSearch = { performSearch(it, fromLink = true) },
+                                fontSize = preferencesState.value.fontSize
+                            )
+                        )
+                        curr = currSubstring.substringAfter('>').substringBefore("</math>")
+                        out.add(buildAnnotatedString { append(curr) })
+                        i += currSubstring.substringBefore('>').length + curr.length + "</math>".length
+                        curr = ""
+                    } else curr += parsed[i]
+                } else curr += parsed[i]
+                i++
+            }
+            out.add(
+                curr.toWikitextAnnotatedString(
+                    colorScheme = colorScheme,
+                    typography = typography,
+                    performSearch = { performSearch(it, fromLink = true) },
+                    fontSize = preferencesState.value.fontSize
+                )
+            )
+            return@withContext out.toList()
+        }
+
 
     fun popBackStack(): Pair<String, String>? {
         val res = backStack.removeLastOrNull()

@@ -2,6 +2,7 @@ package org.nsh07.wikireader.data
 
 import android.content.Context
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -60,7 +61,12 @@ class DefaultAppContainer(context: Context) : AppContainer {
     }
 
     override val wikipediaRepository: WikipediaRepository by lazy {
-        NetworkWikipediaRepository(wikipediaRetrofitService, wikipediaPageRetrofitService, feedRetrofitService)
+        NetworkWikipediaRepository(
+            wikipediaRetrofitService,
+            wikipediaPageRetrofitService,
+            feedRetrofitService,
+            Dispatchers.IO
+        )
     }
 
     override val appPreferencesRepository: AppPreferencesRepository by lazy {

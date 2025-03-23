@@ -54,8 +54,6 @@ fun String.toWikitextAnnotatedString(
     newLine: Boolean = true,
     inIndentCode: Boolean = false
 ): AnnotatedString {
-    // TODO: Complete this
-    // TODO: Add <math> using inlinecontent
     // TODO: Implement more Wikitext features
     val input = this
 
@@ -144,14 +142,24 @@ fun String.toWikitextAnnotatedString(
                         i += 5 + curr.length + 5
                     } else if (currSubstring.startsWith("<math>")) {
                         val curr = currSubstring.substringBefore("</math>").substringAfter('>')
-                        append(LaTeX2Unicode.convert(curr))
+                        append(LaTeX2Unicode.convert(curr).replace(' ', nbsp))
                         i += 6 + curr.length + 6
                     } else if (currSubstring.startsWith("<math display")) {
-                        val curr = currSubstring.substringAfter('>').substringBefore("</math>")
+                        val curr = currSubstring.substringBefore("</math>").substringAfter('>')
                         append("\t\t")
-                        append(LaTeX2Unicode.convert(curr))
+                        append(LaTeX2Unicode.convert(curr).replace(' ', nbsp))
                         i += currSubstring.substringBefore('>').length + curr.length + "</math>".length
-                    } else {
+                    } else if (currSubstring.startsWith("<blockquote")){
+                        val curr = currSubstring.substringBefore("</blockquote>").substringAfter('>')
+                        withStyle(
+                            ParagraphStyle(textIndent = TextIndent(restLine = 12.sp))
+                        ) {
+                            append("\t ")
+                            append(curr.toWikitextAnnotatedString(colorScheme, typography, performSearch, fontSize))
+                        }
+                        i += 12 + curr.length + 13
+                    }
+                    else {
                         append(input[i])
                     }
                 }
@@ -178,7 +186,7 @@ fun String.toWikitextAnnotatedString(
                             val curr = currSubstring.substringAfter('|')
                             withStyle(SpanStyle(fontFamily = FontFamily.Serif)) {
                                 append(
-                                    curr.toWikitextAnnotatedString(
+                                    curr.replace(' ', nbsp).toWikitextAnnotatedString(
                                         colorScheme,
                                         typography,
                                         performSearch,
@@ -228,13 +236,25 @@ fun String.toWikitextAnnotatedString(
                                 ParagraphStyle(textIndent = TextIndent(restLine = 12.sp))
                             ) {
                                 append("\t ")
-                                append(curr)
+                                append(curr.toWikitextAnnotatedString(colorScheme, typography, performSearch, fontSize))
                             }
                             i += 12 + curr.length + 2
-                        } else if (currSubstring.startsWith("{{NoteTag")) {
-                            i += 2 + currSubstring.length + 2
+                        } else if (currSubstring.startsWith("{{further", ignoreCase = true)) {
+                            val curr = currSubstring.substringAfter('|')
+                            withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                                append(
+                                    "Main article: [[${curr.substringBefore('#')}]]\n".toWikitextAnnotatedString(
+                                        colorScheme,
+                                        typography,
+                                        performSearch,
+                                        fontSize
+                                    )
+                                )
+                            }
+                            i += 9 + curr.length + 2
+                        } else {
+                            i += currSubstring.length + 1
                         }
-                        else append(input[i])
                     } else append(input[i])
 
                 '&' ->
@@ -351,7 +371,7 @@ fun String.toWikitextAnnotatedString(
                                 }
                             ) { append(curr.substringAfter('|')) }
                             i += 1 + curr.length + 2
-                        } else i += 3 + curr.length + 2
+                        } else i += 1 + input.substring(i+2).substringBefore('\n').length + 1
                     } else append(input[i])
 
                 else -> append(input[i])
@@ -367,22 +387,23 @@ fun cleanUpWikitext(text: String): String {
             "<!--.+?-->|<ref[^/]*?>.+?</ref>|<ref.*?/>".toRegex(RegexOption.DOT_MATCHES_ALL),
             ""
         ) // Remove references and comments
-    while (bodyText.contains(
-            "\\{\\{(?![mM]ono)(?![Mm]ath)(?![Mm]var)(?![Mm]ain)(?!IPA)(?!respell)(?![Bb]lockquote)[^{}]+\\}\\}".toRegex(
-                RegexOption.DOT_MATCHES_ALL
-            )
-        )
-    ) {
-        bodyText =
-            bodyText.replace(
-                "\\{\\{(?![mM]ono)(?![Mm]ath)(?![Mm]var)(?![Mm]ain)(?!IPA)(?!respell)(?![Bb]lockquote)[^{}]+\\}\\}".toRegex(
-                    RegexOption.DOT_MATCHES_ALL
-                ),
-                ""
-            )
-    }
+    //"\\{\\{(?![mM]ono)(?![Mm]ath)(?![Mm]var)(?![Mm]ain)(?!IPA)(?!respell)(?![Bb]lockquote)[^{}]+\\}\\}"
+//    while (bodyText.contains(
+//            "\\{\\{[Ii]nfobox[^{}]+\\}\\}".toRegex(
+//                RegexOption.DOT_MATCHES_ALL
+//            )
+//        )
+//    ) {
+//        bodyText =
+//            bodyText.replace(
+//                "\\{\\{(?![mM]ono)(?![Mm]ath)(?![Mm]var)(?![Mm]ain)(?!IPA)(?!respell)(?![Bb]lockquote)[^{}]+\\}\\}".toRegex(
+//                    RegexOption.DOT_MATCHES_ALL
+//                ),
+//                ""
+//            )
+//    }
 //    bodyText = bodyText.replace(" {2,}".toRegex(), " ") // Remove double spaces
-    bodyText = bodyText.replace("\n{3,}".toRegex(), "\n") // Remove empty newlines
+//    bodyText = bodyText.replace("\n{3,}".toRegex(), "\n") // Remove empty newlines
     bodyText = bodyText.replace("<var>|</var>".toRegex(), "''")
     return bodyText
 }

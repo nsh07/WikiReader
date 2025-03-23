@@ -38,13 +38,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.core.text.parseAsHtml
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WRStatus
-import org.nsh07.wikireader.data.cleanUpWikitext
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.ui.image.ImageCard
 import org.nsh07.wikireader.ui.shimmer.AnimatedShimmer
@@ -235,8 +233,7 @@ fun AppHomeScreen(
                                     body = homeScreenState.extract[0],
                                     fontSize = fontSize,
                                     renderMath = preferencesState.renderMath,
-                                    darkTheme = MaterialTheme.colorScheme.isDark(),
-                                    onLinkClick = onLinkClick
+                                    darkTheme = MaterialTheme.colorScheme.isDark()
                                 )
                             }
                         }
@@ -245,14 +242,10 @@ fun AppHomeScreen(
                             item { // Expandable sections logic
                                 SelectionContainer {
                                     ExpandableSection(
-                                        title = cleanUpWikitext(
-                                            homeScreenState.extract[i].trim().parseAsHtml()
-                                                .toString()
-                                        ),
+                                        title = homeScreenState.extract[i],
                                         body = homeScreenState.extract[i + 1],
                                         fontSize = fontSize,
                                         expanded = preferencesState.expandedSections,
-                                        onLinkClick = onLinkClick,
                                         darkTheme = MaterialTheme.colorScheme.isDark(),
                                         renderMath = preferencesState.renderMath
                                     )

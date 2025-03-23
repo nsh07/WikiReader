@@ -3,6 +3,7 @@ package org.nsh07.wikireader.ui.viewModel
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import org.nsh07.wikireader.data.FeedApiImage
 import org.nsh07.wikireader.data.FeedApiNews
 import org.nsh07.wikireader.data.FeedApiOTD
@@ -24,7 +25,7 @@ data class SearchBarState(
 @Immutable
 data class HomeScreenState(
     val title: String = "",
-    val extract: List<String> = emptyList(),
+    val extract: List<List<AnnotatedString>> = emptyList(),
     val photo: WikiPhoto? = null,
     val photoDesc: WikiPhotoDesc? = null,
     val langs: List<WikiLang>? = null,

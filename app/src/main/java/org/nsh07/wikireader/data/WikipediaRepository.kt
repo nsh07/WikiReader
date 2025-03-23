@@ -1,6 +1,7 @@
 package org.nsh07.wikireader.data
 
-import android.util.Log
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import org.nsh07.wikireader.network.FeedApiService
 import org.nsh07.wikireader.network.WikipediaApiService
 import java.time.LocalDate
@@ -20,24 +21,28 @@ interface WikipediaRepository {
 class NetworkWikipediaRepository(
     private val wikipediaApiService: WikipediaApiService,
     private val wikipediaPageApiService: WikipediaApiService,
-    private val feedApiService: FeedApiService
+    private val feedApiService: FeedApiService,
+    private val ioDispatcher: CoroutineDispatcher
 ) : WikipediaRepository {
-    override suspend fun getSearchResult(query: String): WikiApiResponse {
-        return wikipediaApiService.getSearchResult(query)
-    }
+    override suspend fun getSearchResult(query: String): WikiApiResponse =
+        withContext(ioDispatcher) {
+            return@withContext wikipediaApiService.getSearchResult(query)
+        }
 
-    override suspend fun getPageContent(title: String): String {
-        return wikipediaPageApiService.getPageContent(title)
-    }
+    override suspend fun getPageContent(title: String): String =
+        withContext(ioDispatcher) {
+            return@withContext wikipediaPageApiService.getPageContent(title)
+        }
 
-    override suspend fun getRandomResult(): WikiApiResponse {
-        return wikipediaApiService.getRandomResult()
-    }
+    override suspend fun getRandomResult(): WikiApiResponse =
+        withContext(ioDispatcher) {
+            wikipediaApiService.getRandomResult()
+        }
 
     override suspend fun getFeed(
         lang: String, date: String
-    ): FeedApiResponse {
-        Log.d("FeedDate", LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd")))
-        return feedApiService.getFeed(lang, date)
-    }
+    ): FeedApiResponse =
+        withContext(ioDispatcher) {
+            feedApiService.getFeed(lang, date)
+        }
 }
