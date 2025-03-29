@@ -320,7 +320,7 @@ class UiViewModel(
                 }
 
                 try {
-                    val feed = wikipediaRepository.getFeed(lang = preferencesState.value.lang)
+                    val feed = wikipediaRepository.getFeed()
 
                     _feedState.update { currentState ->
                         currentState.copy(

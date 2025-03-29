@@ -5,7 +5,6 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
-import org.nsh07.wikireader.network.FeedApiService
 import org.nsh07.wikireader.network.HostSelectionInterceptor
 import org.nsh07.wikireader.network.WikipediaApiService
 import retrofit2.Retrofit
@@ -18,7 +17,6 @@ interface AppContainer {
 
 class DefaultAppContainer(context: Context) : AppContainer {
     private val baseUrl = "https://en.wikipedia.org"
-    private val feedBaseUrl = "https://api.wikimedia.org"
     private val json = Json { ignoreUnknownKeys = true }
 
     override val interceptor = HostSelectionInterceptor()
@@ -35,21 +33,12 @@ class DefaultAppContainer(context: Context) : AppContainer {
         .client(okHttpClient)
         .build()
 
-    private val feedRetrofit = Retrofit.Builder()
-        .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-        .baseUrl(feedBaseUrl)
-        .build()
-
     private val wikipediaRetrofitService: WikipediaApiService by lazy {
         wikipediaRetrofit.create(WikipediaApiService::class.java)
     }
 
-    private val feedRetrofitService: FeedApiService by lazy {
-        feedRetrofit.create(FeedApiService::class.java)
-    }
-
     override val wikipediaRepository: WikipediaRepository by lazy {
-        NetworkWikipediaRepository(wikipediaRetrofitService, feedRetrofitService)
+        NetworkWikipediaRepository(wikipediaRetrofitService)
     }
 
     override val appPreferencesRepository: AppPreferencesRepository by lazy {
