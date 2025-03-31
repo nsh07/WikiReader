@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.text.parseAsHtml
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 
@@ -76,7 +77,7 @@ fun ExpandableSection(
                     title.forEach {
                         out += it
                     }
-                    out
+                    out.parseAsHtml().toString()
                 }(),
                 style = MaterialTheme.typography.headlineMedium,
                 fontFamily = FontFamily.Serif,

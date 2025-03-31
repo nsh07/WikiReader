@@ -259,7 +259,7 @@ fun String.toWikitextAnnotatedString(
                             val curr = currSubstring.substringAfter('|')
                             withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
                                 append(
-                                    "Main article: [[${curr.substringBefore('#')}]]\n".toWikitextAnnotatedString(
+                                    "Further reading: [[${curr.substringBefore('|').substringBefore('#')}]]\n".toWikitextAnnotatedString(
                                         colorScheme,
                                         typography,
                                         performSearch,
@@ -267,6 +267,19 @@ fun String.toWikitextAnnotatedString(
                                     )
                                 )
                             }
+                        } else if (currSubstring.startsWith("{{as of", ignoreCase = true)) {
+                            // TODO: Complete this
+                            val curr = currSubstring.substringAfter("{{")
+                            append(curr.substringBefore('|'))
+                            append(' ')
+                            var date = ""
+                            curr.substringAfter('|').split('|').forEach {
+                                if (it.toIntOrNull() != null) {
+                                    date += it
+                                    date += '/'
+                                }
+                            }
+                            append(date.trim('/'))
                         } else if (currSubstring.startsWith("{{Nihongo", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
                             append(
