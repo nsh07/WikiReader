@@ -1,18 +1,25 @@
 package org.nsh07.wikireader.ui.settingsScreen
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
@@ -25,10 +32,14 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import org.nsh07.wikireader.R
@@ -50,6 +61,7 @@ fun SettingsScreen(
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier
 ) {
+    val uriHandler = LocalUriHandler.current
     val languageSearchStr = viewModel.languageSearchStr.collectAsState()
     val languageSearchQuery = viewModel.languageSearchQuery.collectAsState("")
 
@@ -116,7 +128,8 @@ fun SettingsScreen(
             setLang = {
                 viewModel.saveLang(it)
                 if (homeScreenState.status != WRStatus.FEED_NETWORK_ERROR &&
-                    homeScreenState.status != WRStatus.FEED_LOADED)
+                    homeScreenState.status != WRStatus.FEED_LOADED
+                )
                     viewModel.refreshSearch()
                 else
                     viewModel.loadFeed()
@@ -175,7 +188,7 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Wikipedia Language") },
+                    headlineContent = { Text("Wikipedia language") },
                     supportingContent = { Text(langCodeToName(preferencesState.lang)) },
                     modifier = Modifier
                         .clickable(onClick = { setShowLanguageSheet(true) })
@@ -211,7 +224,7 @@ fun SettingsScreen(
                         )
                     },
                     headlineContent = { Text("Black theme") },
-                    supportingContent = { Text("Use a pure-black dark theme") },
+                    supportingContent = { Text("Use a pure black dark theme") },
                     trailingContent = {
                         Switch(
                             checked = blackTheme,
@@ -281,6 +294,27 @@ fun SettingsScreen(
                         )
                     }
                 )
+
+                Card(
+                    modifier = Modifier.padding(16.dp),
+                    onClick = { uriHandler.openUri("https://gist.github.com/nsh07/ed7571f3e2014b412037626a39d68ecd") },
+                    shape = shapes.extraLarge
+                ) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(Modifier.clip(CircleShape)) {
+                            Icon(Icons.Outlined.Info, contentDescription = "Information")
+                        }
+                        Text(
+                            text = "You can set WikiReader as your default app for opening Wikipedia links. For more info, click on this card.",
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
+                    }
+                }
 
                 Spacer(Modifier.height(insets.calculateBottomPadding()))
             }

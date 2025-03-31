@@ -56,7 +56,6 @@ fun String.toWikitextAnnotatedString(
 ): AnnotatedString {
     // TODO: Implement more Wikitext features
     val input = this
-
     var i = 0
     return buildAnnotatedString {
         while (i < input.length) {
@@ -142,12 +141,18 @@ fun String.toWikitextAnnotatedString(
                         i += 5 + curr.length + 5
                     } else if (currSubstring.startsWith("<math>")) {
                         val curr = currSubstring.substringBefore("</math>").substringAfter('>')
-                        append(LaTeX2Unicode.convert(curr).replace(' ', nbsp))
+                        withStyle(SpanStyle(fontFamily = FontFamily.Serif)) {
+                            append(LaTeX2Unicode.convert(curr).replace(' ', nbsp))
+                        }
+                        Log.d("Parser", "LaTeX parsed: $curr")
                         i += 6 + curr.length + 6
                     } else if (currSubstring.startsWith("<math display")) {
                         val curr = currSubstring.substringBefore("</math>").substringAfter('>')
                         append("\t\t")
-                        append(LaTeX2Unicode.convert(curr).replace(' ', nbsp))
+                        withStyle(SpanStyle(fontFamily = FontFamily.Serif)) {
+                            append(LaTeX2Unicode.convert(curr).replace(' ', nbsp))
+                        }
+                        Log.d("Parser", "LaTeX parsed: $curr")
                         i += currSubstring.substringBefore('>').length + curr.length + "</math>".length
                     } else if (currSubstring.startsWith("<blockquote")){
                         val curr = currSubstring.substringBefore("</blockquote>").substringAfter('>')
