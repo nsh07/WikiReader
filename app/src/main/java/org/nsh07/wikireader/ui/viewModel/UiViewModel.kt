@@ -31,10 +31,10 @@ import org.nsh07.wikireader.data.AppPreferencesRepository
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiApiResponse
 import org.nsh07.wikireader.data.WikipediaRepository
-import org.nsh07.wikireader.data.cleanUpWikitext
 import org.nsh07.wikireader.data.parseSections
-import org.nsh07.wikireader.data.toWikitextAnnotatedString
 import org.nsh07.wikireader.network.HostSelectionInterceptor
+import org.nsh07.wikireader.parser.cleanUpWikitext
+import org.nsh07.wikireader.parser.toWikitextAnnotatedString
 import java.io.File
 import java.io.FileOutputStream
 import kotlin.io.path.listDirectoryEntries
@@ -246,7 +246,9 @@ class UiViewModel(
                             fromBackStack
                         )
 
-                    val parsedExtract = extract.map { parseWikitext(it) }
+                    val parsedExtract = extract.mapIndexed { index, it ->
+                        parseWikitext(it, index)
+                    }
 
                     _homeScreenState.update { currentState ->
                         currentState.copy(
@@ -272,7 +274,7 @@ class UiViewModel(
                             title = "Error",
                             extract = listOf("An error occurred :(\nPlease check your internet connection").map {
                                 parseWikitext(
-                                    it
+                                    it, 0
                                 )
                             },
                             langs = null,
@@ -623,7 +625,9 @@ class UiViewModel(
 
                 val extract: List<String> = parseSections(contentFile.readText())
 
-                val parsedExtract = extract.map { parseWikitext(it) }
+                val parsedExtract = extract.mapIndexed { index, it ->
+                    parseWikitext(it, index)
+                }
 
                 _preferencesState.update { currentState ->
                     currentState.copy(
@@ -660,9 +664,9 @@ class UiViewModel(
             }
         }
 
-    suspend fun parseWikitext(wikitext: String): List<AnnotatedString> =
+    suspend fun parseWikitext(wikitext: String, index: Int): List<AnnotatedString> =
         withContext(Dispatchers.IO) {
-            val parsed = cleanUpWikitext(wikitext)
+            val parsed = cleanUpWikitext(wikitext, index)
             var curr = ""
             var i = 0
             val out = mutableListOf<AnnotatedString>()
