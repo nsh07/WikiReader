@@ -359,8 +359,7 @@ class UiViewModel(
                     _feedState.update { currentState ->
                         currentState.copy(
                             tfa = feed.tfa,
-                            mostReadArticles = feed.mostRead?.articles?.sortedBy { it.rank }
-                                ?.subList(0, 5),
+                            mostReadArticles = feed.mostRead?.articles?.sortedBy { it.rank },
                             image = feed.image,
                             news = feed.news,
                             onThisDay = feed.onThisDay

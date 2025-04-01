@@ -1,6 +1,5 @@
 package org.nsh07.wikireader.parser
 
-import android.util.Log
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.AnnotatedString
@@ -124,7 +123,6 @@ fun String.toWikitextAnnotatedString(
                         withStyle(SpanStyle(fontFamily = FontFamily.Serif)) {
                             append(LaTeX2Unicode.convert(curr).replace(' ', nbsp))
                         }
-                        Log.d("Parser", "LaTeX parsed: $curr")
                         i += 6 + curr.length + 6
                     } else if (currSubstring.startsWith("<math display")) {
                         val curr = currSubstring.substringBefore("</math>").substringAfter('>')
@@ -132,7 +130,6 @@ fun String.toWikitextAnnotatedString(
                         withStyle(SpanStyle(fontFamily = FontFamily.Serif)) {
                             append(LaTeX2Unicode.convert(curr).replace(' ', nbsp))
                         }
-                        Log.d("Parser", "LaTeX parsed: $curr")
                         i += currSubstring.substringBefore('>').length + curr.length + "</math>".length
                     } else if (currSubstring.startsWith("<blockquote")) {
                         val curr =

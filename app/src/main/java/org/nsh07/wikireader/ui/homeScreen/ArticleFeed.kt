@@ -21,11 +21,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
@@ -37,6 +45,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +60,7 @@ import androidx.core.text.parseAsHtml
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
+import kotlinx.coroutines.launch
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.viewModel.FeedState
 import java.time.LocalDate
@@ -72,9 +82,6 @@ fun ArticleFeed(
     onImageClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // TODO: Skeleton/Shimmer loader,
-    //  replace fillmaxwidth with a given width in carousel
-    //  give credit to compose charts in readme
     val context = LocalContext.current
     var isRefreshing by remember { mutableStateOf(false) }
     val wide = remember { windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED }
@@ -89,6 +96,7 @@ fun ArticleFeed(
             .ofLocalizedDate(FormatStyle.LONG)
             .withLocale(context.resources.configuration.getLocales().get(0))
     }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(isRefreshing) {
         isRefreshing = false
@@ -166,7 +174,7 @@ fun ArticleFeed(
             if (feedState.mostReadArticles != null) {
                 item {
                     Text(
-                        "Most Read",
+                        "Trending articles",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
@@ -178,72 +186,119 @@ fun ArticleFeed(
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                     )
-                    ElevatedCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
+                    val pagerState = rememberPagerState { feedState.mostReadArticles.size / 5 }
+                    HorizontalPager(
+                        state = pagerState,
+                        beyondViewportPageCount = pagerState.pageCount,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        for (i in 0..4) {
-                            key(i) {
-                                Row(
-                                    modifier = Modifier
-                                        .clickable(
-                                            onClick = {
-                                                performSearch(
-                                                    feedState.mostReadArticles[i].titles?.normalized
-                                                        ?: "(No title)"
-                                                )
-                                            }
-                                        )
-                                ) {
-                                    Column(
+                        ElevatedCard(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            for (i in it * 5..it * 5 + 4) {
+                                key(i) {
+                                    Row(
                                         modifier = Modifier
-                                            .weight(1f)
-                                            .padding(start = 16.dp)
+                                            .clickable(
+                                                onClick = {
+                                                    performSearch(
+                                                        feedState.mostReadArticles[i].titles?.normalized
+                                                            ?: "(No title)"
+                                                    )
+                                                }
+                                            )
                                     ) {
-                                        Text(
-                                            feedState.mostReadArticles[i].titles?.normalized
-                                                ?: "(No title)",
-                                            style = MaterialTheme.typography.titleMedium,
-                                            modifier = Modifier.padding(top = 16.dp)
-                                        )
-                                        Text(
-                                            feedState.mostReadArticles[i].description
-                                                ?: "(No description)",
-                                            maxLines = 2,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            modifier = Modifier.padding(bottom = 8.dp)
+                                        Column(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .padding(start = 16.dp)
                                         ) {
-                                            ArticleViewsGraph(
-                                                feedState.mostReadArticles[i].viewHistory?.map {
-                                                    it.views ?: 0
-                                                } ?: emptyList(),
-                                                modifier = Modifier
-                                                    .size(width = 96.dp, height = 32.dp)
-                                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                            Text(
+                                                feedState.mostReadArticles[i].titles?.normalized
+                                                    ?: "(No title)",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                modifier = Modifier.padding(top = 16.dp)
                                             )
                                             Text(
-                                                df.format(feedState.mostReadArticles[i].views),
-                                                style = MaterialTheme.typography.titleSmall,
-                                                color = MaterialTheme.colorScheme.primary
+                                                feedState.mostReadArticles[i].description
+                                                    ?: "(No description)",
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier.padding(bottom = 8.dp)
+                                            ) {
+                                                ArticleViewsGraph(
+                                                    feedState.mostReadArticles[i].viewHistory?.map {
+                                                        it.views ?: 0
+                                                    } ?: emptyList(),
+                                                    modifier = Modifier
+                                                        .size(width = 96.dp, height = 32.dp)
+                                                        .padding(
+                                                            horizontal = 16.dp,
+                                                            vertical = 8.dp
+                                                        )
+                                                )
+                                                Text(
+                                                    df.format(feedState.mostReadArticles[i].views),
+                                                    style = MaterialTheme.typography.titleSmall,
+                                                    color = MaterialTheme.colorScheme.primary
+                                                )
+                                            }
+                                        }
+                                        if (feedState.mostReadArticles[i].thumbnail != null)
+                                            FeedImage(
+                                                source = feedState.mostReadArticles[i].thumbnail!!.source,
+                                                description = feedState.mostReadArticles[i].titles?.normalized,
+                                                imageLoader = imageLoader,
+                                                modifier = Modifier
+                                                    .padding(16.dp)
+                                                    .clip(shapes.large)
+                                                    .size(80.dp, 80.dp)
+                                            )
+                                    }
+                                    if (i != it * 5 + 4) HorizontalDivider()
+                                }
+                            }
+                        }
+                    }
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        ElevatedCard(shape = shapes.extraLarge) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                IconButton(
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            pagerState.animateScrollToPage(
+                                                pagerState.currentPage - 1
                                             )
                                         }
-                                    }
-                                    if (feedState.mostReadArticles[i].thumbnail != null)
-                                        FeedImage(
-                                            source = feedState.mostReadArticles[i].thumbnail!!.source,
-                                            description = feedState.mostReadArticles[i].titles?.normalized,
-                                            imageLoader = imageLoader,
-                                            modifier = Modifier
-                                                .padding(16.dp)
-                                                .clip(MaterialTheme.shapes.large)
-                                                .size(80.dp, 80.dp)
-                                        )
+                                    },
+                                    enabled = pagerState.currentPage != 0
+                                ) {
+                                    Icon(
+                                        Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
+                                        contentDescription = "Scroll left"
+                                    )
                                 }
-                                if (i != 4) HorizontalDivider()
+                                Text("Page ${pagerState.currentPage + 1} of ${pagerState.pageCount}")
+                                IconButton(
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            pagerState.animateScrollToPage(
+                                                pagerState.currentPage + 1
+                                            )
+                                        }
+                                    },
+                                    enabled = pagerState.currentPage != pagerState.pageCount - 1
+                                ) {
+                                    Icon(
+                                        Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                                        contentDescription = "Scroll right"
+                                    )
+                                }
                             }
                         }
                     }
@@ -320,11 +375,11 @@ fun ArticleFeed(
                                 description = null,
                                 imageLoader = imageLoader,
                                 modifier = Modifier
-                                    .maskClip(MaterialTheme.shapes.extraLarge)
+                                    .maskClip(shapes.extraLarge)
                             )
                             Box(
                                 modifier = Modifier
-                                    .maskClip(MaterialTheme.shapes.extraLarge)
+                                    .maskClip(shapes.extraLarge)
                                     .background(
                                         brush = Brush.verticalGradient(
                                             colors = listOf(
@@ -399,14 +454,14 @@ fun ArticleFeed(
                         state = carouselState,
                         itemSpacing = 8.dp,
                         modifier =
-                        if (!wide)
-                            Modifier
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
-                                .aspectRatio(0.94f)
-                        else
-                            Modifier
-                                .padding(16.dp)
-                                .height(512.dp),
+                            if (!wide)
+                                Modifier
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                    .aspectRatio(0.94f)
+                            else
+                                Modifier
+                                    .padding(16.dp)
+                                    .height(512.dp),
                         preferredItemWidth = 512.dp
                     ) { i ->
                         Column {
@@ -428,11 +483,11 @@ fun ArticleFeed(
                                     description = null,
                                     imageLoader = imageLoader,
                                     modifier = Modifier
-                                        .maskClip(MaterialTheme.shapes.extraLarge)
+                                        .maskClip(shapes.extraLarge)
                                 )
                                 Box(
                                     modifier = Modifier
-                                        .maskClip(MaterialTheme.shapes.extraLarge)
+                                        .maskClip(shapes.extraLarge)
                                         .background(
                                             brush = Brush.verticalGradient(
                                                 colors = listOf(
