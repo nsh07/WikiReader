@@ -43,7 +43,7 @@ fun parseSections(text: String): List<String> {
 
     for (i in out.lastIndex downTo 1) {
         val curr = out[i].trim()
-        if (curr in listOf("References", "External links", "Gallery", "Footnotes")) {
+        if (curr in listOf("References", "External links", "Gallery", "Footnotes", "Bibliography")) {
             out.removeAt(i + 1)
             out.removeAt(i)
         } else if (i + 1 <= out.lastIndex) {

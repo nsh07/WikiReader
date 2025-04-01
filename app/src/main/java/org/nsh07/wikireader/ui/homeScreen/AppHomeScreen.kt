@@ -311,7 +311,7 @@ fun AppHomeScreen(
             else {
                 val animatedProgress by animateFloatAsState(
                     targetValue = homeScreenState.loadingProgress,
-                    animationSpec = tween(500)
+                    animationSpec = tween(1000)
                 )
                 LinearProgressIndicator(
                     { animatedProgress },

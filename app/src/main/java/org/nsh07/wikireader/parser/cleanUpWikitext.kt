@@ -25,21 +25,27 @@ fun cleanUpWikitext(wikitext: String, index: Int = 0): String {
             } else if (bodyText[i] == '}' && bodyText.getOrNull(i + 1) == '}') {
                 stack--
                 i++
-            } else if (
-                (bodyText[i] == '\n' || i == 0) &&
-                (bodyText.getOrNull(i + 1) != '}' && bodyText.getOrNull(i + 1) != '}') &&
-                (bodyText.getOrNull(i + 1) != '{' && bodyText.getOrNull(i + 1) != '{')
-            ) {
                 if (stack == 0) {
-                    if (i != 0) i++
-                    break
+                    if (bodyText.getOrNull(i+1) != '{' && bodyText.getOrNull(i+2) != '{')
+                        break
                 }
             }
+//            else if (
+//                (bodyText[i] == '\n' || i == 0) &&
+//                (bodyText.getOrNull(i + 1) != '}' && bodyText.getOrNull(i + 1) != '}') &&
+//                (bodyText.getOrNull(i + 1) != '{' && bodyText.getOrNull(i + 1) != '{')
+//            ) {
+//                if (stack == 0) {
+//                    if (i != 0) i++
+//                    break
+//                }
+//            }
             i++
         }
 
-    bodyText = bodyText
-        .substring(i)
+    bodyText = if (i != 0)
+        bodyText.substring(i+1).trim('\n')
+    else bodyText.trim('\n')
     // Remove references and comments
     //"\\{\\{(?![mM]ono)(?![Mm]ath)(?![Mm]var)(?![Mm]ain)(?!IPA)(?!respell)(?![Bb]lockquote)[^{}]+\\}\\}"
 //    while (bodyText.contains(

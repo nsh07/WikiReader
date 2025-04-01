@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -31,7 +32,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.text.parseAsHtml
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 
@@ -72,13 +72,13 @@ fun ExpandableSection(
             )
 
             Text(
-                text = {
+                text = remember {
                     var out = ""
                     title.forEach {
                         out += it
                     }
-                    out.parseAsHtml().toString()
-                }(),
+                    out.replace("<.+>".toRegex(), "")
+                },
                 style = MaterialTheme.typography.headlineMedium,
                 fontFamily = FontFamily.Serif,
                 fontSize = (28 * (fontSize / 16.0)).toInt().sp,
