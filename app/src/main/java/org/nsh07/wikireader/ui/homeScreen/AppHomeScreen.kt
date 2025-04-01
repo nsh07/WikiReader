@@ -3,6 +3,8 @@ package org.nsh07.wikireader.ui.homeScreen
 import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
@@ -304,7 +306,18 @@ fun AppHomeScreen(
             enter = expandVertically(expandFrom = Alignment.Top),
             exit = shrinkVertically(shrinkTowards = Alignment.Top)
         ) {
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            if (homeScreenState.loadingProgress == null)
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            else {
+                val animatedProgress by animateFloatAsState(
+                    targetValue = homeScreenState.loadingProgress,
+                    animationSpec = tween(500)
+                )
+                LinearProgressIndicator(
+                    { animatedProgress },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 

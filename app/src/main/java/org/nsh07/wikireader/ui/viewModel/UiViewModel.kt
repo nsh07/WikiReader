@@ -79,6 +79,9 @@ class UiViewModel(
     var isReady = false
     var isAnimDurationComplete = false
 
+    private var sections = 0
+    private var currentSection = 0
+
     init {
         viewModelScope.launch { // Run blocking to delay app startup until theme is determined
             val theme = appPreferencesRepository.readStringPreference("theme")
@@ -198,7 +201,7 @@ class UiViewModel(
                 if (!random) updateBackstack(q, setLang, fromBackStack)
 
                 _homeScreenState.update { currentState ->
-                    currentState.copy(isLoading = true)
+                    currentState.copy(isLoading = true, loadingProgress = null)
                 }
 
                 try {
@@ -246,7 +249,13 @@ class UiViewModel(
                             fromBackStack
                         )
 
+                    sections = extract.size
+
                     val parsedExtract = extract.mapIndexed { index, it ->
+                        currentSection = index + 1
+                        _homeScreenState.update { currentState ->
+                            currentState.copy(loadingProgress = currentSection.toFloat() / sections)
+                        }
                         parseWikitext(it, index)
                     }
 
@@ -341,7 +350,7 @@ class UiViewModel(
         viewModelScope.launch(job) {
             if (!preferencesState.value.dataSaver) {
                 _homeScreenState.update { currentState ->
-                    currentState.copy(isLoading = true)
+                    currentState.copy(isLoading = true, loadingProgress = null)
                 }
 
                 try {
@@ -617,6 +626,9 @@ class UiViewModel(
     suspend fun loadSavedArticle(apiFileName: String): WRStatus =
         withContext(Dispatchers.IO) {
             try {
+                _homeScreenState.update { currentState->
+                    currentState.copy(isLoading = true, loadingProgress = null)
+                }
                 val articlesDir = File(filesDir, "savedArticles")
                 val apiFile = File(articlesDir, apiFileName)
                 val contentFile = File(articlesDir, apiFileName.replace("-api.", "-content."))
@@ -625,7 +637,13 @@ class UiViewModel(
 
                 val extract: List<String> = parseSections(contentFile.readText())
 
+                sections = extract.size
+
                 val parsedExtract = extract.mapIndexed { index, it ->
+                    currentSection = index + 1
+                    _homeScreenState.update { currentState ->
+                        currentState.copy(loadingProgress = currentSection.toFloat() / sections)
+                    }
                     parseWikitext(it, index)
                 }
 

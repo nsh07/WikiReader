@@ -34,6 +34,7 @@ data class HomeScreenState(
     val status: WRStatus = WRStatus.UNINITIALIZED,
     val isSaved: Boolean = false,
     val isLoading: Boolean = false,
+    val loadingProgress: Float? = null,
     val isBackStackEmpty: Boolean = true
 )
 
