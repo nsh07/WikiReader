@@ -253,6 +253,11 @@ fun String.toWikitextAnnotatedString(
                             withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
                                 append(curr.replace('|', '-'))
                             }
+                        } else if (currSubstring.startsWith("{{BCE", ignoreCase = true)) {
+                            val curr = currSubstring.substringAfter('|').substringBefore('|')
+                            append(curr)
+                            append(nbsp)
+                            append("BCE")
                         } else if (currSubstring.startsWith("{{blockquote", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
                             withStyle(

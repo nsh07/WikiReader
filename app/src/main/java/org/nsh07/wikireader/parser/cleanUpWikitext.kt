@@ -17,7 +17,7 @@ fun cleanUpWikitext(wikitext: String, index: Int = 0): String {
             "<!--.+?-->|<ref[^/]*?>.+?</ref>|<ref.*?/>".toRegex(RegexOption.DOT_MATCHES_ALL),
             ""
         )
-    if (index == 0)
+    if (index == 0 && bodyText[i] == '{')
         while (i < bodyText.length) {
             if (bodyText[i] == '{' && bodyText.getOrNull(i + 1) == '{') {
                 stack++
@@ -44,7 +44,7 @@ fun cleanUpWikitext(wikitext: String, index: Int = 0): String {
         }
 
     bodyText = if (i != 0)
-        bodyText.substring(i+1).trim('\n')
+        bodyText.substring((i+1).coerceIn(0..bodyText.lastIndex)).trim('\n')
     else bodyText.trim('\n')
     // Remove references and comments
     //"\\{\\{(?![mM]ono)(?![Mm]ath)(?![Mm]var)(?![Mm]ain)(?!IPA)(?!respell)(?![Bb]lockquote)[^{}]+\\}\\}"

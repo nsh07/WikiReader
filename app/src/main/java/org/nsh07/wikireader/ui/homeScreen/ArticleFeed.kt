@@ -232,9 +232,11 @@ fun ArticleFeed(
                                                 modifier = Modifier.padding(bottom = 8.dp)
                                             ) {
                                                 ArticleViewsGraph(
-                                                    feedState.mostReadArticles[i].viewHistory?.map {
-                                                        it.views ?: 0
-                                                    } ?: emptyList(),
+                                                    remember {
+                                                        feedState.mostReadArticles[i].viewHistory?.map {
+                                                            it.views ?: 0
+                                                        } ?: emptyList()
+                                                    },
                                                     modifier = Modifier
                                                         .size(width = 96.dp, height = 32.dp)
                                                         .padding(
