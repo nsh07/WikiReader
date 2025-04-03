@@ -13,11 +13,14 @@ import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiLang
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
+import org.nsh07.wikireader.data.WikiSearchResult
 
 @Immutable
 data class SearchBarState(
     val query: String = "",
     val isSearchBarExpanded: Boolean = false,
+    val searchResults: List<WikiSearchResult> = emptyList(),
+    val totalHits: Int = 0,
     val history: Set<String> = setOf(),
     val focusRequester: FocusRequester = FocusRequester()
 )

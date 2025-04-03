@@ -7,9 +7,10 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 interface WikipediaRepository {
-    suspend fun getSearchResult(query: String): WikiApiResponse
+    suspend fun getSearchResults(query: String): WikiApiSearchResults
+    suspend fun getPageData(query: String): WikiApiPageData
     suspend fun getPageContent(title: String): String
-    suspend fun getRandomResult(): WikiApiResponse
+    suspend fun getRandomResult(): WikiApiPageData
     suspend fun getFeed(
         date: String = LocalDate.now()
             .format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
@@ -21,17 +22,21 @@ class NetworkWikipediaRepository(
     private val wikipediaPageApiService: WikipediaApiService,
     private val ioDispatcher: CoroutineDispatcher
 ) : WikipediaRepository {
-    override suspend fun getSearchResult(query: String): WikiApiResponse =
+    override suspend fun getSearchResults(query: String): WikiApiSearchResults =
         withContext(ioDispatcher) {
-            return@withContext wikipediaApiService.getSearchResult(query)
+            wikipediaApiService.getSearchResults(query)
+        }
+    override suspend fun getPageData(query: String): WikiApiPageData =
+        withContext(ioDispatcher) {
+            wikipediaApiService.getPageData(query)
         }
 
     override suspend fun getPageContent(title: String): String =
         withContext(ioDispatcher) {
-            return@withContext wikipediaPageApiService.getPageContent(title)
+            wikipediaPageApiService.getPageContent(title)
         }
 
-    override suspend fun getRandomResult(): WikiApiResponse =
+    override suspend fun getRandomResult(): WikiApiPageData =
         withContext(ioDispatcher) {
             wikipediaApiService.getRandomResult()
         }

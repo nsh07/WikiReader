@@ -29,7 +29,7 @@ import kotlinx.serialization.json.Json
 import org.nsh07.wikireader.WikiReaderApplication
 import org.nsh07.wikireader.data.AppPreferencesRepository
 import org.nsh07.wikireader.data.WRStatus
-import org.nsh07.wikireader.data.WikiApiResponse
+import org.nsh07.wikireader.data.WikiApiPageData
 import org.nsh07.wikireader.data.WikipediaRepository
 import org.nsh07.wikireader.data.parseSections
 import org.nsh07.wikireader.network.HostSelectionInterceptor
@@ -68,11 +68,12 @@ class UiViewModel(
     private val backStack = mutableListOf<Pair<String, String>>()
     private var lastQuery: Pair<String, String>? = null
     private var filesDir: String = ""
-    private var job = Job()
+    private var loaderJob = Job()
         get() {
             if (field.isCancelled) field = Job()
             return field
         }
+    private var searchDebounceJob: Job? = null
     private var colorScheme: ColorScheme = lightColorScheme()
     private var typography: Typography = Typography()
 
@@ -164,41 +165,132 @@ class UiViewModel(
         } else lastQuery = Pair(q, setLang)
     }
 
-    /**
-     * Updates history and performs search
-     *
-     * The search query string is trimmed before being added to the history and performing the search
-     *
-     * @param query Search query string
-     */
-    fun performSearch(
+    private suspend fun loadSearchResults(query: String) {
+        val q = query.trim()
+        if (q.isNotEmpty()) {
+            val searchResults = wikipediaRepository.getSearchResults(query)
+            val results = searchResults.query.pages.sortedBy { it.index }
+            val resultsParsed = results.map {
+                it.copy(
+                    snippet = it.snippet.replace("<span.+?(?<!/)>".toRegex(), "<b>")
+                        .replace("</span>", "</b>"),
+                    titleSnippet = it.titleSnippet.replace("<span.+?(?<!/)>".toRegex(), "<b>")
+                        .replace("</span>", "</b>")
+                )
+            }
+            _searchBarState.update { currentState ->
+                currentState.copy(
+                    searchResults = resultsParsed,
+                    totalHits = searchResults.query.searchInfo.totalHits
+                )
+            }
+        } else clearSearchResults()
+    }
+
+    private fun clearSearchResults() {
+        _searchBarState.update { currentState ->
+            currentState.copy(totalHits = 0, searchResults = emptyList())
+        }
+    }
+
+    fun loadSearchResultsDebounced(query: String) {
+        searchDebounceJob?.cancel()
+        searchDebounceJob = viewModelScope.launch {
+            delay(500)
+            loadSearchResults(query)
+        }
+    }
+
+    fun loadSearch(
         query: String?,
         lang: String? = null,
         random: Boolean = false,
-        fromLink: Boolean = false,
         fromBackStack: Boolean = false
     ) {
         val q = query?.trim() ?: " "
         val history = searchBarState.value.history.toMutableSet()
-
         if (q != "") {
-            job.cancel()
-            viewModelScope.launch(job) {
-                Log.d("ViewModel", "Cancelled all jobs")
+            viewModelScope.launch {
                 var setLang = preferencesState.value.lang
-
                 if (lang != null) {
                     interceptor.setHost("$lang.wikipedia.org")
                     setLang = lang
                 }
-                if (!random && !fromLink && !fromBackStack) {
+                if (!random && !fromBackStack) {
                     history.remove(q)
                     history.add(q)
                     if (history.size > 50) history.remove(history.first())
                     appPreferencesRepository.saveHistory(history)
                 }
+                if (!random) loadSearchResults(q)
+                try {
+                    if (!random)
+                        loadPage(
+                            title = searchBarState.value.searchResults[0].title,
+                            lang = setLang,
+                            fromBackStack = fromBackStack
+                        )
+                    else
+                        loadPage(title = null, random = true)
+                } catch (_: Exception) {
+                    _homeScreenState.update { currentState ->
+                        currentState.copy(
+                            title = "Error",
+                            extract = listOf("No search results found for $q").map {
+                                parseWikitext(
+                                    it,
+                                    0
+                                )
+                            },
+                            photo = null,
+                            photoDesc = null,
+                            langs = null,
+                            currentLang = setLang,
+                            status = WRStatus.NO_SEARCH_RESULT,
+                            pageId = null,
+                            isLoading = false,
+                            isBackStackEmpty = backStack.isEmpty(),
+                            isSaved = false
+                        )
+                    }
+                }
+            }
 
-                if (!random) updateBackstack(q, setLang, fromBackStack)
+            _searchBarState.update { currentState ->
+                if (!random && !fromBackStack)
+                    currentState.copy(
+                        query = q,
+                        isSearchBarExpanded = false,
+                        history = history
+                    )
+                else
+                    currentState.copy(isSearchBarExpanded = false)
+            }
+        }
+    }
+
+    /**
+     * Updates history and loads page
+     *
+     * @param title Page title
+     */
+    fun loadPage(
+        title: String?,
+        lang: String? = null,
+        random: Boolean = false,
+        fromBackStack: Boolean = false
+    ) {
+        loaderJob.cancel()
+        viewModelScope.launch(loaderJob) {
+            var setLang = preferencesState.value.lang
+            if (title != null) {
+                Log.d("ViewModel", "Cancelled all jobs")
+
+                if (lang != null) {
+                    interceptor.setHost("$lang.wikipedia.org")
+                    setLang = lang
+                }
+                if (!random) updateBackstack(title, setLang, fromBackStack)
 
                 _homeScreenState.update { currentState ->
                     currentState.copy(isLoading = true, loadingProgress = null)
@@ -207,7 +299,7 @@ class UiViewModel(
                 try {
                     val apiResponse = when (random) {
                         false -> wikipediaRepository
-                            .getSearchResult(q)
+                            .getPageData(title)
                             .query
                             ?.pages?.get(0)
 
@@ -220,26 +312,19 @@ class UiViewModel(
                     val extractText = if (apiResponse != null)
                         wikipediaRepository.getPageContent(apiResponse.title)
                     else ""
-                    val extract: List<String>
-                    val status: WRStatus
                     var saved = false
-                    if (extractText != "") {
-                        extract = parseSections(extractText)
-                        status = WRStatus.SUCCESS
+                    val extract: List<String> = parseSections(extractText)
+                    val status: WRStatus = WRStatus.SUCCESS
 
-                        try {
-                            val articlesDir = File(filesDir, "savedArticles")
+                    try {
+                        val articlesDir = File(filesDir, "savedArticles")
 
-                            val apiFile = File(
-                                articlesDir,
-                                "${apiResponse!!.title}.${apiResponse.pageId}-api.${lastQuery!!.second}"
-                            )
-                            if (apiFile.exists()) saved = true
-                        } catch (_: Exception) {
-                        }
-                    } else {
-                        extract = listOf("No search results found for \"$q\"")
-                        status = WRStatus.NO_SEARCH_RESULT
+                        val apiFile = File(
+                            articlesDir,
+                            "${apiResponse!!.title}.${apiResponse.pageId}-api.${lastQuery!!.second}"
+                        )
+                        if (apiFile.exists()) saved = true
+                    } catch (_: Exception) {
                     }
 
                     if (random && apiResponse != null)
@@ -305,37 +390,45 @@ class UiViewModel(
                     }
 
                 listState.value.scrollToItem(0)
+            } else {
+                _homeScreenState.update { currentState ->
+                    currentState.copy(
+                        title = "Error",
+                        extract = listOf("Null search query").map {
+                            parseWikitext(
+                                it,
+                                0
+                            )
+                        },
+                        photo = null,
+                        photoDesc = null,
+                        langs = null,
+                        currentLang = setLang,
+                        status = WRStatus.OTHER,
+                        pageId = null,
+                        isLoading = false,
+                        isBackStackEmpty = backStack.isEmpty(),
+                        isSaved = false
+                    )
+                }
             }
-        }
-
-        _searchBarState.update { currentState ->
-            if (!random && !fromLink && !fromBackStack)
-                currentState.copy(
-                    query = q,
-                    isSearchBarExpanded = false,
-                    history = history
-                )
-            else
-                currentState.copy(isSearchBarExpanded = false)
         }
     }
 
-    fun refreshSearch(
+    fun reloadPage(
         persistLang: Boolean = false
     ) {
         if (persistLang)
-            performSearch(
+            loadPage(
                 lastQuery?.first,
                 lang = lastQuery?.second,
                 random = false,
-                fromLink = true,
                 fromBackStack = false
             )
         else
-            performSearch(
+            loadPage(
                 lastQuery?.first,
                 random = false,
-                fromLink = true,
                 fromBackStack = false
             )
     }
@@ -347,7 +440,7 @@ class UiViewModel(
      * text is updated to the error
      */
     fun loadFeed(fromBack: Boolean = false) {
-        viewModelScope.launch(job) {
+        viewModelScope.launch(loaderJob) {
             if (!preferencesState.value.dataSaver) {
                 _homeScreenState.update { currentState ->
                     currentState.copy(isLoading = true, loadingProgress = null)
@@ -437,7 +530,7 @@ class UiViewModel(
         try {
             val pageTitle = title ?: homeScreenState.value.title
             val apiResponse = wikipediaRepository
-                .getSearchResult(pageTitle)
+                .getPageData(pageTitle)
 
             val apiResponseQuery = apiResponse
                 .query
@@ -625,14 +718,14 @@ class UiViewModel(
     suspend fun loadSavedArticle(apiFileName: String): WRStatus =
         withContext(Dispatchers.IO) {
             try {
-                _homeScreenState.update { currentState->
+                _homeScreenState.update { currentState ->
                     currentState.copy(isLoading = true, loadingProgress = null)
                 }
                 val articlesDir = File(filesDir, "savedArticles")
                 val apiFile = File(articlesDir, apiFileName)
                 val contentFile = File(articlesDir, apiFileName.replace("-api.", "-content."))
                 val apiResponse =
-                    Json.decodeFromString<WikiApiResponse>(apiFile.readText()).query?.pages?.get(0)
+                    Json.decodeFromString<WikiApiPageData>(apiFile.readText()).query?.pages?.get(0)
 
                 val extract: List<String> = parseSections(contentFile.readText())
 
@@ -696,7 +789,7 @@ class UiViewModel(
                             curr.toWikitextAnnotatedString(
                                 colorScheme = colorScheme,
                                 typography = typography,
-                                performSearch = { performSearch(it, fromLink = true) },
+                                performSearch = { loadPage(it) },
                                 fontSize = preferencesState.value.fontSize
                             )
                         )
@@ -712,13 +805,12 @@ class UiViewModel(
                 curr.toWikitextAnnotatedString(
                     colorScheme = colorScheme,
                     typography = typography,
-                    performSearch = { performSearch(it, fromLink = true) },
+                    performSearch = { loadPage(it) },
                     fontSize = preferencesState.value.fontSize
                 )
             )
             return@withContext out.toList()
         }
-
 
     fun popBackStack(): Pair<String, String>? {
         val res = backStack.removeLastOrNull()

@@ -130,7 +130,7 @@ fun SettingsScreen(
                 if (homeScreenState.status != WRStatus.FEED_NETWORK_ERROR &&
                     homeScreenState.status != WRStatus.FEED_LOADED
                 )
-                    viewModel.refreshSearch()
+                    viewModel.reloadPage()
                 else
                     viewModel.loadFeed()
             },

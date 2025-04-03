@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -271,17 +272,13 @@ fun AppHomeScreen(
                 if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
             }
         } else if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR || homeScreenState.status == WRStatus.UNINITIALIZED) {
-            Row(Modifier.align(Alignment.Center)) {
-                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
                 Icon(
-                    painterResource(R.drawable.ic_launcher_foreground),
+                    painterResource(R.drawable.ic_launcher_monochrome),
                     contentDescription = null,
                     modifier = Modifier
-                        .fillMaxSize(0.5f)
-                        .weight(4f)
+                        .size(400.dp)
+                        .align(Alignment.Center)
                 )
-                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
-            }
         } else {
             Row {
                 if (weight != 0f) Spacer(modifier = Modifier.weight(weight))

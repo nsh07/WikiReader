@@ -12,12 +12,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -148,9 +145,8 @@ fun AppScreen(
             LaunchedEffect(uriQuery) {
                 if (uriQuery != "") {
                     Log.d("AppScreen", "Deep link handled: uriQuery: $uriQuery")
-                    viewModel.performSearch(
+                    viewModel.loadPage(
                         uriQuery,
-                        fromLink = true,
                         lang = backStackEntry.arguments?.getString("lang")
                     )
                 }
@@ -164,8 +160,8 @@ fun AppScreen(
             ) {
                 if (!homeScreenState.isBackStackEmpty) {
                     val curr = viewModel.popBackStack()
-                    viewModel.performSearch(
-                        query = curr?.first,
+                    viewModel.loadPage(
+                        title = curr?.first,
                         lang = curr?.second,
                         fromBackStack = true
                     )
@@ -190,9 +186,12 @@ fun AppScreen(
                         searchBarState = searchBarState,
                         searchBarEnabled = !showArticleLanguageSheet,
                         index = if (homeScreenState.status != WRStatus.FEED_LOADED) index else feedIndex,
-                        performSearch = { viewModel.performSearch(it) },
-                        setExpanded = { viewModel.setExpanded(it) },
-                        setQuery = { viewModel.setQuery(it) },
+                        imageLoader = imageLoader,
+                        loadSearch = viewModel::loadSearch,
+                        loadSearchDebounced = viewModel::loadSearchResultsDebounced,
+                        loadPage = viewModel::loadPage,
+                        onExpandedChange = viewModel::setExpanded,
+                        setQuery = viewModel::setQuery,
                         clearHistory = {
                             setHistoryItem("")
                             setShowDeleteDialog(true)
@@ -212,10 +211,7 @@ fun AppScreen(
                         onAboutClick = {
                             navController.navigate("about")
                             it(false)
-                        },
-                        modifier = Modifier.padding(
-                            top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-                        )
+                        }
                     )
                 },
                 floatingActionButton = {
@@ -231,8 +227,8 @@ fun AppScreen(
                             }
                         },
                         performRandomPageSearch = {
-                            viewModel.performSearch(
-                                query = null,
+                            viewModel.loadPage(
+                                title = null,
                                 random = true
                             )
                         }
@@ -256,11 +252,11 @@ fun AppScreen(
                             navController.navigate("fullScreenImage")
                     },
                     insets = insets,
-                    onLinkClick = { viewModel.performSearch(it, fromLink = true) },
-                    refreshSearch = { viewModel.refreshSearch(true) },
-                    refreshFeed = { viewModel.loadFeed() },
-                    setLang = { viewModel.saveLang(it) },
-                    setSearchStr = { viewModel.updateLanguageSearchStr(it) },
+                    onLinkClick = viewModel::loadPage,
+                    refreshSearch = { viewModel.reloadPage(true) },
+                    refreshFeed = viewModel::loadFeed,
+                    setLang = viewModel::saveLang,
+                    setSearchStr = viewModel::updateLanguageSearchStr,
                     setShowArticleLanguageSheet = { showArticleLanguageSheet = it },
                     saveArticle = {
                         coroutineScope.launch {
