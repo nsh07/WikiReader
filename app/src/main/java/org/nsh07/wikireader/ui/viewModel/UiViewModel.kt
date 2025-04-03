@@ -216,6 +216,9 @@ class UiViewModel(
                     interceptor.setHost("$lang.wikipedia.org")
                     setLang = lang
                 }
+                _homeScreenState.update { currentState->
+                    currentState.copy(isLoading = true, loadingProgress = null)
+                }
                 if (!random && !fromBackStack) {
                     history.remove(q)
                     history.add(q)
@@ -335,29 +338,37 @@ class UiViewModel(
                         )
 
                     sections = extract.size
+                    val parsedExtract = mutableListOf<List<AnnotatedString>>()
 
-                    val parsedExtract = extract.mapIndexed { index, it ->
-                        currentSection = index + 1
-                        _homeScreenState.update { currentState ->
-                            currentState.copy(loadingProgress = currentSection.toFloat() / sections)
-                        }
-                        parseWikitext(it, index)
-                    }
-
-                    _homeScreenState.update { currentState ->
+                    _homeScreenState.update{ currentState->
                         currentState.copy(
                             title = apiResponse?.title ?: "Error",
-                            extract = parsedExtract,
                             photo = apiResponse?.photo,
                             photoDesc = apiResponse?.photoDesc,
                             langs = apiResponse?.langs,
                             currentLang = setLang,
                             status = status,
                             pageId = apiResponse?.pageId,
-                            isLoading = false,
                             isBackStackEmpty = backStack.isEmpty(),
                             isSaved = saved
                         )
+                    }
+
+                    listState.value.scrollToItem(0)
+
+                    extract.forEachIndexed { index, it ->
+                        currentSection = index + 1
+                        parsedExtract.add(parseWikitext(it, index))
+                        _homeScreenState.update { currentState ->
+                            currentState.copy(
+                                loadingProgress = currentSection.toFloat() / sections,
+                                extract = parsedExtract,
+                            )
+                        }
+                    }
+
+                    _homeScreenState.update { currentState ->
+                        currentState.copy(isLoading = false)
                     }
                     Log.d("ViewModel", "Search: HomeScreenState updated")
                 } catch (e: Exception) {
@@ -388,8 +399,6 @@ class UiViewModel(
                     _preferencesState.update { currentState ->
                         currentState.copy(lang = lang)
                     }
-
-                listState.value.scrollToItem(0)
             } else {
                 _homeScreenState.update { currentState ->
                     currentState.copy(
@@ -730,33 +739,42 @@ class UiViewModel(
                 val extract: List<String> = parseSections(contentFile.readText())
 
                 sections = extract.size
-
-                val parsedExtract = extract.mapIndexed { index, it ->
-                    currentSection = index + 1
-                    _homeScreenState.update { currentState ->
-                        currentState.copy(loadingProgress = currentSection.toFloat() / sections)
-                    }
-                    parseWikitext(it, index)
-                }
+                val parsedExtract = mutableListOf<List<AnnotatedString>>()
 
                 _preferencesState.update { currentState ->
                     currentState.copy(
                         lang = apiFileName.substringAfterLast('.')
                     )
                 }
-                _homeScreenState.update { currentState ->
+
+                _homeScreenState.update{ currentState->
                     currentState.copy(
                         title = apiResponse?.title ?: "Error",
-                        extract = parsedExtract,
                         photo = apiResponse?.photo,
                         photoDesc = apiResponse?.photoDesc,
                         langs = apiResponse?.langs,
                         currentLang = preferencesState.value.lang,
-                        status = WRStatus.SUCCESS,
                         pageId = apiResponse?.pageId,
-                        isLoading = false,
                         isBackStackEmpty = backStack.isEmpty(),
+                        status = WRStatus.SUCCESS,
                         isSaved = true
+                    )
+                }
+
+                extract.forEachIndexed { index, it ->
+                    currentSection = index + 1
+                    parsedExtract.add(parseWikitext(it, index))
+                    _homeScreenState.update { currentState ->
+                        currentState.copy(
+                            loadingProgress = currentSection.toFloat() / sections,
+                            extract = parsedExtract,
+                        )
+                    }
+                }
+
+                _homeScreenState.update { currentState ->
+                    currentState.copy(
+                        isLoading = false
                     )
                 }
 
@@ -789,7 +807,7 @@ class UiViewModel(
                             curr.toWikitextAnnotatedString(
                                 colorScheme = colorScheme,
                                 typography = typography,
-                                performSearch = { loadPage(it) },
+                                performSearch = ::loadPage,
                                 fontSize = preferencesState.value.fontSize
                             )
                         )

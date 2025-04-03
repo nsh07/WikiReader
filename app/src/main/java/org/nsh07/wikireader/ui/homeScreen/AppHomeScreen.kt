@@ -231,14 +231,15 @@ fun AppHomeScreen(
                             }
                         }
                         item { // Main description
-                            SelectionContainer {
-                                ParsedBodyText(
-                                    body = homeScreenState.extract[0],
-                                    fontSize = fontSize,
-                                    renderMath = preferencesState.renderMath,
-                                    darkTheme = MaterialTheme.colorScheme.isDark()
-                                )
-                            }
+                            if (homeScreenState.extract.isNotEmpty())
+                                SelectionContainer {
+                                    ParsedBodyText(
+                                        body = homeScreenState.extract[0],
+                                        fontSize = fontSize,
+                                        renderMath = preferencesState.renderMath,
+                                        darkTheme = MaterialTheme.colorScheme.isDark()
+                                    )
+                                }
                         }
 
                         for (i in 1..s step 2) {
@@ -272,13 +273,13 @@ fun AppHomeScreen(
                 if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
             }
         } else if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR || homeScreenState.status == WRStatus.UNINITIALIZED) {
-                Icon(
-                    painterResource(R.drawable.ic_launcher_monochrome),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(400.dp)
-                        .align(Alignment.Center)
-                )
+            Icon(
+                painterResource(R.drawable.ic_launcher_monochrome),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(400.dp)
+                    .align(Alignment.Center)
+            )
         } else {
             Row {
                 if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
