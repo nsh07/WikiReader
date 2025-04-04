@@ -33,6 +33,7 @@ import org.nsh07.wikireader.data.WikiApiPageData
 import org.nsh07.wikireader.data.WikipediaRepository
 import org.nsh07.wikireader.data.parseSections
 import org.nsh07.wikireader.network.HostSelectionInterceptor
+import org.nsh07.wikireader.network.NetworkException
 import org.nsh07.wikireader.parser.cleanUpWikitext
 import org.nsh07.wikireader.parser.toWikitextAnnotatedString
 import java.io.File
@@ -55,7 +56,7 @@ class UiViewModel(
 
     private val _listState = MutableStateFlow(LazyListState(0, 0))
     val listState: StateFlow<LazyListState> = _listState.asStateFlow()
-    private val _searchListState = MutableStateFlow(LazyListState(0,0))
+    private val _searchListState = MutableStateFlow(LazyListState(0, 0))
     val searchListState: StateFlow<LazyListState> = _searchListState.asStateFlow()
 
     private val _preferencesState = MutableStateFlow(PreferencesState())
@@ -170,27 +171,36 @@ class UiViewModel(
     private suspend fun loadSearchResults(query: String) {
         val q = query.trim()
         if (q.isNotEmpty()) {
-            val prefixSearchResults = wikipediaRepository.getPrefixSearchResults(q)
-            _searchBarState.update { currentState ->
-                currentState.copy(
-                    prefixSearchResults = prefixSearchResults.query.pages.sortedBy { it.index }
-                )
-            }
+            try {
+                val prefixSearchResults = wikipediaRepository.getPrefixSearchResults(q)
+                _searchBarState.update { currentState ->
+                    currentState.copy(
+                        prefixSearchResults = prefixSearchResults.query.pages.sortedBy { it.index }
+                    )
+                }
 
-            val searchResults = wikipediaRepository.getSearchResults(q)
-            val results = searchResults.query.pages.sortedBy { it.index }
-            val resultsParsed = results.map {
-                it.copy(
-                    snippet = it.snippet.replace("<span.+?(?<!/)>".toRegex(), "<b>")
-                        .replace("</span>", "</b>"),
-                    titleSnippet = it.titleSnippet.replace("<span.+?(?<!/)>".toRegex(), "<b>")
-                        .replace("</span>", "</b>")
-                )
-            }
-            _searchBarState.update { currentState ->
-                currentState.copy(
-                    searchResults = resultsParsed
-                )
+                val searchResults = wikipediaRepository.getSearchResults(q)
+                val results = searchResults.query.pages.sortedBy { it.index }
+                val resultsParsed = results.map {
+                    it.copy(
+                        snippet = it.snippet.replace("<span.+?(?<!/)>".toRegex(), "<b>")
+                            .replace("</span>", "</b>"),
+                        titleSnippet = it.titleSnippet.replace("<span.+?(?<!/)>".toRegex(), "<b>")
+                            .replace("</span>", "</b>")
+                    )
+                }
+                _searchBarState.update { currentState ->
+                    currentState.copy(
+                        searchResults = resultsParsed
+                    )
+                }
+            } catch (_: Exception) {
+                _searchBarState.update { currentState ->
+                    currentState.copy(
+                        prefixSearchResults = null,
+                        searchResults = null
+                    )
+                }
             }
             searchListState.value.scrollToItem(0)
         } else clearSearchResults()
@@ -221,51 +231,77 @@ class UiViewModel(
         if (q != "") {
             viewModelScope.launch {
                 var setLang = preferencesState.value.lang
-                if (lang != null) {
-                    interceptor.setHost("$lang.wikipedia.org")
-                    setLang = lang
-                }
-                _homeScreenState.update { currentState ->
-                    currentState.copy(isLoading = true, loadingProgress = null)
-                }
-                if (!random && !fromBackStack) {
-                    history.remove(q)
-                    history.add(q)
-                    if (history.size > 50) history.remove(history.first())
-                    appPreferencesRepository.saveHistory(history)
-                }
-                if (!random) loadSearchResults(q)
                 try {
-                    if (!random)
-                        loadPage(
-                            title = if (searchBarState.value.prefixSearchResults.isEmpty())
-                                searchBarState.value.searchResults[0].title
-                            else searchBarState.value.prefixSearchResults[0].title,
-                            lang = setLang,
-                            fromBackStack = fromBackStack
-                        )
-                    else
-                        loadPage(title = null, random = true)
-                } catch (_: Exception) {
+                    if (lang != null) {
+                        interceptor.setHost("$lang.wikipedia.org")
+                        setLang = lang
+                    }
                     _homeScreenState.update { currentState ->
-                        currentState.copy(
-                            title = "Error",
-                            extract = listOf("No search results found for $q").map {
-                                parseWikitext(
-                                    it,
-                                    0
-                                )
-                            },
-                            photo = null,
-                            photoDesc = null,
-                            langs = null,
-                            currentLang = setLang,
-                            status = WRStatus.NO_SEARCH_RESULT,
-                            pageId = null,
-                            isLoading = false,
-                            isBackStackEmpty = backStack.isEmpty(),
-                            isSaved = false
-                        )
+                        currentState.copy(isLoading = true, loadingProgress = null)
+                    }
+                    if (!random && !fromBackStack) {
+                        history.remove(q)
+                        history.add(q)
+                        if (history.size > 50) history.remove(history.first())
+                        appPreferencesRepository.saveHistory(history)
+                    }
+                    if (!random) loadSearchResults(q)
+                    if (!random) {
+                        if (searchBarState.value.prefixSearchResults != null && searchBarState.value.searchResults != null)
+                            loadPage(
+                                title = if (searchBarState.value.prefixSearchResults!!.isEmpty())
+                                    searchBarState.value.searchResults!![0].title
+                                else searchBarState.value.prefixSearchResults!![0].title,
+                                lang = setLang,
+                                fromBackStack = fromBackStack
+                            )
+                        else throw NetworkException()
+                    } else
+                        loadPage(title = null, random = true)
+                } catch (e: Exception) {
+                    if (e is NetworkException) {
+                        _homeScreenState.update { currentState ->
+                            currentState.copy(
+                                title = "Error",
+                                extract = listOf("An error occurred :(\n" +
+                                        "Please check your internet connection").map {
+                                    parseWikitext(
+                                        it,
+                                        0
+                                    )
+                                },
+                                photo = null,
+                                photoDesc = null,
+                                langs = null,
+                                currentLang = setLang,
+                                status = WRStatus.NO_SEARCH_RESULT,
+                                pageId = null,
+                                isLoading = false,
+                                isBackStackEmpty = backStack.isEmpty(),
+                                isSaved = false
+                            )
+                        }
+                    } else {
+                        _homeScreenState.update { currentState ->
+                            currentState.copy(
+                                title = "Error",
+                                extract = listOf("No search results found for $q").map {
+                                    parseWikitext(
+                                        it,
+                                        0
+                                    )
+                                },
+                                photo = null,
+                                photoDesc = null,
+                                langs = null,
+                                currentLang = setLang,
+                                status = WRStatus.NO_SEARCH_RESULT,
+                                pageId = null,
+                                isLoading = false,
+                                isBackStackEmpty = backStack.isEmpty(),
+                                isSaved = false
+                            )
+                        }
                     }
                 }
             }
@@ -297,23 +333,23 @@ class UiViewModel(
         loaderJob.cancel()
         viewModelScope.launch(loaderJob) {
             var setLang = preferencesState.value.lang
-            _searchBarState.update { currentState->
+            _searchBarState.update { currentState ->
                 currentState.copy(isSearchBarExpanded = false)
             }
             if (title != null || random) {
                 Log.d("ViewModel", "Cancelled all jobs")
 
-                if (lang != null) {
-                    interceptor.setHost("$lang.wikipedia.org")
-                    setLang = lang
-                }
-                if (!random) updateBackstack(title!!, setLang, fromBackStack)
-
-                _homeScreenState.update { currentState ->
-                    currentState.copy(isLoading = true, loadingProgress = null)
-                }
-
                 try {
+                    if (lang != null) {
+                        interceptor.setHost("$lang.wikipedia.org")
+                        setLang = lang
+                    }
+                    if (!random) updateBackstack(title!!, setLang, fromBackStack)
+
+                    _homeScreenState.update { currentState ->
+                        currentState.copy(isLoading = true, loadingProgress = null)
+                    }
+
                     val apiResponse = when (random) {
                         false -> wikipediaRepository
                             .getPageData(title!!)
@@ -523,7 +559,6 @@ class UiViewModel(
                             isSaved = false
                         )
                     }
-                    Log.d("ViewModel", "Feed: HomeScreenState updated")
                 }
             } else {
                 _homeScreenState.update { currentState ->

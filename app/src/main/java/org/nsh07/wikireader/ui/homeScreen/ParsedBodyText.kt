@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,7 +51,7 @@ fun ParsedBodyText(
             }
         }
     } else {
-        Column {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             for (i in 0..body.lastIndex) {
                 if (i % 2 == 0)
                     Text(
@@ -65,12 +66,11 @@ fun ParsedBodyText(
                 else
                     Text(
                         text = LaTeX2Unicode.convert(body[i].toString())
-                            .replace(' ', nbsp),
-                        style = typography.bodyLarge.copy(hyphens = Hyphens.Auto),
-                        fontSize = fontSize.sp,
-                        lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
+                                .replace(' ', nbsp),
+                        fontFamily = FontFamily.Serif,
+                        fontSize = (fontSize + 4).sp,
+                        lineHeight = (24 * (fontSize / 16.0) + 4).toInt().sp,
                         modifier = Modifier
-                            .fillMaxWidth()
                             .padding(horizontal = 16.dp)
                     )
             }

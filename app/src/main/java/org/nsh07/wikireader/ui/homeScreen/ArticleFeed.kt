@@ -253,7 +253,7 @@ fun ArticleFeed(
                                         }
                                         if (feedState.mostReadArticles[i].thumbnail != null)
                                             FeedImage(
-                                                source = feedState.mostReadArticles[i].thumbnail!!.source,
+                                                source = feedState.mostReadArticles[i].thumbnail?.source,
                                                 description = feedState.mostReadArticles[i].titles?.normalized,
                                                 imageLoader = imageLoader,
                                                 modifier = Modifier

@@ -20,8 +20,8 @@ import org.nsh07.wikireader.data.WikiSearchResult
 data class SearchBarState(
     val query: String = "",
     val isSearchBarExpanded: Boolean = false,
-    val prefixSearchResults: List<WikiPrefixSearchResult> = emptyList(),
-    val searchResults: List<WikiSearchResult> = emptyList(),
+    val prefixSearchResults: List<WikiPrefixSearchResult>? = emptyList(),
+    val searchResults: List<WikiSearchResult>? = emptyList(),
     val history: Set<String> = setOf(),
     val focusRequester: FocusRequester = FocusRequester()
 )

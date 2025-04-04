@@ -19,6 +19,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -41,6 +45,7 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,6 +64,8 @@ import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.image.FeedImage
@@ -73,6 +80,7 @@ fun AppSearchBar(
     index: Int,
     imageLoader: ImageLoader,
     searchListState: LazyListState,
+    windowSizeClass: WindowSizeClass,
     loadSearch: (String) -> Unit,
     loadSearchDebounced: (String) -> Unit,
     loadPage: (String) -> Unit,
@@ -94,6 +102,13 @@ fun AppSearchBar(
     )
     val history = searchBarState.history.toList()
     val size = history.size
+    val weight = remember {
+        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM ||
+            windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED
+        )
+            1f
+        else 0f
+    }
 
     Column {
         SearchBar(
@@ -188,189 +203,321 @@ fun AppSearchBar(
             Crossfade(searchBarState.query.trim().isEmpty()) {
                 when (it) {
                     true ->
-                        LazyColumn {
-                            item {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(
-                                        "History",
-                                        style = typography.labelLarge,
-                                        modifier = Modifier.padding(16.dp)
-                                    )
-                                    Spacer(Modifier.weight(1f))
-                                    TextButton(
-                                        onClick = clearHistory,
-                                        enabled = size > 0,
-                                        modifier = Modifier.padding(4.dp)
-                                    ) {
-                                        Text("Clear")
+                        Row {
+                            if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
+                            LazyColumn(Modifier.weight(4f)) {
+                                item {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            "History",
+                                            style = typography.labelLarge,
+                                            modifier = Modifier.padding(16.dp)
+                                        )
+                                        Spacer(Modifier.weight(1f))
+                                        TextButton(
+                                            onClick = clearHistory,
+                                            enabled = size > 0,
+                                            modifier = Modifier.padding(4.dp)
+                                        ) {
+                                            Text("Clear")
+                                        }
                                     }
                                 }
-                            }
-                            items(size, key = { history[size - it - 1] }) {
-                                val currentText = history[size - it - 1]
-                                ListItem(
-                                    leadingContent = {
-                                        Icon(
-                                            painterResource(R.drawable.history),
-                                            contentDescription = null
-                                        )
-                                    },
-                                    headlineContent = {
-                                        Text(
-                                            currentText,
-                                            softWrap = false,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    },
-                                    trailingContent = {
-                                        IconButton(
-                                            onClick = { setQuery(currentText) },
-                                            modifier = Modifier.wrapContentSize()
-                                        ) {
+                                items(size, key = { history[size - it - 1] }) {
+                                    val currentText = history[size - it - 1]
+                                    ListItem(
+                                        leadingContent = {
                                             Icon(
-                                                painterResource(R.drawable.north_west),
+                                                painterResource(R.drawable.history),
                                                 contentDescription = null
                                             )
-                                        }
-                                    },
-                                    colors = ListItemDefaults
-                                        .colors(containerColor = SearchBarDefaults.colors().containerColor),
-                                    modifier = Modifier
-                                        .combinedClickable(
-                                            onClick = { loadSearch(currentText) },
-                                            onLongClick = {
-                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                removeHistoryItem(currentText)
+                                        },
+                                        headlineContent = {
+                                            Text(
+                                                currentText,
+                                                softWrap = false,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        },
+                                        trailingContent = {
+                                            IconButton(
+                                                onClick = { setQuery(currentText) },
+                                                modifier = Modifier.wrapContentSize()
+                                            ) {
+                                                Icon(
+                                                    painterResource(R.drawable.north_west),
+                                                    contentDescription = null
+                                                )
                                             }
-                                        )
-                                        .animateItem()
-                                )
+                                        },
+                                        colors = ListItemDefaults
+                                            .colors(containerColor = SearchBarDefaults.colors().containerColor),
+                                        modifier = Modifier
+                                            .combinedClickable(
+                                                onClick = { loadSearch(currentText) },
+                                                onLongClick = {
+                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                                    removeHistoryItem(currentText)
+                                                }
+                                            )
+                                            .animateItem()
+                                    )
+                                }
                             }
+                            if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
                         }
 
-                    else -> LazyColumn(state = searchListState) {
-                        item {
-                            Text(
-                                text = "Title matches",
-                                modifier = Modifier.padding(16.dp),
-                                style = typography.labelLarge
-                            )
-                        }
-                        items(searchBarState.prefixSearchResults, key = { "${it.title}-prefix" }) {
-                            ListItem(
-                                headlineContent = {
+                    else ->
+                        if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT)
+                            LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+                                items(
+                                    searchBarState.prefixSearchResults ?: emptyList(),
+                                    key = { "${it.title}-prefix" }
+                                ) {
+                                    ListItem(
+                                        headlineContent = {
+                                            Text(
+                                                it.title,
+                                                softWrap = false,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        },
+                                        supportingContent = if (it.terms != null) {
+                                            {
+                                                Text(
+                                                    it.terms.description[0],
+                                                    softWrap = true,
+                                                    maxLines = 2,
+                                                    overflow = TextOverflow.Ellipsis
+                                                )
+                                            }
+                                        } else null,
+                                        trailingContent = {
+                                            if (it.thumbnail != null)
+                                                FeedImage(
+                                                    source = it.thumbnail.source,
+                                                    imageLoader = imageLoader,
+                                                    contentScale = ContentScale.Crop,
+                                                    modifier = Modifier
+                                                        .padding(vertical = 4.dp)
+                                                        .size(56.dp)
+                                                        .clip(shapes.large)
+                                                )
+                                            else null
+                                        },
+                                        colors = ListItemDefaults
+                                            .colors(containerColor = SearchBarDefaults.colors().containerColor),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(shapes.large)
+                                            .clickable(
+                                                onClick = {
+                                                    onExpandedChange(false)
+                                                    loadPage(it.title)
+                                                }
+                                            )
+                                            .animateItem()
+                                    )
+                                }
+                                items(
+                                    searchBarState.searchResults ?: emptyList(),
+                                    key = { "${it.title}-search" }) {
+                                    ListItem(
+                                        overlineContent = if (it.redirectTitle != null) {
+                                            {
+                                                Text(
+                                                    "Redirected from ${it.redirectTitle}",
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis
+                                                )
+                                            }
+                                        } else null,
+                                        headlineContent = {
+                                            Text(
+                                                AnnotatedString.fromHtml(
+                                                    if (it.titleSnippet.isNotEmpty())
+                                                        it.titleSnippet
+                                                    else it.title
+                                                ),
+                                                softWrap = false,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        },
+                                        supportingContent = {
+                                            Text(
+                                                AnnotatedString.fromHtml(it.snippet),
+                                                softWrap = true,
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        },
+                                        trailingContent = {
+                                            if (it.thumbnail != null)
+                                                FeedImage(
+                                                    source = it.thumbnail.source,
+                                                    imageLoader = imageLoader,
+                                                    contentScale = ContentScale.Crop,
+                                                    modifier = Modifier
+                                                        .padding(vertical = 4.dp)
+                                                        .size(56.dp)
+                                                        .clip(shapes.large)
+                                                )
+                                            else null
+                                        },
+                                        colors = ListItemDefaults
+                                            .colors(containerColor = SearchBarDefaults.colors().containerColor),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(shapes.large)
+                                            .clickable(
+                                                onClick = {
+                                                    onExpandedChange(false)
+                                                    loadPage(it.title)
+                                                }
+                                            )
+                                            .animateItem()
+                                    )
+                                }
+                                item(span = { GridItemSpan(2) }) {
+                                    Spacer(
+                                        Modifier.height(
+                                            WindowInsets.systemBars.asPaddingValues()
+                                                .calculateBottomPadding() + 152.dp
+                                        )
+                                    )
+                                }
+                            }
+                        else {
+                            LazyColumn(state = searchListState) {
+                                item {
                                     Text(
-                                        it.title,
-                                        softWrap = false,
-                                        overflow = TextOverflow.Ellipsis
+                                        text = "Title matches",
+                                        modifier = Modifier.padding(16.dp),
+                                        style = typography.labelLarge
                                     )
-                                },
-                                supportingContent = if (it.terms != null) {
-                                    {
-                                        Text(
-                                            it.terms.description[0],
-                                            softWrap = true,
-                                            maxLines = 2,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
-                                } else null,
-                                trailingContent = {
-                                    if (it.thumbnail != null)
-                                        FeedImage(
-                                            source = it.thumbnail.source,
-                                            imageLoader = imageLoader,
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .size(56.dp)
-                                                .clip(shapes.large)
-                                        )
-                                    else null
-                                },
-                                colors = ListItemDefaults
-                                    .colors(containerColor = SearchBarDefaults.colors().containerColor),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable(
-                                        onClick = {
-                                            onExpandedChange(false)
-                                            loadPage(it.title)
-                                        }
+                                }
+                                items(
+                                    searchBarState.prefixSearchResults ?: emptyList(),
+                                    key = { "${it.title}-prefix" }) {
+                                    ListItem(
+                                        headlineContent = {
+                                            Text(
+                                                it.title,
+                                                softWrap = false,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        },
+                                        supportingContent = if (it.terms != null) {
+                                            {
+                                                Text(
+                                                    it.terms.description[0],
+                                                    softWrap = true,
+                                                    maxLines = 2,
+                                                    overflow = TextOverflow.Ellipsis
+                                                )
+                                            }
+                                        } else null,
+                                        trailingContent = {
+                                            if (it.thumbnail != null)
+                                                FeedImage(
+                                                    source = it.thumbnail.source,
+                                                    imageLoader = imageLoader,
+                                                    contentScale = ContentScale.Crop,
+                                                    modifier = Modifier
+                                                        .padding(vertical = 4.dp)
+                                                        .size(56.dp)
+                                                        .clip(shapes.large)
+                                                )
+                                            else null
+                                        },
+                                        colors = ListItemDefaults
+                                            .colors(containerColor = SearchBarDefaults.colors().containerColor),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable(
+                                                onClick = {
+                                                    onExpandedChange(false)
+                                                    loadPage(it.title)
+                                                }
+                                            )
+                                            .animateItem()
                                     )
-                                    .animateItem()
-                            )
-                        }
-                        item {
-                            Text(
-                                text = "In-article matches",
-                                modifier = Modifier.padding(16.dp),
-                                style = typography.labelLarge
-                            )
-                        }
-                        items(searchBarState.searchResults, key = { "${it.title}-search" }) {
-                            ListItem(
-                                overlineContent = if (it.redirectTitle != null) {
-                                    {
-                                        Text(
-                                            "Redirected from ${it.redirectTitle}",
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
-                                } else null,
-                                headlineContent = {
+                                }
+                                item {
                                     Text(
-                                        AnnotatedString.fromHtml(
-                                            if (it.titleSnippet.isNotEmpty())
-                                                it.titleSnippet
-                                            else it.title
-                                        ),
-                                        softWrap = false,
-                                        overflow = TextOverflow.Ellipsis
+                                        text = "In-article matches",
+                                        modifier = Modifier.padding(16.dp),
+                                        style = typography.labelLarge
                                     )
-                                },
-                                supportingContent = {
-                                    Text(
-                                        AnnotatedString.fromHtml(it.snippet),
-                                        softWrap = true,
-                                        maxLines = 2,
-                                        overflow = TextOverflow.Ellipsis
+                                }
+                                items(
+                                    searchBarState.searchResults ?: emptyList(),
+                                    key = { "${it.title}-search" }) {
+                                    ListItem(
+                                        overlineContent = if (it.redirectTitle != null) {
+                                            {
+                                                Text(
+                                                    "Redirected from ${it.redirectTitle}",
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis
+                                                )
+                                            }
+                                        } else null,
+                                        headlineContent = {
+                                            Text(
+                                                AnnotatedString.fromHtml(
+                                                    if (it.titleSnippet.isNotEmpty())
+                                                        it.titleSnippet
+                                                    else it.title
+                                                ),
+                                                softWrap = false,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        },
+                                        supportingContent = {
+                                            Text(
+                                                AnnotatedString.fromHtml(it.snippet),
+                                                softWrap = true,
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        },
+                                        trailingContent = {
+                                            if (it.thumbnail != null)
+                                                FeedImage(
+                                                    source = it.thumbnail.source,
+                                                    imageLoader = imageLoader,
+                                                    contentScale = ContentScale.Crop,
+                                                    modifier = Modifier
+                                                        .padding(vertical = 4.dp)
+                                                        .size(56.dp)
+                                                        .clip(shapes.large)
+                                                )
+                                            else null
+                                        },
+                                        colors = ListItemDefaults
+                                            .colors(containerColor = SearchBarDefaults.colors().containerColor),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable(
+                                                onClick = {
+                                                    onExpandedChange(false)
+                                                    loadPage(it.title)
+                                                }
+                                            )
+                                            .animateItem()
                                     )
-                                },
-                                trailingContent = {
-                                    if (it.thumbnail != null)
-                                        FeedImage(
-                                            source = it.thumbnail.source,
-                                            imageLoader = imageLoader,
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .size(56.dp)
-                                                .clip(shapes.large)
+                                }
+                                item {
+                                    Spacer(
+                                        Modifier.height(
+                                            WindowInsets.systemBars.asPaddingValues()
+                                                .calculateBottomPadding() + 152.dp
                                         )
-                                    else null
-                                },
-                                colors = ListItemDefaults
-                                    .colors(containerColor = SearchBarDefaults.colors().containerColor),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable(
-                                        onClick = {
-                                            onExpandedChange(false)
-                                            loadPage(it.title)
-                                        }
                                     )
-                                    .animateItem()
-                            )
+                                }
+                            }
                         }
-                        item {
-                            Spacer(
-                                Modifier.height(
-                                    WindowInsets.systemBars.asPaddingValues()
-                                        .calculateBottomPadding() + 152.dp
-                                )
-                            )
-                        }
-                    }
                 }
             }
         }
@@ -389,7 +536,7 @@ fun AppSearchBarPreview() {
     WikiReaderTheme {
         AppSearchBar(
             searchBarState = SearchBarState(), true, 0, ImageLoader(LocalContext.current),
-            rememberLazyListState(),
+            rememberLazyListState(), windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
         )
     }
