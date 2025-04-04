@@ -78,6 +78,7 @@ fun AppScreen(
     val searchBarState by viewModel.searchBarState.collectAsState()
     val homeScreenState by viewModel.homeScreenState.collectAsState()
     val feedState by viewModel.feedState.collectAsState()
+    val savedArticlesState by viewModel.savedArticlesState.collectAsState()
     val listState by viewModel.listState.collectAsState()
     val searchListState by viewModel.searchListState.collectAsState()
     val feedListState = rememberLazyListState()
@@ -326,18 +327,17 @@ fun AppScreen(
 
         composable("savedArticles") {
             SavedArticlesScreen(
-                loadArticles = { viewModel.listArticles() },
+                savedArticlesState = savedArticlesState,
+                windowSizeClass = windowSizeClass,
                 openSavedArticle = {
                     coroutineScope.launch {
                         navController.navigateUp()
                         viewModel.loadSavedArticle(it)
                     }
                 },
-                articlesSize = { viewModel.totalArticlesSize() },
                 deleteArticle = { viewModel.deleteArticle(it) },
                 deleteAll = { viewModel.deleteAllArticles() },
-                onBack = { navController.navigateUp() },
-                windowSizeClass = windowSizeClass
+                onBack = { navController.navigateUp() }
             )
         }
 

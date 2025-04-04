@@ -86,7 +86,8 @@ fun String.toWikitextAnnotatedString(
                         val curr = currSubstring.substringBefore("</sub>").substringAfter('>')
                         withStyle(
                             SpanStyle(
-                                baselineShift = BaselineShift.Subscript
+                                baselineShift = BaselineShift.Subscript,
+                                fontSize = (fontSize - 2).sp
                             )
                         ) {
                             append(
@@ -104,7 +105,8 @@ fun String.toWikitextAnnotatedString(
                         val curr = currSubstring.substringBefore("</sup>").substringAfter('>')
                         withStyle(
                             SpanStyle(
-                                baselineShift = BaselineShift.Superscript
+                                baselineShift = BaselineShift.Superscript,
+                                fontSize = (fontSize - 2).sp
                             )
                         ) {
                             append(
@@ -426,7 +428,16 @@ fun String.toWikitextAnnotatedString(
                                 ) {
                                     performSearch(curr.substringBefore('|').substringBefore('#'))
                                 }
-                            ) { append(curr.substringAfter('|')) }
+                            ) {
+                                append(
+                                    curr.substringAfter('|').toWikitextAnnotatedString(
+                                        colorScheme,
+                                        typography,
+                                        performSearch,
+                                        fontSize
+                                    )
+                                )
+                            }
                             i += 1 + curr.length + 2
                         } else i += substringMatchingParen('[', ']', i).length
                     } else append(input[i])

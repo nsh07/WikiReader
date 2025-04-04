@@ -54,6 +54,9 @@ class UiViewModel(
     private val _feedState = MutableStateFlow(FeedState())
     val feedState: StateFlow<FeedState> = _feedState.asStateFlow()
 
+    private val _savedArticlesState = MutableStateFlow(SavedArticlesState())
+    val savedArticlesState: StateFlow<SavedArticlesState> = _savedArticlesState.asStateFlow()
+
     private val _listState = MutableStateFlow(LazyListState(0, 0))
     val listState: StateFlow<LazyListState> = _listState.asStateFlow()
     private val _searchListState = MutableStateFlow(LazyListState(0, 0))
@@ -133,6 +136,8 @@ class UiViewModel(
                 currentState.copy(history = appPreferencesRepository.readHistory() ?: emptySet())
             }
 
+            updateArticlesList()
+
             interceptor.setHost("$lang.wikipedia.org")
             isReady = true
             loadFeed()
@@ -202,7 +207,6 @@ class UiViewModel(
                     )
                 }
             }
-            searchListState.value.scrollToItem(0)
         } else clearSearchResults()
     }
 
@@ -217,6 +221,7 @@ class UiViewModel(
         searchDebounceJob = viewModelScope.launch {
             delay(500)
             loadSearchResults(query)
+            if (searchBarState.value.isSearchBarExpanded) searchListState.value.scrollToItem(0)
         }
     }
 
@@ -245,8 +250,8 @@ class UiViewModel(
                         if (history.size > 50) history.remove(history.first())
                         appPreferencesRepository.saveHistory(history)
                     }
-                    if (!random) loadSearchResults(q)
                     if (!random) {
+                        loadSearchResults(q)
                         if (searchBarState.value.prefixSearchResults != null && searchBarState.value.searchResults != null)
                             loadPage(
                                 title = if (searchBarState.value.prefixSearchResults!!.isEmpty())
@@ -263,8 +268,10 @@ class UiViewModel(
                         _homeScreenState.update { currentState ->
                             currentState.copy(
                                 title = "Error",
-                                extract = listOf("An error occurred :(\n" +
-                                        "Please check your internet connection").map {
+                                extract = listOf(
+                                    "An error occurred :(\n" +
+                                            "Please check your internet connection"
+                                ).map {
                                     parseWikitext(
                                         it,
                                         0
@@ -631,6 +638,12 @@ class UiViewModel(
                     _homeScreenState.update { currentState ->
                         currentState.copy(isSaved = true)
                     }
+                _savedArticlesState.update { currentState ->
+                    currentState.copy(
+                        savedArticles = currentState.savedArticles + apiFileName,
+                        articlesSize = totalArticlesSize()
+                    )
+                }
                 Log.d("ViewModel", "Updated saved state to ${homeScreenState.value.isSaved}")
                 return WRStatus.SUCCESS
             } catch (e: Exception) {
@@ -662,25 +675,33 @@ class UiViewModel(
      */
     fun migrateArticles() {
         Log.d("ViewModel", "Migrating pre-2.0 articles")
-        val articleList =
-            listArticles(filter = false).filterNot { it.contains("-api.") || it.contains("-content.") }
-        val articlesDir = File(filesDir, "savedArticles")
-        viewModelScope.launch {
-            articleList.forEach { // Sequentially reload and save articles, then delete old files
-                val oldFile = File(articlesDir, it)
-                Log.d(
-                    "ViewModel",
-                    "Migrating ${it.substringBefore('.')} : ${it.substringAfterLast('.')}"
-                )
-                val saved =
-                    saveArticle(title = it.substringBefore('.'), lang = it.substringAfterLast('.'))
-                if (saved == WRStatus.SUCCESS) {
-                    oldFile.delete()
-                    Log.d("ViewModel", "Migrated $it")
+        try {
+            val articleList =
+                listArticles(filter = false).filterNot { it.contains("-api.") || it.contains("-content.") }
+            val articlesDir = File(filesDir, "savedArticles")
+            viewModelScope.launch {
+                articleList.forEach { // Sequentially reload and save articles, then delete old files
+                    val oldFile = File(articlesDir, it)
+                    Log.d(
+                        "ViewModel",
+                        "Migrating ${it.substringBefore('.')} : ${it.substringAfterLast('.')}"
+                    )
+                    val saved =
+                        saveArticle(
+                            title = it.substringBefore('.'),
+                            lang = it.substringAfterLast('.')
+                        )
+                    if (saved == WRStatus.SUCCESS) {
+                        oldFile.delete()
+                        Log.d("ViewModel", "Migrated $it")
+                    }
                 }
+                Log.d("ViewModel", "${articleList.size} articles migrated")
+                interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
             }
-            Log.d("ViewModel", "${articleList.size} articles migrated")
-            interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
+        } catch(e: Exception) {
+            Log.e("ViewModel", "Failed to load articles list: ${e.message}")
+            e.printStackTrace()
         }
     }
 
@@ -689,8 +710,8 @@ class UiViewModel(
      *
      * @return A [WRStatus] enum value indicating the status of the delete operation
      */
-    fun deleteArticle(apiFileName: String? = null): WRStatus {
-        if (homeScreenState.value.status == WRStatus.UNINITIALIZED && apiFileName == null) {
+    fun deleteArticle(apiFileName: String = "${homeScreenState.value.title}.${homeScreenState.value.pageId}-api.${homeScreenState.value.currentLang}"): WRStatus {
+        if (homeScreenState.value.status == WRStatus.UNINITIALIZED) {
             Log.e("ViewModel", "Cannot delete article, HomeScreenState is uninitialized")
             return WRStatus.OTHER
         }
@@ -698,25 +719,19 @@ class UiViewModel(
         try {
             val articlesDir = File(filesDir, "savedArticles")
 
-            val apiFile = if (apiFileName == null)
-                File(
-                    articlesDir,
-                    "${homeScreenState.value.title}.${homeScreenState.value.pageId}-api.${homeScreenState.value.currentLang}"
-                )
-            else
-                File(articlesDir, apiFileName)
-            val contentFile = if (apiFileName == null)
-                File(
-                    articlesDir,
-                    "${homeScreenState.value.title}.${homeScreenState.value.pageId}-content.${homeScreenState.value.currentLang}"
-                )
-            else
-                File(articlesDir, apiFileName.replace("-api.", "-content."))
+            val apiFile = File(articlesDir, apiFileName)
+            val contentFile = File(articlesDir, apiFileName.replace("-api.", "-content."))
 
             val deleted = apiFile.delete() && contentFile.delete()
             if (deleted) {
                 _homeScreenState.update { currentState ->
                     currentState.copy(isSaved = false)
+                }
+                _savedArticlesState.update { currentState ->
+                    currentState.copy(
+                        savedArticles = currentState.savedArticles - apiFileName,
+                        articlesSize = totalArticlesSize()
+                    )
                 }
                 return WRStatus.SUCCESS
             } else return WRStatus.IO_ERROR
@@ -731,8 +746,12 @@ class UiViewModel(
         try {
             val articlesDir = File(filesDir, "savedArticles")
             val deleted = articlesDir.deleteRecursively()
-            return if (deleted) WRStatus.SUCCESS
-            else WRStatus.IO_ERROR
+            if (deleted) {
+                _savedArticlesState.update { currentState ->
+                    currentState.copy(savedArticles = emptyList(), articlesSize = 0)
+                }
+                return WRStatus.SUCCESS
+            } else return WRStatus.IO_ERROR
         } catch (e: Exception) {
             Log.e("ViewModel", "Cannot delete all articles")
             e.printStackTrace()
@@ -741,24 +760,44 @@ class UiViewModel(
     }
 
     fun listArticles(filter: Boolean = true): List<String> {
-        try {
-            val articlesDir = File(filesDir, "savedArticles")
-            val directoryEntries = articlesDir.toPath().listDirectoryEntries()
-            val out = mutableListOf<String>()
-            directoryEntries.forEach {
-                out.add(it.fileName.toString())
-            }
-            out.sort()
-            Log.d("ViewModel", "${out.size} articles loaded")
-            return if (filter) out.filter { it.contains("-api.") } else out
-        } catch (e: Exception) {
-            Log.e("ViewModel", "Cannot load list of downloaded articles, IO error")
-            e.printStackTrace()
-            return listOf<String>()
+        val articlesDir = File(filesDir, "savedArticles")
+        val directoryEntries = articlesDir.toPath().listDirectoryEntries()
+        val out = mutableListOf<String>()
+        directoryEntries.forEach {
+            out.add(it.fileName.toString())
         }
+        out.sort()
+        Log.d("ViewModel", "${out.size} articles loaded")
+        return if (filter) out.filter { it.contains("-api.") } else out
     }
 
-    fun totalArticlesSize(): Long {
+    fun updateArticlesList() =
+        viewModelScope.launch(Dispatchers.IO) {
+            _savedArticlesState.update { currentState ->
+                currentState.copy(isLoading = true)
+            }
+            try {
+                val out = listArticles()
+                _savedArticlesState.update { currentState ->
+                    currentState.copy(
+                        savedArticles = out.filter { it.contains("-api.") },
+                        articlesSize = totalArticlesSize()
+                    )
+                }
+                Log.d("ViewModel", "${out.size} articles loaded")
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Cannot load list of downloaded articles, IO error")
+                e.printStackTrace()
+                _savedArticlesState.update { currentState ->
+                    currentState.copy(savedArticles = emptyList(), articlesSize = 0)
+                }
+            }
+            _savedArticlesState.update { currentState ->
+                currentState.copy(isLoading = false)
+            }
+        }
+
+    private fun totalArticlesSize(): Long {
         try {
             val size = File(filesDir, "savedArticles")
                 .walkTopDown()
@@ -835,7 +874,7 @@ class UiViewModel(
 
                 return@withContext WRStatus.SUCCESS
             } catch (e: Exception) {
-                Log.e("ViewModel", "Cannot load saved article, IO error")
+                Log.d("ViewModel", "Cannot load saved article, IO error")
                 e.printStackTrace()
                 return@withContext WRStatus.IO_ERROR
             }

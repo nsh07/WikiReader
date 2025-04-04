@@ -25,7 +25,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,24 +43,22 @@ import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.bytesToHumanReadableSize
 import org.nsh07.wikireader.data.langCodeToWikiName
+import org.nsh07.wikireader.ui.viewModel.SavedArticlesState
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun SavedArticlesScreen(
-    modifier: Modifier = Modifier,
-    loadArticles: () -> List<String>,
-    articlesSize: () -> Long,
-    openSavedArticle: (String) -> Unit,
-    deleteArticle: (String) -> WRStatus,
-    deleteAll: () -> WRStatus,
+    savedArticlesState: SavedArticlesState,
     windowSizeClass: WindowSizeClass,
-    onBack: () -> Unit
+    modifier: Modifier = Modifier,
+    deleteAll: () -> WRStatus,
+    onBack: () -> Unit,
+    openSavedArticle: (String) -> Unit,
+    deleteArticle: (String) -> WRStatus
 ) {
     val coroutineScope = rememberCoroutineScope()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val snackBarHostState = remember { SnackbarHostState() }
-    var savedArticles by remember { mutableStateOf(loadArticles()) }
-    var savedArticlesSize by remember { mutableLongStateOf(articlesSize()) }
     var toDelete: String? by remember { mutableStateOf("") }
     var showArticleDeleteDialog by remember { mutableStateOf(false) }
     val weight = remember {
@@ -76,22 +73,8 @@ fun SavedArticlesScreen(
         DeleteArticleDialog(
             articleFileName = toDelete,
             setShowDeleteDialog = { showArticleDeleteDialog = it },
-            deleteArticle = {
-                val status = deleteArticle(it)
-                if (status == WRStatus.SUCCESS) {
-                    savedArticles -= it
-                    savedArticlesSize = articlesSize()
-                }
-                status
-            },
-            deleteAll = {
-                val status = deleteAll()
-                if (status == WRStatus.SUCCESS) {
-                    savedArticles = emptyList()
-                    savedArticlesSize = articlesSize()
-                }
-                status
-            },
+            deleteArticle = deleteArticle,
+            deleteAll = deleteAll,
             showSnackbar = { coroutineScope.launch { snackBarHostState.showSnackbar(it) } }
         )
 
@@ -102,7 +85,7 @@ fun SavedArticlesScreen(
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { insets ->
-        if (savedArticles.isNotEmpty())
+        if (savedArticlesState.savedArticles.isNotEmpty())
             Row {
                 if (weight != 0f) Spacer(Modifier.weight(weight))
                 LazyColumn(
@@ -114,9 +97,9 @@ fun SavedArticlesScreen(
                     item {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                "${savedArticles.size} articles, ${
+                                "${savedArticlesState.savedArticles.size} articles, ${
                                     bytesToHumanReadableSize(
-                                        savedArticlesSize.toDouble()
+                                        savedArticlesState.articlesSize.toDouble()
                                     )
                                 } total",
                                 style = MaterialTheme.typography.labelLarge,
@@ -133,11 +116,13 @@ fun SavedArticlesScreen(
                         }
                         HorizontalDivider()
                     }
-                    items(savedArticles, key = { it }) {
+                    items(savedArticlesState.savedArticles, key = { it }) {
                         ListItem(
                             headlineContent = {
                                 Text(
-                                    remember { it.substringBeforeLast(".").substringBeforeLast('.') },
+                                    remember {
+                                        it.substringBeforeLast(".").substringBeforeLast('.')
+                                    },
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )

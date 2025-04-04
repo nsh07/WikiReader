@@ -62,3 +62,10 @@ data class FeedState(
     val news: List<FeedApiNews>? = null,
     val onThisDay: List<FeedApiOTD>? = null
 )
+
+@Immutable
+data class SavedArticlesState(
+    val isLoading: Boolean = false,
+    val savedArticles: List<String> = emptyList(),
+    val articlesSize: Long = 0L
+)
