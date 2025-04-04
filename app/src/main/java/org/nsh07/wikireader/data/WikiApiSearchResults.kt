@@ -5,18 +5,12 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class WikiApiSearchResults(
-    val query: WikiSearchResultsQuery
+    val query: WikiSearchResultsQuery = WikiSearchResultsQuery()
 )
 
 @Serializable
 data class WikiSearchResultsQuery(
-    @SerialName("searchinfo") val searchInfo: WikiSearchInfo,
     val pages: List<WikiSearchResult> = emptyList()
-)
-
-@Serializable
-data class WikiSearchInfo(
-    @SerialName("totalhits") val totalHits: Int
 )
 
 @Serializable
@@ -29,4 +23,29 @@ data class WikiSearchResult(
     val index: Int,
     @SerialName("redirecttitle") val redirectTitle: String? = null,
     val thumbnail: WikiPhoto? = null
+)
+
+@Serializable
+data class WikiApiPrefixSearchResults(
+    val query: WikiPrefixSearchResultsQuery = WikiPrefixSearchResultsQuery()
+)
+
+@Serializable
+data class WikiPrefixSearchResultsQuery(
+    val pages: List<WikiPrefixSearchResult> = emptyList()
+)
+
+@Serializable
+data class WikiPrefixSearchResult(
+    @SerialName("pageid") val pageId: Int,
+    val ns: Int = 0,
+    val title: String,
+    val index: Int,
+    val thumbnail: WikiPhoto? = null,
+    val terms: WikiPrefixSearchPageTerms? = null
+)
+
+@Serializable
+data class WikiPrefixSearchPageTerms(
+    val description: List<String>
 )

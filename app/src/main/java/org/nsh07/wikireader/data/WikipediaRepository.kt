@@ -7,6 +7,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 interface WikipediaRepository {
+    suspend fun getPrefixSearchResults(query: String): WikiApiPrefixSearchResults
     suspend fun getSearchResults(query: String): WikiApiSearchResults
     suspend fun getPageData(query: String): WikiApiPageData
     suspend fun getPageContent(title: String): String
@@ -22,6 +23,11 @@ class NetworkWikipediaRepository(
     private val wikipediaPageApiService: WikipediaApiService,
     private val ioDispatcher: CoroutineDispatcher
 ) : WikipediaRepository {
+    override suspend fun getPrefixSearchResults(query: String): WikiApiPrefixSearchResults =
+        withContext(ioDispatcher) {
+            wikipediaApiService.getPrefixSearchResults(query)
+        }
+
     override suspend fun getSearchResults(query: String): WikiApiSearchResults =
         withContext(ioDispatcher) {
             wikipediaApiService.getSearchResults(query)

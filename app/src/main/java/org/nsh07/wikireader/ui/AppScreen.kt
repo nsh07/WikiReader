@@ -79,6 +79,7 @@ fun AppScreen(
     val homeScreenState by viewModel.homeScreenState.collectAsState()
     val feedState by viewModel.feedState.collectAsState()
     val listState by viewModel.listState.collectAsState()
+    val searchListState by viewModel.searchListState.collectAsState()
     val feedListState = rememberLazyListState()
     val languageSearchStr = viewModel.languageSearchStr.collectAsState()
     val languageSearchQuery = viewModel.languageSearchQuery.collectAsState("")
@@ -187,6 +188,7 @@ fun AppScreen(
                         searchBarEnabled = !showArticleLanguageSheet,
                         index = if (homeScreenState.status != WRStatus.FEED_LOADED) index else feedIndex,
                         imageLoader = imageLoader,
+                        searchListState = searchListState,
                         loadSearch = viewModel::loadSearch,
                         loadSearchDebounced = viewModel::loadSearchResultsDebounced,
                         loadPage = viewModel::loadPage,

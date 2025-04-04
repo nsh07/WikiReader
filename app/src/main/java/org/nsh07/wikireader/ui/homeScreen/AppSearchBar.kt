@@ -5,8 +5,6 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,7 +18,9 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Info
@@ -35,8 +35,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
@@ -72,6 +72,7 @@ fun AppSearchBar(
     searchBarEnabled: Boolean,
     index: Int,
     imageLoader: ImageLoader,
+    searchListState: LazyListState,
     loadSearch: (String) -> Unit,
     loadSearchDebounced: (String) -> Unit,
     loadPage: (String) -> Unit,
@@ -192,7 +193,7 @@ fun AppSearchBar(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
                                         "History",
-                                        style = MaterialTheme.typography.labelLarge,
+                                        style = typography.labelLarge,
                                         modifier = Modifier.padding(16.dp)
                                     )
                                     Spacer(Modifier.weight(1f))
@@ -247,11 +248,66 @@ fun AppSearchBar(
                             }
                         }
 
-                    else -> LazyColumn(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(searchBarState.searchResults, key = { it.title }) {
+                    else -> LazyColumn(state = searchListState) {
+                        item {
+                            Text(
+                                text = "Title matches",
+                                modifier = Modifier.padding(16.dp),
+                                style = typography.labelLarge
+                            )
+                        }
+                        items(searchBarState.prefixSearchResults, key = { "${it.title}-prefix" }) {
+                            ListItem(
+                                headlineContent = {
+                                    Text(
+                                        it.title,
+                                        softWrap = false,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                },
+                                supportingContent = if (it.terms != null) {
+                                    {
+                                        Text(
+                                            it.terms.description[0],
+                                            softWrap = true,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                } else null,
+                                trailingContent = {
+                                    if (it.thumbnail != null)
+                                        FeedImage(
+                                            source = it.thumbnail.source,
+                                            imageLoader = imageLoader,
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier
+                                                .size(56.dp)
+                                                .clip(shapes.large)
+                                        )
+                                    else null
+                                },
+                                colors = ListItemDefaults
+                                    .colors(containerColor = SearchBarDefaults.colors().containerColor),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable(
+                                        onClick = {
+                                            onExpandedChange(false)
+                                            loadPage(it.title)
+                                        }
+                                    )
+                                    .animateItem()
+                            )
+                        }
+                        item {
+                            Text(
+                                text = "In-article matches",
+                                modifier = Modifier.padding(16.dp),
+                                style = typography.labelLarge
+                            )
+                        }
+                        items(searchBarState.searchResults, key = { "${it.title}-search" }) {
                             ListItem(
                                 overlineContent = if (it.redirectTitle != null) {
                                     {
@@ -281,26 +337,17 @@ fun AppSearchBar(
                                         overflow = TextOverflow.Ellipsis
                                     )
                                 },
-                                leadingContent = {
+                                trailingContent = {
                                     if (it.thumbnail != null)
                                         FeedImage(
                                             source = it.thumbnail.source,
                                             imageLoader = imageLoader,
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier
+                                                .size(56.dp)
                                                 .clip(shapes.large)
-                                                .size(64.dp)
                                         )
-                                    else
-                                        Box(Modifier.size(64.dp)) {
-                                            Icon(
-                                                painterResource(R.drawable.image),
-                                                contentDescription = null,
-                                                modifier = Modifier
-                                                    .size(48.dp)
-                                                    .align(Alignment.Center)
-                                            )
-                                        }
+                                    else null
                                 },
                                 colors = ListItemDefaults
                                     .colors(containerColor = SearchBarDefaults.colors().containerColor),
@@ -342,6 +389,7 @@ fun AppSearchBarPreview() {
     WikiReaderTheme {
         AppSearchBar(
             searchBarState = SearchBarState(), true, 0, ImageLoader(LocalContext.current),
+            rememberLazyListState(),
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
         )
     }

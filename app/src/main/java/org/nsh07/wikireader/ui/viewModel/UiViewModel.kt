@@ -55,6 +55,8 @@ class UiViewModel(
 
     private val _listState = MutableStateFlow(LazyListState(0, 0))
     val listState: StateFlow<LazyListState> = _listState.asStateFlow()
+    private val _searchListState = MutableStateFlow(LazyListState(0,0))
+    val searchListState: StateFlow<LazyListState> = _searchListState.asStateFlow()
 
     private val _preferencesState = MutableStateFlow(PreferencesState())
     val preferencesState: StateFlow<PreferencesState> = _preferencesState.asStateFlow()
@@ -168,7 +170,14 @@ class UiViewModel(
     private suspend fun loadSearchResults(query: String) {
         val q = query.trim()
         if (q.isNotEmpty()) {
-            val searchResults = wikipediaRepository.getSearchResults(query)
+            val prefixSearchResults = wikipediaRepository.getPrefixSearchResults(q)
+            _searchBarState.update { currentState ->
+                currentState.copy(
+                    prefixSearchResults = prefixSearchResults.query.pages.sortedBy { it.index }
+                )
+            }
+
+            val searchResults = wikipediaRepository.getSearchResults(q)
             val results = searchResults.query.pages.sortedBy { it.index }
             val resultsParsed = results.map {
                 it.copy(
@@ -180,16 +189,16 @@ class UiViewModel(
             }
             _searchBarState.update { currentState ->
                 currentState.copy(
-                    searchResults = resultsParsed,
-                    totalHits = searchResults.query.searchInfo.totalHits
+                    searchResults = resultsParsed
                 )
             }
+            searchListState.value.scrollToItem(0)
         } else clearSearchResults()
     }
 
     private fun clearSearchResults() {
         _searchBarState.update { currentState ->
-            currentState.copy(totalHits = 0, searchResults = emptyList())
+            currentState.copy(prefixSearchResults = emptyList(), searchResults = emptyList())
         }
     }
 
@@ -216,7 +225,7 @@ class UiViewModel(
                     interceptor.setHost("$lang.wikipedia.org")
                     setLang = lang
                 }
-                _homeScreenState.update { currentState->
+                _homeScreenState.update { currentState ->
                     currentState.copy(isLoading = true, loadingProgress = null)
                 }
                 if (!random && !fromBackStack) {
@@ -229,7 +238,9 @@ class UiViewModel(
                 try {
                     if (!random)
                         loadPage(
-                            title = searchBarState.value.searchResults[0].title,
+                            title = if (searchBarState.value.prefixSearchResults.isEmpty())
+                                searchBarState.value.searchResults[0].title
+                            else searchBarState.value.prefixSearchResults[0].title,
                             lang = setLang,
                             fromBackStack = fromBackStack
                         )
@@ -286,14 +297,17 @@ class UiViewModel(
         loaderJob.cancel()
         viewModelScope.launch(loaderJob) {
             var setLang = preferencesState.value.lang
-            if (title != null) {
+            _searchBarState.update { currentState->
+                currentState.copy(isSearchBarExpanded = false)
+            }
+            if (title != null || random) {
                 Log.d("ViewModel", "Cancelled all jobs")
 
                 if (lang != null) {
                     interceptor.setHost("$lang.wikipedia.org")
                     setLang = lang
                 }
-                if (!random) updateBackstack(title, setLang, fromBackStack)
+                if (!random) updateBackstack(title!!, setLang, fromBackStack)
 
                 _homeScreenState.update { currentState ->
                     currentState.copy(isLoading = true, loadingProgress = null)
@@ -302,7 +316,7 @@ class UiViewModel(
                 try {
                     val apiResponse = when (random) {
                         false -> wikipediaRepository
-                            .getPageData(title)
+                            .getPageData(title!!)
                             .query
                             ?.pages?.get(0)
 
@@ -340,7 +354,7 @@ class UiViewModel(
                     sections = extract.size
                     val parsedExtract = mutableListOf<List<AnnotatedString>>()
 
-                    _homeScreenState.update{ currentState->
+                    _homeScreenState.update { currentState ->
                         currentState.copy(
                             title = apiResponse?.title ?: "Error",
                             photo = apiResponse?.photo,
@@ -747,7 +761,7 @@ class UiViewModel(
                     )
                 }
 
-                _homeScreenState.update{ currentState->
+                _homeScreenState.update { currentState ->
                     currentState.copy(
                         title = apiResponse?.title ?: "Error",
                         photo = apiResponse?.photo,
