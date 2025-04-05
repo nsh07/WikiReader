@@ -117,7 +117,7 @@ fun ArticleFeed(
             if (feedState.tfa != null) {
                 item {
                     Text(
-                        "Featured Article",
+                        "Featured article",
                         style = MaterialTheme.typography.headlineMedium,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
@@ -190,6 +190,7 @@ fun ArticleFeed(
                     HorizontalPager(
                         state = pagerState,
                         beyondViewportPageCount = pagerState.pageCount,
+                        verticalAlignment = Alignment.Top,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         ElevatedCard(
@@ -309,7 +310,7 @@ fun ArticleFeed(
             if (feedState.image != null) {
                 item {
                     Text(
-                        "Picture of the Day",
+                        "Picture of the day",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
@@ -350,7 +351,7 @@ fun ArticleFeed(
                 item {
                     val carouselState = rememberCarouselState(0) { feedState.news.size }
                     Text(
-                        "In the News",
+                        "In the news",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
@@ -446,7 +447,7 @@ fun ArticleFeed(
                 item {
                     val carouselState = rememberCarouselState(0) { feedState.onThisDay.size }
                     Text(
-                        "On This Day",
+                        "On this day",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)

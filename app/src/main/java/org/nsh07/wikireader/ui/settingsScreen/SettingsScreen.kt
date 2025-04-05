@@ -80,14 +80,14 @@ fun SettingsScreen(
         "Dark" to "dark"
     )
     val fontStyleMap: Map<String, String> = mapOf(
-        "sans" to "Sans-Serif",
+        "sans" to "Sans-serif",
         "serif" to "Serif"
     )
     val reverseFontStyleMap: Map<String, String> = mapOf(
-        "Sans-Serif" to "sans",
+        "Sans-serif" to "sans",
         "Serif" to "serif"
     )
-    val fontStyles = listOf("Sans-Serif", "Serif")
+    val fontStyles = listOf("Sans-serif", "Serif")
 
     val theme = preferencesState.theme
     val fontStyle = preferencesState.fontStyle
