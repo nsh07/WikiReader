@@ -47,6 +47,7 @@ data class HomeScreenState(
 data class PreferencesState(
     val theme: String = "auto",
     val lang: String = "en",
+    val fontStyle: String = "sans",
     val colorScheme: String = Color.White.toString(),
     val fontSize: Int = 16,
     val blackTheme: Boolean = false,

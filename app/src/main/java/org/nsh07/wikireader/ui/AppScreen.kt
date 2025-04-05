@@ -187,6 +187,7 @@ fun AppScreen(
                     AppSearchBar(
                         searchBarState = searchBarState,
                         searchBarEnabled = !showArticleLanguageSheet,
+                        dataSaver = preferencesState.dataSaver,
                         index = if (homeScreenState.status != WRStatus.FEED_LOADED) index else feedIndex,
                         imageLoader = imageLoader,
                         searchListState = searchListState,

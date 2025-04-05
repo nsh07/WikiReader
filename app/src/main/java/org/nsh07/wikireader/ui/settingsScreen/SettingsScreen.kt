@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -21,6 +22,9 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -75,8 +79,18 @@ fun SettingsScreen(
         "Light" to "light",
         "Dark" to "dark"
     )
+    val fontStyleMap: Map<String, String> = mapOf(
+        "sans" to "Sans-Serif",
+        "serif" to "Serif"
+    )
+    val reverseFontStyleMap: Map<String, String> = mapOf(
+        "Sans-Serif" to "sans",
+        "Serif" to "serif"
+    )
+    val fontStyles = listOf("Sans-Serif", "Serif")
 
     val theme = preferencesState.theme
+    val fontStyle = preferencesState.fontStyle
     val color = preferencesState.colorScheme.toColor()
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -197,6 +211,31 @@ fun SettingsScreen(
                 ListItem(
                     leadingContent = {
                         Icon(
+                            painterResource(R.drawable.serif),
+                            contentDescription = null
+                        )
+                    },
+                    headlineContent = { Text("Font style") },
+                    supportingContent = {
+                        SingleChoiceSegmentedButtonRow {
+                            fontStyles.forEachIndexed { index, label ->
+                                SegmentedButton(
+                                    shape = SegmentedButtonDefaults.itemShape(
+                                        index = index,
+                                        count = fontStyles.size
+                                    ),
+                                    onClick = { viewModel.saveFontStyle(reverseFontStyleMap[label] ?: "sans") },
+                                    selected = label == fontStyleMap[fontStyle],
+                                    label = { Text(label) },
+                                    modifier = if (weight != 0f) Modifier.width(160.dp) else Modifier.width(512.dp)
+                                )
+                            }
+                        }
+                    }
+                )
+                ListItem(
+                    leadingContent = {
+                        Icon(
                             painterResource(R.drawable.format_size),
                             contentDescription = null
                         )
@@ -244,7 +283,7 @@ fun SettingsScreen(
                         )
                     },
                     headlineContent = { Text("Data saver") },
-                    supportingContent = { Text("Only load page image in fullscreen and disable feed") },
+                    supportingContent = { Text("Disable images and feed. Page images can still be opened by clicking the description card") },
                     trailingContent = {
                         Switch(
                             checked = dataSaver,

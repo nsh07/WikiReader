@@ -108,6 +108,10 @@ fun AppHomeScreen(
             1f
         else 0f
     }
+    val fontFamily = remember(preferencesState.fontStyle) {
+        if (preferencesState.fontStyle == "sans") FontFamily.SansSerif
+        else FontFamily.Serif
+    }
 
     var isRefreshing by remember { mutableStateOf(false) }
 
@@ -236,6 +240,7 @@ fun AppHomeScreen(
                                     ParsedBodyText(
                                         body = homeScreenState.extract[0],
                                         fontSize = fontSize,
+                                        fontFamily = fontFamily,
                                         renderMath = preferencesState.renderMath,
                                         darkTheme = MaterialTheme.colorScheme.isDark()
                                     )
@@ -249,6 +254,7 @@ fun AppHomeScreen(
                                         title = homeScreenState.extract[i],
                                         body = homeScreenState.extract[i + 1],
                                         fontSize = fontSize,
+                                        fontFamily = fontFamily,
                                         expanded = preferencesState.expandedSections,
                                         darkTheme = MaterialTheme.colorScheme.isDark(),
                                         renderMath = preferencesState.renderMath

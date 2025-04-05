@@ -40,6 +40,7 @@ fun ExpandableSection(
     title: List<AnnotatedString>,
     body: List<AnnotatedString>,
     fontSize: Int,
+    fontFamily: FontFamily,
     expanded: Boolean,
     renderMath: Boolean,
     darkTheme: Boolean,
@@ -97,6 +98,7 @@ fun ExpandableSection(
             ParsedBodyText(
                 body = body,
                 fontSize = fontSize,
+                fontFamily = fontFamily,
                 renderMath = renderMath,
                 darkTheme = darkTheme
             )
@@ -110,8 +112,9 @@ fun ExpandableSectionPreview() {
     WikiReaderTheme {
         ExpandableSection(
             title = listOf(buildAnnotatedString { append("Title") }),
-            body = listOf(buildAnnotatedString { append("Lorem\nIpsum\nBig\nHonkin\nBody\nText") }),
+            body = listOf(buildAnnotatedString { append("Lorem\nIpsum\nBig\nHonking\nBody\nText") }),
             fontSize = 16,
+            fontFamily = FontFamily.SansSerif,
             expanded = false,
             renderMath = true,
             darkTheme = false

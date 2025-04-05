@@ -21,6 +21,7 @@ import kotlin.text.Typography.nbsp
 fun ParsedBodyText(
     body: List<AnnotatedString>,
     fontSize: Int,
+    fontFamily: FontFamily,
     renderMath: Boolean,
     darkTheme: Boolean
 ) {
@@ -34,6 +35,7 @@ fun ParsedBodyText(
                         text = body[i],
                         style = typography.bodyLarge.copy(hyphens = Hyphens.Auto),
                         fontSize = fontSize.sp,
+                        fontFamily = fontFamily,
                         lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -58,6 +60,7 @@ fun ParsedBodyText(
                         text = body[i],
                         style = typography.bodyLarge.copy(hyphens = Hyphens.Auto),
                         fontSize = fontSize.sp,
+                        fontFamily = fontFamily,
                         lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
                         modifier = Modifier
                             .fillMaxWidth()

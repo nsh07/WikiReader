@@ -105,6 +105,9 @@ class UiViewModel(
                     Color.White.toString()
                 )
 
+            val fontStyle = appPreferencesRepository.readStringPreference("font-style")
+                ?: appPreferencesRepository.saveStringPreference("font-style", "sans")
+
             val fontSize = appPreferencesRepository.readIntPreference("font-size")
                 ?: appPreferencesRepository.saveIntPreference("font-size", 16)
 
@@ -130,6 +133,7 @@ class UiViewModel(
                     lang = lang,
                     colorScheme = colorScheme,
                     fontSize = fontSize,
+                    fontStyle = fontStyle,
                     blackTheme = blackTheme,
                     expandedSections = expandedSections,
                     dataSaver = dataSaver,
@@ -996,6 +1000,17 @@ class UiViewModel(
                 currentState.copy(
                     theme = appPreferencesRepository
                         .saveStringPreference("theme", theme)
+                )
+            }
+        }
+    }
+
+    fun saveFontStyle(fontStyle: String) {
+        viewModelScope.launch {
+            _preferencesState.update { currentState ->
+                currentState.copy(
+                    fontStyle = appPreferencesRepository
+                        .saveStringPreference("font-style", fontStyle)
                 )
             }
         }

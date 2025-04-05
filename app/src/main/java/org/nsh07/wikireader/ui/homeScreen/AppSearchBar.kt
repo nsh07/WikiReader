@@ -77,6 +77,7 @@ import org.nsh07.wikireader.ui.viewModel.SearchBarState
 fun AppSearchBar(
     searchBarState: SearchBarState,
     searchBarEnabled: Boolean,
+    dataSaver: Boolean,
     index: Int,
     imageLoader: ImageLoader,
     searchListState: LazyListState,
@@ -263,6 +264,14 @@ fun AppSearchBar(
                                             .animateItem()
                                     )
                                 }
+                                item {
+                                    Spacer(
+                                        Modifier.height(
+                                            WindowInsets.systemBars.asPaddingValues()
+                                                .calculateBottomPadding() + 152.dp
+                                        )
+                                    )
+                                }
                             }
                             if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
                         }
@@ -293,7 +302,7 @@ fun AppSearchBar(
                                             }
                                         } else null,
                                         trailingContent = {
-                                            if (it.thumbnail != null)
+                                            if (it.thumbnail != null && !dataSaver)
                                                 FeedImage(
                                                     source = it.thumbnail.source,
                                                     imageLoader = imageLoader,
@@ -352,7 +361,7 @@ fun AppSearchBar(
                                             )
                                         },
                                         trailingContent = {
-                                            if (it.thumbnail != null)
+                                            if (it.thumbnail != null && !dataSaver)
                                                 FeedImage(
                                                     source = it.thumbnail.source,
                                                     imageLoader = imageLoader,
@@ -418,7 +427,7 @@ fun AppSearchBar(
                                             }
                                         } else null,
                                         trailingContent = {
-                                            if (it.thumbnail != null)
+                                            if (it.thumbnail != null && !dataSaver)
                                                 FeedImage(
                                                     source = it.thumbnail.source,
                                                     imageLoader = imageLoader,
@@ -483,7 +492,7 @@ fun AppSearchBar(
                                             )
                                         },
                                         trailingContent = {
-                                            if (it.thumbnail != null)
+                                            if (it.thumbnail != null && !dataSaver)
                                                 FeedImage(
                                                     source = it.thumbnail.source,
                                                     imageLoader = imageLoader,
@@ -535,7 +544,7 @@ fun AppSearchBar(
 fun AppSearchBarPreview() {
     WikiReaderTheme {
         AppSearchBar(
-            searchBarState = SearchBarState(), true, 0, ImageLoader(LocalContext.current),
+            searchBarState = SearchBarState(), true, false, 0, ImageLoader(LocalContext.current),
             rememberLazyListState(), windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
         )
