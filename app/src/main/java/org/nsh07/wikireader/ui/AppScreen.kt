@@ -337,7 +337,10 @@ fun AppScreen(
                 },
                 deleteArticle = { viewModel.deleteArticle(it) },
                 deleteAll = { viewModel.deleteAllArticles() },
-                onBack = { navController.navigateUp() }
+                onBack = {
+                    navController.navigateUp()
+                    viewModel.updateLanguageFilters()
+                }
             )
         }
 

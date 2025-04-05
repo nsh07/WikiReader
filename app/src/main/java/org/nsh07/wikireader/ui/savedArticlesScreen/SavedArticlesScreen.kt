@@ -1,9 +1,13 @@
 package org.nsh07.wikireader.ui.savedArticlesScreen
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,8 +16,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -45,7 +51,10 @@ import org.nsh07.wikireader.data.bytesToHumanReadableSize
 import org.nsh07.wikireader.data.langCodeToWikiName
 import org.nsh07.wikireader.ui.viewModel.SavedArticlesState
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
+    ExperimentalLayoutApi::class
+)
 @Composable
 fun SavedArticlesScreen(
     savedArticlesState: SavedArticlesState,
@@ -61,6 +70,12 @@ fun SavedArticlesScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     var toDelete: String? by remember { mutableStateOf("") }
     var showArticleDeleteDialog by remember { mutableStateOf(false) }
+
+    var selectedLangs =
+        savedArticlesState.languageFilters.filter { it.selected }.map { it.langCode }
+    if (selectedLangs.isEmpty()) selectedLangs =
+        savedArticlesState.languageFilters.map { it.langCode }
+
     val weight = remember {
         if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM ||
             windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED
@@ -114,9 +129,39 @@ fun SavedArticlesScreen(
                                 modifier = Modifier.padding(horizontal = 16.dp)
                             ) { Text("Delete all") }
                         }
-                        HorizontalDivider()
                     }
-                    items(savedArticlesState.savedArticles, key = { it }) {
+                    if (savedArticlesState.languageFilters.size > 1)
+                        item {
+                            FlowRow(
+                                Modifier.padding(horizontal = 16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                savedArticlesState.languageFilters.forEach { filterOption ->
+                                    FilterChip(
+                                        selected = filterOption.selected,
+                                        onClick = {
+                                            filterOption.selected = !filterOption.selected
+                                        },
+                                        label = { Text(filterOption.option) },
+                                        leadingIcon = {
+                                            AnimatedVisibility(filterOption.selected) {
+                                                Icon(
+                                                    Icons.Outlined.Check,
+                                                    contentDescription = null
+                                                )
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    items(savedArticlesState.savedArticles.filter {
+                        selectedLangs.contains(
+                            it.substringAfterLast(
+                                '.'
+                            )
+                        )
+                    }, key = { it }) {
                         ListItem(
                             headlineContent = {
                                 Text(

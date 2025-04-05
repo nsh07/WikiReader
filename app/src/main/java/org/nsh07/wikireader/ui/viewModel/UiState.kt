@@ -15,6 +15,7 @@ import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
 import org.nsh07.wikireader.data.WikiPrefixSearchResult
 import org.nsh07.wikireader.data.WikiSearchResult
+import org.nsh07.wikireader.ui.savedArticlesScreen.LanguageFilterOption
 
 @Immutable
 data class SearchBarState(
@@ -67,5 +68,6 @@ data class FeedState(
 data class SavedArticlesState(
     val isLoading: Boolean = false,
     val savedArticles: List<String> = emptyList(),
+    val languageFilters: List<LanguageFilterOption> = emptyList(),
     val articlesSize: Long = 0L
 )

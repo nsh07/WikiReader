@@ -31,11 +31,13 @@ import org.nsh07.wikireader.data.AppPreferencesRepository
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiApiPageData
 import org.nsh07.wikireader.data.WikipediaRepository
+import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.parseSections
 import org.nsh07.wikireader.network.HostSelectionInterceptor
 import org.nsh07.wikireader.network.NetworkException
 import org.nsh07.wikireader.parser.cleanUpWikitext
 import org.nsh07.wikireader.parser.toWikitextAnnotatedString
+import org.nsh07.wikireader.ui.savedArticlesScreen.LanguageFilterOption
 import java.io.File
 import java.io.FileOutputStream
 import kotlin.io.path.listDirectoryEntries
@@ -641,9 +643,10 @@ class UiViewModel(
                 _savedArticlesState.update { currentState ->
                     currentState.copy(
                         savedArticles = currentState.savedArticles + apiFileName,
-                        articlesSize = totalArticlesSize()
+                        articlesSize = totalArticlesSize(),
                     )
                 }
+                updateLanguageFilters()
                 Log.d("ViewModel", "Updated saved state to ${homeScreenState.value.isSaved}")
                 return WRStatus.SUCCESS
             } catch (e: Exception) {
@@ -699,7 +702,7 @@ class UiViewModel(
                 Log.d("ViewModel", "${articleList.size} articles migrated")
                 interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
             }
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             Log.e("ViewModel", "Failed to load articles list: ${e.message}")
             e.printStackTrace()
         }
@@ -750,6 +753,7 @@ class UiViewModel(
                 _savedArticlesState.update { currentState ->
                     currentState.copy(savedArticles = emptyList(), articlesSize = 0)
                 }
+                updateLanguageFilters()
                 return WRStatus.SUCCESS
             } else return WRStatus.IO_ERROR
         } catch (e: Exception) {
@@ -784,6 +788,7 @@ class UiViewModel(
                         articlesSize = totalArticlesSize()
                     )
                 }
+                updateLanguageFilters()
                 Log.d("ViewModel", "${out.size} articles loaded")
             } catch (e: Exception) {
                 Log.e("ViewModel", "Cannot load list of downloaded articles, IO error")
@@ -879,6 +884,26 @@ class UiViewModel(
                 return@withContext WRStatus.IO_ERROR
             }
         }
+
+    fun updateLanguageFilters() {
+        val languageFilters = mutableSetOf<String>()
+        savedArticlesState.value.savedArticles.forEach {
+            languageFilters.add(it.substringAfterLast('.'))
+        }
+        _savedArticlesState.update { currentState ->
+            currentState.copy(
+                languageFilters =
+                    languageFilters
+                        .toList()
+                        .map {
+                            LanguageFilterOption(
+                                langCodeToName(it), it
+                            )
+                        }
+                        .sortedBy { it.option }
+            )
+        }
+    }
 
     suspend fun parseWikitext(wikitext: String, index: Int): List<AnnotatedString> =
         withContext(Dispatchers.IO) {
