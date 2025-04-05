@@ -18,9 +18,7 @@ import org.nsh07.wikireader.data.WikiSearchResult
 import org.nsh07.wikireader.ui.savedArticlesScreen.LanguageFilterOption
 
 @Immutable
-data class SearchBarState(
-    val query: String = "",
-    val isSearchBarExpanded: Boolean = false,
+data class AppSearchBarState(
     val prefixSearchResults: List<WikiPrefixSearchResult>? = emptyList(),
     val searchResults: List<WikiSearchResult>? = emptyList(),
     val history: Set<String> = setOf(),

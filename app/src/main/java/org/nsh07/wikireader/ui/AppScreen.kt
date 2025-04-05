@@ -18,17 +18,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,6 +43,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.text.parseAsHtml
@@ -47,6 +51,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
+import androidx.window.core.layout.WindowHeightSizeClass
 import androidx.window.core.layout.WindowSizeClass
 import coil3.ImageLoader
 import coil3.gif.AnimatedImageDecoder
@@ -75,16 +80,23 @@ fun AppScreen(
     modifier: Modifier = Modifier,
     windowSizeClass: WindowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
 ) {
-    val searchBarState by viewModel.searchBarState.collectAsState()
+    val appSearchBarState by viewModel.appSearchBarState.collectAsState()
     val homeScreenState by viewModel.homeScreenState.collectAsState()
     val feedState by viewModel.feedState.collectAsState()
     val savedArticlesState by viewModel.savedArticlesState.collectAsState()
     val listState by viewModel.listState.collectAsState()
     val searchListState by viewModel.searchListState.collectAsState()
+    val searchBarState = rememberSearchBarState()
     val feedListState = rememberLazyListState()
     val languageSearchStr = viewModel.languageSearchStr.collectAsState()
     val languageSearchQuery = viewModel.languageSearchQuery.collectAsState("")
     var showArticleLanguageSheet by remember { mutableStateOf(false) }
+
+    val searchBarScrollBehavior =
+        if (windowSizeClass.windowHeightSizeClass == WindowHeightSizeClass.COMPACT)
+            SearchBarDefaults.enterAlwaysSearchBarScrollBehavior()
+        else null
+    val textFieldState = viewModel.textFieldState
 
     val imageLoader = ImageLoader.Builder(LocalContext.current)
         .components {
@@ -185,18 +197,30 @@ fun AppScreen(
             Scaffold(
                 topBar = {
                     AppSearchBar(
+                        appSearchBarState = appSearchBarState,
                         searchBarState = searchBarState,
+                        textFieldState = textFieldState,
+                        scrollBehavior = searchBarScrollBehavior,
                         searchBarEnabled = !showArticleLanguageSheet,
                         dataSaver = preferencesState.dataSaver,
-                        index = if (homeScreenState.status != WRStatus.FEED_LOADED) index else feedIndex,
                         imageLoader = imageLoader,
                         searchListState = searchListState,
                         windowSizeClass = windowSizeClass,
-                        loadSearch = viewModel::loadSearch,
+                        loadSearch = {
+                            coroutineScope.launch {
+                                searchBarState.animateToCollapsed()
+                            }
+                            viewModel.loadSearch(it)
+                        },
                         loadSearchDebounced = viewModel::loadSearchResultsDebounced,
                         loadPage = viewModel::loadPage,
-                        onExpandedChange = viewModel::setExpanded,
-                        setQuery = viewModel::setQuery,
+                        onExpandedChange = {
+                            coroutineScope.launch {
+                                if (it) searchBarState.animateToExpanded()
+                                else searchBarState.animateToCollapsed()
+                            }
+                        },
+                        setQuery = textFieldState::setTextAndPlaceCursorAtEnd,
                         clearHistory = {
                             setHistoryItem("")
                             setShowDeleteDialog(true)
@@ -222,7 +246,10 @@ fun AppScreen(
                 floatingActionButton = {
                     AppFab(
                         index = if (homeScreenState.status != WRStatus.FEED_LOADED) index else feedIndex,
-                        focusSearch = { viewModel.focusSearchBar() },
+                        focusSearch = {
+                            viewModel.focusSearchBar()
+                            textFieldState.setTextAndPlaceCursorAtEnd(textFieldState.text.toString())
+                        },
                         scrollToTop = {
                             coroutineScope.launch {
                                 if (homeScreenState.status != WRStatus.FEED_LOADED)
@@ -232,6 +259,9 @@ fun AppScreen(
                             }
                         },
                         performRandomPageSearch = {
+                            coroutineScope.launch {
+                                searchBarState.animateToCollapsed()
+                            }
                             viewModel.loadPage(
                                 title = null,
                                 random = true
@@ -240,7 +270,12 @@ fun AppScreen(
                     )
                 },
                 snackbarHost = { SnackbarHost(snackBarHostState) },
-                modifier = Modifier.fillMaxSize()
+                modifier =
+                    if (searchBarScrollBehavior != null)
+                        Modifier
+                            .fillMaxSize()
+                            .nestedScroll(searchBarScrollBehavior.nestedScrollConnection)
+                    else Modifier.fillMaxSize()
             ) { insets ->
                 AppHomeScreen(
                     homeScreenState = homeScreenState,

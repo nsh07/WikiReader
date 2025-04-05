@@ -2,6 +2,7 @@ package org.nsh07.wikireader.ui.viewModel
 
 import android.util.Log
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
@@ -47,8 +48,8 @@ class UiViewModel(
     private val wikipediaRepository: WikipediaRepository,
     private val appPreferencesRepository: AppPreferencesRepository
 ) : ViewModel() {
-    private val _searchBarState = MutableStateFlow(SearchBarState())
-    val searchBarState: StateFlow<SearchBarState> = _searchBarState.asStateFlow()
+    private val _appSearchBarState = MutableStateFlow(AppSearchBarState())
+    val appSearchBarState: StateFlow<AppSearchBarState> = _appSearchBarState.asStateFlow()
 
     private val _homeScreenState = MutableStateFlow(HomeScreenState())
     val homeScreenState: StateFlow<HomeScreenState> = _homeScreenState.asStateFlow()
@@ -69,6 +70,8 @@ class UiViewModel(
 
     private val _languageSearchStr = MutableStateFlow("")
     val languageSearchStr: StateFlow<String> = _languageSearchStr.asStateFlow()
+
+    val textFieldState: TextFieldState = TextFieldState()
 
     @OptIn(FlowPreview::class)
     val languageSearchQuery = languageSearchStr.debounce(500L)
@@ -142,7 +145,7 @@ class UiViewModel(
                 )
             }
 
-            _searchBarState.update { currentState ->
+            _appSearchBarState.update { currentState ->
                 currentState.copy(history = appPreferencesRepository.readHistory() ?: emptySet())
             }
 
@@ -188,7 +191,7 @@ class UiViewModel(
         if (q.isNotEmpty()) {
             try {
                 val prefixSearchResults = wikipediaRepository.getPrefixSearchResults(q)
-                _searchBarState.update { currentState ->
+                _appSearchBarState.update { currentState ->
                     currentState.copy(
                         prefixSearchResults = prefixSearchResults.query.pages.sortedBy { it.index }
                     )
@@ -204,13 +207,13 @@ class UiViewModel(
                             .replace("</span>", "</b>")
                     )
                 }
-                _searchBarState.update { currentState ->
+                _appSearchBarState.update { currentState ->
                     currentState.copy(
                         searchResults = resultsParsed
                     )
                 }
             } catch (_: Exception) {
-                _searchBarState.update { currentState ->
+                _appSearchBarState.update { currentState ->
                     currentState.copy(
                         prefixSearchResults = null,
                         searchResults = null
@@ -221,7 +224,7 @@ class UiViewModel(
     }
 
     private fun clearSearchResults() {
-        _searchBarState.update { currentState ->
+        _appSearchBarState.update { currentState ->
             currentState.copy(prefixSearchResults = emptyList(), searchResults = emptyList())
         }
     }
@@ -231,7 +234,6 @@ class UiViewModel(
         searchDebounceJob = viewModelScope.launch {
             delay(500)
             loadSearchResults(query)
-            if (searchBarState.value.isSearchBarExpanded) searchListState.value.scrollToItem(0)
         }
     }
 
@@ -242,7 +244,7 @@ class UiViewModel(
         fromBackStack: Boolean = false
     ) {
         val q = query?.trim() ?: " "
-        val history = searchBarState.value.history.toMutableSet()
+        val history = appSearchBarState.value.history.toMutableSet()
         if (q != "") {
             viewModelScope.launch {
                 var setLang = preferencesState.value.lang
@@ -262,11 +264,11 @@ class UiViewModel(
                     }
                     if (!random) {
                         loadSearchResults(q)
-                        if (searchBarState.value.prefixSearchResults != null && searchBarState.value.searchResults != null)
+                        if (appSearchBarState.value.prefixSearchResults != null && appSearchBarState.value.searchResults != null)
                             loadPage(
-                                title = if (searchBarState.value.prefixSearchResults!!.isEmpty())
-                                    searchBarState.value.searchResults!![0].title
-                                else searchBarState.value.prefixSearchResults!![0].title,
+                                title = if (appSearchBarState.value.prefixSearchResults!!.isEmpty())
+                                    appSearchBarState.value.searchResults!![0].title
+                                else appSearchBarState.value.prefixSearchResults!![0].title,
                                 lang = setLang,
                                 fromBackStack = fromBackStack
                             )
@@ -323,16 +325,12 @@ class UiViewModel(
                 }
             }
 
-            _searchBarState.update { currentState ->
-                if (!random && !fromBackStack)
+            if (!random && !fromBackStack)
+                _appSearchBarState.update { currentState ->
                     currentState.copy(
-                        query = q,
-                        isSearchBarExpanded = false,
                         history = history
                     )
-                else
-                    currentState.copy(isSearchBarExpanded = false)
-            }
+                }
         }
     }
 
@@ -350,9 +348,6 @@ class UiViewModel(
         loaderJob.cancel()
         viewModelScope.launch(loaderJob) {
             var setLang = preferencesState.value.lang
-            _searchBarState.update { currentState ->
-                currentState.copy(isSearchBarExpanded = false)
-            }
             if (title != null || random) {
                 Log.d("ViewModel", "Cancelled all jobs")
 
@@ -421,7 +416,9 @@ class UiViewModel(
                         )
                     }
 
-                    listState.value.scrollToItem(0)
+                    try {
+                        listState.value.scrollToItem(0)
+                    } catch(_: Exception) {}
 
                     extract.forEachIndexed { index, it ->
                         currentSection = index + 1
@@ -958,27 +955,15 @@ class UiViewModel(
         return res
     }
 
-    fun setExpanded(expanded: Boolean) {
-        _searchBarState.update { currentState ->
-            currentState.copy(isSearchBarExpanded = expanded)
-        }
-    }
-
-    fun setQuery(query: String) {
-        _searchBarState.update { currentState ->
-            currentState.copy(query = query)
-        }
-    }
-
     fun focusSearchBar() {
-        searchBarState.value.focusRequester.requestFocus()
+        appSearchBarState.value.focusRequester.requestFocus()
     }
 
     fun removeHistoryItem(item: String) {
         viewModelScope.launch {
-            val history = searchBarState.value.history.toMutableSet()
+            val history = appSearchBarState.value.history.toMutableSet()
             history.remove(item)
-            _searchBarState.update { currentState ->
+            _appSearchBarState.update { currentState ->
                 currentState.copy(history = history)
             }
             appPreferencesRepository.saveHistory(history)
@@ -987,7 +972,7 @@ class UiViewModel(
 
     fun clearHistory() {
         viewModelScope.launch {
-            _searchBarState.update { currentState ->
+            _appSearchBarState.update { currentState ->
                 currentState.copy(history = emptySet())
             }
             appPreferencesRepository.saveHistory(emptySet())

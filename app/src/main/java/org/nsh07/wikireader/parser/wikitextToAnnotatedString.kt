@@ -327,7 +327,7 @@ fun String.toWikitextAnnotatedString(
                         val bulletCount =
                             input.substring(i).substringBefore(' ').count { it == '*' }
                         val curr =
-                            if (input[i + bulletCount] == ' ') {
+                            if (input.getOrNull(i + bulletCount) == ' ') {
                                 input.substring(i + bulletCount + 1).substringBefore('\n')
                             } else input.substring(i + bulletCount).substringBefore('\n')
                         withStyle(
@@ -430,7 +430,7 @@ fun String.toWikitextAnnotatedString(
                                 }
                             ) {
                                 append(
-                                    curr.substringAfter('|').toWikitextAnnotatedString(
+                                    curr.substringAfter('|').trim().toWikitextAnnotatedString(
                                         colorScheme,
                                         typography,
                                         performSearch,
