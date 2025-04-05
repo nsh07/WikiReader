@@ -85,6 +85,7 @@ fun SettingsScreen(
     var expandedSections by remember { mutableStateOf(preferencesState.expandedSections) }
     var dataSaver by remember { mutableStateOf(preferencesState.dataSaver) }
     var renderMath by remember { mutableStateOf(preferencesState.renderMath) }
+    var searchHistory by remember { mutableStateOf(preferencesState.searchHistory) }
     val weight = remember {
         if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM ||
             windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED
@@ -156,18 +157,6 @@ fun SettingsScreen(
                 ListItem(
                     leadingContent = {
                         Icon(
-                            painterResource(themeMap[theme]!!.first),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text("Theme") },
-                    supportingContent = { Text(themeMap[theme]!!.second) },
-                    modifier = Modifier
-                        .clickable(onClick = { setShowThemeDialog(true) })
-                )
-                ListItem(
-                    leadingContent = {
-                        Icon(
                             painterResource(R.drawable.palette),
                             tint = MaterialTheme.colorScheme.primary,
                             contentDescription = null
@@ -180,6 +169,18 @@ fun SettingsScreen(
                     },
                     modifier = Modifier
                         .clickable(onClick = { setShowColorSchemeDialog(true) })
+                )
+                ListItem(
+                    leadingContent = {
+                        Icon(
+                            painterResource(themeMap[theme]!!.first),
+                            contentDescription = null
+                        )
+                    },
+                    headlineContent = { Text("Theme") },
+                    supportingContent = { Text(themeMap[theme]!!.second) },
+                    modifier = Modifier
+                        .clickable(onClick = { setShowThemeDialog(true) })
                 )
                 ListItem(
                     leadingContent = {
@@ -238,25 +239,6 @@ fun SettingsScreen(
                 ListItem(
                     leadingContent = {
                         Icon(
-                            painterResource(expandedIcon),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text("Expand sections") },
-                    supportingContent = { Text("Expand all sections by default") },
-                    trailingContent = {
-                        Switch(
-                            checked = expandedSections,
-                            onCheckedChange = {
-                                expandedSections = it
-                                viewModel.saveExpandedSections(it)
-                            }
-                        )
-                    }
-                )
-                ListItem(
-                    leadingContent = {
-                        Icon(
                             painterResource(dataSaverIcon),
                             contentDescription = null
                         )
@@ -269,6 +251,25 @@ fun SettingsScreen(
                             onCheckedChange = {
                                 dataSaver = it
                                 viewModel.saveDataSaver(it)
+                            }
+                        )
+                    }
+                )
+                ListItem(
+                    leadingContent = {
+                        Icon(
+                            painterResource(expandedIcon),
+                            contentDescription = null
+                        )
+                    },
+                    headlineContent = { Text("Expand sections") },
+                    supportingContent = { Text("Expand all sections by default") },
+                    trailingContent = {
+                        Switch(
+                            checked = expandedSections,
+                            onCheckedChange = {
+                                expandedSections = it
+                                viewModel.saveExpandedSections(it)
                             }
                         )
                     }
@@ -290,6 +291,28 @@ fun SettingsScreen(
                             onCheckedChange = {
                                 renderMath = it
                                 viewModel.saveRenderMath(it)
+                            }
+                        )
+                    }
+                )
+
+                ListItem(
+                    leadingContent = {
+                        Icon(
+                            painterResource(R.drawable.history),
+                            contentDescription = null
+                        )
+                    },
+                    headlineContent = { Text("Search history") },
+                    supportingContent = {
+                        Text("Save search history. Existing history is unaffected by this option")
+                    },
+                    trailingContent = {
+                        Switch(
+                            checked = searchHistory,
+                            onCheckedChange = {
+                                searchHistory = it
+                                viewModel.saveSearchHistory(it)
                             }
                         )
                     }

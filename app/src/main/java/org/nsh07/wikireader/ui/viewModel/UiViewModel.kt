@@ -111,6 +111,9 @@ class UiViewModel(
             val blackTheme = appPreferencesRepository.readBooleanPreference("black-theme")
                 ?: appPreferencesRepository.saveBooleanPreference("black-theme", false)
 
+            val searchHistory = appPreferencesRepository.readBooleanPreference("search-history")
+                ?: appPreferencesRepository.saveBooleanPreference("search-history", true)
+
             val expandedSections =
                 appPreferencesRepository.readBooleanPreference("expanded-sections")
                     ?: appPreferencesRepository.saveBooleanPreference("expanded-sections", false)
@@ -130,7 +133,8 @@ class UiViewModel(
                     blackTheme = blackTheme,
                     expandedSections = expandedSections,
                     dataSaver = dataSaver,
-                    renderMath = renderMath
+                    renderMath = renderMath,
+                    searchHistory = searchHistory
                 )
             }
 
@@ -246,7 +250,7 @@ class UiViewModel(
                     _homeScreenState.update { currentState ->
                         currentState.copy(isLoading = true, loadingProgress = null)
                     }
-                    if (!random && !fromBackStack) {
+                    if (!random && !fromBackStack && preferencesState.value.searchHistory) {
                         history.remove(q)
                         history.add(q)
                         if (history.size > 50) history.remove(history.first())
@@ -329,7 +333,7 @@ class UiViewModel(
     }
 
     /**
-     * Updates history and loads page
+     * Loads page with the given title
      *
      * @param title Page title
      */
@@ -1054,6 +1058,15 @@ class UiViewModel(
             appPreferencesRepository.saveBooleanPreference("render-math", renderMath)
             _preferencesState.update { currentState ->
                 currentState.copy(renderMath = renderMath)
+            }
+        }
+    }
+
+    fun saveSearchHistory(searchHistory: Boolean) {
+        viewModelScope.launch {
+            appPreferencesRepository.saveBooleanPreference("search-history", searchHistory)
+            _preferencesState.update { currentState ->
+                currentState.copy(searchHistory = searchHistory)
             }
         }
     }

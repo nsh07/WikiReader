@@ -50,9 +50,10 @@ data class PreferencesState(
     val colorScheme: String = Color.White.toString(),
     val fontSize: Int = 16,
     val blackTheme: Boolean = false,
-    val expandedSections: Boolean = false,
     val dataSaver: Boolean = false,
-    val renderMath: Boolean = true
+    val expandedSections: Boolean = false,
+    val renderMath: Boolean = true,
+    val searchHistory: Boolean = true
 )
 
 @Immutable
