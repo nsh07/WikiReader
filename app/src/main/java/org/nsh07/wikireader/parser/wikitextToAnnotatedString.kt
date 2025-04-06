@@ -150,6 +150,9 @@ fun String.toWikitextAnnotatedString(
                             )
                         }
                         i += 12 + curr.length + 13
+                    } else if (currSubstring.startsWith("<!--")) {
+                        val curr = currSubstring.substringMatchingParen('<', '>')
+                        i += curr.length - 1
                     } else {
                         append(input[i])
                     }
@@ -312,6 +315,9 @@ fun String.toWikitextAnnotatedString(
                                     fontSize
                                 )
                             )
+                        } else {
+                            val curr = input.getOrNull(i + 1 + currSubstring.length + 1)
+                            if (curr == '\n') i++
                         }
                         i += currSubstring.length + 1
                     } else append(input[i])

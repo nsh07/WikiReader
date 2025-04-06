@@ -283,12 +283,7 @@ class UiViewModel(
                                 extract = listOf(
                                     "An error occurred :(\n" +
                                             "Please check your internet connection"
-                                ).map {
-                                    parseWikitext(
-                                        it,
-                                        0
-                                    )
-                                },
+                                ).map { parseWikitext(it) },
                                 photo = null,
                                 photoDesc = null,
                                 langs = null,
@@ -305,10 +300,7 @@ class UiViewModel(
                             currentState.copy(
                                 title = "Error",
                                 extract = listOf("No search results found for $q").map {
-                                    parseWikitext(
-                                        it,
-                                        0
-                                    )
+                                    parseWikitext(it)
                                 },
                                 photo = null,
                                 photoDesc = null,
@@ -418,11 +410,12 @@ class UiViewModel(
 
                     try {
                         listState.value.scrollToItem(0)
-                    } catch(_: Exception) {}
+                    } catch (_: Exception) {
+                    }
 
                     extract.forEachIndexed { index, it ->
                         currentSection = index + 1
-                        parsedExtract.add(parseWikitext(it, index))
+                        parsedExtract.add(parseWikitext(it))
                         _homeScreenState.update { currentState ->
                             currentState.copy(
                                 loadingProgress = currentSection.toFloat() / sections,
@@ -441,11 +434,8 @@ class UiViewModel(
                     _homeScreenState.update { currentState ->
                         currentState.copy(
                             title = "Error",
-                            extract = listOf("An error occurred :(\nPlease check your internet connection").map {
-                                parseWikitext(
-                                    it, 0
-                                )
-                            },
+                            extract = listOf("An error occurred :(\nPlease check your internet connection")
+                                .map { parseWikitext(it) },
                             langs = null,
                             currentLang = null,
                             photo = null,
@@ -467,12 +457,7 @@ class UiViewModel(
                 _homeScreenState.update { currentState ->
                     currentState.copy(
                         title = "Error",
-                        extract = listOf("Null search query").map {
-                            parseWikitext(
-                                it,
-                                0
-                            )
-                        },
+                        extract = listOf("Null search query").map { parseWikitext(it) },
                         photo = null,
                         photoDesc = null,
                         langs = null,
@@ -861,7 +846,7 @@ class UiViewModel(
 
                 extract.forEachIndexed { index, it ->
                     currentSection = index + 1
-                    parsedExtract.add(parseWikitext(it, index))
+                    parsedExtract.add(parseWikitext(it))
                     _homeScreenState.update { currentState ->
                         currentState.copy(
                             loadingProgress = currentSection.toFloat() / sections,
@@ -910,9 +895,9 @@ class UiViewModel(
         }
     }
 
-    suspend fun parseWikitext(wikitext: String, index: Int): List<AnnotatedString> =
+    suspend fun parseWikitext(wikitext: String): List<AnnotatedString> =
         withContext(Dispatchers.IO) {
-            val parsed = cleanUpWikitext(wikitext, index)
+            val parsed = cleanUpWikitext(wikitext)
             var curr = ""
             var i = 0
             val out = mutableListOf<AnnotatedString>()
