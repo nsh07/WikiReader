@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
@@ -39,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
@@ -132,6 +134,8 @@ fun AppHomeScreen(
         }
     val shareIntent = Intent.createChooser(sendIntent, null)
     val context = LocalContext.current
+    val lang = preferencesState.lang
+    val pageId = homeScreenState.pageId
 
     if (showLanguageSheet)
         ArticleLanguageBottomSheet(
@@ -246,13 +250,15 @@ fun AppHomeScreen(
                                     )
                                 }
                         }
-
-                        for (i in 1..s step 2) {
-                            item { // Expandable sections logic
+                        itemsIndexed(
+                            homeScreenState.extract,
+                            key = { i, it -> "$pageId.$lang#$i" }
+                        ) { i: Int, it: List<AnnotatedString> ->// Expandable sections logic
+                            if (i % 2 == 1)
                                 SelectionContainer {
                                     ExpandableSection(
                                         title = homeScreenState.extract[i],
-                                        body = homeScreenState.extract[i + 1],
+                                        body = homeScreenState.extract.getOrElse(i + 1) { emptyList() },
                                         fontSize = fontSize,
                                         fontFamily = fontFamily,
                                         expanded = preferencesState.expandedSections,
@@ -260,7 +266,6 @@ fun AppHomeScreen(
                                         renderMath = preferencesState.renderMath
                                     )
                                 }
-                            }
                         }
 
                         item {

@@ -60,8 +60,8 @@ class UiViewModel(
     private val _savedArticlesState = MutableStateFlow(SavedArticlesState())
     val savedArticlesState: StateFlow<SavedArticlesState> = _savedArticlesState.asStateFlow()
 
-    private val _listState = MutableStateFlow(LazyListState(0, 0))
-    val listState: StateFlow<LazyListState> = _listState.asStateFlow()
+    private val _articleListState = MutableStateFlow(LazyListState(0, 0))
+    val articleListState: StateFlow<LazyListState> = _articleListState.asStateFlow()
     private val _searchListState = MutableStateFlow(LazyListState(0, 0))
     val searchListState: StateFlow<LazyListState> = _searchListState.asStateFlow()
 
@@ -76,8 +76,8 @@ class UiViewModel(
     @OptIn(FlowPreview::class)
     val languageSearchQuery = languageSearchStr.debounce(500L)
 
-    private val backStack = mutableListOf<Pair<String, String>>()
-    private var lastQuery: Pair<String, String>? = null
+    private val backStack = ArrayDeque<Pair<String?, Pair<Int, Int>>>()
+    var lastQuery: Pair<String, String> = Pair("", "en")
     private var filesDir: String = ""
     private var loaderJob = Job()
         get() {
@@ -177,17 +177,25 @@ class UiViewModel(
         typography = tg
     }
 
-    private fun updateBackstack(q: String, setLang: String, fromBackStack: Boolean) {
-        if (lastQuery != null) {
-            if (!fromBackStack && (Pair(q, setLang) != lastQuery)) {
-                backStack.add(lastQuery!!)
-                Log.d(
-                    "ViewModel",
-                    "Add ${lastQuery?.first ?: "null"} : ${lastQuery?.second ?: "null"}"
-                )
+    private fun pushBackstack(
+        title: String?,
+        firstVisibleItemIndex: Int,
+        firstVisibleItemScrollOffset: Int
+    ) {
+        backStack.addLast(Pair(title, Pair(firstVisibleItemIndex, firstVisibleItemScrollOffset)))
+        if (backStack.size > 16) backStack.removeFirst()
+    }
+
+    fun loadPreviousPage() {
+        val popped = backStack.removeLastOrNull()
+        if (popped?.first != null) {
+            loadPage(title = popped.first, listStatePair = popped.second)
+        } else {
+            loadFeed(true)
+            _homeScreenState.update { currentState ->
+                currentState.copy(isBackStackEmpty = true)
             }
-            lastQuery = Pair(q, setLang)
-        } else lastQuery = Pair(q, setLang)
+        }
     }
 
     private suspend fun loadSearchResults(query: String) {
@@ -245,7 +253,7 @@ class UiViewModel(
         query: String?,
         lang: String? = null,
         random: Boolean = false,
-        fromBackStack: Boolean = false
+        listStatePair: Pair<Int, Int>? = null
     ) {
         val q = query?.trim() ?: " "
         val history = appSearchBarState.value.history.toMutableSet()
@@ -260,7 +268,7 @@ class UiViewModel(
                     _homeScreenState.update { currentState ->
                         currentState.copy(isLoading = true, loadingProgress = null)
                     }
-                    if (!random && !fromBackStack && preferencesState.value.searchHistory) {
+                    if (!random && listStatePair == null && preferencesState.value.searchHistory) {
                         history.remove(q)
                         history.add(q)
                         if (history.size > 50) history.remove(history.first())
@@ -274,7 +282,7 @@ class UiViewModel(
                                     appSearchBarState.value.searchResults!![0].title
                                 else appSearchBarState.value.prefixSearchResults!![0].title,
                                 lang = setLang,
-                                fromBackStack = fromBackStack
+                                listStatePair = listStatePair
                             )
                         else throw NetworkException()
                     } else
@@ -321,7 +329,7 @@ class UiViewModel(
                 }
             }
 
-            if (!random && !fromBackStack)
+            if (!random && listStatePair == null)
                 _appSearchBarState.update { currentState ->
                     currentState.copy(
                         history = history
@@ -339,7 +347,7 @@ class UiViewModel(
         title: String?,
         lang: String? = null,
         random: Boolean = false,
-        fromBackStack: Boolean = false
+        listStatePair: Pair<Int, Int>? = null
     ) {
         loaderJob.cancel()
         viewModelScope.launch(loaderJob) {
@@ -352,7 +360,6 @@ class UiViewModel(
                         interceptor.setHost("$lang.wikipedia.org")
                         setLang = lang
                     }
-                    if (!random) updateBackstack(title!!, setLang, fromBackStack)
 
                     _homeScreenState.update { currentState ->
                         currentState.copy(isLoading = true, loadingProgress = null)
@@ -382,18 +389,29 @@ class UiViewModel(
 
                         val apiFile = File(
                             articlesDir,
-                            "${apiResponse!!.title}.${apiResponse.pageId}-api.${lastQuery!!.second}"
+                            "${apiResponse!!.title}.${apiResponse.pageId}-api.${setLang}"
                         )
                         if (apiFile.exists()) saved = true
                     } catch (_: Exception) {
                     }
 
-                    if (random && apiResponse != null)
-                        updateBackstack(
-                            apiResponse.title,
-                            setLang,
-                            fromBackStack
+                    if (
+                        listStatePair == null &&
+                        homeScreenState.value.status != WRStatus.FEED_LOADED &&
+                        homeScreenState.value.status != WRStatus.FEED_NETWORK_ERROR &&
+                        homeScreenState.value.status != WRStatus.UNINITIALIZED
+                    ) {
+                        val articleState = articleListState.value
+                        pushBackstack(
+                            title = homeScreenState.value.title,
+                            firstVisibleItemIndex = articleState.firstVisibleItemIndex,
+                            firstVisibleItemScrollOffset = articleState.firstVisibleItemScrollOffset
                         )
+                    }
+
+                    _articleListState.update {
+                        LazyListState(0, 0)
+                    }
 
                     sections = extract.size
                     val parsedExtract = mutableListOf<List<AnnotatedString>>()
@@ -412,11 +430,6 @@ class UiViewModel(
                         )
                     }
 
-                    try {
-                        listState.value.scrollToItem(0)
-                    } catch (_: Exception) {
-                    }
-
                     extract.forEachIndexed { index, it ->
                         currentSection = index + 1
                         parsedExtract.add(parseWikitext(it))
@@ -431,6 +444,11 @@ class UiViewModel(
                     _homeScreenState.update { currentState ->
                         currentState.copy(isLoading = false)
                     }
+
+                    if (listStatePair != null)
+                        _articleListState.update {
+                            LazyListState(listStatePair.first, listStatePair.second)
+                        }
                     Log.d("ViewModel", "Search: HomeScreenState updated")
                 } catch (e: Exception) {
                     Log.e("ViewModel", "Error in fetching results: ${e.message}")
@@ -482,16 +500,14 @@ class UiViewModel(
     ) {
         if (persistLang)
             loadPage(
-                lastQuery?.first,
-                lang = lastQuery?.second,
-                random = false,
-                fromBackStack = false
+                lastQuery.first,
+                lang = lastQuery.second,
+                random = false
             )
         else
             loadPage(
-                lastQuery?.first,
-                random = false,
-                fromBackStack = false
+                lastQuery.first,
+                random = false
             )
     }
 
@@ -828,6 +844,16 @@ class UiViewModel(
                 sections = extract.size
                 val parsedExtract = mutableListOf<List<AnnotatedString>>()
 
+                val articleState = articleListState.value
+                pushBackstack(
+                    title = homeScreenState.value.title,
+                    firstVisibleItemIndex = articleState.firstVisibleItemIndex,
+                    firstVisibleItemScrollOffset = articleState.firstVisibleItemScrollOffset
+                )
+                _articleListState.update {
+                    LazyListState(0, 0)
+                }
+
                 _preferencesState.update { currentState ->
                     currentState.copy(
                         lang = apiFileName.substringAfterLast('.')
@@ -864,12 +890,6 @@ class UiViewModel(
                         isLoading = false
                     )
                 }
-
-                if (apiResponse != null) updateBackstack(
-                    apiResponse.title,
-                    apiFileName.substringAfterLast('.'),
-                    false
-                )
 
                 return@withContext WRStatus.SUCCESS
             } catch (e: Exception) {
@@ -936,13 +956,6 @@ class UiViewModel(
             )
             return@withContext out.toList()
         }
-
-    fun popBackStack(): Pair<String, String>? {
-        val res = backStack.removeLastOrNull()
-        if (backStack.isEmpty()) lastQuery = null
-        Log.d("ViewModel", "Pop ${res?.first ?: "null"} : ${res?.second ?: "null"}")
-        return res
-    }
 
     fun focusSearchBar() {
         appSearchBarState.value.focusRequester.requestFocus()

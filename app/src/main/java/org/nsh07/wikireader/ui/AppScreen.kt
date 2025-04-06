@@ -84,13 +84,14 @@ fun AppScreen(
     val homeScreenState by viewModel.homeScreenState.collectAsState()
     val feedState by viewModel.feedState.collectAsState()
     val savedArticlesState by viewModel.savedArticlesState.collectAsState()
-    val listState by viewModel.listState.collectAsState()
+    val listState by viewModel.articleListState.collectAsState()
     val searchListState by viewModel.searchListState.collectAsState()
     val searchBarState = rememberSearchBarState()
     val feedListState = rememberLazyListState()
     val languageSearchStr = viewModel.languageSearchStr.collectAsState()
     val languageSearchQuery = viewModel.languageSearchQuery.collectAsState("")
     var showArticleLanguageSheet by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     val searchBarScrollBehavior =
         if (
@@ -100,7 +101,7 @@ fun AppScreen(
         else null
     val textFieldState = viewModel.textFieldState
 
-    val imageLoader = ImageLoader.Builder(LocalContext.current)
+    val imageLoader = ImageLoader.Builder(context)
         .components {
             add(SvgDecoder.Factory())
             if (SDK_INT >= 28) {
@@ -169,23 +170,12 @@ fun AppScreen(
             }
 
             BackHandler(
-                !homeScreenState.isBackStackEmpty ||
+                enabled = !homeScreenState.isBackStackEmpty ||
                         (homeScreenState.status != WRStatus.FEED_LOADED &&
                                 homeScreenState.status != WRStatus.FEED_NETWORK_ERROR &&
-                                homeScreenState.status != WRStatus.UNINITIALIZED)
-            ) {
-                if (!homeScreenState.isBackStackEmpty) {
-                    val curr = viewModel.popBackStack()
-                    viewModel.loadPage(
-                        title = curr?.first,
-                        lang = curr?.second,
-                        fromBackStack = true
-                    )
-                } else {
-                    viewModel.popBackStack()
-                    viewModel.loadFeed(fromBack = true)
-                }
-            }
+                                homeScreenState.status != WRStatus.UNINITIALIZED),
+                onBack = viewModel::loadPreviousPage
+            )
 
             if (showDeleteDialog)
                 DeleteHistoryItemDialog(
@@ -340,7 +330,7 @@ fun AppScreen(
                     title = homeScreenState.title,
                     imageLoader = imageLoader,
                     link = homeScreenState.photo?.source,
-                    onBack = { navController.navigateUp() }
+                    onBack = navController::navigateUp
                 )
             } else {
                 FullScreenImage(
@@ -358,7 +348,7 @@ fun AppScreen(
                     title = feedState.image?.title ?: "",
                     imageLoader = imageLoader,
                     link = feedState.image?.filePage,
-                    onBack = { navController.navigateUp() }
+                    onBack = navController::navigateUp
                 )
             }
         }
@@ -373,8 +363,8 @@ fun AppScreen(
                         viewModel.loadSavedArticle(it)
                     }
                 },
-                deleteArticle = { viewModel.deleteArticle(it) },
-                deleteAll = { viewModel.deleteAllArticles() },
+                deleteArticle = viewModel::deleteArticle,
+                deleteAll = viewModel::deleteAllArticles,
                 onBack = {
                     navController.navigateUp()
                     viewModel.updateLanguageFilters()
@@ -386,7 +376,7 @@ fun AppScreen(
             SettingsScreen(
                 preferencesState = preferencesState,
                 homeScreenState = homeScreenState,
-                onBack = { navController.navigateUp() },
+                onBack = navController::navigateUp,
                 viewModel = viewModel,
                 windowSizeClass = windowSizeClass
             )
@@ -395,7 +385,7 @@ fun AppScreen(
         composable("about") {
             AboutScreen(
                 windowSizeClass = windowSizeClass,
-                onBack = { navController.navigateUp() }
+                onBack = navController::navigateUp
             )
         }
     }

@@ -189,7 +189,6 @@ fun ArticleFeed(
                     val pagerState = rememberPagerState { feedState.mostReadArticles.size / 5 }
                     HorizontalPager(
                         state = pagerState,
-                        beyondViewportPageCount = pagerState.pageCount,
                         verticalAlignment = Alignment.Top,
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -373,8 +372,8 @@ fun ArticleFeed(
                         Box {
                             FeedImage(
                                 source = feedState.news[i].links
-                                    ?.find { it.originalImage != null }
-                                    ?.originalImage?.source,
+                                    ?.find { it.thumbnail != null }
+                                    ?.thumbnail?.source,
                                 description = null,
                                 imageLoader = imageLoader,
                                 modifier = Modifier
@@ -481,8 +480,8 @@ fun ArticleFeed(
                             Box {
                                 FeedImage(
                                     source = feedState.onThisDay[i].pages
-                                        ?.find { it.originalImage != null }
-                                        ?.originalImage?.source,
+                                        ?.find { it.thumbnail != null }
+                                        ?.thumbnail?.source,
                                     description = null,
                                     imageLoader = imageLoader,
                                     modifier = Modifier

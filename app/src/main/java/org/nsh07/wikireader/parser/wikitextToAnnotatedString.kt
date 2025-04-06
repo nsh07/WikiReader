@@ -356,19 +356,34 @@ fun String.toWikitextAnnotatedString(
 
                 '=' ->
                     if (input.getOrNull(i + 1) == '=' && input.getOrNull(i + 2) == '=') {
-                        if (input.getOrNull(i + 3) == '=') { // h4
-                            val curr = input.substring(i + 4).substringBefore("====")
-                            withStyle(typography.titleLarge.toSpanStyle()) {
-                                append(
-                                    "${curr.trim()}\n".toWikitextAnnotatedString(
-                                        colorScheme,
-                                        typography,
-                                        performSearch,
-                                        fontSize
+                        if (input.getOrNull(i + 3) == '=') {
+                            if (input.getOrNull(i + 4) == '=') { // h5
+                                val curr = input.substring(i + 5).substringBefore("=====")
+                                withStyle(typography.titleMedium.toSpanStyle()) {
+                                    append(
+                                        curr.trim().toWikitextAnnotatedString(
+                                            colorScheme,
+                                            typography,
+                                            performSearch,
+                                            fontSize
+                                        )
                                     )
-                                )
+                                }
+                                i += 4 + curr.length + 5
+                            } else { // h4
+                                val curr = input.substring(i + 4).substringBefore("====")
+                                withStyle(typography.titleLarge.toSpanStyle()) {
+                                    append(
+                                        "${curr.trim()}\n".toWikitextAnnotatedString(
+                                            colorScheme,
+                                            typography,
+                                            performSearch,
+                                            fontSize
+                                        )
+                                    )
+                                }
+                                i += 3 + curr.length + 4
                             }
-                            i += 3 + curr.length + 4
                         } else { // h3
                             val curr = input.substring(i + 3).substringBefore("===")
                             withStyle(typography.headlineSmall.toSpanStyle()) {
