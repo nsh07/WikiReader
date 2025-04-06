@@ -93,8 +93,10 @@ fun AppScreen(
     var showArticleLanguageSheet by remember { mutableStateOf(false) }
 
     val searchBarScrollBehavior =
-        if (windowSizeClass.windowHeightSizeClass == WindowHeightSizeClass.COMPACT)
-            SearchBarDefaults.enterAlwaysSearchBarScrollBehavior()
+        if (
+            windowSizeClass.windowHeightSizeClass == WindowHeightSizeClass.COMPACT ||
+            preferencesState.immersiveMode
+        ) SearchBarDefaults.enterAlwaysSearchBarScrollBehavior()
         else null
     val textFieldState = viewModel.textFieldState
 

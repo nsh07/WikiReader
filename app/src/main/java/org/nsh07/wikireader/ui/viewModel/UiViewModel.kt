@@ -96,12 +96,6 @@ class UiViewModel(
 
     init {
         viewModelScope.launch { // Run blocking to delay app startup until theme is determined
-            val theme = appPreferencesRepository.readStringPreference("theme")
-                ?: appPreferencesRepository.saveStringPreference("theme", "auto")
-
-            val lang = appPreferencesRepository.readStringPreference("lang")
-                ?: appPreferencesRepository.saveStringPreference("lang", "en")
-
             val colorScheme = appPreferencesRepository.readStringPreference("color-scheme")
                 ?: appPreferencesRepository.saveStringPreference(
                     "color-scheme",
@@ -111,37 +105,47 @@ class UiViewModel(
             val fontStyle = appPreferencesRepository.readStringPreference("font-style")
                 ?: appPreferencesRepository.saveStringPreference("font-style", "sans")
 
+            val lang = appPreferencesRepository.readStringPreference("lang")
+                ?: appPreferencesRepository.saveStringPreference("lang", "en")
+
+            val theme = appPreferencesRepository.readStringPreference("theme")
+                ?: appPreferencesRepository.saveStringPreference("theme", "auto")
+
             val fontSize = appPreferencesRepository.readIntPreference("font-size")
                 ?: appPreferencesRepository.saveIntPreference("font-size", 16)
 
             val blackTheme = appPreferencesRepository.readBooleanPreference("black-theme")
                 ?: appPreferencesRepository.saveBooleanPreference("black-theme", false)
 
-            val searchHistory = appPreferencesRepository.readBooleanPreference("search-history")
-                ?: appPreferencesRepository.saveBooleanPreference("search-history", true)
+            val dataSaver = appPreferencesRepository.readBooleanPreference("data-saver")
+                ?: appPreferencesRepository.saveBooleanPreference("data-saver", false)
 
             val expandedSections =
                 appPreferencesRepository.readBooleanPreference("expanded-sections")
                     ?: appPreferencesRepository.saveBooleanPreference("expanded-sections", false)
 
-            val dataSaver = appPreferencesRepository.readBooleanPreference("data-saver")
-                ?: appPreferencesRepository.saveBooleanPreference("data-saver", false)
+            val immersiveMode = appPreferencesRepository.readBooleanPreference("immersive-mode")
+                ?: appPreferencesRepository.saveBooleanPreference("immersive-mode", false)
 
             val renderMath = appPreferencesRepository.readBooleanPreference("render-math")
                 ?: appPreferencesRepository.saveBooleanPreference("render-math", true)
 
+            val searchHistory = appPreferencesRepository.readBooleanPreference("search-history")
+                ?: appPreferencesRepository.saveBooleanPreference("search-history", true)
+
             _preferencesState.update { currentState ->
                 currentState.copy(
-                    theme = theme,
-                    lang = lang,
+                    blackTheme = blackTheme,
                     colorScheme = colorScheme,
+                    dataSaver = dataSaver,
+                    expandedSections = expandedSections,
                     fontSize = fontSize,
                     fontStyle = fontStyle,
-                    blackTheme = blackTheme,
-                    expandedSections = expandedSections,
-                    dataSaver = dataSaver,
+                    immersiveMode = immersiveMode,
+                    lang = lang,
                     renderMath = renderMath,
-                    searchHistory = searchHistory
+                    searchHistory = searchHistory,
+                    theme = theme
                 )
             }
 
@@ -1061,6 +1065,15 @@ class UiViewModel(
             appPreferencesRepository.saveBooleanPreference("data-saver", dataSaver)
             _preferencesState.update { currentState ->
                 currentState.copy(dataSaver = dataSaver)
+            }
+        }
+    }
+
+    fun saveImmersiveMode(immersiveMode: Boolean) {
+        viewModelScope.launch {
+            appPreferencesRepository.saveBooleanPreference("immersive-mode", immersiveMode)
+            _preferencesState.update { currentState ->
+                currentState.copy(immersiveMode = immersiveMode)
             }
         }
     }

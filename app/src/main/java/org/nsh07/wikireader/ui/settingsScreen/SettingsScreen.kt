@@ -97,6 +97,7 @@ fun SettingsScreen(
 
     var blackTheme by remember { mutableStateOf(preferencesState.blackTheme) }
     var expandedSections by remember { mutableStateOf(preferencesState.expandedSections) }
+    var immersiveMode by remember { mutableStateOf(preferencesState.immersiveMode) }
     var dataSaver by remember { mutableStateOf(preferencesState.dataSaver) }
     var renderMath by remember { mutableStateOf(preferencesState.renderMath) }
     var searchHistory by remember { mutableStateOf(preferencesState.searchHistory) }
@@ -316,6 +317,25 @@ fun SettingsScreen(
                 ListItem(
                     leadingContent = {
                         Icon(
+                            painterResource(R.drawable.open_in_full),
+                            contentDescription = null
+                        )
+                    },
+                    headlineContent = { Text("Immersive mode") },
+                    supportingContent = { Text("Hide search bar while scrolling. Enabled by default on small screen sizes") },
+                    trailingContent = {
+                        Switch(
+                            checked = immersiveMode,
+                            onCheckedChange = {
+                                immersiveMode = it
+                                viewModel.saveImmersiveMode(it)
+                            }
+                        )
+                    }
+                )
+                ListItem(
+                    leadingContent = {
+                        Icon(
                             painterResource(R.drawable.function),
                             contentDescription = null
                         )
@@ -334,7 +354,6 @@ fun SettingsScreen(
                         )
                     }
                 )
-
                 ListItem(
                     leadingContent = {
                         Icon(

@@ -51,6 +51,7 @@ data class PreferencesState(
     val blackTheme: Boolean = false,
     val dataSaver: Boolean = false,
     val expandedSections: Boolean = false,
+    val immersiveMode: Boolean = false,
     val renderMath: Boolean = true,
     val searchHistory: Boolean = true
 )
