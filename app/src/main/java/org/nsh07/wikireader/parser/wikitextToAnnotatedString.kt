@@ -137,9 +137,17 @@ fun String.toWikitextAnnotatedString(
                         val curr =
                             currSubstring.substringBefore("</blockquote>").substringAfter('>')
                         withStyle(
-                            ParagraphStyle(textIndent = TextIndent(restLine = 12.sp))
+                            ParagraphStyle(
+                                textIndent = TextIndent(
+                                    firstLine = 16.sp,
+                                    restLine = 16.sp
+                                )
+                            )
                         ) {
-                            append("\t ")
+                            append("\n")
+                            withStyle(SpanStyle(fontSize = (fontSize + 8).sp)) {
+                                append("❝")
+                            }
                             append(
                                 curr.toWikitextAnnotatedString(
                                     colorScheme,
@@ -148,6 +156,7 @@ fun String.toWikitextAnnotatedString(
                                     fontSize
                                 )
                             )
+                            append('\n')
                         }
                         i += 12 + curr.length + 13
                     } else if (currSubstring.startsWith("<!--")) {
@@ -197,7 +206,12 @@ fun String.toWikitextAnnotatedString(
                                 else append(": ")
                                 splitList.forEachIndexed { index, it ->
                                     append(
-                                        "[[$it]]".toWikitextAnnotatedString(
+                                        "[[$it|${
+                                            it.replace(
+                                                "#",
+                                                " § "
+                                            )
+                                        }]]".toWikitextAnnotatedString(
                                             colorScheme,
                                             typography,
                                             performSearch,
@@ -208,9 +222,10 @@ fun String.toWikitextAnnotatedString(
                                     else if (index < splitList.size - 1) append(", ")
                                 }
                             }
+                            append('\n')
                         } else if (currSubstring.startsWith("{{see also", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
-                            val splitList = curr.split('|')
+                            val splitList = curr.split('|').filterNot { it.startsWith('#') }
                             withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
                                 append("See also: ")
                                 splitList.forEachIndexed { index, it ->
@@ -266,17 +281,26 @@ fun String.toWikitextAnnotatedString(
                         } else if (currSubstring.startsWith("{{blockquote", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
                             withStyle(
-                                ParagraphStyle(textIndent = TextIndent(restLine = 12.sp))
-                            ) {
-                                append("\t ")
-                                append(
-                                    curr.toWikitextAnnotatedString(
-                                        colorScheme,
-                                        typography,
-                                        performSearch,
-                                        fontSize
+                                ParagraphStyle(
+                                    textIndent = TextIndent(
+                                        firstLine = 16.sp,
+                                        restLine = 16.sp
                                     )
                                 )
+                            ) {
+                                append("\n")
+                                append(
+                                    curr.substringAfter("text=")
+                                        .substringBefore('=')
+                                        .substringBeforeLast('|')
+                                        .toWikitextAnnotatedString(
+                                            colorScheme,
+                                            typography,
+                                            performSearch,
+                                            fontSize
+                                        )
+                                )
+                                append('\n')
                             }
                         } else if (currSubstring.startsWith("{{further", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')

@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Info
@@ -255,7 +256,12 @@ fun AppSearchBar(
                                         .colors(containerColor = SearchBarDefaults.colors().containerColor),
                                     modifier = Modifier
                                         .combinedClickable(
-                                            onClick = { loadSearch(currentText) },
+                                            onClick = {
+                                                loadSearch(currentText)
+                                                textFieldState.setTextAndPlaceCursorAtEnd(
+                                                    currentText
+                                                )
+                                            },
                                             onLongClick = {
                                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                                 removeHistoryItem(currentText)
