@@ -38,7 +38,7 @@ data class HomeScreenState(
     val isSaved: Boolean = false,
     val isLoading: Boolean = false,
     val loadingProgress: Float? = null,
-    val isBackStackEmpty: Boolean = true
+    val backStackSize: Int = 0
 )
 
 @Immutable

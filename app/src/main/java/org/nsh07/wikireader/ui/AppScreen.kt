@@ -40,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,6 +60,7 @@ import coil3.gif.GifDecoder
 import coil3.svg.SvgDecoder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
@@ -91,6 +93,7 @@ fun AppScreen(
     val languageSearchStr = viewModel.languageSearchStr.collectAsState()
     val languageSearchQuery = viewModel.languageSearchQuery.collectAsState("")
     var showArticleLanguageSheet by remember { mutableStateOf(false) }
+    var deepLinkHandled by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
 
     val searchBarScrollBehavior =
@@ -124,7 +127,7 @@ fun AppScreen(
 
     NavHost(
         navController = navController,
-        startDestination = "home",
+        startDestination = Home(),
         enterTransition = {
             slideInHorizontally(
                 initialOffsetX = { it / 8 },
@@ -151,29 +154,36 @@ fun AppScreen(
         },
         modifier = modifier.background(MaterialTheme.colorScheme.background)
     ) {
-        composable(
-            "home?query={query}&lang={lang}",
+        composable<Home>(
             deepLinks = listOf(
                 navDeepLink { uriPattern = "{lang}.m.wikipedia.org/wiki/{query}" },
                 navDeepLink { uriPattern = "{lang}.wikipedia.org/wiki/{query}" }
             )
         ) { backStackEntry ->
-            val uriQuery = remember { backStackEntry.arguments?.getString("query") ?: "" }
+            val uriQuery = remember { backStackEntry.arguments?.getString("query") }
             LaunchedEffect(uriQuery) {
-                if (uriQuery != "") {
+                if (uriQuery != null && !deepLinkHandled) {
                     Log.d("AppScreen", "Deep link handled: uriQuery: $uriQuery")
+                    val lang = backStackEntry.arguments?.getString("lang")
+                    viewModel.stopAll()
+                    delay(500) // Avoids a race condition where the hostname might not get updated in time
                     viewModel.loadPage(
                         uriQuery,
-                        lang = backStackEntry.arguments?.getString("lang")
+                        lang = lang
                     )
+                    deepLinkHandled = true
                 }
             }
 
             BackHandler(
-                enabled = !homeScreenState.isBackStackEmpty ||
-                        (homeScreenState.status != WRStatus.FEED_LOADED &&
-                                homeScreenState.status != WRStatus.FEED_NETWORK_ERROR &&
-                                homeScreenState.status != WRStatus.UNINITIALIZED),
+                enabled = if (deepLinkHandled) {
+                    homeScreenState.backStackSize >= 1
+                } else {
+                    homeScreenState.backStackSize != 0 ||
+                            (homeScreenState.status != WRStatus.FEED_LOADED &&
+                                    homeScreenState.status != WRStatus.FEED_NETWORK_ERROR &&
+                                    homeScreenState.status != WRStatus.UNINITIALIZED)
+                },
                 onBack = viewModel::loadPreviousPage
             )
 
@@ -222,15 +232,15 @@ fun AppScreen(
                             setShowDeleteDialog(true)
                         },
                         onSavedArticlesClick = {
-                            navController.navigate("savedArticles")
+                            navController.navigate(SavedArticles)
                             it(false)
                         },
                         onSettingsClick = {
-                            navController.navigate("settings")
+                            navController.navigate(Settings)
                             it(false)
                         },
                         onAboutClick = {
-                            navController.navigate("about")
+                            navController.navigate(About)
                             it(false)
                         }
                     )
@@ -281,7 +291,7 @@ fun AppScreen(
                     showLanguageSheet = showArticleLanguageSheet,
                     onImageClick = {
                         if (homeScreenState.photo != null || homeScreenState.status == WRStatus.FEED_LOADED)
-                            navController.navigate("fullScreenImage")
+                            navController.navigate(FullScreenImage)
                     },
                     insets = insets,
                     onLinkClick = viewModel::loadPage,
@@ -321,7 +331,7 @@ fun AppScreen(
             }
         }
 
-        composable("fullScreenImage") {
+        composable<FullScreenImage> {
             if (homeScreenState.status != WRStatus.FEED_LOADED) {
                 if (homeScreenState.photo == null) navController.navigateUp()
                 FullScreenImage(
@@ -353,7 +363,7 @@ fun AppScreen(
             }
         }
 
-        composable("savedArticles") {
+        composable<SavedArticles> {
             SavedArticlesScreen(
                 savedArticlesState = savedArticlesState,
                 windowSizeClass = windowSizeClass,
@@ -372,7 +382,7 @@ fun AppScreen(
             )
         }
 
-        composable("settings") {
+        composable<Settings> {
             SettingsScreen(
                 preferencesState = preferencesState,
                 homeScreenState = homeScreenState,
@@ -382,7 +392,7 @@ fun AppScreen(
             )
         }
 
-        composable("about") {
+        composable<About> {
             AboutScreen(
                 windowSizeClass = windowSizeClass,
                 onBack = navController::navigateUp
@@ -441,3 +451,21 @@ fun DeleteHistoryItemDialog(
         }
     }
 }
+
+@Serializable
+data class Home(
+    val lang: String? = null,
+    val query: String? = null
+)
+
+@Serializable
+object FullScreenImage
+
+@Serializable
+object SavedArticles
+
+@Serializable
+object Settings
+
+@Serializable
+object About

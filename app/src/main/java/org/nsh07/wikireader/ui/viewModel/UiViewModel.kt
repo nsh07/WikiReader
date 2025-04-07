@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import coil3.network.HttpException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -76,8 +77,8 @@ class UiViewModel(
     @OptIn(FlowPreview::class)
     val languageSearchQuery = languageSearchStr.debounce(500L)
 
-    private val backStack = ArrayDeque<Pair<String?, Pair<Int, Int>>>()
-    var lastQuery: Pair<String, String> = Pair("", "en")
+    internal val backStack = ArrayDeque<Pair<String?, Pair<Int, Int>>>()
+    var lastQuery: Pair<String, String>? = null
     private var filesDir: String = ""
     private var loaderJob = Job()
         get() {
@@ -87,6 +88,7 @@ class UiViewModel(
     private var searchDebounceJob: Job? = null
     private var colorScheme: ColorScheme = lightColorScheme()
     private var typography: Typography = Typography()
+    private var fromLink: Boolean = false
 
     var isReady = false
     var isAnimDurationComplete = false
@@ -186,14 +188,20 @@ class UiViewModel(
         if (backStack.size > 16) backStack.removeFirst()
     }
 
+    fun stopAll() {
+        loaderJob.cancel()
+        fromLink = true
+    }
+
     fun loadPreviousPage() {
         val popped = backStack.removeLastOrNull()
         if (popped?.first != null) {
             loadPage(title = popped.first, listStatePair = popped.second)
         } else {
+            backStack.clear()
             loadFeed(true)
             _homeScreenState.update { currentState ->
-                currentState.copy(isBackStackEmpty = true)
+                currentState.copy(backStackSize = 0)
             }
         }
     }
@@ -303,7 +311,7 @@ class UiViewModel(
                                 status = WRStatus.NO_SEARCH_RESULT,
                                 pageId = null,
                                 isLoading = false,
-                                isBackStackEmpty = backStack.isEmpty(),
+                                backStackSize = backStack.size,
                                 isSaved = false
                             )
                         }
@@ -321,7 +329,7 @@ class UiViewModel(
                                 status = WRStatus.NO_SEARCH_RESULT,
                                 pageId = null,
                                 isLoading = false,
-                                isBackStackEmpty = backStack.isEmpty(),
+                                backStackSize = backStack.size,
                                 isSaved = false
                             )
                         }
@@ -360,7 +368,9 @@ class UiViewModel(
                         interceptor.setHost("$lang.wikipedia.org")
                         setLang = lang
                     }
-
+                    if (title != null) {
+                        lastQuery = Pair(title, setLang)
+                    }
                     _homeScreenState.update { currentState ->
                         currentState.copy(isLoading = true, loadingProgress = null)
                     }
@@ -376,6 +386,9 @@ class UiViewModel(
                             .query
                             ?.pages?.get(0)
                     }
+
+                    if (apiResponse?.title != null)
+                        lastQuery = Pair(apiResponse.title, setLang)
 
                     val extractText = if (apiResponse != null)
                         wikipediaRepository.getPageContent(apiResponse.title)
@@ -425,7 +438,7 @@ class UiViewModel(
                             currentLang = setLang,
                             status = status,
                             pageId = apiResponse?.pageId,
-                            isBackStackEmpty = backStack.isEmpty(),
+                            backStackSize = backStack.size,
                             isSaved = saved
                         )
                     }
@@ -456,8 +469,18 @@ class UiViewModel(
                     _homeScreenState.update { currentState ->
                         currentState.copy(
                             title = "Error",
-                            extract = listOf("An error occurred :(\nPlease check your internet connection")
-                                .map { parseWikitext(it) },
+                            extract = if (e.message?.contains("404") == true) {
+                                listOf("No article with title $title")
+                                    .map { parseWikitext(it) }
+                            } else if (e is HttpException) {
+                                listOf(
+                                    "An error occurred :(\n" +
+                                            "Please check your internet connection"
+                                ).map { parseWikitext(it) }
+                            } else {
+                                listOf("An unknown error occured :(\n${e.message} caused by ${e.cause}")
+                                    .map { parseWikitext(it) }
+                            },
                             langs = null,
                             currentLang = null,
                             photo = null,
@@ -487,7 +510,7 @@ class UiViewModel(
                         status = WRStatus.OTHER,
                         pageId = null,
                         isLoading = false,
-                        isBackStackEmpty = backStack.isEmpty(),
+                        backStackSize = backStack.size,
                         isSaved = false
                     )
                 }
@@ -498,17 +521,19 @@ class UiViewModel(
     fun reloadPage(
         persistLang: Boolean = false
     ) {
-        if (persistLang)
-            loadPage(
-                lastQuery.first,
-                lang = lastQuery.second,
-                random = false
-            )
-        else
-            loadPage(
-                lastQuery.first,
-                random = false
-            )
+        if (lastQuery != null) {
+            if (persistLang)
+                loadPage(
+                    lastQuery?.first,
+                    lang = lastQuery?.second,
+                    random = false
+                )
+            else
+                loadPage(
+                    lastQuery?.first,
+                    random = false
+                )
+        }
     }
 
     /**
@@ -868,7 +893,7 @@ class UiViewModel(
                         langs = apiResponse?.langs,
                         currentLang = preferencesState.value.lang,
                         pageId = apiResponse?.pageId,
-                        isBackStackEmpty = backStack.isEmpty(),
+                        backStackSize = backStack.size,
                         status = WRStatus.SUCCESS,
                         isSaved = true
                     )
