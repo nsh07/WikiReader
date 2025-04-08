@@ -30,6 +30,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import org.nsh07.wikireader.WikiReaderApplication
 import org.nsh07.wikireader.data.AppPreferencesRepository
+import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiApiPageData
 import org.nsh07.wikireader.data.WikipediaRepository
@@ -312,7 +313,7 @@ class UiViewModel(
                                 pageId = null,
                                 isLoading = false,
                                 backStackSize = backStack.size,
-                                isSaved = false
+                                savedStatus = SavedStatus.NOT_SAVED
                             )
                         }
                     } else {
@@ -330,7 +331,7 @@ class UiViewModel(
                                 pageId = null,
                                 isLoading = false,
                                 backStackSize = backStack.size,
-                                isSaved = false
+                                savedStatus = SavedStatus.NOT_SAVED
                             )
                         }
                     }
@@ -393,7 +394,7 @@ class UiViewModel(
                     val extractText = if (apiResponse != null)
                         wikipediaRepository.getPageContent(apiResponse.title)
                     else ""
-                    var saved = false
+                    var saved = SavedStatus.NOT_SAVED
                     val extract: List<String> = parseSections(extractText)
                     val status: WRStatus = WRStatus.SUCCESS
 
@@ -404,7 +405,7 @@ class UiViewModel(
                             articlesDir,
                             "${apiResponse!!.title}.${apiResponse.pageId}-api.${setLang}"
                         )
-                        if (apiFile.exists()) saved = true
+                        if (apiFile.exists()) saved = SavedStatus.SAVED
                     } catch (_: Exception) {
                     }
 
@@ -439,7 +440,7 @@ class UiViewModel(
                             status = status,
                             pageId = apiResponse?.pageId,
                             backStackSize = backStack.size,
-                            isSaved = saved
+                            savedStatus = saved
                         )
                     }
 
@@ -488,7 +489,7 @@ class UiViewModel(
                             status = WRStatus.NETWORK_ERROR,
                             pageId = null,
                             isLoading = false,
-                            isSaved = false
+                            savedStatus = SavedStatus.NOT_SAVED
                         )
                     }
                     Log.d("ViewModel", "Search: HomeScreenState updated")
@@ -511,7 +512,7 @@ class UiViewModel(
                         pageId = null,
                         isLoading = false,
                         backStackSize = backStack.size,
-                        isSaved = false
+                        savedStatus = SavedStatus.NOT_SAVED
                     )
                 }
             }
@@ -600,7 +601,7 @@ class UiViewModel(
                             status = WRStatus.FEED_NETWORK_ERROR,
                             pageId = null,
                             isLoading = false,
-                            isSaved = false
+                            savedStatus = SavedStatus.NOT_SAVED
                         )
                     }
                 }
@@ -630,6 +631,9 @@ class UiViewModel(
         interceptor.setHost("${currentLang}.wikipedia.org")
 
         try {
+            _homeScreenState.update { currentState ->
+                currentState.copy(savedStatus = SavedStatus.SAVING)
+            }
             val pageTitle = title ?: homeScreenState.value.title
             val apiResponse = wikipediaRepository
                 .getPageData(pageTitle)
@@ -673,7 +677,7 @@ class UiViewModel(
 
                 if (title == null)
                     _homeScreenState.update { currentState ->
-                        currentState.copy(isSaved = true)
+                        currentState.copy(savedStatus = SavedStatus.SAVED)
                     }
                 _savedArticlesState.update { currentState ->
                     currentState.copy(
@@ -682,7 +686,7 @@ class UiViewModel(
                     )
                 }
                 updateLanguageFilters()
-                Log.d("ViewModel", "Updated saved state to ${homeScreenState.value.isSaved}")
+                Log.d("ViewModel", "Updated saved state to ${homeScreenState.value.savedStatus}")
                 return WRStatus.SUCCESS
             } catch (e: Exception) {
                 Log.e(
@@ -690,12 +694,18 @@ class UiViewModel(
                     "Cannot save article, file IO error"
                 )
                 e.printStackTrace()
+                _homeScreenState.update { currentState ->
+                    currentState.copy(savedStatus = SavedStatus.NOT_SAVED)
+                }
                 interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
                 return WRStatus.IO_ERROR
             }
         } catch (e: Exception) {
             Log.e("ViewModel", "Cannot save article, network error")
             e.printStackTrace()
+            _homeScreenState.update { currentState ->
+                currentState.copy(savedStatus = SavedStatus.NOT_SAVED)
+            }
             interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
             return WRStatus.NETWORK_ERROR
         }
@@ -763,7 +773,7 @@ class UiViewModel(
             val deleted = apiFile.delete() && contentFile.delete()
             if (deleted) {
                 _homeScreenState.update { currentState ->
-                    currentState.copy(isSaved = false)
+                    currentState.copy(savedStatus = SavedStatus.NOT_SAVED)
                 }
                 _savedArticlesState.update { currentState ->
                     currentState.copy(
@@ -895,7 +905,7 @@ class UiViewModel(
                         pageId = apiResponse?.pageId,
                         backStackSize = backStack.size,
                         status = WRStatus.SUCCESS,
-                        isSaved = true
+                        savedStatus = SavedStatus.SAVED
                     )
                 }
 

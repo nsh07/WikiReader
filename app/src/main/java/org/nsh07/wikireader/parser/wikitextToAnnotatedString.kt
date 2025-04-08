@@ -22,6 +22,8 @@ import kotlin.math.min
 import kotlin.text.Typography.bullet
 import kotlin.text.Typography.nbsp
 
+private const val MAGIC_SEP = "{{!}}"
+
 /**
  * Converts Wikitext source code into an [AnnotatedString] that can be rendered by [androidx.compose.material3.Text]
  */
@@ -144,7 +146,7 @@ fun String.toWikitextAnnotatedString(
                                 )
                             )
                         ) {
-                            append("\n")
+                            append('\n')
                             withStyle(SpanStyle(fontSize = (fontSize + 8).sp)) {
                                 append("❝")
                             }
@@ -206,8 +208,8 @@ fun String.toWikitextAnnotatedString(
                                 else append(": ")
                                 splitList.forEachIndexed { index, it ->
                                     append(
-                                        "[[$it|${
-                                            it.replace(
+                                        "[[${it.substringBefore(MAGIC_SEP)}|${
+                                            it.substringAfter(MAGIC_SEP).replace(
                                                 "#",
                                                 " § "
                                             )
@@ -230,7 +232,9 @@ fun String.toWikitextAnnotatedString(
                                 append("See also: ")
                                 splitList.forEachIndexed { index, it ->
                                     append(
-                                        "[[$it]]".toWikitextAnnotatedString(
+                                        "[[${it.substringBefore(MAGIC_SEP)}|${
+                                            it.substringAfter((MAGIC_SEP)).replace("#", " § ")
+                                        }]]".toWikitextAnnotatedString(
                                             colorScheme,
                                             typography,
                                             performSearch,
@@ -241,6 +245,39 @@ fun String.toWikitextAnnotatedString(
                                     else if (index < splitList.size - 1) append(", ")
                                 }
                             }
+                        } else if (currSubstring.startsWith("{{distinguish", ignoreCase = true)) {
+                            val curr = currSubstring.substringAfter('|')
+                            val splitList = curr.split('|')
+                            withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                                append("Not to be confused with ")
+                                splitList.forEachIndexed { index, it ->
+                                    append(
+                                        "[[${it.substringBefore(MAGIC_SEP)}|${
+                                            it.substringAfter(
+                                                MAGIC_SEP
+                                            ).replace("#", " § ")
+                                        }]]".toWikitextAnnotatedString(
+                                            colorScheme,
+                                            typography,
+                                            performSearch,
+                                            fontSize
+                                        )
+                                    )
+                                    if (index == splitList.size - 2 && splitList.size > 1) append(", or ")
+                                    else if (index < splitList.size - 1) append(", ")
+                                }
+                                append('.')
+                            }
+                        } else if (currSubstring.startsWith("{{hatnote group")) {
+                            val curr = currSubstring.substringAfter('|')
+                            append(
+                                curr.toWikitextAnnotatedString(
+                                    colorScheme,
+                                    typography,
+                                    performSearch,
+                                    fontSize
+                                )
+                            )
                         } else if (currSubstring.startsWith("{{IPAc-en", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
                             append("/${curr.replace("|", "").replace(' ', nbsp)}/")
@@ -288,7 +325,7 @@ fun String.toWikitextAnnotatedString(
                                     )
                                 )
                             ) {
-                                append("\n")
+                                append('\n')
                                 append(
                                     curr.substringAfter("text=")
                                         .substringBefore('=')

@@ -9,6 +9,7 @@ import org.nsh07.wikireader.data.FeedApiNews
 import org.nsh07.wikireader.data.FeedApiOTD
 import org.nsh07.wikireader.data.FeedApiTFA
 import org.nsh07.wikireader.data.MostReadArticle
+import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiLang
 import org.nsh07.wikireader.data.WikiPhoto
@@ -35,7 +36,7 @@ data class HomeScreenState(
     val currentLang: String? = null,
     val pageId: Int? = null,
     val status: WRStatus = WRStatus.UNINITIALIZED,
-    val isSaved: Boolean = false,
+    val savedStatus: SavedStatus = SavedStatus.NOT_SAVED,
     val isLoading: Boolean = false,
     val loadingProgress: Float? = null,
     val backStackSize: Int = 0

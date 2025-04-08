@@ -61,6 +61,7 @@ import coil3.svg.SvgDecoder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
@@ -164,6 +165,7 @@ fun AppScreen(
             LaunchedEffect(uriQuery) {
                 if (uriQuery != null && !deepLinkHandled) {
                     Log.d("AppScreen", "Deep link handled: uriQuery: $uriQuery")
+                    deepLinkHandled = true
                     val lang = backStackEntry.arguments?.getString("lang")
                     viewModel.stopAll()
                     delay(500) // Avoids a race condition where the hostname might not get updated in time
@@ -171,7 +173,6 @@ fun AppScreen(
                         uriQuery,
                         lang = lang
                     )
-                    deepLinkHandled = true
                 }
             }
 
@@ -293,7 +294,6 @@ fun AppScreen(
                         if (homeScreenState.photo != null || homeScreenState.status == WRStatus.FEED_LOADED)
                             navController.navigate(FullScreenImage)
                     },
-                    insets = insets,
                     onLinkClick = viewModel::loadPage,
                     refreshSearch = { viewModel.reloadPage(true) },
                     refreshFeed = viewModel::loadFeed,
@@ -302,14 +302,14 @@ fun AppScreen(
                     setShowArticleLanguageSheet = { showArticleLanguageSheet = it },
                     saveArticle = {
                         coroutineScope.launch {
-                            if (!homeScreenState.isSaved) {
+                            if (homeScreenState.savedStatus == SavedStatus.NOT_SAVED) {
                                 val status = viewModel.saveArticle()
                                 if (status == WRStatus.SUCCESS)
                                     snackBarHostState.showSnackbar("Article saved for offline reading")
                                 else
                                     snackBarHostState.showSnackbar("Unable to save article: ${status.name}")
                                 delay(150L)
-                            } else {
+                            } else if (homeScreenState.savedStatus == SavedStatus.SAVED) {
                                 val status = viewModel.deleteArticle()
                                 if (status == WRStatus.SUCCESS)
                                     snackBarHostState.showSnackbar("Article deleted")
@@ -320,13 +320,17 @@ fun AppScreen(
                     },
                     showFeedErrorSnackBar = {
                         coroutineScope.launch {
-                            snackBarHostState.showSnackbar("Unable to load feed: ${homeScreenState.status.name}")
+                            if (!deepLinkHandled)
+                                snackBarHostState
+                                    .showSnackbar("Unable to load feed: ${homeScreenState.status.name}")
                         }
                     },
+                    insets = insets,
                     windowSizeClass = windowSizeClass,
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(top = insets.calculateTopPadding())
+                        .padding(top = insets.calculateTopPadding()),
+                    deepLinkHandled = deepLinkHandled
                 )
             }
         }
