@@ -1,6 +1,5 @@
 package org.nsh07.wikireader.ui.homeScreen
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -23,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,7 +67,7 @@ fun ArticleLanguageBottomSheet(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Choose Wikipedia Language",
+                text = "Choose Wikipedia language",
                 style = MaterialTheme.typography.labelLarge
             )
             LanguageSearchBar(
@@ -78,13 +78,8 @@ fun ArticleLanguageBottomSheet(
             HorizontalDivider()
             LazyColumn(state = listState) {
                 items(langs, key = { it.lang }) {
-                    val langName: String? = try {
-                        langCodeToName(it.lang)
-                    } catch (_: Exception) {
-                        Log.e("Language", "Language not found: ${it.lang}")
-                        null
-                    }
-                    if (langName != null && langName.contains(searchQuery, ignoreCase = true))
+                    val langName: String = remember { langCodeToName(it.lang) }
+                    if (langName.contains(searchQuery, ignoreCase = true))
                         ListItem(
                             headlineContent = { Text(langName) },
                             supportingContent = { Text(it.title) },
