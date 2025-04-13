@@ -284,7 +284,7 @@ fun SettingsScreen(
                         )
                     },
                     headlineContent = { Text("Data saver") },
-                    supportingContent = { Text("Disable images and feed. Page images can still be opened by clicking the description card") },
+                    supportingContent = { Text("Disable images and feed. Page images can still be opened by clicking the description card.") },
                     trailingContent = {
                         Switch(
                             checked = dataSaver,
@@ -322,7 +322,7 @@ fun SettingsScreen(
                         )
                     },
                     headlineContent = { Text("Immersive mode") },
-                    supportingContent = { Text("Hide search bar while scrolling. Enabled by default on small screen sizes") },
+                    supportingContent = { Text("Hide search bar and floating action buttons while scrolling. Enabled by default on small screen sizes.") },
                     trailingContent = {
                         Switch(
                             checked = immersiveMode,
@@ -342,7 +342,7 @@ fun SettingsScreen(
                     },
                     headlineContent = { Text("Render math expressions") },
                     supportingContent = {
-                        Text("Requires small amounts of additional data. Turn off to improve performance at the cost of readability")
+                        Text("Requires small amounts of additional data. Turn off to improve performance at the cost of readability.")
                     },
                     trailingContent = {
                         Switch(
@@ -363,7 +363,7 @@ fun SettingsScreen(
                     },
                     headlineContent = { Text("Search history") },
                     supportingContent = {
-                        Text("Save search history. Existing history is unaffected by this option")
+                        Text("Save search history. Existing history is unaffected by this option.")
                     },
                     trailingContent = {
                         Switch(

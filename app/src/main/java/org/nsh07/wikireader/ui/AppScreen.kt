@@ -249,6 +249,10 @@ fun AppScreen(
                 floatingActionButton = {
                     AppFab(
                         index = if (homeScreenState.status != WRStatus.FEED_LOADED) index else feedIndex,
+                        visible = if (preferencesState.immersiveMode) {
+                            if (homeScreenState.status != WRStatus.FEED_LOADED)
+                                listState.lastScrolledBackward else feedListState.lastScrolledBackward
+                        } else true,
                         focusSearch = {
                             viewModel.focusSearchBar()
                             textFieldState.setTextAndPlaceCursorAtEnd(textFieldState.text.toString())
