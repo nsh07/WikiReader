@@ -1,7 +1,9 @@
 package org.nsh07.wikireader.ui.settingsScreen
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,18 +11,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.Card
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -38,9 +43,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -66,6 +71,11 @@ fun SettingsScreen(
     modifier: Modifier = Modifier
 ) {
     val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
+    val appInfoIntent =
+        Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.fromParts("package", context.packageName, null)
+        }
     val languageSearchStr = viewModel.languageSearchStr.collectAsState()
     val languageSearchQuery = viewModel.languageSearchQuery.collectAsState("")
 
@@ -173,7 +183,7 @@ fun SettingsScreen(
                     leadingContent = {
                         Icon(
                             painterResource(R.drawable.palette),
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = colorScheme.primary,
                             contentDescription = null
                         )
                     },
@@ -225,10 +235,16 @@ fun SettingsScreen(
                                         index = index,
                                         count = fontStyles.size
                                     ),
-                                    onClick = { viewModel.saveFontStyle(reverseFontStyleMap[label] ?: "sans") },
+                                    onClick = {
+                                        viewModel.saveFontStyle(
+                                            reverseFontStyleMap[label] ?: "sans"
+                                        )
+                                    },
                                     selected = label == fontStyleMap[fontStyle],
                                     label = { Text(label) },
-                                    modifier = if (weight != 0f) Modifier.width(160.dp) else Modifier.width(512.dp)
+                                    modifier = if (weight != 0f) Modifier.width(160.dp) else Modifier.width(
+                                        512.dp
+                                    )
                                 )
                             }
                         }
@@ -376,24 +392,42 @@ fun SettingsScreen(
                     }
                 )
 
-                Card(
+                OutlinedCard(
                     modifier = Modifier.padding(16.dp),
-                    onClick = { uriHandler.openUri("https://gist.github.com/nsh07/ed7571f3e2014b412037626a39d68ecd") },
                     shape = shapes.extraLarge
                 ) {
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    Column(
+                        modifier = Modifier.padding(20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Box(Modifier.clip(CircleShape)) {
-                            Icon(Icons.Outlined.Info, contentDescription = "Information")
-                        }
-                        Text(
-                            text = "You can set WikiReader as your default app for opening Wikipedia links. For more info, click on this card.",
-                            modifier = Modifier.padding(start = 16.dp)
+                        Icon(
+                            Icons.Outlined.Info,
+                            tint = colorScheme.secondary,
+                            contentDescription = "Information",
+                            modifier = Modifier.size(24.dp)
                         )
+                        Text("Set as default", style = typography.headlineSmall)
+                        Text(
+                            text = "You can set WikiReader as your default app for opening Wikipedia links. Click on the buttons below to know more or open settings.",
+                            style = typography.bodyLarge,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Row(
+                            modifier = Modifier.align(Alignment.End),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Button(onClick = { context.startActivity(appInfoIntent) }) {
+                                Text("Settings")
+                            }
+                            FilledTonalButton(
+                                onClick = {
+                                    uriHandler.openUri("https://gist.github.com/nsh07/ed7571f3e2014b412037626a39d68ecd")
+                                }
+                            ) {
+                                Text("Instructions")
+                            }
+                        }
                     }
                 }
 
