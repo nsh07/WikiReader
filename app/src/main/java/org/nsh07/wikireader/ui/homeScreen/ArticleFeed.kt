@@ -77,7 +77,7 @@ fun ArticleFeed(
     insets: PaddingValues,
     listState: LazyListState,
     windowSizeClass: WindowSizeClass,
-    performSearch: (String) -> Unit,
+    loadPage: (String) -> Unit,
     refreshFeed: () -> Unit,
     onImageClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -133,7 +133,7 @@ fun ArticleFeed(
             if (feedState.tfa != null) {
                 item {
                     ElevatedCard(
-                        onClick = { performSearch(feedState.tfa.titles?.canonical ?: "") },
+                        onClick = { loadPage(feedState.tfa.titles?.canonical ?: "") },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)
@@ -203,7 +203,7 @@ fun ArticleFeed(
                                         modifier = Modifier
                                             .clickable(
                                                 onClick = {
-                                                    performSearch(
+                                                    loadPage(
                                                         feedState.mostReadArticles[i].titles?.normalized
                                                             ?: "(No title)"
                                                     )
@@ -423,7 +423,7 @@ fun ArticleFeed(
                                                     color = Color.LightGray
                                                 ),
                                                 onClick = {
-                                                    performSearch(
+                                                    loadPage(
                                                         it.titles?.canonical ?: ""
                                                     )
                                                 }
@@ -534,7 +534,7 @@ fun ArticleFeed(
                                                         color = Color.LightGray
                                                     ),
                                                     onClick = {
-                                                        performSearch(
+                                                        loadPage(
                                                             it.titles?.canonical ?: ""
                                                         )
                                                     }

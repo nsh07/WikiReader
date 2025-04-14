@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -30,7 +31,21 @@ fun ParsedBodyText(
         val dpi = context.resources.displayMetrics.density
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             for (i in 0..body.lastIndex) {
-                if (i % 2 == 0) {
+                if (body[i].startsWith("<math")) {
+                    EquationImage(
+                        context = context,
+                        dpi = dpi,
+                        latex = remember { body[i].toString().substringAfter('>') },
+                        fontSize = fontSize,
+                        darkTheme = darkTheme
+                    )
+                } else if (body[i].startsWith("{|")) {
+                    Wikitable(
+                        text = body[i].toString(),
+                        fontSize = fontSize,
+                        loadPage = {}
+                    )
+                } else {
                     Text(
                         text = body[i],
                         style = typography.bodyLarge.copy(hyphens = Hyphens.Auto),
@@ -40,14 +55,6 @@ fun ParsedBodyText(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
-                    )
-                } else {
-                    EquationImage(
-                        context = context,
-                        dpi = dpi,
-                        latex = body[i].toString(),
-                        fontSize = fontSize,
-                        darkTheme = darkTheme
                     )
                 }
             }
@@ -69,7 +76,7 @@ fun ParsedBodyText(
                 else
                     Text(
                         text = LaTeX2Unicode.convert(body[i].toString())
-                                .replace(' ', nbsp),
+                            .replace(' ', nbsp),
                         fontFamily = FontFamily.Serif,
                         fontSize = (fontSize + 4).sp,
                         lineHeight = (24 * (fontSize / 16.0) + 4).toInt().sp,

@@ -41,7 +41,7 @@ fun ArticleLanguageBottomSheet(
     searchQuery: String,
     setShowSheet: (Boolean) -> Unit,
     setLang: (String) -> Unit,
-    performSearch: (String) -> Unit,
+    loadPage: (String) -> Unit,
     setSearchStr: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -87,7 +87,7 @@ fun ArticleLanguageBottomSheet(
                             modifier = Modifier
                                 .clickable(onClick = {
                                     setLang(it.lang)
-                                    performSearch(it.title)
+                                    loadPage(it.title)
                                     scope
                                         .launch { bottomSheetState.hide() }
                                         .invokeOnCompletion {

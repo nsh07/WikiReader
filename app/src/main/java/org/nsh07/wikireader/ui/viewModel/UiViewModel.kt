@@ -39,11 +39,13 @@ import org.nsh07.wikireader.data.parseSections
 import org.nsh07.wikireader.network.HostSelectionInterceptor
 import org.nsh07.wikireader.network.NetworkException
 import org.nsh07.wikireader.parser.cleanUpWikitext
+import org.nsh07.wikireader.parser.substringMatchingParen
 import org.nsh07.wikireader.parser.toWikitextAnnotatedString
 import org.nsh07.wikireader.ui.savedArticlesScreen.LanguageFilterOption
 import java.io.File
 import java.io.FileOutputStream
 import kotlin.io.path.listDirectoryEntries
+import kotlin.math.min
 
 class UiViewModel(
     private val interceptor: HostSelectionInterceptor,
@@ -963,21 +965,34 @@ class UiViewModel(
 
             while (i < parsed.length) {
                 if (parsed[i] == '<') {
-                    val currSubstring = parsed.substring(i)
+                    var currSubstring = parsed.substring(i, min(i + 16, parsed.length))
                     if (currSubstring.startsWith("<math display")) {
+                        currSubstring = parsed.substring(i).substringBefore("</math>")
                         out.add(
                             curr.toWikitextAnnotatedString(
                                 colorScheme = colorScheme,
                                 typography = typography,
-                                performSearch = ::loadPage,
+                                loadPage = ::loadPage,
                                 fontSize = preferencesState.value.fontSize
                             )
                         )
-                        curr = currSubstring.substringAfter('>').substringBefore("</math>")
-                        out.add(buildAnnotatedString { append(curr) })
-                        i += currSubstring.substringBefore('>').length + curr.length + "</math>".length
+                        out.add(buildAnnotatedString { append(currSubstring) })
+                        i += currSubstring.length + 7
                         curr = ""
                     } else curr += parsed[i]
+                } else if (parsed[i] == '{' && parsed.getOrNull(i + 1) == '|') {
+                    val currSubstring = parsed.substringMatchingParen('{', '}', i)
+                    out.add(
+                        curr.toWikitextAnnotatedString(
+                            colorScheme = colorScheme,
+                            typography = typography,
+                            loadPage = ::loadPage,
+                            fontSize = preferencesState.value.fontSize
+                        )
+                    )
+                    out.add(buildAnnotatedString { append(currSubstring) })
+                    curr = ""
+                    i += currSubstring.length
                 } else curr += parsed[i]
                 i++
             }
@@ -985,7 +1000,7 @@ class UiViewModel(
                 curr.toWikitextAnnotatedString(
                     colorScheme = colorScheme,
                     typography = typography,
-                    performSearch = { loadPage(it) },
+                    loadPage = { loadPage(it) },
                     fontSize = preferencesState.value.fontSize
                 )
             )

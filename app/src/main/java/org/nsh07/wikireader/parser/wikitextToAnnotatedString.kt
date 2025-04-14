@@ -30,7 +30,7 @@ private const val MAGIC_SEP = "{{!}}"
 fun String.toWikitextAnnotatedString(
     colorScheme: ColorScheme,
     typography: Typography,
-    performSearch: (String) -> Unit,
+    loadPage: (String) -> Unit,
     fontSize: Int,
     newLine: Boolean = true,
     inIndentCode: Boolean = false
@@ -54,7 +54,7 @@ fun String.toWikitextAnnotatedString(
                                 curr.toWikitextAnnotatedString(
                                     colorScheme,
                                     typography,
-                                    performSearch,
+                                    loadPage,
                                     fontSize,
                                     inIndentCode = true
                                 )
@@ -65,7 +65,11 @@ fun String.toWikitextAnnotatedString(
 
                 '<' -> {
                     val currSubstring = input.substring(i)
-                    if (currSubstring.startsWith("<code>")) {
+                    if (currSubstring.startsWith("<br")) {
+                        append('\n')
+                        i += currSubstring.substringBefore('>').length
+                    }
+                    else if (currSubstring.startsWith("<code>")) {
                         val curr = currSubstring.substringBefore("</code>").substringAfter('>')
                         withStyle(
                             SpanStyle(
@@ -77,7 +81,7 @@ fun String.toWikitextAnnotatedString(
                                 curr.toWikitextAnnotatedString(
                                     colorScheme,
                                     typography,
-                                    performSearch,
+                                    loadPage,
                                     fontSize,
                                     newLine = false
                                 )
@@ -96,7 +100,7 @@ fun String.toWikitextAnnotatedString(
                                 curr.toWikitextAnnotatedString(
                                     colorScheme,
                                     typography,
-                                    performSearch,
+                                    loadPage,
                                     fontSize,
                                     newLine = false
                                 )
@@ -115,7 +119,7 @@ fun String.toWikitextAnnotatedString(
                                 curr.toWikitextAnnotatedString(
                                     colorScheme,
                                     typography,
-                                    performSearch,
+                                    loadPage,
                                     fontSize,
                                     newLine = false
                                 )
@@ -154,7 +158,7 @@ fun String.toWikitextAnnotatedString(
                                 curr.toWikitextAnnotatedString(
                                     colorScheme,
                                     typography,
-                                    performSearch,
+                                    loadPage,
                                     fontSize
                                 )
                             )
@@ -180,7 +184,7 @@ fun String.toWikitextAnnotatedString(
                                     curr.toWikitextAnnotatedString(
                                         colorScheme,
                                         typography,
-                                        performSearch,
+                                        loadPage,
                                         fontSize
                                     )
                                 )
@@ -194,7 +198,7 @@ fun String.toWikitextAnnotatedString(
                                     curr.replace(' ', nbsp).toWikitextAnnotatedString(
                                         colorScheme,
                                         typography,
-                                        performSearch,
+                                        loadPage,
                                         fontSize
                                     )
                                 )
@@ -216,7 +220,7 @@ fun String.toWikitextAnnotatedString(
                                         }]]".toWikitextAnnotatedString(
                                             colorScheme,
                                             typography,
-                                            performSearch,
+                                            loadPage,
                                             fontSize
                                         )
                                     )
@@ -237,7 +241,7 @@ fun String.toWikitextAnnotatedString(
                                         }]]".toWikitextAnnotatedString(
                                             colorScheme,
                                             typography,
-                                            performSearch,
+                                            loadPage,
                                             fontSize
                                         )
                                     )
@@ -259,7 +263,7 @@ fun String.toWikitextAnnotatedString(
                                         }]]".toWikitextAnnotatedString(
                                             colorScheme,
                                             typography,
-                                            performSearch,
+                                            loadPage,
                                             fontSize
                                         )
                                     )
@@ -274,7 +278,7 @@ fun String.toWikitextAnnotatedString(
                                 curr.toWikitextAnnotatedString(
                                     colorScheme,
                                     typography,
-                                    performSearch,
+                                    loadPage,
                                     fontSize
                                 )
                             )
@@ -289,7 +293,7 @@ fun String.toWikitextAnnotatedString(
                                         .toWikitextAnnotatedString(
                                             colorScheme,
                                             typography,
-                                            performSearch,
+                                            loadPage,
                                             fontSize
                                         )
                                 )
@@ -333,7 +337,7 @@ fun String.toWikitextAnnotatedString(
                                         .toWikitextAnnotatedString(
                                             colorScheme,
                                             typography,
-                                            performSearch,
+                                            loadPage,
                                             fontSize
                                         )
                                 )
@@ -348,7 +352,7 @@ fun String.toWikitextAnnotatedString(
                                     }]]\n".toWikitextAnnotatedString(
                                         colorScheme,
                                         typography,
-                                        performSearch,
+                                        loadPage,
                                         fontSize
                                     )
                                 )
@@ -372,7 +376,7 @@ fun String.toWikitextAnnotatedString(
                                 curr.toWikitextAnnotatedString(
                                     colorScheme,
                                     typography,
-                                    performSearch,
+                                    loadPage,
                                     fontSize
                                 )
                             )
@@ -407,7 +411,7 @@ fun String.toWikitextAnnotatedString(
                                 curr.toWikitextAnnotatedString(
                                     colorScheme,
                                     typography,
-                                    performSearch,
+                                    loadPage,
                                     fontSize
                                 )
                             )
@@ -425,7 +429,7 @@ fun String.toWikitextAnnotatedString(
                                         curr.trim().toWikitextAnnotatedString(
                                             colorScheme,
                                             typography,
-                                            performSearch,
+                                            loadPage,
                                             fontSize
                                         )
                                     )
@@ -438,7 +442,7 @@ fun String.toWikitextAnnotatedString(
                                         "${curr.trim()}\n".toWikitextAnnotatedString(
                                             colorScheme,
                                             typography,
-                                            performSearch,
+                                            loadPage,
                                             fontSize
                                         )
                                     )
@@ -452,7 +456,7 @@ fun String.toWikitextAnnotatedString(
                                     "${curr.trim()}\n".toWikitextAnnotatedString(
                                         colorScheme,
                                         typography,
-                                        performSearch,
+                                        loadPage,
                                         fontSize
                                     )
                                 )
@@ -476,7 +480,7 @@ fun String.toWikitextAnnotatedString(
                                 curr.toWikitextAnnotatedString(
                                     colorScheme,
                                     typography,
-                                    performSearch,
+                                    loadPage,
                                     fontSize
                                 )
                             )
@@ -489,7 +493,7 @@ fun String.toWikitextAnnotatedString(
                                 curr.toWikitextAnnotatedString(
                                     colorScheme,
                                     typography,
-                                    performSearch,
+                                    loadPage,
                                     fontSize
                                 )
                             )
@@ -508,14 +512,14 @@ fun String.toWikitextAnnotatedString(
                                         SpanStyle(color = colorScheme.primary)
                                     )
                                 ) {
-                                    performSearch(curr.substringBefore('|').substringBefore('#'))
+                                    loadPage(curr.substringBefore('|').substringBefore('#'))
                                 }
                             ) {
                                 append(
                                     curr.substringAfter('|').trim().toWikitextAnnotatedString(
                                         colorScheme,
                                         typography,
-                                        performSearch,
+                                        loadPage,
                                         fontSize
                                     )
                                 )

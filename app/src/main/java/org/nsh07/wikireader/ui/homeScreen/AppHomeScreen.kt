@@ -148,7 +148,7 @@ fun AppHomeScreen(
             searchQuery = languageSearchQuery,
             setShowSheet = setShowArticleLanguageSheet,
             setLang = setLang,
-            performSearch = onLinkClick,
+            loadPage = onLinkClick,
             setSearchStr = setSearchStr
         )
 
@@ -312,7 +312,7 @@ fun AppHomeScreen(
                     feedState = feedState,
                     imageLoader = imageLoader,
                     insets = insets,
-                    performSearch = onLinkClick,
+                    loadPage = onLinkClick,
                     refreshFeed = refreshFeed,
                     onImageClick = onImageClick,
                     listState = feedListState,
