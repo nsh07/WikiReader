@@ -982,17 +982,33 @@ class UiViewModel(
                     } else curr += parsed[i]
                 } else if (parsed[i] == '{' && parsed.getOrNull(i + 1) == '|') {
                     val currSubstring = parsed.substringMatchingParen('{', '}', i)
-                    out.add(
-                        curr.toWikitextAnnotatedString(
-                            colorScheme = colorScheme,
-                            typography = typography,
-                            loadPage = ::loadPage,
-                            fontSize = preferencesState.value.fontSize
+                    if (!currSubstring.substring(min(i + 2, currSubstring.lastIndex)).contains("{|")) {
+                        out.add(
+                            curr.toWikitextAnnotatedString(
+                                colorScheme = colorScheme,
+                                typography = typography,
+                                loadPage = ::loadPage,
+                                fontSize = preferencesState.value.fontSize
+                            )
                         )
-                    )
-                    out.add(buildAnnotatedString { append(currSubstring) })
-                    curr = ""
-                    i += currSubstring.length
+                        out.add(buildAnnotatedString { append(currSubstring) })
+                        curr = ""
+                        i += currSubstring.length
+                    } else {
+                        val currSubstringNestedTable =
+                            parsed.substringMatchingParen('{', '}', parsed.indexOf("{|", i + 2))
+                        out.add(
+                            curr.toWikitextAnnotatedString(
+                                colorScheme = colorScheme,
+                                typography = typography,
+                                loadPage = ::loadPage,
+                                fontSize = preferencesState.value.fontSize
+                            )
+                        )
+                        out.add(buildAnnotatedString { append(currSubstringNestedTable) })
+                        curr = ""
+                        i += currSubstring.length
+                    }
                 } else curr += parsed[i]
                 i++
             }

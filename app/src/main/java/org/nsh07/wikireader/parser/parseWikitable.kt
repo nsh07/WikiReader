@@ -13,25 +13,19 @@ fun parseWikitable(
     val out = mutableListOf<List<AnnotatedString>>()
     table.split("|-").forEachIndexed { i, it ->
         if (i != 0) {
+            val inlineSeparator =
+                if (it.trim(' ', '\n').startsWith('!')) it.contains("!!") else it.contains("||")
             val row = mutableListOf<AnnotatedString>()
-            it.trim('\n').split('\n').forEach {
+            val separator = if (inlineSeparator) {
+                if (i == 1) "!!"
+                else "||"
+            } else "\n"
+            it.trim('\n').split(separator).forEach {
                 val curr = it.trim()
-                if (curr.startsWith('|')) {
-                    row.add(
-                        curr.substringAfter('|')
-                            .trim()
-                            .toWikitextAnnotatedString(
-                                colorScheme,
-                                typography,
-                                loadPage,
-                                fontSize
-                            )
-                    )
-                } else if (curr.startsWith('!')) {
-                    if (curr.substringBefore('|').contains("=\"")) {
+                if (!inlineSeparator) {
+                    if (curr.startsWith('|')) {
                         row.add(
-                            curr.substringAfter('!')
-                                .substringAfter('|')
+                            curr.substringAfter('|')
                                 .trim()
                                 .toWikitextAnnotatedString(
                                     colorScheme,
@@ -40,24 +34,47 @@ fun parseWikitable(
                                     fontSize
                                 )
                         )
-                    } else row.add(
-                        curr.substringAfter('!')
-                            .toWikitextAnnotatedString(
-                                colorScheme,
-                                typography,
-                                loadPage,
-                                fontSize
+                    } else if (curr.startsWith('!')) {
+                        if (curr.substringBefore('|').contains("=\"")) {
+                            row.add(
+                                curr.substringAfter('!')
+                                    .substringAfter('|')
+                                    .trim()
+                                    .toWikitextAnnotatedString(
+                                        colorScheme,
+                                        typography,
+                                        loadPage,
+                                        fontSize
+                                    )
                             )
-                    )
+                        } else row.add(
+                            curr.substringAfter('!')
+                                .toWikitextAnnotatedString(
+                                    colorScheme,
+                                    typography,
+                                    loadPage,
+                                    fontSize
+                                )
+                        )
+                    } else {
+                        if (row.lastIndex != -1)
+                            row[row.lastIndex] =
+                                row[row.lastIndex] + "\n$it".toWikitextAnnotatedString(
+                                    colorScheme,
+                                    typography,
+                                    loadPage,
+                                    fontSize
+                                )
+                    }
                 } else {
-                    if (row.lastIndex != -1)
-                        row[row.lastIndex] =
-                            row[row.lastIndex] + "\n$it".toWikitextAnnotatedString(
-                                colorScheme,
-                                typography,
-                                loadPage,
-                                fontSize
-                            )
+                    row.add(
+                        curr.trim('!', '|', ' ').toWikitextAnnotatedString(
+                            colorScheme,
+                            typography,
+                            loadPage,
+                            fontSize
+                        )
+                    )
                 }
             }
             if (out.isEmpty() || row.size == out.getOrNull(0)?.size)

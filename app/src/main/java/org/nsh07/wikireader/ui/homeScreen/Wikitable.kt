@@ -47,7 +47,7 @@ fun Wikitable(
                 Text(
                     rows[row][column],
                     modifier = Modifier
-                        .padding(vertical = 8.dp, horizontal = 4.dp)
+                        .padding(8.dp)
                         .widthIn(max = 256.dp),
                     fontWeight = FontWeight.Bold
                 )
@@ -55,7 +55,7 @@ fun Wikitable(
                 Text(
                     rows[row][column],
                     modifier = Modifier
-                        .padding(4.dp)
+                        .padding(vertical = 4.dp, horizontal = 8.dp)
                         .widthIn(max = 256.dp)
                 )
         }

@@ -68,8 +68,7 @@ fun String.toWikitextAnnotatedString(
                     if (currSubstring.startsWith("<br")) {
                         append('\n')
                         i += currSubstring.substringBefore('>').length
-                    }
-                    else if (currSubstring.startsWith("<code>")) {
+                    } else if (currSubstring.startsWith("<code>")) {
                         val curr = currSubstring.substringBefore("</code>").substringAfter('>')
                         withStyle(
                             SpanStyle(
@@ -177,7 +176,17 @@ fun String.toWikitextAnnotatedString(
                     if (input.getOrNull(i + 1) == '{') {
                         val currSubstring =
                             substringMatchingParen('{', '}', i).substringBeforeLast("}}")
-                        if (currSubstring.startsWith("{{mono", ignoreCase = true)) {
+                        if (currSubstring.startsWith("{{abbr", ignoreCase = true)) {
+                            val curr = currSubstring.substringAfter('|').substringBefore('|')
+                            append(
+                                curr.toWikitextAnnotatedString(
+                                    colorScheme,
+                                    typography,
+                                    loadPage,
+                                    fontSize
+                                )
+                            )
+                        } else if (currSubstring.startsWith("{{mono", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
                             withStyle(SpanStyle(fontFamily = FontFamily.Monospace)) {
                                 append(
