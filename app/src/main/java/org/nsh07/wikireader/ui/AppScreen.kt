@@ -202,6 +202,7 @@ fun AppScreen(
                     AppSearchBar(
                         appSearchBarState = appSearchBarState,
                         searchBarState = searchBarState,
+                        preferencesState = preferencesState,
                         textFieldState = textFieldState,
                         scrollBehavior = searchBarScrollBehavior,
                         searchBarEnabled = !showArticleLanguageSheet,

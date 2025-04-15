@@ -70,12 +70,14 @@ import coil3.ImageLoader
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.viewModel.AppSearchBarState
+import org.nsh07.wikireader.ui.viewModel.PreferencesState
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun AppSearchBar(
     appSearchBarState: AppSearchBarState,
     searchBarState: SearchBarState,
+    preferencesState: PreferencesState,
     textFieldState: TextFieldState,
     searchBarEnabled: Boolean,
     dataSaver: Boolean,
@@ -205,81 +207,83 @@ fun AppSearchBar(
         Crossfade(textFieldState.text.trim().isEmpty()) {
             when (it) {
                 true ->
-                    Row {
-                        if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
-                        LazyColumn(Modifier.weight(4f)) {
-                            item {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(
-                                        "History",
-                                        style = typography.labelLarge,
-                                        modifier = Modifier.padding(16.dp)
-                                    )
-                                    Spacer(Modifier.weight(1f))
-                                    TextButton(
-                                        onClick = clearHistory,
-                                        enabled = size > 0,
-                                        modifier = Modifier.padding(4.dp)
-                                    ) {
-                                        Text("Clear")
+                    if (preferencesState.searchHistory) {
+                        Row {
+                            if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
+                            LazyColumn(Modifier.weight(4f)) {
+                                item {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            "History",
+                                            style = typography.labelLarge,
+                                            modifier = Modifier.padding(16.dp)
+                                        )
+                                        Spacer(Modifier.weight(1f))
+                                        TextButton(
+                                            onClick = clearHistory,
+                                            enabled = size > 0,
+                                            modifier = Modifier.padding(4.dp)
+                                        ) {
+                                            Text("Clear")
+                                        }
                                     }
                                 }
-                            }
-                            items(size, key = { history[size - it - 1] }) {
-                                val currentText = history[size - it - 1]
-                                ListItem(
-                                    leadingContent = {
-                                        Icon(
-                                            painterResource(R.drawable.history),
-                                            contentDescription = null
-                                        )
-                                    },
-                                    headlineContent = {
-                                        Text(
-                                            currentText,
-                                            softWrap = false,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    },
-                                    trailingContent = {
-                                        IconButton(
-                                            onClick = { setQuery(currentText) },
-                                            modifier = Modifier.wrapContentSize()
-                                        ) {
+                                items(size, key = { history[size - it - 1] }) {
+                                    val currentText = history[size - it - 1]
+                                    ListItem(
+                                        leadingContent = {
                                             Icon(
-                                                painterResource(R.drawable.north_west),
+                                                painterResource(R.drawable.history),
                                                 contentDescription = null
                                             )
-                                        }
-                                    },
-                                    colors = ListItemDefaults
-                                        .colors(containerColor = SearchBarDefaults.colors().containerColor),
-                                    modifier = Modifier
-                                        .combinedClickable(
-                                            onClick = {
-                                                loadSearch(currentText)
-                                                textFieldState.setTextAndPlaceCursorAtEnd(
-                                                    currentText
+                                        },
+                                        headlineContent = {
+                                            Text(
+                                                currentText,
+                                                softWrap = false,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        },
+                                        trailingContent = {
+                                            IconButton(
+                                                onClick = { setQuery(currentText) },
+                                                modifier = Modifier.wrapContentSize()
+                                            ) {
+                                                Icon(
+                                                    painterResource(R.drawable.north_west),
+                                                    contentDescription = null
                                                 )
-                                            },
-                                            onLongClick = {
-                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                removeHistoryItem(currentText)
                                             }
-                                        )
-                                        .animateItem()
-                                )
-                            }
-                            item {
-                                Spacer(
-                                    Modifier.height(
-                                        WindowInsets.systemBars.asPaddingValues()
-                                            .calculateBottomPadding() + 152.dp
+                                        },
+                                        colors = ListItemDefaults
+                                            .colors(containerColor = SearchBarDefaults.colors().containerColor),
+                                        modifier = Modifier
+                                            .combinedClickable(
+                                                onClick = {
+                                                    loadSearch(currentText)
+                                                    textFieldState.setTextAndPlaceCursorAtEnd(
+                                                        currentText
+                                                    )
+                                                },
+                                                onLongClick = {
+                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                                    removeHistoryItem(currentText)
+                                                }
+                                            )
+                                            .animateItem()
                                     )
-                                )
+                                }
+                                item {
+                                    Spacer(
+                                        Modifier.height(
+                                            WindowInsets.systemBars.asPaddingValues()
+                                                .calculateBottomPadding() + 152.dp
+                                        )
+                                    )
+                                }
                             }
+                            if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
                         }
-                        if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
                     }
 
                 else ->
