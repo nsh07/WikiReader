@@ -125,6 +125,20 @@ fun String.toWikitextAnnotatedString(
                             )
                         }
                         i += 5 + curr.length + 5
+                    } else if (currSubstring.startsWith("<small>")) {
+                        val curr = currSubstring.substringBefore("</small>").substringAfter('>')
+                        withStyle(SpanStyle(fontSize = (fontSize - 2).sp)) {
+                            append(
+                                curr.toWikitextAnnotatedString(
+                                    colorScheme,
+                                    typography,
+                                    loadPage,
+                                    fontSize,
+                                    newLine = false
+                                )
+                            )
+                        }
+                        i += 7 + curr.length + 7
                     } else if (currSubstring.startsWith("<math>")) {
                         val curr = currSubstring.substringBefore("</math>").substringAfter('>')
                         withStyle(SpanStyle(fontFamily = FontFamily.Serif)) {
@@ -180,6 +194,15 @@ fun String.toWikitextAnnotatedString(
                             val curr = currSubstring.substringAfter('|').substringBefore('|')
                             append(
                                 curr.toWikitextAnnotatedString(
+                                    colorScheme,
+                                    typography,
+                                    loadPage,
+                                    fontSize
+                                )
+                            )
+                        } else if (currSubstring.startsWith("{{TableTBA", ignoreCase = true)) {
+                            append(
+                                "<small>TBA</small>".toWikitextAnnotatedString(
                                     colorScheme,
                                     typography,
                                     loadPage,

@@ -40,7 +40,7 @@ fun Wikitable(
     ) {
         Table(
             rows.size,
-            rows[0].size,
+            rows.getOrNull(0)?.size ?: 0,
             verticalAlignment = Alignment.CenterVertically
         ) { row, column ->
             if (row == 0 || column == 0)

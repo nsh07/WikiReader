@@ -11,6 +11,8 @@ fun parseWikitable(
     fontSize: Int
 ): List<List<AnnotatedString>> {
     val out = mutableListOf<List<AnnotatedString>>()
+    val rowSpan = mutableMapOf<Int, Pair<Int, String>>()
+
     table.split("|-").forEachIndexed { i, it ->
         if (i != 0) {
             val inlineSeparator =
@@ -20,22 +22,86 @@ fun parseWikitable(
                 if (i == 1) "!!"
                 else "||"
             } else "\n"
-            it.trim('\n').split(separator).forEach {
+            it.trim('\n').split(separator).forEachIndexed { i, it ->
                 val curr = it.trim()
+                if (rowSpan[i] != null) {
+                    row.add(
+                        rowSpan[i]!!.second.toWikitextAnnotatedString(
+                            colorScheme,
+                            typography,
+                            loadPage,
+                            fontSize
+                        )
+                    )
+                    if (rowSpan[i]!!.first - 1 > 0)
+                        rowSpan[i] = Pair(rowSpan[i]!!.first - 1, rowSpan[i]!!.second)
+                    else
+                        rowSpan.remove(i)
+                }
                 if (!inlineSeparator) {
                     if (curr.startsWith('|')) {
-                        row.add(
-                            curr.substringAfter('|')
-                                .trim()
-                                .toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize
+                        if (curr.contains("rowspan=")) {
+                            rowSpan[i] = Pair(
+                                curr.substringAfter("rowspan=").substringBefore('|').substringBefore(' ').trim('"')
+                                    .toIntOrNull() ?: 0,
+                                curr.substringAfter('|').substringAfter('|').trim()
+                            )
+                            row.add(
+                                curr.substringAfter('|')
+                                    .substringAfter('|')
+                                    .trim()
+                                    .toWikitextAnnotatedString(
+                                        colorScheme,
+                                        typography,
+                                        loadPage,
+                                        fontSize
+                                    )
+                            )
+                        } else if (curr.contains("colspan=")) {
+                            val colSpan = curr.substringAfter("colspan=").substringBefore('|').substringBefore(' ').trim('"')
+                                .toIntOrNull() ?: 1
+                            val substr = curr.substringAfter('|').substringAfter('|').trim()
+                            repeat(colSpan) {
+                                row.add(
+                                    substr.toWikitextAnnotatedString(
+                                            colorScheme,
+                                            typography,
+                                            loadPage,
+                                            fontSize
+                                        )
                                 )
-                        )
+                            }
+                        } else if (curr.contains("=\"")) {
+                            row.add(
+                                curr.substringAfter('|')
+                                    .substringAfter('|')
+                                    .trim()
+                                    .toWikitextAnnotatedString(
+                                        colorScheme,
+                                        typography,
+                                        loadPage,
+                                        fontSize
+                                    )
+                            )
+                        } else {
+                            row.add(
+                                curr.substringAfter('|')
+                                    .trim()
+                                    .toWikitextAnnotatedString(
+                                        colorScheme,
+                                        typography,
+                                        loadPage,
+                                        fontSize
+                                    )
+                            )
+                        }
                     } else if (curr.startsWith('!')) {
-                        if (curr.substringBefore('|').contains("=\"")) {
+                        if (curr.contains("rowspan=")) {
+                            rowSpan[i] = Pair(
+                                curr.substringAfter("rowspan=").substringBefore('|').substringBefore(' ').trim('"')
+                                    .toIntOrNull() ?: 0,
+                                curr.substringAfter('!').substringAfter('|').trim()
+                            )
                             row.add(
                                 curr.substringAfter('!')
                                     .substringAfter('|')
@@ -47,15 +113,46 @@ fun parseWikitable(
                                         fontSize
                                     )
                             )
-                        } else row.add(
-                            curr.substringAfter('!')
-                                .toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize
+                        } else if (curr.contains("colspan=")) {
+                            val colSpan =
+                                curr.substringAfter("colspan=").substringBefore('|').substringBefore(' ').trim('"')
+                                    .toIntOrNull() ?: 1
+                            val substr = curr.substringAfter('!').substringAfter('|').trim()
+                            repeat(colSpan) {
+                                row.add(
+                                    substr.toWikitextAnnotatedString(
+                                        colorScheme,
+                                        typography,
+                                        loadPage,
+                                        fontSize
+                                    )
                                 )
-                        )
+                            }
+                        }
+                        else if (curr.substringBefore('|').contains("=\"")) {
+                            row.add(
+                                curr.substringAfter('!')
+                                    .substringAfter('|')
+                                    .trim()
+                                    .toWikitextAnnotatedString(
+                                        colorScheme,
+                                        typography,
+                                        loadPage,
+                                        fontSize
+                                    )
+                            )
+                        } else {
+                            row.add(
+                                curr.substringAfter('!')
+                                    .trim()
+                                    .toWikitextAnnotatedString(
+                                        colorScheme,
+                                        typography,
+                                        loadPage,
+                                        fontSize
+                                    )
+                            )
+                        }
                     } else {
                         if (row.lastIndex != -1)
                             row[row.lastIndex] =
@@ -67,6 +164,12 @@ fun parseWikitable(
                                 )
                     }
                 } else {
+                    if (curr.contains("rowspan=")) {
+                        rowSpan[i] = Pair(
+                            curr.substringAfter("rowspan=").substringBefore('|').substringBefore(' ').trim('"').toIntOrNull() ?: 0,
+                            curr.trim('!', '|', ' ')
+                        )
+                    }
                     row.add(
                         curr.trim('!', '|', ' ').toWikitextAnnotatedString(
                             colorScheme,
