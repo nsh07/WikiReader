@@ -198,6 +198,7 @@ fun AppScreen(
                 }
 
             Scaffold(
+                // TODO: Add unit conversion
                 topBar = {
                     AppSearchBar(
                         appSearchBarState = appSearchBarState,

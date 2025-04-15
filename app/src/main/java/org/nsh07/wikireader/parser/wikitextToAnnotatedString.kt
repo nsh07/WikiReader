@@ -412,6 +412,27 @@ fun String.toWikitextAnnotatedString(
                                     fontSize
                                 )
                             )
+                        } else if (currSubstring.startsWith("{{flagg", ignoreCase = true)) {
+                            val curr = currSubstring.substringAfter('|').substringAfter('|')
+                                .substringBefore('|')
+                            append(
+                                curr.toWikitextAnnotatedString(
+                                    colorScheme,
+                                    typography,
+                                    loadPage,
+                                    fontSize
+                                )
+                            )
+                        } else if (currSubstring.startsWith("{{noflag", ignoreCase = true)) {
+                            val curr = currSubstring.substringAfter('|')
+                            append(
+                                curr.toWikitextAnnotatedString(
+                                    colorScheme,
+                                    typography,
+                                    loadPage,
+                                    fontSize
+                                )
+                            )
                         } else {
                             val curr = input.getOrNull(i + 1 + currSubstring.length + 1)
                             if (curr == '\n') i++

@@ -31,7 +31,9 @@ fun Wikitable(
     fontSize: Int,
     loadPage: (String) -> Unit,
 ) {
-    val rows = parseWikitable(text, colorScheme, typography, loadPage, fontSize)
+    val colorScheme = colorScheme
+    val typography = typography
+    val rows = remember { parseWikitable(text, colorScheme, typography, loadPage, fontSize) }
     Box(
         modifier = Modifier
             .horizontalScroll(rememberScrollState())
