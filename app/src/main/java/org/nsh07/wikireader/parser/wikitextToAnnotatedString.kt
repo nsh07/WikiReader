@@ -209,6 +209,21 @@ fun String.toWikitextAnnotatedString(
                                     fontSize
                                 )
                             )
+                        } else if (currSubstring.startsWith(
+                                "{{convert",
+                                ignoreCase = true
+                            ) || currSubstring.startsWith("{{cvt")
+                        ) {
+                            val curr = currSubstring.substringAfter('|')
+                            val currSplit = curr.split('|')
+                            var toAdd = ""
+                            toAdd += currSplit[0]
+                            toAdd += if (currSplit[1] in listOf("-", "to", "and")) {
+                                " " + currSplit[1] + " " + currSplit[2] + " " + currSplit[3]
+                            } else {
+                                " " + currSplit[1]
+                            }
+                            append(toAdd)
                         } else if (currSubstring.startsWith("{{mono", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
                             withStyle(SpanStyle(fontFamily = FontFamily.Monospace)) {
