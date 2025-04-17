@@ -1,0 +1,14 @@
+v2.0.0
+
+New features:
+- Rewritten article loading system: hyperlinks, bullet lists, bold, italic, tables and other features are now supported
+- New faster search view with search suggestions and images
+- Language filters in saved articles list if articles in more than 1 language are present
+- Option to choose font style
+- Immersive mode for hiding UI elements while scrolling
+... and more!
+
+Improvements:
+- Improved math rendering
+- Improved search results
+- Improved tablet experience

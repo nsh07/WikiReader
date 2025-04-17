@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
@@ -68,6 +69,45 @@ fun String.toWikitextAnnotatedString(
                     if (currSubstring.startsWith("<br")) {
                         append('\n')
                         i += currSubstring.substringBefore('>').length
+                    } else if (currSubstring.startsWith("<u>")) {
+                        val curr = currSubstring.substringBefore("</u>").substringAfter('>')
+                        withStyle(SpanStyle(textDecoration = TextDecoration.Underline)) {
+                            append(
+                                curr.toWikitextAnnotatedString(
+                                    colorScheme,
+                                    typography,
+                                    loadPage,
+                                    fontSize,
+                                    newLine = false
+                                )
+                            )
+                        }
+                        i += 3 + curr.length + 3
+                    } else if (currSubstring.startsWith("<div")) {
+                        val divTag = currSubstring.substringBefore('>')
+                        val curr = currSubstring.substringBefore("</div>").substringAfter('>')
+                        append(
+                            curr.toWikitextAnnotatedString(
+                                colorScheme,
+                                typography,
+                                loadPage,
+                                fontSize,
+                                newLine = false
+                            )
+                        )
+                        i += divTag.length + 1 + curr.length + 5
+                    } else if (currSubstring.startsWith("<noinclude>")) {
+                        val curr = currSubstring.substringBefore("</noinclude>").substringAfter('>')
+                        append(
+                            curr.toWikitextAnnotatedString(
+                                colorScheme,
+                                typography,
+                                loadPage,
+                                fontSize,
+                                newLine = false
+                            )
+                        )
+                        i += 11 + curr.length + 11
                     } else if (currSubstring.startsWith("<code>")) {
                         val curr = currSubstring.substringBefore("</code>").substringAfter('>')
                         withStyle(
@@ -392,17 +432,34 @@ fun String.toWikitextAnnotatedString(
                             }
                         } else if (currSubstring.startsWith("{{further", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
+                            val topic = curr.substringAfter("topic=", "").substringBefore('|')
                             withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
-                                append(
-                                    "Further reading: [[${
-                                        curr.substringBefore('|').substringBefore('#')
-                                    }]]\n".toWikitextAnnotatedString(
-                                        colorScheme,
-                                        typography,
-                                        loadPage,
-                                        fontSize
+                                append("Further")
+                                if (topic.isNotEmpty()) {
+                                    append(" information on $topic")
+                                    append(
+                                        ": [[${
+                                            curr.substringAfter('|').substringBefore('|').substringBefore('#')
+                                        }]]\n".toWikitextAnnotatedString(
+                                            colorScheme,
+                                            typography,
+                                            loadPage,
+                                            fontSize
+                                        )
                                     )
-                                )
+                                } else {
+                                    append(" reading")
+                                    append(
+                                        ": [[${
+                                            curr.substringAfter('|').substringBefore('|').substringBefore('#')
+                                        }]]\n".toWikitextAnnotatedString(
+                                            colorScheme,
+                                            typography,
+                                            loadPage,
+                                            fontSize
+                                        )
+                                    )
+                                }
                             }
                         } else if (currSubstring.startsWith("{{as of", ignoreCase = true)) {
                             // TODO: Complete this
