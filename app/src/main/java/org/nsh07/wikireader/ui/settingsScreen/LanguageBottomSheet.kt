@@ -76,7 +76,7 @@ fun LanguageBottomSheet(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Choose Wikipedia Language",
+                text = "Choose Wikipedia language",
                 style = MaterialTheme.typography.labelLarge
             )
             LanguageSearchBar(
@@ -89,41 +89,41 @@ fun LanguageBottomSheet(
             HorizontalDivider()
             LazyColumn(state = listState) {
                 itemsIndexed(
-                    langNames,
+                    langNames.filter { it.contains(searchQuery, ignoreCase = true) },
                     key = { _: Int, it: String -> it }
                 ) { index: Int, it: String ->
-                    if (it.contains(searchQuery, ignoreCase = true))
-                        ListItem(
-                            headlineContent = {
-                                Text(
-                                    it,
-                                    color =
+                    ListItem(
+                        headlineContent = {
+                            Text(
+                                it,
+                                color =
                                     if (selectedOption == it) MaterialTheme.colorScheme.primary
                                     else MaterialTheme.colorScheme.onSurface
-                                )
-                            },
-                            supportingContent = { Text(wikipediaNames[index]) },
-                            trailingContent = {
-                                if (selectedOption == it) Icon(
-                                    Icons.Outlined.Check,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    contentDescription = "Selected"
-                                )
-                            },
-                            colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-                            modifier = Modifier
-                                .clickable(onClick = {
-                                    setLang(langCodes[index])
-                                    scope
-                                        .launch { bottomSheetState.hide() }
-                                        .invokeOnCompletion {
-                                            if (!bottomSheetState.isVisible) {
-                                                setShowSheet(false)
-                                                setSearchStr("")
-                                            }
+                            )
+                        },
+                        supportingContent = { Text(wikipediaNames[index]) },
+                        trailingContent = {
+                            if (selectedOption == it) Icon(
+                                Icons.Outlined.Check,
+                                tint = MaterialTheme.colorScheme.primary,
+                                contentDescription = "Selected"
+                            )
+                        },
+                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                        modifier = Modifier
+                            .clickable(onClick = {
+                                setLang(langCodes[index])
+                                scope
+                                    .launch { bottomSheetState.hide() }
+                                    .invokeOnCompletion {
+                                        if (!bottomSheetState.isVisible) {
+                                            setShowSheet(false)
+                                            setSearchStr("")
                                         }
-                                })
-                        )
+                                    }
+                            })
+                            .animateItem()
+                    )
                 }
                 item { Spacer(Modifier.height(insets.calculateBottomPadding())) }
             }
@@ -139,7 +139,8 @@ fun LanguageBottomSheet(
 @Composable
 fun LanguageSheetPreview() {
     WikiReaderTheme {
-        LanguageBottomSheet(lang = "en", searchStr = "", searchQuery = "",
+        LanguageBottomSheet(
+            lang = "en", searchStr = "", searchQuery = "",
             {}, {}, {})
     }
 }

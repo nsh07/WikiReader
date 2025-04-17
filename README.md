@@ -38,51 +38,14 @@ Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia l
 
 ## Screenshots
 
-<details>
-<summary>Phone screenshots</summary>
 <p align="center" width="100%">
-    <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="30%">
-    <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="30%">
-    <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="30%">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="30%">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="30%">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="30%">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="30%">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="30%">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width="30%">
 </p>
-<p align="center" width="100%">
-    <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="30%">
-    <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width="30%">
-    <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/9.png" width="30%">
-</p>
-</details>
-
-<details>
-<summary>Foldable screenshots</summary>
-<p align="center" width="100%">
-    <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/1.png" width="45%">
-    <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/3.png" width="45%">
-</p>
-<p align="center" width="100%">
-    <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/4.png" width="45%">
-    <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/5.png" width="45%">
-</p>
-<p align="center" width="100%">
-    <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/7.png" width="45%">
-    <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/9.png" width="45%">
-</p>
-</details>
-
-<details>
-<summary>Tablet screenshots</summary>
-<p align="center" width="100%">
-    <img src="fastlane/metadata/android/en-US/images/tenInchScreenshots/1.png" width="45%">
-    <img src="fastlane/metadata/android/en-US/images/tenInchScreenshots/3.png" width="45%">
-</p>
-<p align="center" width="100%">
-    <img src="fastlane/metadata/android/en-US/images/tenInchScreenshots/4.png" width="45%">
-    <img src="fastlane/metadata/android/en-US/images/tenInchScreenshots/5.png" width="45%">
-</p>
-<p align="center" width="100%">
-    <img src="fastlane/metadata/android/en-US/images/tenInchScreenshots/7.png" width="45%">
-    <img src="fastlane/metadata/android/en-US/images/tenInchScreenshots/9.png" width="45%">
-</p>
-</details>
 
 ## Features
 
@@ -97,6 +60,7 @@ Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia l
 - **Save articles:** Download articles to your device for offline reading
 - **One-handed use:** Use the floating action buttons at the bottom for a complete one-handed
   experience
+- **Immersive mode:** Hide UI elements while scrolling and enjoy an immersive reading experience
 - **Lightweight:** The app starts instantly, and works smoothly
 - **Material Design 3:** Designed according to the latest Material Design 3 guidelines
 - **Smooth animations:** Smooth and fluent animations
@@ -115,12 +79,12 @@ Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia l
 
 This app was made possible by the following libraries:
 
-- [Retrofit 2](https://square.github.io/retrofit/)
-- [OkHttp](https://square.github.io/okhttp/)
-- [Coil](https://coil-kt.github.io/coil/)
-- [MaterialKolor](https://github.com/jordond/MaterialKolor) - Library used for custom color themes
-- [ComposeCharts](https://github.com/ehsannarmani/ComposeCharts) - Library used for the view history
-  graph in the feed
+- [Retrofit 2](https://square.github.io/retrofit/) - REST APIs
+- [OkHttp](https://square.github.io/okhttp/) - Networking
+- [Coil](https://coil-kt.github.io/coil/) - Loading images from the web
+- [MaterialKolor](https://github.com/jordond/MaterialKolor) - For custom color themes
+- [ComposeCharts](https://github.com/ehsannarmani/ComposeCharts) - For the view-count history graph in the feed
+- [Latex2Unicode](https://github.com/tomtung/latex2unicode) - For converting math into Unicode text
 
 ## Star History
 

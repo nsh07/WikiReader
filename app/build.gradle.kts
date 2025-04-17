@@ -7,14 +7,14 @@ plugins {
 
 android {
     namespace = "org.nsh07.wikireader"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "org.nsh07.wikireader"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 27
-        versionName = "1.10.3"
+        targetSdk = 36
+        versionCode = 32
+        versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.adaptive)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.material.icons.core)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -73,12 +74,14 @@ dependencies {
     implementation(libs.coil3.coil.svg)
     implementation(libs.coil3.compose)
     implementation(libs.coil3.network.okhttp)
+    implementation(libs.ehsannarmani.compose.charts)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.material.kolor)
     implementation(libs.okhttp)
+    implementation(libs.retrofit2.converter.scalars)
     implementation(libs.retrofit2.kotlinx.serialization.converter)
     implementation(libs.retrofit2.retrofit)
-    implementation(libs.ehsannarmani.compose.charts)
+    implementation(libs.latex2unicode.x.x3)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

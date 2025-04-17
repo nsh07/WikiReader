@@ -1,23 +1,26 @@
 [versions]
 activityCompose = "1.10.1"
-adaptive = "1.1.0-rc01"
-agp = "8.8.2"
+adaptive = "1.1.0"
+agp = "8.9.1"
 coil = "3.1.0"
 coilGif = "3.1.0"
-composeBom = "2025.02.00"
+composeBom = "2025.04.00"
 composeChartsVersion = "0.1.2"
-coreKtx = "1.15.0"
+coreKtx = "1.16.0"
 coreSplashscreen = "1.0.1"
-datastorePreferences = "1.1.3"
+datastorePreferences = "1.1.4"
 espressoCore = "3.6.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
-kotlin = "2.1.10"
-kotlinxSerialization = "1.8.0"
+kotlin = "2.1.20"
+kotlinxSerialization = "1.8.1"
+latex2unicode_xX3 = "0.3.2"
 lifecycleRuntimeKtx = "2.8.7"
 lifecycleViewmodelCompose = "2.8.7"
-materialKolor = "2.0.2"
-navigationCompose = "2.8.7"
+material3 = "1.4.0-alpha12"
+materialIconsCore = "1.7.8"
+materialKolor = "2.1.1"
+navigationCompose = "2.8.9"
 okhttp = "4.12.0"
 retrofit = "2.11.0"
 retrofit2KotlinxSerializationConverter = "1.0.0"
@@ -33,7 +36,8 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
-androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-material-icons-core = { module = "androidx.compose.material:material-icons-core", version.ref = "materialIconsCore" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
@@ -49,10 +53,12 @@ coil3-coil-svg = { module = "io.coil-kt.coil3:coil-svg", version.ref = "coil" }
 coil3-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil3-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+latex2unicode_x-x3 = { module = "com.github.tomtung:latex2unicode_2.13", version.ref = "latex2unicode_xX3" }
 material-kolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 retrofit2-kotlinx-serialization-converter = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version.ref = "retrofit2KotlinxSerializationConverter" }
 retrofit2-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit"}
+retrofit2-converter-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "retrofit" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

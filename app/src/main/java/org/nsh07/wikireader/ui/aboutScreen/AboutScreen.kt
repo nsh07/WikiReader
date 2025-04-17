@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -27,7 +28,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
@@ -45,6 +52,7 @@ fun AboutScreen(
 ) {
     val uriHandler = LocalUriHandler.current
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val isAlpha = remember { BuildConfig.VERSION_NAME.contains('a') }
     val weight = remember {
         if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM ||
             windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED
@@ -77,7 +85,19 @@ fun AboutScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(painterResource(R.drawable.ic_launcher_foreground), null)
                             Text(
-                                "WikiReader",
+                                if (!isAlpha) AnnotatedString("WikiReader")
+                                else buildAnnotatedString {
+                                    append("WikiReader")
+                                    withStyle(
+                                        SpanStyle(
+                                            fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                                            fontStyle = FontStyle.Italic,
+                                            baselineShift = BaselineShift.Superscript
+                                        )
+                                    ) {
+                                        append(" αlpha")
+                                    }
+                                },
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Bold
                             )
@@ -131,6 +151,45 @@ fun AboutScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
+                            "Wikipedia",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .align(Alignment.Start)
+                        )
+                        ListItem(
+                            leadingContent = {
+                                Icon(
+                                    painterResource(R.drawable.wikipedia_s_w), null
+                                )
+                            },
+                            headlineContent = { Text("Wikipedia") },
+                            supportingContent = { Text("Visit the Wikipedia website") },
+                            modifier = Modifier.clickable(onClick = {
+                                uriHandler.openUri("https://wikipedia.org")
+                            })
+                        )
+                        ListItem(
+                            leadingContent = {
+                                Icon(
+                                    painterResource(R.drawable.wikimedia_logo_black), null
+                                )
+                            },
+                            headlineContent = { Text("Support Wikipedia") },
+                            supportingContent = { Text("Donate or contribute to Wikipedia") },
+                            modifier = Modifier.clickable(onClick = {
+                                uriHandler.openUri("https://wikimediafoundation.org/support/")
+                            })
+                        )
+                    }
+                }
+                OutlinedCard(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
                             "Author",
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary,
@@ -152,6 +211,7 @@ fun AboutScreen(
                         )
                     }
                 }
+                Spacer(Modifier.height(insets.calculateBottomPadding()))
             }
             if (weight != 0f) Spacer(Modifier.weight(weight))
         }

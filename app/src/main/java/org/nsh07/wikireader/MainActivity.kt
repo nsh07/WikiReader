@@ -7,6 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -18,7 +20,7 @@ import org.nsh07.wikireader.ui.viewModel.UiViewModel
 
 class MainActivity : ComponentActivity() {
 
-    val viewModel: UiViewModel by viewModels<UiViewModel>(factoryProducer = {UiViewModel.Factory})
+    val viewModel: UiViewModel by viewModels<UiViewModel>(factoryProducer = { UiViewModel.Factory })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +29,7 @@ class MainActivity : ComponentActivity() {
             !viewModel.isReady || !viewModel.isAnimDurationComplete
         }
         viewModel.setFilesDir(filesDir.path)
+        viewModel.migrateArticles()
         enableEdgeToEdge()
 
         setContent {
@@ -38,13 +41,17 @@ class MainActivity : ComponentActivity() {
                 else -> isSystemInDarkTheme()
             }
 
-            val colorScheme = preferencesState.colorScheme.toColor()
+            val seed = preferencesState.colorScheme.toColor()
 
             WikiReaderTheme(
                 darkTheme = darkTheme,
-                seedColor = colorScheme,
+                seedColor = seed,
                 blackTheme = preferencesState.blackTheme
             ) {
+                viewModel.setCompositionLocals(
+                    cs = colorScheme,
+                    tg = typography
+                )
                 AppScreen(
                     viewModel = viewModel,
                     preferencesState = preferencesState,

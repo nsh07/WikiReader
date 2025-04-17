@@ -4,9 +4,9 @@ import android.util.Log
 import androidx.compose.ui.graphics.Color
 
 /**
- * Extension function for [String] to convert it to a [androidx.compose.ui.graphics.Color]
+ * Extension function for [String] to convert it to a [Color]
  *
- * The base string must be of the format produced by [androidx.compose.ui.graphics.Color.toString],
+ * The base string must be of the format produced by [Color.toString],
  * i.e, the color black with 100% opacity in sRGB would be represented by:
  *
  *      Color(0.0, 0.0, 0.0, 1.0, sRGB IEC61966-2.1)
@@ -38,13 +38,12 @@ fun String.toColor(): Color {
  * Note that subheadings are *not* parsed, and are left as is (surrounded by three '=' signs on
  * either side)
  */
-fun parseText(text: String): List<String> {
-    val out = text.split("\n== | ==\n".toRegex()).toMutableList()
+fun parseSections(text: String): List<String> {
+    val out = text.split("\n==(?!=)|(?<!=)==[\n ]|(?<!=)==(?=<!--)".toRegex()).toMutableList()
 
-    val s = out.lastIndex
-
-    for (i in s downTo 1) {
-        if (out[i] == "References" || out[i] == "External links" || out[i] == "Gallery") {
+    for (i in out.lastIndex downTo 1) {
+        val curr = out[i].trim()
+        if (curr in listOf("References", "External links", "Gallery", "Footnotes", "Bibliography")) {
             out.removeAt(i + 1)
             out.removeAt(i)
         } else if (i + 1 <= out.lastIndex) {
@@ -68,7 +67,7 @@ fun bytesToHumanReadableSize(bytes: Double) = when {
 fun langCodeToName(langCode: String): String {
     try {
         return LanguageData.langNames[LanguageData.langCodes.binarySearch(langCode)]
-    } catch(_: Exception) {
+    } catch (_: Exception) {
         Log.e("Language", "Unknown Language: $langCode")
         return langCode
     }
@@ -77,7 +76,7 @@ fun langCodeToName(langCode: String): String {
 fun langCodeToWikiName(langCode: String): String {
     try {
         return LanguageData.wikipediaNames[LanguageData.langCodes.binarySearch(langCode)]
-    } catch(_: Exception) {
+    } catch (_: Exception) {
         Log.e("Language", "Unknown Language: $langCode")
         return langCode
     }

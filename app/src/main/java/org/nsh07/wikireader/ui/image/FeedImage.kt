@@ -14,12 +14,12 @@ import coil3.request.crossfade
 @Composable
 fun FeedImage(
     source: String?,
+    modifier: Modifier = Modifier,
     description: String? = null,
     width: Int? = null,
     height: Int? = null,
     imageLoader: ImageLoader,
-    contentScale: ContentScale = ContentScale.Crop,
-    modifier: Modifier = Modifier
+    contentScale: ContentScale = ContentScale.Crop
 ) {
     val context = LocalContext.current
     AsyncImage(

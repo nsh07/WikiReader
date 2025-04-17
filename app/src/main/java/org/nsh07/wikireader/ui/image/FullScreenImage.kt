@@ -2,6 +2,9 @@ package org.nsh07.wikireader.ui.image
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.gestures.animateZoomBy
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
@@ -42,8 +45,9 @@ fun FullScreenImage(
     photoDesc: WikiPhotoDesc?,
     title: String,
     imageLoader: ImageLoader,
+    modifier: Modifier = Modifier,
+    link: String? = null,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     var currentLightStatusBars = true
     val view = LocalView.current
@@ -62,8 +66,22 @@ fun FullScreenImage(
         }
     }
 
+    var showTopBar by remember { mutableStateOf(true) }
     Scaffold(
-        topBar = { FullScreenImageTopBar(photoDesc = photoDesc, title = title, onBack = onBack) },
+        topBar = {
+            AnimatedVisibility(
+                showTopBar,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                FullScreenImageTopBar(
+                    photoDesc = photoDesc,
+                    title = title,
+                    link = link,
+                    onBack = onBack
+                )
+            }
+        },
         containerColor = Color.Black,
         modifier = modifier
     ) { _ ->
@@ -105,14 +123,19 @@ fun FullScreenImage(
                         .transformable(state = state)
                         .align(Alignment.Center)
                         .pointerInput(Unit) {
-                            detectTapGestures(onDoubleTap = {
-                                coroutineScope.launch {
-                                    if (scale == 1f) // Zoom in only if the image is zoomed out
-                                        state.animateZoomBy(4f)
-                                    else
-                                        state.animateZoomBy(0.25f)
+                            detectTapGestures(
+                                onTap = {
+                                    showTopBar = !showTopBar
+                                },
+                                onDoubleTap = {
+                                    coroutineScope.launch {
+                                        if (scale == 1f) // Zoom in only if the image is zoomed out
+                                            state.animateZoomBy(4f)
+                                        else
+                                            state.animateZoomBy(0.25f)
+                                    }
                                 }
-                            })
+                            )
                         }
                 )
             }
