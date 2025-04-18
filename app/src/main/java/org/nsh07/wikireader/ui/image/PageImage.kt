@@ -5,7 +5,8 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.CircularWavyProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -23,6 +24,7 @@ import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PageImage(
     photo: WikiPhoto,
@@ -46,7 +48,7 @@ fun PageImage(
                         photo.width.toFloat() / photo.height.toFloat()
                     )
             ) {
-                CircularProgressIndicator()
+                CircularWavyProgressIndicator()
             }
         },
         error = {
