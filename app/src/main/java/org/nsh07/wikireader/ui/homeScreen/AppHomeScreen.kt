@@ -33,6 +33,8 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.LoadingIndicator
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
+import kotlinx.coroutines.delay
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.WRStatus
@@ -120,6 +123,8 @@ fun AppHomeScreen(
         else FontFamily.Serif
     }
 
+    val pullToRefreshState = rememberPullToRefreshState()
+
     var isRefreshing by remember { mutableStateOf(false) }
 
     var s = homeScreenState.extract.size
@@ -159,18 +164,27 @@ fun AppHomeScreen(
             homeScreenState.status != WRStatus.FEED_NETWORK_ERROR
         ) {
             LaunchedEffect(isRefreshing) {
+                delay(3000)
                 isRefreshing = false
-            } // hide refresh indicator instantly
+            } // hide refresh indicator after a delay
             Row {
                 if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
                 PullToRefreshBox(
                     isRefreshing = isRefreshing,
+                    state = pullToRefreshState,
                     onRefresh = {
                         if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR)
                             refreshFeed()
                         else
                             refreshSearch()
                         isRefreshing = true
+                    },
+                    indicator = {
+                        LoadingIndicator(
+                            modifier = Modifier.align(Alignment.TopCenter),
+                            isRefreshing = isRefreshing,
+                            state = pullToRefreshState
+                        )
                     },
                     modifier = Modifier.weight(4f)
                 ) {

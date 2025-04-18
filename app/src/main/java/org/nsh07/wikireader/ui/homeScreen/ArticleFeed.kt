@@ -29,6 +29,7 @@ import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,6 +40,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.LoadingIndicator
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -60,6 +63,7 @@ import androidx.core.text.parseAsHtml
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.viewModel.FeedState
@@ -69,7 +73,9 @@ import java.time.format.FormatStyle
 import kotlin.math.absoluteValue
 import kotlin.math.min
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
+    ExperimentalMaterial3ExpressiveApi::class
+)
 @Composable
 fun ArticleFeed(
     feedState: FeedState,
@@ -84,6 +90,7 @@ fun ArticleFeed(
 ) {
     val context = LocalContext.current
     var isRefreshing by remember { mutableStateOf(false) }
+    val pullToRefreshState = rememberPullToRefreshState()
     val wide = remember { windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED }
     val df = remember {
         CompactDecimalFormat.getInstance(
@@ -99,14 +106,23 @@ fun ArticleFeed(
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(isRefreshing) {
+        delay(3000)
         isRefreshing = false
-    } // hide refresh indicator instantly
+    } // hide refresh indicator after a while
 
     PullToRefreshBox(
         isRefreshing = isRefreshing,
+        state = pullToRefreshState,
         onRefresh = {
             isRefreshing = true
             refreshFeed()
+        },
+        indicator = {
+            LoadingIndicator(
+                modifier = Modifier.align(Alignment.TopCenter),
+                isRefreshing = isRefreshing,
+                state = pullToRefreshState
+            )
         },
         modifier = modifier
     ) {
