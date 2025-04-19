@@ -16,7 +16,7 @@ import org.nsh07.wikireader.R
 @OptIn(ExperimentalMaterial3Api::class)
 fun SavedArticlesTopBar(scrollBehavior: TopAppBarScrollBehavior, onBack: () -> Unit) {
     LargeTopAppBar(
-        title = { Text("Saved articles") },
+        title = { Text("Saved Articles") },
         navigationIcon = {
             IconButton(onClick = onBack) {
                 Icon(
