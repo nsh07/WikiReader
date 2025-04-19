@@ -76,7 +76,7 @@ fun LanguageBottomSheet(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Choose Wikipedia Language",
+                text = "Choose Wikipedia language",
                 style = MaterialTheme.typography.labelLarge
             )
             LanguageSearchBar(
