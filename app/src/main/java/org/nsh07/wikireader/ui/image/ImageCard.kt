@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,7 +23,7 @@ import org.nsh07.wikireader.data.WikiPhotoDesc
 /**
  * Composable for displaying a Wikipedia image with its associated text
  *
- * Displays a [SubcomposeAsyncImage] composable with a [CircularProgressIndicator] while the image is
+ * Displays a [SubcomposeAsyncImage] composable with a [androidx.compose.material3.CircularWavyProgressIndicator] while the image is
  * loading, with the image title and description at the bottom of a card.
  *
  * @param photo A (nullable) WikiPhoto object. The image url and aspect ratio are provided by this

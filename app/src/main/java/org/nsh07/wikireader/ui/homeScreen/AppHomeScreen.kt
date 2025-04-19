@@ -1,10 +1,9 @@
 package org.nsh07.wikireader.ui.homeScreen
 
 import android.content.Intent
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
@@ -21,17 +20,21 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.LoadingIndicator
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
+import kotlinx.coroutines.delay
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.WRStatus
@@ -78,7 +82,7 @@ import org.nsh07.wikireader.ui.viewModel.PreferencesState
  * @param modifier Self explanatory
  */
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppHomeScreen(
     homeScreenState: HomeScreenState,
@@ -119,6 +123,8 @@ fun AppHomeScreen(
         else FontFamily.Serif
     }
 
+    val pullToRefreshState = rememberPullToRefreshState()
+
     var isRefreshing by remember { mutableStateOf(false) }
 
     var s = homeScreenState.extract.size
@@ -158,18 +164,27 @@ fun AppHomeScreen(
             homeScreenState.status != WRStatus.FEED_NETWORK_ERROR
         ) {
             LaunchedEffect(isRefreshing) {
+                delay(3000)
                 isRefreshing = false
-            } // hide refresh indicator instantly
+            } // hide refresh indicator after a delay
             Row {
                 if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
                 PullToRefreshBox(
                     isRefreshing = isRefreshing,
+                    state = pullToRefreshState,
                     onRefresh = {
                         if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR)
                             refreshFeed()
                         else
                             refreshSearch()
                         isRefreshing = true
+                    },
+                    indicator = {
+                        LoadingIndicator(
+                            modifier = Modifier.align(Alignment.TopCenter),
+                            isRefreshing = isRefreshing,
+                            state = pullToRefreshState
+                        )
                     },
                     modifier = Modifier.weight(4f)
                 ) {
@@ -204,7 +219,7 @@ fun AppHomeScreen(
                                     onClick = saveArticle,
                                     enabled = homeScreenState.status == WRStatus.SUCCESS
                                 ) {
-                                    Crossfade(
+                                    AnimatedContent(
                                         homeScreenState.savedStatus,
                                         label = "saveAnimation"
                                     ) { saved ->
@@ -216,11 +231,7 @@ fun AppHomeScreen(
                                                 )
 
                                             SavedStatus.SAVING ->
-                                                CircularProgressIndicator(
-                                                    color = colorScheme.onSecondaryContainer,
-                                                    strokeWidth = 2.dp,
-                                                    modifier = Modifier.size(24.dp)
-                                                )
+                                                LoadingIndicator()
 
                                             else ->
                                                 Icon(
@@ -335,7 +346,7 @@ fun AppHomeScreen(
             else {
                 val animatedProgress by animateFloatAsState(
                     targetValue = homeScreenState.loadingProgress,
-                    animationSpec = tween(1000)
+                    animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
                 )
                 LinearProgressIndicator(
                     { animatedProgress },

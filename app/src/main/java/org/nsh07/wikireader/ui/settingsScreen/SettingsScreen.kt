@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,6 +33,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -288,6 +290,15 @@ fun SettingsScreen(
                             onCheckedChange = {
                                 blackTheme = it
                                 viewModel.saveBlackTheme(it)
+                            },
+                            thumbContent = {
+                                if (blackTheme) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                    )
+                                }
                             }
                         )
                     }
@@ -307,6 +318,15 @@ fun SettingsScreen(
                             onCheckedChange = {
                                 dataSaver = it
                                 viewModel.saveDataSaver(it)
+                            },
+                            thumbContent = {
+                                if (dataSaver) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                    )
+                                }
                             }
                         )
                     }
@@ -326,6 +346,15 @@ fun SettingsScreen(
                             onCheckedChange = {
                                 expandedSections = it
                                 viewModel.saveExpandedSections(it)
+                            },
+                            thumbContent = {
+                                if (expandedSections) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                    )
+                                }
                             }
                         )
                     }
@@ -345,6 +374,15 @@ fun SettingsScreen(
                             onCheckedChange = {
                                 immersiveMode = it
                                 viewModel.saveImmersiveMode(it)
+                            },
+                            thumbContent = {
+                                if (immersiveMode) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                    )
+                                }
                             }
                         )
                     }
@@ -366,6 +404,15 @@ fun SettingsScreen(
                             onCheckedChange = {
                                 renderMath = it
                                 viewModel.saveRenderMath(it)
+                            },
+                            thumbContent = {
+                                if (renderMath) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                    )
+                                }
                             }
                         )
                     }
@@ -387,6 +434,15 @@ fun SettingsScreen(
                             onCheckedChange = {
                                 searchHistory = it
                                 viewModel.saveSearchHistory(it)
+                            },
+                            thumbContent = {
+                                if (searchHistory) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                    )
+                                }
                             }
                         )
                     }
