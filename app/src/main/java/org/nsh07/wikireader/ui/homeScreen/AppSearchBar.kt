@@ -317,6 +317,7 @@ fun AppSearchBar(
                                                 source = it.thumbnail.source,
                                                 imageLoader = imageLoader,
                                                 contentScale = ContentScale.Crop,
+                                                loadingIndicator = true,
                                                 modifier = Modifier
                                                     .padding(vertical = 4.dp)
                                                     .size(56.dp)
@@ -376,6 +377,7 @@ fun AppSearchBar(
                                                 source = it.thumbnail.source,
                                                 imageLoader = imageLoader,
                                                 contentScale = ContentScale.Crop,
+                                                loadingIndicator = true,
                                                 modifier = Modifier
                                                     .padding(vertical = 4.dp)
                                                     .size(56.dp)
@@ -442,6 +444,7 @@ fun AppSearchBar(
                                                 source = it.thumbnail.source,
                                                 imageLoader = imageLoader,
                                                 contentScale = ContentScale.Crop,
+                                                loadingIndicator = true,
                                                 modifier = Modifier
                                                     .padding(vertical = 4.dp)
                                                     .size(56.dp)
@@ -507,6 +510,7 @@ fun AppSearchBar(
                                                 source = it.thumbnail.source,
                                                 imageLoader = imageLoader,
                                                 contentScale = ContentScale.Crop,
+                                                loadingIndicator = true,
                                                 modifier = Modifier
                                                     .padding(vertical = 4.dp)
                                                     .size(56.dp)

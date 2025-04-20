@@ -5,10 +5,10 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularWavyProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,7 +24,6 @@ import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PageImage(
     photo: WikiPhoto,
@@ -48,7 +47,7 @@ fun PageImage(
                         photo.width.toFloat() / photo.height.toFloat()
                     )
             ) {
-                CircularWavyProgressIndicator()
+                CircularProgressIndicator(trackColor = ProgressIndicatorDefaults.circularDeterminateTrackColor)
             }
         },
         error = {
@@ -63,7 +62,9 @@ fun PageImage(
                 Icon(
                     painterResource(R.drawable.error),
                     contentDescription = "Error loading image",
-                    modifier = Modifier.padding(vertical = 16.dp).size(64.dp),
+                    modifier = Modifier
+                        .padding(vertical = 16.dp)
+                        .size(64.dp),
                     tint = MaterialTheme.colorScheme.error
                 )
             }

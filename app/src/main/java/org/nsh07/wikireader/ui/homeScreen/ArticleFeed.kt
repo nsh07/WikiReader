@@ -159,7 +159,8 @@ fun ArticleFeed(
                             description = feedState.tfa.titles?.normalized,
                             width = feedState.tfa.originalImage?.width ?: 1,
                             height = feedState.tfa.originalImage?.height ?: 1,
-                            imageLoader = imageLoader
+                            imageLoader = imageLoader,
+                            loadingIndicator = false
                         )
                         Text(
                             feedState.tfa.titles?.normalized ?: "(No Title)",
@@ -272,6 +273,7 @@ fun ArticleFeed(
                                                 source = feedState.mostReadArticles[i].thumbnail?.source,
                                                 description = feedState.mostReadArticles[i].titles?.normalized,
                                                 imageLoader = imageLoader,
+                                                loadingIndicator = true,
                                                 modifier = Modifier
                                                     .padding(16.dp)
                                                     .clip(shapes.large)
@@ -342,7 +344,8 @@ fun ArticleFeed(
                             description = feedState.image.description?.text,
                             width = feedState.image.image?.width ?: 1,
                             height = feedState.image.image?.height ?: 1,
-                            imageLoader = imageLoader
+                            imageLoader = imageLoader,
+                            loadingIndicator = false
                         )
                         Text(
                             feedState.image.description?.text?.parseAsHtml().toString(),
@@ -392,6 +395,7 @@ fun ArticleFeed(
                                     ?.thumbnail?.source,
                                 description = null,
                                 imageLoader = imageLoader,
+                                loadingIndicator = false,
                                 modifier = Modifier
                                     .maskClip(shapes.extraLarge)
                             )
@@ -500,6 +504,7 @@ fun ArticleFeed(
                                         ?.thumbnail?.source,
                                     description = null,
                                     imageLoader = imageLoader,
+                                    loadingIndicator = false,
                                     modifier = Modifier
                                         .maskClip(shapes.extraLarge)
                                 )

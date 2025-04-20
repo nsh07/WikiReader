@@ -5,10 +5,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -33,6 +35,7 @@ fun FeedImage(
     width: Int? = null,
     height: Int? = null,
     imageLoader: ImageLoader,
+    loadingIndicator: Boolean,
     contentScale: ContentScale = ContentScale.Crop
 ) {
     val context = LocalContext.current
@@ -71,7 +74,8 @@ fun FeedImage(
                 else
                     modifier.fillMaxSize()
         ) {
-            LoadingIndicator()
+            if (loadingIndicator) LoadingIndicator()
+            else CircularProgressIndicator(trackColor = ProgressIndicatorDefaults.circularDeterminateTrackColor)
         }
     } else {
         Box(
@@ -87,7 +91,7 @@ fun FeedImage(
             Icon(
                 painterResource(R.drawable.error),
                 contentDescription = "Error loading image",
-                tint = MaterialTheme.colorScheme.error
+                tint = colorScheme.error
             )
         }
     }
