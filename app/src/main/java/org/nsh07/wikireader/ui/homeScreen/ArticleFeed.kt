@@ -163,7 +163,7 @@ fun ArticleFeed(
                             loadingIndicator = false
                         )
                         Text(
-                            feedState.tfa.titles?.normalized ?: "(No Title)",
+                            feedState.tfa.titles?.normalized ?: "",
                             style = MaterialTheme.typography.headlineMedium,
                             fontFamily = FontFamily.Serif,
                             modifier = Modifier
@@ -171,14 +171,14 @@ fun ArticleFeed(
                                 .padding(top = 16.dp)
                         )
                         Text(
-                            feedState.tfa.description ?: "(No description)",
+                            feedState.tfa.description ?: "",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier
                                 .padding(horizontal = 16.dp, vertical = 4.dp)
                         )
                         Text(
-                            feedState.tfa.extract ?: "(No extract)",
+                            feedState.tfa.extract ?: "",
                             maxLines = 5,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier
@@ -222,7 +222,7 @@ fun ArticleFeed(
                                                 onClick = {
                                                     loadPage(
                                                         feedState.mostReadArticles[i].titles?.normalized
-                                                            ?: "(No title)"
+                                                            ?: ""
                                                     )
                                                 }
                                             )
@@ -234,13 +234,13 @@ fun ArticleFeed(
                                         ) {
                                             Text(
                                                 feedState.mostReadArticles[i].titles?.normalized
-                                                    ?: "(No title)",
+                                                    ?: "",
                                                 style = MaterialTheme.typography.titleMedium,
                                                 modifier = Modifier.padding(top = 16.dp)
                                             )
                                             Text(
                                                 feedState.mostReadArticles[i].description
-                                                    ?: "(No description)",
+                                                    ?: "",
                                                 maxLines = 2,
                                                 overflow = TextOverflow.Ellipsis
                                             )
@@ -523,7 +523,7 @@ fun ArticleFeed(
                                 ) {}
                                 Column(modifier = Modifier.align(Alignment.BottomStart)) {
                                     Text(
-                                        feedState.onThisDay[i].text ?: "(No text)",
+                                        feedState.onThisDay[i].text ?: "",
                                         maxLines = 10,
                                         overflow = TextOverflow.Ellipsis,
                                         color = Color.White,
@@ -561,7 +561,7 @@ fun ArticleFeed(
                                                     }
                                                 ) {
                                                     Text(
-                                                        it.titles?.normalized ?: "(No title)",
+                                                        it.titles?.normalized ?: "",
                                                         maxLines = 1,
                                                         overflow = TextOverflow.Ellipsis,
                                                         color = Color.White

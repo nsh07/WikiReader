@@ -16,7 +16,7 @@ import org.nsh07.wikireader.R
 @Composable
 fun SettingsTopBar(scrollBehavior: TopAppBarScrollBehavior, onBack: () -> Unit) {
     LargeTopAppBar(
-        title = { Text("Settings") },
+        title = { Text(stringResource(R.string.settings)) },
         navigationIcon = {
             IconButton(onClick = onBack) {
                 Icon(

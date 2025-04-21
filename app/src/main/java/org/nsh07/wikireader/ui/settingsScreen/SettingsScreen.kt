@@ -50,10 +50,12 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.R.string
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.toColor
@@ -81,25 +83,35 @@ fun SettingsScreen(
     val languageSearchStr = viewModel.languageSearchStr.collectAsState()
     val languageSearchQuery = viewModel.languageSearchQuery.collectAsState("")
 
-    val themeMap: Map<String, Pair<Int, String>> = mapOf(
-        "auto" to Pair(R.drawable.brightness_auto, "System default"),
-        "light" to Pair(R.drawable.light_mode, "Light"),
-        "dark" to Pair(R.drawable.dark_mode, "Dark")
-    )
-    val reverseThemeMap: Map<String, String> = mapOf(
-        "System default" to "auto",
-        "Light" to "light",
-        "Dark" to "dark"
-    )
-    val fontStyleMap: Map<String, String> = mapOf(
-        "sans" to "Sans-serif",
-        "serif" to "Serif"
-    )
-    val reverseFontStyleMap: Map<String, String> = mapOf(
-        "Sans-serif" to "sans",
-        "Serif" to "serif"
-    )
-    val fontStyles = listOf("Sans-serif", "Serif")
+    val themeMap: Map<String, Pair<Int, String>> = remember {
+        mapOf(
+            "auto" to Pair(R.drawable.brightness_auto, context.getString(string.themeSystemDefault)),
+            "light" to Pair(R.drawable.light_mode, context.getString(string.themeLight)),
+            "dark" to Pair(R.drawable.dark_mode, context.getString(string.themeDark))
+        )
+    }
+    val reverseThemeMap: Map<String, String> = remember {
+        mapOf(
+            context.getString(string.themeSystemDefault) to "auto",
+            context.getString(string.themeLight) to "light",
+            context.getString(string.themeDark) to "dark"
+        )
+    }
+    val fontStyleMap: Map<String, String> = remember {
+        mapOf(
+            "sans" to context.getString(string.fontStyleSansSerif),
+            "serif" to context.getString(string.fontStyleSerif)
+        )
+    }
+    val reverseFontStyleMap: Map<String, String> = remember {
+        mapOf(
+            context.getString(string.fontStyleSansSerif) to "sans",
+            context.getString(string.fontStyleSerif) to "serif"
+        )
+    }
+    val fontStyles = remember {
+        listOf(context.getString(string.fontStyleSansSerif), context.getString(string.fontStyleSerif))
+    }
 
     val theme = preferencesState.theme
     val fontStyle = preferencesState.fontStyle
@@ -189,10 +201,10 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Color scheme") },
+                    headlineContent = { Text(stringResource(string.settingColorScheme)) },
                     supportingContent = {
-                        if (color == Color.White) Text("Dynamic")
-                        else Text("Color")
+                        if (color == Color.White) Text(stringResource(string.colorSchemeDynamic))
+                        else Text(stringResource(string.colorSchemeColor))
                     },
                     modifier = Modifier
                         .clickable(onClick = { setShowColorSchemeDialog(true) })
@@ -204,7 +216,7 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Theme") },
+                    headlineContent = { Text(stringResource(string.settingTheme)) },
                     supportingContent = { Text(themeMap[theme]!!.second) },
                     modifier = Modifier
                         .clickable(onClick = { setShowThemeDialog(true) })
@@ -216,7 +228,7 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Wikipedia language") },
+                    headlineContent = { Text(stringResource(string.settingWikipediaLanguage)) },
                     supportingContent = { Text(langCodeToName(preferencesState.lang)) },
                     modifier = Modifier
                         .clickable(onClick = { setShowLanguageSheet(true) })
@@ -228,7 +240,7 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Font style") },
+                    headlineContent = { Text(stringResource(string.settingFontStyle)) },
                     supportingContent = {
                         SingleChoiceSegmentedButtonRow {
                             fontStyles.forEachIndexed { index, label ->
@@ -259,10 +271,10 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Font size") },
+                    headlineContent = { Text(stringResource(string.settingFontSize)) },
                     supportingContent = {
                         Column {
-                            Text("${round(fontSizeFloat).toInt()}pt")
+                            Text(round(fontSizeFloat).toInt().toString())
                             Slider(
                                 value = fontSizeFloat,
                                 onValueChange = { fontSizeFloat = it },
@@ -282,8 +294,8 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Black theme") },
-                    supportingContent = { Text("Use a pure black dark theme") },
+                    headlineContent = { Text(stringResource(string.settingBlackTheme)) },
+                    supportingContent = { Text(stringResource(string.settingBlackThemeDesc)) },
                     trailingContent = {
                         Switch(
                             checked = blackTheme,
@@ -310,8 +322,8 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Data saver") },
-                    supportingContent = { Text("Disable images and feed. Page images can still be opened by clicking the description card.") },
+                    headlineContent = { Text(stringResource(string.settingDataSaver)) },
+                    supportingContent = { Text(stringResource(string.settingDataSaverDesc)) },
                     trailingContent = {
                         Switch(
                             checked = dataSaver,
@@ -338,8 +350,8 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Expand sections") },
-                    supportingContent = { Text("Expand all sections by default") },
+                    headlineContent = { Text(stringResource(string.settingExpandSections)) },
+                    supportingContent = { Text(stringResource(string.settingExpandSectionsDesc)) },
                     trailingContent = {
                         Switch(
                             checked = expandedSections,
@@ -366,8 +378,8 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Immersive mode") },
-                    supportingContent = { Text("Hide search bar and floating action buttons while scrolling. Enabled by default on small screen sizes.") },
+                    headlineContent = { Text(stringResource(string.settingImmersiveMode)) },
+                    supportingContent = { Text(stringResource(string.settingImmersiveModeDesc)) },
                     trailingContent = {
                         Switch(
                             checked = immersiveMode,
@@ -394,9 +406,9 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Render math expressions") },
+                    headlineContent = { Text(stringResource(string.settingRenderMath)) },
                     supportingContent = {
-                        Text("Requires small amounts of additional data. Turn off to improve performance at the cost of readability.")
+                        Text(stringResource(string.settingRenderMathDesc))
                     },
                     trailingContent = {
                         Switch(
@@ -424,9 +436,9 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Search history") },
+                    headlineContent = { Text(stringResource(string.settingSearchHistory)) },
                     supportingContent = {
-                        Text("Save search history. Existing history is unaffected by this option.")
+                        Text(stringResource(string.settingSearchHistoryDesc))
                     },
                     trailingContent = {
                         Switch(
@@ -460,12 +472,12 @@ fun SettingsScreen(
                         Icon(
                             Icons.Outlined.Info,
                             tint = colorScheme.secondary,
-                            contentDescription = "Information",
+                            contentDescription = stringResource(string.information),
                             modifier = Modifier.size(24.dp)
                         )
-                        Text("Set as default", style = typography.headlineSmall)
+                        Text(stringResource(string.setAsDefault), style = typography.headlineSmall)
                         Text(
-                            text = "You can set WikiReader as your default app for opening Wikipedia links. Click on the buttons below to know more or open settings.",
+                            text = stringResource(string.setAsDefaultDesc),
                             style = typography.bodyLarge,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -474,14 +486,14 @@ fun SettingsScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Button(onClick = { context.startActivity(appInfoIntent) }) {
-                                Text("Settings")
+                                Text(stringResource(string.settings))
                             }
                             FilledTonalButton(
                                 onClick = {
                                     uriHandler.openUri("https://gist.github.com/nsh07/ed7571f3e2014b412037626a39d68ecd")
                                 }
                             ) {
-                                Text("Instructions")
+                                Text(stringResource(string.instructions))
                             }
                         }
                     }
