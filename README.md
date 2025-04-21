@@ -37,7 +37,7 @@ Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia l
   </a>
 </p>
 <p>
-  <a href="https://hosted.weblate.org/engage/wikireader/?utm_source=widget"><img src="https://hosted.weblate.org/widget/wikireader/287x66-grey.png" alt="Translation status" /></a>
+  <a href="https://hosted.weblate.org/engage/wikireader/?utm_source=widget"><img src="https://hosted.weblate.org/widget/wikireader/287x66-black.png" alt="Translation status" /></a>
 </p>
 
 </div>
@@ -86,9 +86,12 @@ translation.
 You can contribute to this project even if you are not a developer by helping in
 translating this project into languages you know.
 
-Current translation status:
-
-![Weblate translation status](https://hosted.weblate.org/widget/wikireader/horizontal-auto.svg)
+<a href="https://hosted.weblate.org/engage/wikireader/">
+<img src="https://hosted.weblate.org/widget/wikireader/open-graph.png" alt="Translation status" width="400" />
+</a>
+<a href="https://hosted.weblate.org/engage/wikireader/">
+<img src="https://hosted.weblate.org/widget/wikireader/multi-auto.svg" alt="Translation statistics" />
+</a>
 
 ## Special Thanks
 
