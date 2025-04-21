@@ -1,2 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="setAsDefaultDesc">Ви можете зробити WikiReader типовим застосунком для відкриття посилань з Вікіпедії. Натисніть на кнопки нижче, щоби дізнатися більше або відкрити налаштування.</string>
+    <string name="fontStyleSerif">Із засічками</string>
+    <string name="back">Назад</string>
+    <string name="colorSchemeColor">Колір</string>
+    <string name="colorSchemeDynamic">Динамічна</string>
+    <string name="expand_section">Розгорнути розділ</string>
+    <string name="fontStyleSansSerif">Без засічок</string>
+    <string name="information">Інформація</string>
+    <string name="instructions">Інструкції</string>
+    <string name="scroll_to_top">Прогорнути догори</string>
+    <string name="search">Пошук</string>
+    <string name="setAsDefault">Встановіть як типовий</string>
+    <string name="settingBlackTheme">Чорна тема</string>
+    <string name="settingBlackThemeDesc">Використовувати чисто чорну темну тему</string>
+    <string name="settingColorScheme">Колірна схема</string>
+    <string name="settingDataSaver">Заощадження даних</string>
+    <string name="settingExpandSections">Розгорнути розділи</string>
+    <string name="settingExpandSectionsDesc">По стандарту розгорнути всі розділи</string>
+    <string name="settingFontSize">Розмір шрифту</string>
+    <string name="settingRenderMath">Відображати математичні вирази</string>
+    <string name="settingRenderMathDesc">Потребує невеликої кількості додаткових даних. Вимкніть, щоби підвищити продуктивність за рахунок читабельності.</string>
+    <string name="settingSearchHistory">Історія пошуку</string>
+    <string name="settingTheme">Тема</string>
+    <string name="settingWikipediaLanguage">Мова Вікіпедії</string>
+    <string name="settings">Налаштування</string>
+    <string name="themeDark">Темна</string>
+    <string name="themeLight">Світла</string>
+    <string name="themeSystemDefault">Як у системі</string>
+    <string name="up_arrow">Повернутися нагору</string>
+    <string name="wikipedia_logo">Лого Вікіпедії</string>
+    <string name="app_name">WikiReader</string>
+    <string name="collapse_section">Згорнути розділ</string>
+    <string name="settingDataSaverDesc">Вимкнути зображення та стрічку. Зображення сторінок все ще можна відкрити, натиснувши на картку з описом.</string>
+    <string name="settingImmersiveMode">Режим занурення</string>
+    <string name="settingFontStyle">Стиль шрифту</string>
+    <string name="settingImmersiveModeDesc">Приховувати рядок пошуку та плавучі кнопки дій під час гортання. Типово ввімкнено на малих розмірах екрана.</string>
+    <string name="settingSearchHistoryDesc">Зберігати історію пошуку. Цей параметр не впливає на наявну історію.</string>
+</resources>
