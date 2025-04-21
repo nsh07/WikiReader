@@ -6,7 +6,7 @@ New features:
 - Language filters in saved articles list if articles in more than 1 language are present
 - Option to choose font style
 - Immersive mode for hiding UI elements while scrolling
-... and more!
+… and more!
 
 Improvements:
 - Improved math rendering

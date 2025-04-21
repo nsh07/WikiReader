@@ -8,7 +8,7 @@ More in 2.0:
 - Language filters in saved articles list if articles in more than 1 language are present
 - Option to choose font style
 - Immersive mode
-... and more!
+… and more!
 
 Improvements:
 - Improved math rendering
