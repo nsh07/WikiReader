@@ -1,2 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="expand_section">अनुभाग विस्तृत करें</string>
+    <string name="collapse_section">अनुभाग संक्षिप्त करें</string>
+    <string name="back">वापस जाएँ</string>
+    <string name="colorSchemeColor">रंग</string>
+    <string name="colorSchemeDynamic">डायनामिक</string>
+    <string name="information">जानकारी</string>
+    <string name="instructions">अनुदेश</string>
+    <string name="fontStyleSerif">सेरिफ़</string>
+    <string name="scroll_to_top">ऊपर स्क्रॉल करें</string>
+    <string name="search">खोजें</string>
+    <string name="settingBlackTheme">काली थीम</string>
+    <string name="settingColorScheme">रंग स्कीम</string>
+    <string name="settingDataSaver">डेटा सेवर</string>
+    <string name="settingExpandSections">अनुभागों का विस्तार करें</string>
+    <string name="settingExpandSectionsDesc">डिफ़ॉल्ट रूप से सभी अनुभागों का विस्तार करें</string>
+    <string name="settingFontSize">फ़ॉन्ट माप</string>
+    <string name="settingImmersiveMode">इमर्सिव मोड</string>
+    <string name="settingRenderMath">गणितीय अभिव्यक्तियाँ प्रस्तुत करें</string>
+    <string name="settingSearchHistory">खोज इतिहास</string>
+    <string name="settingTheme">थीम</string>
+    <string name="settingWikipediaLanguage">विकिपीडिया भाषा</string>
+    <string name="settings">सेटिंग्स</string>
+    <string name="themeDark">काला</string>
+    <string name="themeLight">सफ़ेद</string>
+    <string name="up_arrow">ऊपर जाएँ</string>
+    <string name="settingDataSaverDesc">छवियाँ और फ़ीड अक्षम करें। विवरण कार्ड पर क्लिक करके पेज छवियाँ अभी भी खोली जा सकती हैं।</string>
+    <string name="setAsDefault">डिफ़ॉल्ट के रूप में सेट करें</string>
+    <string name="wikipedia_logo">विकिपीडिया का लोगो</string>
+    <string name="settingBlackThemeDesc">पूर्णतः काले रंग की थीम का उपयोग करें</string>
+    <string name="settingFontStyle">फ़ॉन्ट शैली</string>
+    <string name="setAsDefaultDesc">आप विकिपीडिया लिंक खोलने के लिए विकीरीडर को अपने डिफ़ॉल्ट ऐप के रूप में सेट कर सकते हैं। अधिक जानकारी या सेटिंग खोलने के लिए नीचे दिए गए बटन पर क्लिक करें।</string>
+    <string name="app_name">विकीरीडर</string>
+    <string name="settingImmersiveModeDesc">स्क्रॉल करते समय सर्च बार और फ्लोटिंग एक्शन बटन छिपाएँ। छोटे स्क्रीन साइज़ पर डिफ़ॉल्ट रूप से सक्षम।</string>
+    <string name="settingRenderMathDesc">इस सुविधा के लिए थोड़ी मात्रा में अतिरिक्त डेटा की आवश्यकता होती है। पठनीयता की कीमत पर ऐप की गति बढ़ाने के लिए इसे बंद करें।</string>
+    <string name="fontStyleSansSerif">सैंस-सेरिफ़</string>
+    <string name="themeSystemDefault">सिस्टम डिफ़ॉल्ट</string>
+    <string name="settingSearchHistoryDesc">खोज इतिहास सहेजें। मौजूदा इतिहास इस विकल्प से प्रभावित नहीं होता।</string>
+</resources>
