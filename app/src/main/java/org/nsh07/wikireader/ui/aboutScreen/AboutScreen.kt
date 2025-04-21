@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -85,9 +86,9 @@ fun AboutScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(painterResource(R.drawable.ic_launcher_foreground), null)
                             Text(
-                                if (!isAlpha) AnnotatedString("WikiReader")
+                                if (!isAlpha) AnnotatedString(stringResource(R.string.app_name))
                                 else buildAnnotatedString {
-                                    append("WikiReader")
+                                    append(stringResource(R.string.app_name))
                                     withStyle(
                                         SpanStyle(
                                             fontSize = MaterialTheme.typography.bodyLarge.fontSize,
@@ -103,21 +104,21 @@ fun AboutScreen(
                             )
                         }
                         Text(
-                            "Read Wikipedia pages distraction-free",
+                            stringResource(R.string.appTagline),
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
                         ListItem(
                             leadingContent = {
                                 Icon(Icons.Outlined.Info, null)
                             },
-                            headlineContent = { Text("Version") },
+                            headlineContent = { Text(stringResource(R.string.version)) },
                             supportingContent = { Text(BuildConfig.VERSION_NAME) }
                         )
                         ListItem(
                             leadingContent = {
                                 Icon(painterResource(R.drawable.code), null)
                             },
-                            headlineContent = { Text("Source code") },
+                            headlineContent = { Text(stringResource(R.string.sourceCode)) },
                             supportingContent = { Text("GitHub") },
                             modifier = Modifier.clickable(onClick = {
                                 uriHandler.openUri("https://github.com/nsh07/WikiReader")
@@ -127,7 +128,7 @@ fun AboutScreen(
                             leadingContent = {
                                 Icon(painterResource(R.drawable.gavel), null)
                             },
-                            headlineContent = { Text("License") },
+                            headlineContent = { Text(stringResource(R.string.license)) },
                             supportingContent = { Text("GPL v3.0") },
                             modifier = Modifier.clickable(onClick = {
                                 uriHandler.openUri("https://github.com/nsh07/WikiReader/blob/main/LICENSE")
@@ -137,8 +138,8 @@ fun AboutScreen(
                             leadingContent = {
                                 Icon(painterResource(R.drawable.update), null)
                             },
-                            headlineContent = { Text("Releases") },
-                            supportingContent = { Text("Check out older and newer versions") },
+                            headlineContent = { Text(stringResource(R.string.releases)) },
+                            supportingContent = { Text(stringResource(R.string.releasesDesc)) },
                             modifier = Modifier.clickable(onClick = {
                                 uriHandler.openUri("https://github.com/nsh07/WikiReader/releases")
                             })
@@ -151,7 +152,7 @@ fun AboutScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            "Wikipedia",
+                            stringResource(R.string.wikipedia),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
@@ -164,8 +165,8 @@ fun AboutScreen(
                                     painterResource(R.drawable.wikipedia_s_w), null
                                 )
                             },
-                            headlineContent = { Text("Wikipedia") },
-                            supportingContent = { Text("Visit the Wikipedia website") },
+                            headlineContent = { Text(stringResource(R.string.wikipedia)) },
+                            supportingContent = { Text(stringResource(R.string.wikipediaWebsiteDesc)) },
                             modifier = Modifier.clickable(onClick = {
                                 uriHandler.openUri("https://wikipedia.org")
                             })
@@ -176,8 +177,8 @@ fun AboutScreen(
                                     painterResource(R.drawable.wikimedia_logo_black), null
                                 )
                             },
-                            headlineContent = { Text("Support Wikipedia") },
-                            supportingContent = { Text("Donate or contribute to Wikipedia") },
+                            headlineContent = { Text(stringResource(R.string.supportWikipedia)) },
+                            supportingContent = { Text(stringResource(R.string.donateToWikipedia)) },
                             modifier = Modifier.clickable(onClick = {
                                 uriHandler.openUri("https://wikimediafoundation.org/support/")
                             })
@@ -190,7 +191,7 @@ fun AboutScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            "Author",
+                            stringResource(R.string.author),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
@@ -204,7 +205,7 @@ fun AboutScreen(
                                 )
                             },
                             headlineContent = { Text("Nishant Mishra") },
-                            supportingContent = { Text("Check out my other projects on GitHub") },
+                            supportingContent = { Text(stringResource(R.string.otherProjectsDesc)) },
                             modifier = Modifier.clickable(onClick = {
                                 uriHandler.openUri("https://github.com/nsh07")
                             })

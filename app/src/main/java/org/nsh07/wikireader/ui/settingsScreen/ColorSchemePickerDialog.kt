@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.nsh07.wikireader.R
@@ -88,7 +89,7 @@ fun ColorSchemePickerDialog(
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
                 Text(
-                    text = "Choose color scheme",
+                    text = stringResource(R.string.chooseColorScheme),
                     style = MaterialTheme.typography.headlineSmall
                 )
 
@@ -121,7 +122,7 @@ fun ColorSchemePickerDialog(
                     onClick = { setShowDialog(false) },
                     modifier = Modifier.align(Alignment.End)
                 ) {
-                    Text("OK")
+                    Text(stringResource(R.string.ok))
                 }
             }
         }

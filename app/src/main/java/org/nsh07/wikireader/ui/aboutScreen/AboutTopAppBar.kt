@@ -16,7 +16,7 @@ import org.nsh07.wikireader.R
 @OptIn(ExperimentalMaterial3Api::class)
 fun AboutTopAppBar(scrollBehavior: TopAppBarScrollBehavior, onBack: () -> Unit) {
     LargeTopAppBar(
-        title = { Text("About") },
+        title = { Text(stringResource(R.string.about)) },
         navigationIcon = {
             IconButton(onClick = onBack) {
                 Icon(

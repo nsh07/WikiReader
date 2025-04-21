@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -127,7 +128,7 @@ fun SavedArticlesScreen(
                                     showArticleDeleteDialog = true
                                 },
                                 modifier = Modifier.padding(horizontal = 16.dp)
-                            ) { Text("Delete all") }
+                            ) { Text(stringResource(R.string.deleteAll)) }
                         }
                     }
                     if (savedArticlesState.languageFilters.size > 1)
@@ -166,7 +167,7 @@ fun SavedArticlesScreen(
                             headlineContent = {
                                 Text(
                                     remember {
-                                        it.substringBeforeLast(".").substringBeforeLast('.')
+                                        it.substringBeforeLast('.').substringBeforeLast('.')
                                     },
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
@@ -208,13 +209,13 @@ fun SavedArticlesScreen(
                         modifier = Modifier.size(100.dp)
                     )
                     Text(
-                        "No saved articles",
+                        stringResource(R.string.noSavedArticles),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.padding(8.dp)
                     )
                     Text(
-                        "Click on the download button at the top of an article to get started",
+                        stringResource(R.string.noSavedArticlesDesc),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(horizontal = 48.dp)

@@ -17,7 +17,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WRStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,6 +33,7 @@ fun DeleteArticleDialog(
     deleteAll: () -> WRStatus
 ) {
     val articleName: String? = articleFileName?.substringBeforeLast('.')?.substringBeforeLast('.')
+    val context = LocalContext.current
     BasicAlertDialog(
         onDismissRequest = { setShowDeleteDialog(false) }
     ) {
@@ -42,35 +46,40 @@ fun DeleteArticleDialog(
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
                 Text(
-                    text = if (articleName != null) "Delete saved article?"
-                    else "Delete all articles?",
+                    text = if (articleName != null) stringResource(R.string.deleteSavedArticle)
+                    else stringResource(R.string.deleteAllArticles),
                     style = MaterialTheme.typography.headlineSmall
                 )
                 Spacer(modifier = Modifier.padding(16.dp))
                 Text(
                     text =
                     if (articleName != null)
-                        "\"$articleName\" will be permanently deleted from your device"
+                        stringResource(R.string.deleteSavedArticleDesc, articleName)
                     else
-                        "All articles will be permanently deleted from your device",
+                        stringResource(R.string.deleteAllArticlesDesc),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(modifier = Modifier.align(Alignment.End)) {
                     TextButton(onClick = { setShowDeleteDialog(false) }) {
-                        Text(text = "Cancel")
+                        Text(text = stringResource(R.string.cancel))
                     }
                     TextButton(onClick = {
                         setShowDeleteDialog(false)
                         val status = if (articleFileName != null) deleteArticle(articleFileName)
                         else deleteAll()
                         if (status == WRStatus.SUCCESS)
-                            showSnackbar("Article deleted")
+                            showSnackbar(context.getString(R.string.articleDeleted))
                         else
-                            showSnackbar("Unable to delete article: ${status.name}")
+                            showSnackbar(
+                                context.getString(
+                                    R.string.unableToDeleteArticle,
+                                    status.name
+                                )
+                            )
                     }
                     ) {
-                        Text(text = "Delete")
+                        Text(text = stringResource(R.string.delete))
                     }
                 }
             }

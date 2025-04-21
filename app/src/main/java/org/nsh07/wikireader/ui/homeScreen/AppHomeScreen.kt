@@ -45,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -212,7 +213,7 @@ fun AppHomeScreen(
                                 ) {
                                     Icon(
                                         painterResource(R.drawable.share),
-                                        contentDescription = "Share page"
+                                        contentDescription = stringResource(R.string.sharePage)
                                     )
                                 }
                                 FilledTonalIconButton(
@@ -227,7 +228,7 @@ fun AppHomeScreen(
                                             SavedStatus.SAVED ->
                                                 Icon(
                                                     painterResource(R.drawable.download_done),
-                                                    contentDescription = "Delete downloaded article"
+                                                    contentDescription = stringResource(R.string.deleteArticle)
                                                 )
 
                                             SavedStatus.SAVING ->
@@ -236,7 +237,7 @@ fun AppHomeScreen(
                                             else ->
                                                 Icon(
                                                     painterResource(R.drawable.download),
-                                                    contentDescription = "Download article"
+                                                    contentDescription = stringResource(R.string.downloadArticle)
                                                 )
                                         }
                                     }

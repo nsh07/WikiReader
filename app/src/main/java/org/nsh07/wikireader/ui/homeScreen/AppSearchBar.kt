@@ -60,6 +60,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextOverflow
@@ -118,8 +119,13 @@ fun AppSearchBar(
                 textFieldState = textFieldState,
                 searchBarState = searchBarState,
                 onSearch = loadSearch,
-                placeholder = { Text("Search Wikipedia...") },
-                leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = "Search") },
+                placeholder = { Text(stringResource(R.string.searchWikipedia)) },
+                leadingIcon = {
+                    Icon(
+                        Icons.Outlined.Search,
+                        contentDescription = stringResource(R.string.search)
+                    )
+                },
                 trailingIcon = {
                     Row {
                         if (textFieldState.text != "") {
@@ -131,7 +137,7 @@ fun AppSearchBar(
                             ) {
                                 Icon(
                                     Icons.Outlined.Clear,
-                                    contentDescription = "Clear search field"
+                                    contentDescription = stringResource(R.string.clearSearchField)
                                 )
                             }
                         }
@@ -139,7 +145,7 @@ fun AppSearchBar(
                             IconButton(onClick = { setDropdownExpanded(!dropdownExpanded) }) {
                                 Icon(
                                     Icons.Outlined.MoreVert,
-                                    contentDescription = "More options"
+                                    contentDescription = stringResource(R.string.moreOptions)
                                 )
                             }
                             DropdownMenu(
@@ -147,7 +153,7 @@ fun AppSearchBar(
                                 onDismissRequest = { setDropdownExpanded(false) }
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text("Saved articles") },
+                                    text = { Text(stringResource(R.string.savedArticles)) },
                                     onClick = { onSavedArticlesClick(setDropdownExpanded) },
                                     leadingIcon = {
                                         Icon(
@@ -159,7 +165,7 @@ fun AppSearchBar(
                                 )
                                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                                 DropdownMenuItem(
-                                    text = { Text("Settings") },
+                                    text = { Text(stringResource(R.string.settings)) },
                                     onClick = { onSettingsClick(setDropdownExpanded) },
                                     leadingIcon = {
                                         Icon(
@@ -170,7 +176,7 @@ fun AppSearchBar(
                                     modifier = Modifier.width(200.dp)
                                 )
                                 DropdownMenuItem(
-                                    text = { Text("About") },
+                                    text = { Text(stringResource(R.string.about)) },
                                     onClick = { onAboutClick(setDropdownExpanded) },
                                     leadingIcon = {
                                         Icon(
@@ -214,7 +220,7 @@ fun AppSearchBar(
                                 item {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(
-                                            "History",
+                                            stringResource(R.string.history),
                                             style = typography.labelLarge,
                                             modifier = Modifier.padding(16.dp)
                                         )
@@ -224,7 +230,7 @@ fun AppSearchBar(
                                             enabled = size > 0,
                                             modifier = Modifier.padding(4.dp)
                                         ) {
-                                            Text("Clear")
+                                            Text(stringResource(R.string.clear))
                                         }
                                     }
                                 }
@@ -346,7 +352,10 @@ fun AppSearchBar(
                                     overlineContent = if (it.redirectTitle != null) {
                                         {
                                             Text(
-                                                "Redirected from ${it.redirectTitle}",
+                                                stringResource(
+                                                    R.string.redirectedFrom,
+                                                    it.redirectTitle
+                                                ),
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
                                             )
@@ -412,7 +421,7 @@ fun AppSearchBar(
                         LazyColumn(state = searchListState) {
                             item {
                                 Text(
-                                    text = "Title matches",
+                                    text = stringResource(R.string.titleMatches),
                                     modifier = Modifier.padding(16.dp),
                                     style = typography.labelLarge
                                 )
@@ -467,7 +476,7 @@ fun AppSearchBar(
                             }
                             item {
                                 Text(
-                                    text = "In-article matches",
+                                    text = stringResource(R.string.inArticleMatches),
                                     modifier = Modifier.padding(16.dp),
                                     style = typography.labelLarge
                                 )
@@ -479,7 +488,10 @@ fun AppSearchBar(
                                     overlineContent = if (it.redirectTitle != null) {
                                         {
                                             Text(
-                                                "Redirected from ${it.redirectTitle}",
+                                                stringResource(
+                                                    R.string.redirectedFrom,
+                                                    it.redirectTitle
+                                                ),
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
                                             )

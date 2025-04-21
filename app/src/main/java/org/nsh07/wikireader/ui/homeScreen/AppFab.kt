@@ -45,7 +45,7 @@ fun AppFab(
                 } else {
                     Icon(
                         painterResource(R.drawable.shuffle),
-                        contentDescription = "Random article"
+                        contentDescription = stringResource(R.string.randomArticle)
                     )
                 }
             }

@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
 import coil3.compose.SubcomposeAsyncImage
@@ -61,7 +62,7 @@ fun PageImage(
             ) {
                 Icon(
                     painterResource(R.drawable.error),
-                    contentDescription = "Error loading image",
+                    contentDescription = stringResource(R.string.errorLoadingImage),
                     modifier = Modifier
                         .padding(vertical = 16.dp)
                         .size(64.dp),

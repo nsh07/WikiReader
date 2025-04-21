@@ -46,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.text.parseAsHtml
 import androidx.navigation.compose.NavHost
@@ -61,6 +62,7 @@ import coil3.svg.SvgDecoder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiPhoto
@@ -311,16 +313,26 @@ fun AppScreen(
                             if (homeScreenState.savedStatus == SavedStatus.NOT_SAVED) {
                                 val status = viewModel.saveArticle()
                                 if (status == WRStatus.SUCCESS)
-                                    snackBarHostState.showSnackbar("Article saved for offline reading")
+                                    snackBarHostState.showSnackbar(context.getString(R.string.snackbarArticleSaved))
                                 else
-                                    snackBarHostState.showSnackbar("Unable to save article: ${status.name}")
+                                    snackBarHostState.showSnackbar(
+                                        context.getString(
+                                            R.string.snackbarUnableToSave,
+                                            status.name
+                                        )
+                                    )
                                 delay(150L)
                             } else if (homeScreenState.savedStatus == SavedStatus.SAVED) {
                                 val status = viewModel.deleteArticle()
                                 if (status == WRStatus.SUCCESS)
-                                    snackBarHostState.showSnackbar("Article deleted")
+                                    snackBarHostState.showSnackbar(context.getString(R.string.snackbarArticleDeleted))
                                 else
-                                    snackBarHostState.showSnackbar("Unable to delete article: ${status.name}")
+                                    snackBarHostState.showSnackbar(
+                                        context.getString(
+                                            R.string.snackbarUnableToDelete,
+                                            status.name
+                                        )
+                                    )
                             }
                         }
                     },
@@ -328,7 +340,12 @@ fun AppScreen(
                         coroutineScope.launch {
                             if (!deepLinkHandled)
                                 snackBarHostState
-                                    .showSnackbar("Unable to load feed: ${homeScreenState.status.name}")
+                                    .showSnackbar(
+                                        context.getString(
+                                            R.string.snackbarUnableToLoadFeed,
+                                            homeScreenState.status.name
+                                        )
+                                    )
                         }
                     },
                     insets = insets,
@@ -422,11 +439,11 @@ fun DeleteHistoryItemDialog(
         onDismissRequest = { setShowDeleteDialog(false) }
     ) {
         val titleText =
-            if (item != "") "Delete this search from your history?"
-            else "Delete your search history?"
+            if (item != "") stringResource(R.string.dialogDeleteSearchHistory)
+            else stringResource(R.string.dialogDeleteSearchHistoryDesc)
         val descText =
-            if (item != "") "\"$item\" will be permanently deleted from your search history."
-            else "Your search history will be permanently deleted."
+            if (item != "") stringResource(R.string.dialogDeleteHistoryItem, item)
+            else stringResource(R.string.dialogDeleteHistoryItemDesc)
 
         Surface(
             modifier = Modifier
@@ -448,13 +465,13 @@ fun DeleteHistoryItemDialog(
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(modifier = Modifier.align(Alignment.End)) {
                     TextButton(onClick = { setShowDeleteDialog(false) }) {
-                        Text(text = "Cancel")
+                        Text(text = stringResource(R.string.cancel))
                     }
                     TextButton(onClick = {
                         setShowDeleteDialog(false)
                         removeHistoryItem(item)
                     }) {
-                        Text(text = "Delete")
+                        Text(text = stringResource(R.string.delete))
                     }
                 }
             }

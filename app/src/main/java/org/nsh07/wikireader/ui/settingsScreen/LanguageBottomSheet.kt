@@ -33,9 +33,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.LanguageData.langCodes
 import org.nsh07.wikireader.data.LanguageData.langNames
 import org.nsh07.wikireader.data.LanguageData.wikipediaNames
@@ -76,7 +78,7 @@ fun LanguageBottomSheet(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Choose Wikipedia language",
+                text = stringResource(R.string.chooseWikipediaLanguage),
                 style = MaterialTheme.typography.labelLarge
             )
             LanguageSearchBar(
@@ -107,7 +109,7 @@ fun LanguageBottomSheet(
                                 if (selectedOption == it) Icon(
                                     Icons.Outlined.Check,
                                     tint = MaterialTheme.colorScheme.primary,
-                                    contentDescription = "Selected"
+                                    contentDescription = stringResource(R.string.selectedLabel)
                                 )
                             },
                             colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),

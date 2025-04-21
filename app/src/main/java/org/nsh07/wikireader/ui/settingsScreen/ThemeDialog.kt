@@ -24,8 +24,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import org.nsh07.wikireader.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +51,10 @@ fun ThemeDialog(
             tonalElevation = AlertDialogDefaults.TonalElevation
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
-                Text(text = "Choose theme", style = MaterialTheme.typography.headlineSmall)
+                Text(
+                    text = stringResource(R.string.chooseTheme),
+                    style = MaterialTheme.typography.headlineSmall
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 Column(Modifier.selectableGroup()) {
                     themeMap.forEach { pair ->
@@ -84,7 +89,7 @@ fun ThemeDialog(
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(modifier = Modifier.align(Alignment.End)) {
                     TextButton(onClick = { setShowThemeDialog(false) }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                     TextButton(
                         onClick = {
@@ -92,7 +97,7 @@ fun ThemeDialog(
                             setTheme(reverseThemeMap[selectedOption.value]!!)
                         }
                     ) {
-                        Text("OK")
+                        Text(stringResource(R.string.ok))
                     }
                 }
             }

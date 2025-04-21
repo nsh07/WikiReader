@@ -61,14 +61,14 @@ fun FullScreenImageTopBar(
                     Icon(
                         painterResource(R.drawable.share),
                         tint = Color.White,
-                        contentDescription = "Share link"
+                        contentDescription = stringResource(R.string.shareLink)
                     )
                 }
                 IconButton(onClick = { uriHandler.openUri(link) }) {
                     Icon(
                         painterResource(R.drawable.open_link),
                         tint = Color.White,
-                        contentDescription = "Open in browser"
+                        contentDescription = stringResource(R.string.openInBrowser)
                     )
                 }
             }

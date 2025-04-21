@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import coil3.ImageLoader
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
@@ -90,7 +91,7 @@ fun FeedImage(
         ) {
             Icon(
                 painterResource(R.drawable.error),
-                contentDescription = "Error loading image",
+                contentDescription = stringResource(R.string.errorLoadingImage),
                 tint = colorScheme.error
             )
         }

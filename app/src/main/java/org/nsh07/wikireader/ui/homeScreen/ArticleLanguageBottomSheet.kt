@@ -27,8 +27,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WikiLang
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.ui.settingsScreen.LanguageSearchBar
@@ -67,13 +69,15 @@ fun ArticleLanguageBottomSheet(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Choose Wikipedia language",
+                text = stringResource(R.string.chooseWikipediaLanguage),
                 style = MaterialTheme.typography.labelLarge
             )
             LanguageSearchBar(
                 searchStr = searchStr,
                 setSearchStr = setSearchStr,
-                modifier = Modifier.fillMaxWidth().padding(16.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
             )
             HorizontalDivider()
             LazyColumn(state = listState) {

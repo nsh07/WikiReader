@@ -56,6 +56,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -65,6 +66,7 @@ import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.viewModel.FeedState
 import java.time.LocalDate
@@ -133,7 +135,7 @@ fun ArticleFeed(
             if (feedState.tfa != null) {
                 item {
                     Text(
-                        "Featured article",
+                        stringResource(R.string.featuredArticle),
                         style = MaterialTheme.typography.headlineMedium,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
@@ -191,14 +193,14 @@ fun ArticleFeed(
             if (feedState.mostReadArticles != null) {
                 item {
                     Text(
-                        "Trending articles",
+                        stringResource(R.string.trendingArticles),
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .padding(top = 32.dp)
                     )
                     Text(
-                        "Top articles of the day",
+                        stringResource(R.string.topArticlesOTD),
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
@@ -300,10 +302,16 @@ fun ArticleFeed(
                                 ) {
                                     Icon(
                                         Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
-                                        contentDescription = "Scroll left"
+                                        contentDescription = stringResource(R.string.scrollLeft)
                                     )
                                 }
-                                Text("Page ${pagerState.currentPage + 1} of ${pagerState.pageCount}")
+                                Text(
+                                    stringResource(
+                                        R.string.pageIndicator,
+                                        pagerState.currentPage + 1,
+                                        pagerState.pageCount
+                                    )
+                                )
                                 IconButton(
                                     onClick = {
                                         coroutineScope.launch {
@@ -316,7 +324,7 @@ fun ArticleFeed(
                                 ) {
                                     Icon(
                                         Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-                                        contentDescription = "Scroll right"
+                                        contentDescription = stringResource(R.string.scrollRight)
                                     )
                                 }
                             }
@@ -327,7 +335,7 @@ fun ArticleFeed(
             if (feedState.image != null) {
                 item {
                     Text(
-                        "Picture of the day",
+                        stringResource(R.string.picOfTheDay),
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
@@ -369,7 +377,7 @@ fun ArticleFeed(
                 item {
                     val carouselState = rememberCarouselState(0) { feedState.news.size }
                     Text(
-                        "In the news",
+                        stringResource(R.string.inTheNews),
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
@@ -466,7 +474,7 @@ fun ArticleFeed(
                 item {
                     val carouselState = rememberCarouselState(0) { feedState.onThisDay.size }
                     Text(
-                        "On this day",
+                        stringResource(R.string.onThisDay),
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
