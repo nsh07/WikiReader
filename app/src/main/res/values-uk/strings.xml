@@ -101,4 +101,7 @@
     <string name="snackbarArticleSaved">Стаття збережена для читання без мережі</string>
     <string name="sharePage">Поділитися сторінкою</string>
     <string name="snackbarUnableToLoadFeed">Не вдається завантажити стрічку: %1$s</string>
+    <string name="articlesSize">%1$s статей, всього %2$s</string>
+    <string name="translate">Перекласти</string>
+    <string name="translateDesc">Допоможіть перекласти WikiReader вашою мовою</string>
 </resources>
