@@ -144,6 +144,16 @@ fun AboutScreen(
                                 uriHandler.openUri("https://github.com/nsh07/WikiReader/releases")
                             })
                         )
+                        ListItem(
+                            leadingContent = {
+                                Icon(painterResource(R.drawable.translate), null)
+                            },
+                            headlineContent = { Text(stringResource(R.string.translate)) },
+                            supportingContent = { Text(stringResource(R.string.translateDesc)) },
+                            modifier = Modifier.clickable(onClick = {
+                                uriHandler.openUri("https://hosted.weblate.org/engage/wikireader/")
+                            })
+                        )
                     }
                 }
                 OutlinedCard(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {

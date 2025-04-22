@@ -3,6 +3,7 @@
     <string name="appTagline">Read Wikipedia pages distraction-free</string>
     <string name="app_name">WikiReader</string>
     <string name="articleDeleted">Article deleted</string>
+    <string name="articlesSize">%1$s articles, %2$s total</string>
     <string name="author">Author</string>
     <string name="back">Go back</string>
     <string name="cancel">Cancel</string>
@@ -93,6 +94,8 @@
     <string name="themeSystemDefault">System default</string>
     <string name="titleMatches">Title matches</string>
     <string name="topArticlesOTD">Top articles of the day</string>
+    <string name="translate">Translate</string>
+    <string name="translateDesc">Help translating WikiReader into your language</string>
     <string name="trendingArticles">Trending articles</string>
     <string name="unableToDeleteArticle">Unable to delete article: %1$s</string>
     <string name="up_arrow">Go to top</string>

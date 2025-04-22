@@ -37,7 +37,9 @@ Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia l
   </a>
 </p>
 <p>
-  <a href="https://hosted.weblate.org/engage/wikireader/?utm_source=widget"><img src="https://hosted.weblate.org/widget/wikireader/287x66-black.png" alt="Translation status" /></a>
+  <a href="https://hosted.weblate.org/engage/wikireader/">
+    <img src="https://hosted.weblate.org/widget/wikireader/287x66-black.png" alt="Translation status" />
+  </a>
 </p>
 
 </div>

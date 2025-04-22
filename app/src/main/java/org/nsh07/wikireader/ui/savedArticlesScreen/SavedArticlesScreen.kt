@@ -113,11 +113,13 @@ fun SavedArticlesScreen(
                     item {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                "${savedArticlesState.savedArticles.size} articles, ${
+                                stringResource(
+                                    R.string.articlesSize,
+                                    savedArticlesState.savedArticles.size,
                                     bytesToHumanReadableSize(
                                         savedArticlesState.articlesSize.toDouble()
                                     )
-                                } total",
+                                ),
                                 style = MaterialTheme.typography.labelLarge,
                                 modifier = Modifier.padding(16.dp)
                             )

@@ -249,10 +249,8 @@ fun String.toWikitextAnnotatedString(
                                     fontSize
                                 )
                             )
-                        } else if (currSubstring.startsWith(
-                                "{{convert",
-                                ignoreCase = true
-                            ) || currSubstring.startsWith("{{cvt")
+                        } else if (currSubstring.startsWith("{{convert", ignoreCase = true) ||
+                            currSubstring.startsWith("{{cvt", ignoreCase = true)
                         ) {
                             val curr = currSubstring.substringAfter('|')
                             val currSplit = curr.split('|')
@@ -359,7 +357,7 @@ fun String.toWikitextAnnotatedString(
                                 }
                                 append('.')
                             }
-                        } else if (currSubstring.startsWith("{{hatnote group")) {
+                        } else if (currSubstring.startsWith("{{hatnote group", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
                             append(
                                 curr.toWikitextAnnotatedString(
@@ -372,7 +370,7 @@ fun String.toWikitextAnnotatedString(
                         } else if (currSubstring.startsWith("{{IPAc-en", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
                             append("/${curr.replace("|", "").replace(' ', nbsp)}/")
-                        } else if (currSubstring.startsWith("{{lang|")) {
+                        } else if (currSubstring.startsWith("{{lang|", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
                             withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
                                 append(
@@ -439,7 +437,8 @@ fun String.toWikitextAnnotatedString(
                                     append(" information on $topic")
                                     append(
                                         ": [[${
-                                            curr.substringAfter('|').substringBefore('|').substringBefore('#')
+                                            curr.substringAfter('|').substringBefore('|')
+                                                .substringBefore('#')
                                         }]]\n".toWikitextAnnotatedString(
                                             colorScheme,
                                             typography,
@@ -451,7 +450,8 @@ fun String.toWikitextAnnotatedString(
                                     append(" reading")
                                     append(
                                         ": [[${
-                                            curr.substringAfter('|').substringBefore('|').substringBefore('#')
+                                            curr.substringAfter('|').substringBefore('|')
+                                                .substringBefore('#')
                                         }]]\n".toWikitextAnnotatedString(
                                             colorScheme,
                                             typography,
