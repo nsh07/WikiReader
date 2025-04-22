@@ -101,4 +101,7 @@
     <string name="dialogDeleteSearchHistoryDesc">खोज इतिहास मिटाएँ?</string>
     <string name="inArticleMatches">लेख में मिलान</string>
     <string name="topArticlesOTD">आज के प्रमुख लेख</string>
+    <string name="articlesSize">%1$s लेख, %2$s कुल</string>
+    <string name="translate">अनुवाद</string>
+    <string name="translateDesc">अपनी भाषा में विकीरीडर का अनुवाद करने में मदद करें</string>
 </resources>
