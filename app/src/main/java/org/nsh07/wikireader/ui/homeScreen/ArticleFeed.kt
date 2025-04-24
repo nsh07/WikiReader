@@ -1,6 +1,7 @@
 package org.nsh07.wikireader.ui.homeScreen
 
 import android.icu.text.CompactDecimalFormat
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -209,7 +210,9 @@ fun ArticleFeed(
                     HorizontalPager(
                         state = pagerState,
                         verticalAlignment = Alignment.Top,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .animateContentSize()
                     ) {
                         ElevatedCard(
                             modifier = Modifier

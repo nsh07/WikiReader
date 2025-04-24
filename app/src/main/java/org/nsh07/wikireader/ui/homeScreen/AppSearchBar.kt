@@ -1,6 +1,6 @@
 package org.nsh07.wikireader.ui.homeScreen
 
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -210,7 +210,7 @@ fun AppSearchBar(
         state = searchBarState,
         inputField = inputField
     ) {
-        Crossfade(textFieldState.text.trim().isEmpty()) {
+        AnimatedContent(textFieldState.text.trim().isEmpty()) {
             when (it) {
                 true ->
                     if (preferencesState.searchHistory) {

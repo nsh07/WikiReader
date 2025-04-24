@@ -1,6 +1,6 @@
 package org.nsh07.wikireader.ui.homeScreen
 
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -36,7 +36,7 @@ fun AppFab(
             },
             modifier = Modifier.animateFloatingActionButton(visible, alignment = Alignment.BottomEnd)
         ) {
-            Crossfade(targetState = index > 1, label = "FAB Icon Crossfade") { isScrolled ->
+            AnimatedContent(targetState = index > 1, label = "FAB Icon Animation") { isScrolled ->
                 if (isScrolled) {
                     Icon(
                         painterResource(R.drawable.upward),
