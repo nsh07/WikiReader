@@ -76,3 +76,49 @@ fun PageImage(
         modifier = modifier
     )
 }
+
+@Composable
+fun PageImage(
+    uri: String,
+    description: String,
+    imageLoader: ImageLoader,
+    contentScale: ContentScale,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    SubcomposeAsyncImage(
+        model = ImageRequest.Builder(context)
+            .data(uri)
+            .crossfade(true)
+            .build(),
+        loading = {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                CircularProgressIndicator(trackColor = ProgressIndicatorDefaults.circularDeterminateTrackColor)
+            }
+        },
+        error = {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Icon(
+                    painterResource(R.drawable.error),
+                    contentDescription = stringResource(R.string.errorLoadingImage),
+                    modifier = Modifier
+                        .padding(vertical = 16.dp)
+                        .size(64.dp),
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
+        },
+        contentDescription = description,
+        imageLoader = imageLoader,
+        contentScale = contentScale,
+        modifier = modifier
+    )
+}

@@ -103,4 +103,5 @@
     <string name="wikipedia">Wikipedia</string>
     <string name="wikipediaWebsiteDesc">Visit the Wikipedia website</string>
     <string name="wikipedia_logo">Wikipedia\'s Logo</string>
+    <string name="imageCounter">Image %1$s of %2$s</string>
 </resources>

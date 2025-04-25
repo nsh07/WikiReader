@@ -66,7 +66,11 @@ fun String.toWikitextAnnotatedString(
 
                 '<' -> {
                     val currSubstring = input.substring(i)
-                    if (currSubstring.startsWith("<br")) {
+                    if (currSubstring.startsWith("<nowiki>")) {
+                        val curr = currSubstring.substringBefore("</nowiki>").substringAfter('>')
+                        append(curr)
+                        i += 8 + curr.length + 8
+                    } else if (currSubstring.startsWith("<br")) {
                         append('\n')
                         i += currSubstring.substringBefore('>').length
                     } else if (currSubstring.startsWith("<u>")) {

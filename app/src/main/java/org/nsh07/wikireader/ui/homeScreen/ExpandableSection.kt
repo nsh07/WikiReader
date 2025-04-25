@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.ImageLoader
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 
@@ -41,10 +43,13 @@ fun ExpandableSection(
     body: List<AnnotatedString>,
     fontSize: Int,
     fontFamily: FontFamily,
+    imageLoader: ImageLoader,
     expanded: Boolean,
     renderMath: Boolean,
     darkTheme: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLinkClick: (String) -> Unit,
+    onGalleryImageClick: (String, String) -> Unit
 ) {
     var expanded by rememberSaveable { mutableStateOf(expanded) }
 
@@ -100,7 +105,10 @@ fun ExpandableSection(
                 fontSize = fontSize,
                 fontFamily = fontFamily,
                 renderMath = renderMath,
-                darkTheme = darkTheme
+                imageLoader = imageLoader,
+                darkTheme = darkTheme,
+                onLinkClick = onLinkClick,
+                onGalleryImageClick = onGalleryImageClick
             )
         }
     }
@@ -115,9 +123,11 @@ fun ExpandableSectionPreview() {
             body = listOf(buildAnnotatedString { append("Lorem\nIpsum\nBig\nHonking\nBody\nText") }),
             fontSize = 16,
             fontFamily = FontFamily.SansSerif,
+            imageLoader = ImageLoader(context = LocalContext.current),
             expanded = false,
             renderMath = true,
-            darkTheme = false
-        )
+            darkTheme = false,
+            onLinkClick = {}
+        ) { a, b -> }
     }
 }

@@ -976,8 +976,21 @@ class UiViewModel(
                                 fontSize = preferencesState.value.fontSize
                             )
                         )
-                        out.add(buildAnnotatedString { append(currSubstring) })
+                        out.add(AnnotatedString(currSubstring))
                         i += currSubstring.length + 7
+                        curr = ""
+                    } else if (currSubstring.startsWith("<gallery")) {
+                        currSubstring = parsed.substring(i).substringBefore("</gallery>")
+                        out.add(
+                            curr.toWikitextAnnotatedString(
+                                colorScheme = colorScheme,
+                                typography = typography,
+                                loadPage = ::loadPage,
+                                fontSize = preferencesState.value.fontSize
+                            )
+                        )
+                        out.add(AnnotatedString(currSubstring))
+                        i += currSubstring.length + 10
                         curr = ""
                     } else curr += parsed[i]
                 } else if (parsed[i] == '{' && parsed.getOrNull(i + 1) == '|') {
@@ -991,7 +1004,7 @@ class UiViewModel(
                                 fontSize = preferencesState.value.fontSize
                             )
                         )
-                        out.add(buildAnnotatedString { append(currSubstring) })
+                        out.add(AnnotatedString(currSubstring))
                         curr = ""
                         i += currSubstring.length
                     } else {
@@ -1005,7 +1018,7 @@ class UiViewModel(
                                 fontSize = preferencesState.value.fontSize
                             )
                         )
-                        out.add(buildAnnotatedString { append(currSubstringNestedTable) })
+                        out.add(AnnotatedString(currSubstringNestedTable))
                         curr = ""
                         i += currSubstring.length
                     }
@@ -1020,7 +1033,7 @@ class UiViewModel(
                     fontSize = preferencesState.value.fontSize
                 )
             )
-            return@withContext out.toList()
+            out.toList()
         }
 
     fun focusSearchBar() {

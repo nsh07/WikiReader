@@ -53,6 +53,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
+import androidx.navigation.toRoute
 import androidx.window.core.layout.WindowHeightSizeClass
 import androidx.window.core.layout.WindowSizeClass
 import coil3.ImageLoader
@@ -300,7 +301,10 @@ fun AppScreen(
                     showLanguageSheet = showArticleLanguageSheet,
                     onImageClick = {
                         if (homeScreenState.photo != null || homeScreenState.status == WRStatus.FEED_LOADED)
-                            navController.navigate(FullScreenImage)
+                            navController.navigate(FullScreenImage())
+                    },
+                    onGalleryImageClick = { uri, desc ->
+                        navController.navigate(FullScreenImage(uri, desc))
                     },
                     onLinkClick = viewModel::loadPage,
                     refreshSearch = { viewModel.reloadPage(true) },
@@ -359,32 +363,45 @@ fun AppScreen(
         }
 
         composable<FullScreenImage> {
-            if (homeScreenState.status != WRStatus.FEED_LOADED) {
-                if (homeScreenState.photo == null) navController.navigateUp()
-                FullScreenImage(
-                    photo = homeScreenState.photo,
-                    photoDesc = homeScreenState.photoDesc,
-                    title = homeScreenState.title,
-                    imageLoader = imageLoader,
-                    link = homeScreenState.photo?.source,
-                    onBack = navController::navigateUp
-                )
+            val uri = it.toRoute<FullScreenImage>().uri
+            val description = it.toRoute<FullScreenImage>().description
+
+            if (uri == null) {
+                if (homeScreenState.status != WRStatus.FEED_LOADED) {
+                    if (homeScreenState.photo == null) navController.navigateUp()
+                    FullScreenImage(
+                        photo = homeScreenState.photo,
+                        photoDesc = homeScreenState.photoDesc,
+                        title = homeScreenState.title,
+                        imageLoader = imageLoader,
+                        link = homeScreenState.photo?.source,
+                        onBack = navController::navigateUp
+                    )
+                } else {
+                    FullScreenImage(
+                        photo = WikiPhoto(
+                            source = feedState.image?.image?.source ?: "",
+                            width = feedState.image?.image?.width ?: 1,
+                            height = feedState.image?.image?.height ?: 1
+                        ),
+                        photoDesc = WikiPhotoDesc(
+                            label = listOf(
+                                feedState.image?.description?.text?.parseAsHtml().toString()
+                            ),
+                            description = null
+                        ),
+                        title = feedState.image?.title ?: "",
+                        imageLoader = imageLoader,
+                        link = feedState.image?.filePage,
+                        onBack = navController::navigateUp
+                    )
+                }
             } else {
                 FullScreenImage(
-                    photo = WikiPhoto(
-                        source = feedState.image?.image?.source ?: "",
-                        width = feedState.image?.image?.width ?: 1,
-                        height = feedState.image?.image?.height ?: 1
-                    ),
-                    photoDesc = WikiPhotoDesc(
-                        label = listOf(
-                            feedState.image?.description?.text?.parseAsHtml().toString()
-                        ),
-                        description = null
-                    ),
-                    title = feedState.image?.title ?: "",
+                    uri = uri,
+                    description = description ?: "",
                     imageLoader = imageLoader,
-                    link = feedState.image?.filePage,
+                    link = uri,
                     onBack = navController::navigateUp
                 )
             }
@@ -486,7 +503,10 @@ data class Home(
 )
 
 @Serializable
-object FullScreenImage
+data class FullScreenImage(
+    val uri: String? = null,
+    val description: String? = null
+)
 
 @Serializable
 object SavedArticles

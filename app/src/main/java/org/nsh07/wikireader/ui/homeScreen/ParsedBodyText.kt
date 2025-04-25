@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.ImageLoader
 import com.github.tomtung.latex2unicode.LaTeX2Unicode
 import kotlin.text.Typography.nbsp
 
@@ -23,8 +24,11 @@ fun ParsedBodyText(
     body: List<AnnotatedString>,
     fontSize: Int,
     fontFamily: FontFamily,
+    imageLoader: ImageLoader,
     renderMath: Boolean,
-    darkTheme: Boolean
+    darkTheme: Boolean,
+    onLinkClick: (String) -> Unit,
+    onGalleryImageClick: (String, String) -> Unit
 ) {
     if (renderMath) {
         val context = LocalContext.current
@@ -39,11 +43,19 @@ fun ParsedBodyText(
                         fontSize = fontSize,
                         darkTheme = darkTheme
                     )
+                } else if (body[i].startsWith("<gallery")) {
+                    Gallery(
+                        text = body[i].toString(),
+                        fontSize = fontSize,
+                        imageLoader = imageLoader,
+                        onClick = onGalleryImageClick,
+                        onLinkClick = onLinkClick
+                    )
                 } else if (body[i].startsWith("{|")) {
                     Wikitable(
                         text = body[i].toString(),
                         fontSize = fontSize,
-                        loadPage = {}
+                        onLinkClick = onLinkClick
                     )
                 } else {
                     Text(

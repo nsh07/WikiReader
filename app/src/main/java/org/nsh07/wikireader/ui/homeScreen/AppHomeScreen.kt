@@ -97,6 +97,7 @@ fun AppHomeScreen(
     showLanguageSheet: Boolean,
     deepLinkHandled: Boolean,
     onImageClick: () -> Unit,
+    onGalleryImageClick: (String, String) -> Unit,
     onLinkClick: (String) -> Unit,
     refreshSearch: () -> Unit,
     refreshFeed: () -> Unit,
@@ -272,7 +273,10 @@ fun AppHomeScreen(
                                         fontSize = fontSize,
                                         fontFamily = fontFamily,
                                         renderMath = preferencesState.renderMath,
-                                        darkTheme = colorScheme.isDark()
+                                        imageLoader = imageLoader,
+                                        darkTheme = colorScheme.isDark(),
+                                        onLinkClick = onLinkClick,
+                                        onGalleryImageClick = onGalleryImageClick
                                     )
                                 }
                         }
@@ -287,9 +291,12 @@ fun AppHomeScreen(
                                         body = homeScreenState.extract.getOrElse(i + 1) { emptyList() },
                                         fontSize = fontSize,
                                         fontFamily = fontFamily,
+                                        imageLoader = imageLoader,
                                         expanded = preferencesState.expandedSections,
                                         darkTheme = colorScheme.isDark(),
-                                        renderMath = preferencesState.renderMath
+                                        renderMath = preferencesState.renderMath,
+                                        onLinkClick = onLinkClick,
+                                        onGalleryImageClick = onGalleryImageClick
                                     )
                                 }
                         }

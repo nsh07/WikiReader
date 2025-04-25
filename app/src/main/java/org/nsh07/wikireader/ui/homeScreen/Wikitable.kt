@@ -29,11 +29,11 @@ import kotlin.math.max
 fun Wikitable(
     text: String,
     fontSize: Int,
-    loadPage: (String) -> Unit,
+    onLinkClick: (String) -> Unit
 ) {
     val colorScheme = colorScheme
     val typography = typography
-    val rows = remember { parseWikitable(text, colorScheme, typography, loadPage, fontSize) }
+    val rows = remember { parseWikitable(text, colorScheme, typography, onLinkClick, fontSize) }
     Box(
         modifier = Modifier
             .horizontalScroll(rememberScrollState())
