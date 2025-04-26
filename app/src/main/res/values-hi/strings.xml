@@ -104,4 +104,5 @@
     <string name="articlesSize">%1$s लेख, %2$s कुल</string>
     <string name="translate">अनुवाद</string>
     <string name="translateDesc">अपनी भाषा में विकीरीडर का अनुवाद करने में मदद करें</string>
+    <string name="imageCounter">छवि %2$s में से %1$s</string>
 </resources>
