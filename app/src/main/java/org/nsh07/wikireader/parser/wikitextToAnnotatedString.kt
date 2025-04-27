@@ -234,7 +234,18 @@ fun String.toWikitextAnnotatedString(
                     if (input.getOrNull(i + 1) == '{') {
                         val currSubstring =
                             substringMatchingParen('{', '}', i).substringBeforeLast("}}")
-                        if (currSubstring.startsWith("{{abbr", ignoreCase = true)) {
+                        if (currSubstring.startsWith("{{nowrap", ignoreCase = true)) {
+                            val curr = currSubstring.substringAfter('|')
+                            append(
+                                curr.replace(' ', nbsp)
+                                    .toWikitextAnnotatedString(
+                                        colorScheme,
+                                        typography,
+                                        loadPage,
+                                        fontSize
+                                    )
+                            )
+                        } else if (currSubstring.startsWith("{{abbr", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|').substringBefore('|')
                             append(
                                 curr.toWikitextAnnotatedString(
