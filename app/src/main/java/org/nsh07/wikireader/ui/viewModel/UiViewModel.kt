@@ -961,9 +961,15 @@ class UiViewModel(
             val parsed = cleanUpWikitext(wikitext)
             var curr = ""
             var i = 0
+            var stack = 0
             val out = mutableListOf<AnnotatedString>()
 
             while (i < parsed.length) {
+                if (parsed[i] == '{')
+                    stack++
+                else if (parsed[i] == '}')
+                    stack--
+
                 if (parsed[i] == '<') {
                     var currSubstring = parsed.substring(i, min(i + 16, parsed.length))
                     if (currSubstring.startsWith("<math display")) {
@@ -993,9 +999,47 @@ class UiViewModel(
                         i += currSubstring.length + 10
                         curr = ""
                     } else curr += parsed[i]
+                } else if (stack == 0 && parsed[i] == '[' && parsed.getOrNull(i + 1) == '[' &&
+                    (parsed.getOrNull(i + 2) == 'F' || parsed.getOrNull(i + 2) == 'f')
+                ) {
+                    if (parsed.substring(i, min(i + 16, parsed.length))
+                            .startsWith("[[File:", ignoreCase = true)
+                    ) {
+                        val currSubstring =
+                            parsed.substringMatchingParen('[', ']', i)
+                        out.add(
+                            curr.toWikitextAnnotatedString(
+                                colorScheme = colorScheme,
+                                typography = typography,
+                                loadPage = ::loadPage,
+                                fontSize = preferencesState.value.fontSize
+                            )
+                        )
+                        out.add(
+                            buildAnnotatedString {
+                                append(currSubstring.substringBefore('|'))
+                                append('|')
+                                append(
+                                    currSubstring.substringAfter('|').substringBeforeLast("]]")
+                                        .split('|')
+                                        .filterNot { it.matches("thumb|frame|frameless|border|baseline|class=.*|center|left|right|upright.*|.+px|alt=.*".toRegex()) }
+                                        .joinToString("|")
+                                )
+                                if (currSubstring.contains("class=skin-invert-image")) {
+                                    append("|invert")
+                                }
+                            }
+                        )
+                        curr = ""
+                        i += currSubstring.length
+                    } else {
+                        curr += parsed[i]
+                    }
                 } else if (parsed[i] == '{' && parsed.getOrNull(i + 1) == '|') {
                     val currSubstring = parsed.substringMatchingParen('{', '}', i)
-                    if (!currSubstring.substring(min(i + 2, currSubstring.lastIndex)).contains("{|")) {
+                    if (!currSubstring.substring(min(i + 2, currSubstring.lastIndex))
+                            .contains("{|")
+                    ) {
                         out.add(
                             curr.toWikitextAnnotatedString(
                                 colorScheme = colorScheme,

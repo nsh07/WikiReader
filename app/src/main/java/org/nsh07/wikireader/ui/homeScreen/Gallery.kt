@@ -56,7 +56,6 @@ fun Gallery(
         }
         val description = remember(text) { content[it].substringAfter('|') }
         OutlinedCard(
-            shape = shapes.extraLarge,
             modifier = Modifier.padding(16.dp),
             onClick = { onClick(uri, description) }
         ) {

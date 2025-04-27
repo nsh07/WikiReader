@@ -520,6 +520,15 @@ fun String.toWikitextAnnotatedString(
                                     fontSize
                                 )
                             )
+                        } else if (currSubstring.startsWith("{{empty section", ignoreCase = true)) {
+                            withStyle(
+                                SpanStyle(
+                                    fontStyle = FontStyle.Italic,
+                                    color = colorScheme.onSurfaceVariant
+                                )
+                            ) {
+                                append("This section is empty. You can help by adding to it on Wikipedia.")
+                            }
                         } else {
                             val curr = input.getOrNull(i + 1 + currSubstring.length + 1)
                             if (curr == '\n') i++
@@ -665,7 +674,7 @@ fun String.toWikitextAnnotatedString(
                                 )
                             }
                             i += 1 + curr.length + 2
-                        } else i += substringMatchingParen('[', ']', i).length
+                        } else i += substringMatchingParen('[', ']', i).length - 1
                     } else append(input[i])
 
                 else -> append(input[i])

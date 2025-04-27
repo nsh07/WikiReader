@@ -43,6 +43,15 @@ fun ParsedBodyText(
                         fontSize = fontSize,
                         darkTheme = darkTheme
                     )
+                } else if (body[i].startsWith("[[File:")) {
+                    ImageWithCaption(
+                        text = body[i].toString(),
+                        fontSize = fontSize,
+                        imageLoader = imageLoader,
+                        onLinkClick = onLinkClick,
+                        onClick = onGalleryImageClick,
+                        darkTheme = darkTheme
+                    )
                 } else if (body[i].startsWith("<gallery")) {
                     Gallery(
                         text = body[i].toString(),

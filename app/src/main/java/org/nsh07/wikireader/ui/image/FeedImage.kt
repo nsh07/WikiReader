@@ -16,6 +16,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -37,6 +38,7 @@ fun FeedImage(
     height: Int? = null,
     imageLoader: ImageLoader,
     loadingIndicator: Boolean,
+    colorFilter: ColorFilter? = null,
     contentScale: ContentScale = ContentScale.Crop
 ) {
     val context = LocalContext.current
@@ -46,7 +48,7 @@ fun FeedImage(
             .crossfade(true)
             .build(),
         imageLoader = imageLoader,
-        contentScale = contentScale
+        contentScale = contentScale,
     )
 
     val painterState by painter.state.collectAsState()
@@ -56,6 +58,7 @@ fun FeedImage(
             painter = painter,
             contentDescription = description,
             contentScale = contentScale,
+            colorFilter = colorFilter,
             modifier =
                 if (width != null && height != null)
                     modifier
