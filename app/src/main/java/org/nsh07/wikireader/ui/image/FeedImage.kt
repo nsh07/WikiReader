@@ -3,7 +3,6 @@ package org.nsh07.wikireader.ui.image
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -65,7 +64,8 @@ fun FeedImage(
                         .fillMaxWidth()
                         .aspectRatio(width.toFloat() / height.toFloat())
                 else
-                    modifier.fillMaxSize()
+                    modifier
+                        .fillMaxWidth()
         )
     } else if (painterState is AsyncImagePainter.State.Loading) {
         Box(
@@ -76,7 +76,8 @@ fun FeedImage(
                         .fillMaxWidth()
                         .aspectRatio(width.toFloat() / height.toFloat())
                 else
-                    modifier.fillMaxSize()
+                    modifier
+                        .fillMaxWidth()
         ) {
             if (loadingIndicator) LoadingIndicator()
             else CircularProgressIndicator(trackColor = ProgressIndicatorDefaults.circularDeterminateTrackColor)
@@ -90,7 +91,7 @@ fun FeedImage(
                         .fillMaxWidth()
                         .aspectRatio(width.toFloat() / height.toFloat())
                 else
-                    modifier.fillMaxSize()
+                    modifier.fillMaxWidth()
         ) {
             Icon(
                 painterResource(R.drawable.error),

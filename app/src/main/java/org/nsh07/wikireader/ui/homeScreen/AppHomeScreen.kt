@@ -95,7 +95,6 @@ fun AppHomeScreen(
     languageSearchStr: String,
     languageSearchQuery: String,
     showLanguageSheet: Boolean,
-    deepLinkHandled: Boolean,
     onImageClick: () -> Unit,
     onGalleryImageClick: (String, String) -> Unit,
     onLinkClick: (String) -> Unit,
@@ -343,8 +342,7 @@ fun AppHomeScreen(
         }
 
         AnimatedVisibility( // The linear progress bar that shows up when the article is loading
-            visible = homeScreenState.isLoading &&
-                    (homeScreenState.status != WRStatus.UNINITIALIZED || preferencesState.dataSaver || deepLinkHandled),
+            visible = homeScreenState.isLoading,
             enter = expandVertically(expandFrom = Alignment.Top),
             exit = shrinkVertically(shrinkTowards = Alignment.Top),
             modifier = Modifier.padding(horizontal = 4.dp)

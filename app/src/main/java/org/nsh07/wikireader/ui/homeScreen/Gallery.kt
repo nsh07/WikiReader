@@ -49,7 +49,12 @@ fun Gallery(
             .fillMaxWidth()
             .animateContentSize()
     ) {
-        val uri = remember(text) {
+        val uriLow = remember(text) {
+            "https://commons.wikimedia.org/wiki/Special:FilePath/${
+                content[it].substringBefore('|')
+            }?width=720"
+        }
+        val uriHigh = remember(text) {
             "https://commons.wikimedia.org/wiki/Special:FilePath/${
                 content[it].substringBefore('|')
             }"
@@ -57,10 +62,10 @@ fun Gallery(
         val description = remember(text) { content[it].substringAfter('|') }
         OutlinedCard(
             modifier = Modifier.padding(16.dp),
-            onClick = { onClick(uri, description) }
+            onClick = { onClick(uriHigh, description) }
         ) {
             FeedImage(
-                source = uri,
+                source = uriLow,
                 description = description,
                 width = 1,
                 height = 1,
@@ -74,7 +79,7 @@ fun Gallery(
                     loadPage = onLinkClick,
                     typography = typography
                 ),
-                modifier = Modifier.padding(20.dp)
+                modifier = Modifier.padding(16.dp)
             )
         }
     }

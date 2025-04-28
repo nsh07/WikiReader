@@ -22,6 +22,7 @@ import org.nsh07.wikireader.data.langCodeToName
 import kotlin.math.min
 import kotlin.text.Typography.bullet
 import kotlin.text.Typography.nbsp
+import kotlin.text.Typography.ndash
 
 private const val MAGIC_SEP = "{{!}}"
 
@@ -131,6 +132,18 @@ fun String.toWikitextAnnotatedString(
                             )
                         }
                         i += 6 + curr.length + 6
+                    } else if (currSubstring.startsWith("<syntaxhighlight")) {
+                        val curr =
+                            currSubstring.substringBefore("</syntaxhighlight>").substringAfter('>')
+                        withStyle(
+                            SpanStyle(
+                                fontFamily = FontFamily.Monospace,
+                                color = colorScheme.onSurfaceVariant
+                            )
+                        ) {
+                            append(curr)
+                        }
+                        i += currSubstring.substringBefore('>').length + curr.length + 18
                     } else if (currSubstring.startsWith("<sub>")) {
                         val curr = currSubstring.substringBefore("</sub>").substringAfter('>')
                         withStyle(
@@ -208,9 +221,6 @@ fun String.toWikitextAnnotatedString(
                             )
                         ) {
                             append('\n')
-                            withStyle(SpanStyle(fontSize = (fontSize + 8).sp)) {
-                                append("❝")
-                            }
                             append(
                                 curr.toWikitextAnnotatedString(
                                     colorScheme,
@@ -292,7 +302,10 @@ fun String.toWikitextAnnotatedString(
                         } else if (currSubstring.startsWith("{{math", ignoreCase = true) ||
                             currSubstring.startsWith("{{mvar", ignoreCase = true)
                         ) {
-                            val curr = currSubstring.substringAfter('|')
+                            val curr = currSubstring.substringAfter(
+                                '|',
+                                currSubstring.substringAfter("{{").substringBefore("}}")
+                            )
                             withStyle(SpanStyle(fontFamily = FontFamily.Serif)) {
                                 append(
                                     curr.replace(' ', nbsp).toWikitextAnnotatedString(
@@ -520,6 +533,15 @@ fun String.toWikitextAnnotatedString(
                                     fontSize
                                 )
                             )
+                        } else if (currSubstring.startsWith(
+                                "{{spaced en dash",
+                                ignoreCase = true
+                            ) ||
+                            currSubstring.startsWith("{{snd", ignoreCase = true)
+                        ) {
+                            append(nbsp)
+                            append(ndash)
+                            append(' ')
                         } else if (currSubstring.startsWith("{{empty section", ignoreCase = true)) {
                             withStyle(
                                 SpanStyle(

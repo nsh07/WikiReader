@@ -356,8 +356,7 @@ fun AppScreen(
                     windowSizeClass = windowSizeClass,
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(top = insets.calculateTopPadding()),
-                    deepLinkHandled = deepLinkHandled
+                        .padding(top = insets.calculateTopPadding())
                 )
             }
         }

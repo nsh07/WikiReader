@@ -999,39 +999,39 @@ class UiViewModel(
                         i += currSubstring.length + 10
                         curr = ""
                     } else curr += parsed[i]
-                } else if (stack == 0 && parsed[i] == '[' && parsed.getOrNull(i + 1) == '[' &&
-                    (parsed.getOrNull(i + 2) == 'F' || parsed.getOrNull(i + 2) == 'f')
-                ) {
-                    if (parsed.substring(i, min(i + 16, parsed.length))
-                            .startsWith("[[File:", ignoreCase = true)
-                    ) {
-                        val currSubstring =
-                            parsed.substringMatchingParen('[', ']', i)
-                        out.add(
-                            curr.toWikitextAnnotatedString(
-                                colorScheme = colorScheme,
-                                typography = typography,
-                                loadPage = ::loadPage,
-                                fontSize = preferencesState.value.fontSize
-                            )
-                        )
-                        out.add(
-                            buildAnnotatedString {
-                                append(currSubstring.substringBefore('|'))
-                                append('|')
-                                append(
-                                    currSubstring.substringAfter('|').substringBeforeLast("]]")
-                                        .split('|')
-                                        .filterNot { it.matches("thumb|frame|frameless|border|baseline|class=.*|center|left|right|upright.*|.+px|alt=.*".toRegex()) }
-                                        .joinToString("|")
+                } else if (stack == 0 && parsed[i] == '[' && parsed.getOrNull(i + 1) == '[') {
+                    val currSubstring = parsed.substringMatchingParen('[', ']', i)
+                    if (currSubstring.contains(':')) {
+                        if (currSubstring.matches(".*\\.jpg.*|.*\\.jpeg.*|.*\\.png.*|.*\\.svg.*|.*\\.gif.*".toRegex())
+                        ) {
+                            out.add(
+                                curr.toWikitextAnnotatedString(
+                                    colorScheme = colorScheme,
+                                    typography = typography,
+                                    loadPage = ::loadPage,
+                                    fontSize = preferencesState.value.fontSize
                                 )
-                                if (currSubstring.contains("class=skin-invert-image")) {
-                                    append("|invert")
+                            )
+                            out.add(
+                                buildAnnotatedString {
+                                    append("[[File:")
+                                    append(currSubstring.substringAfter(':').substringBefore('|'))
+                                    append('|')
+                                    append(
+                                        currSubstring.substringAfter('|').substringBeforeLast("]]")
+                                            .split('|')
+                                            .filterNot { it.matches("thumb|frame|frameless|border|baseline|class=.*|center|left|right|upright.*|.+px|alt=.*".toRegex()) }
+                                            .joinToString("|")
+                                    )
+                                    if (currSubstring.contains("class=skin-invert-image")) {
+                                        append("|invert")
+                                    }
                                 }
-                            }
-                        )
-                        curr = ""
-                        i += currSubstring.length
+                            )
+                            curr = ""
+                            i += currSubstring.length
+                        } else
+                            curr += parsed[i]
                     } else {
                         curr += parsed[i]
                     }
