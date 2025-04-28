@@ -1,7 +1,9 @@
 package org.nsh07.wikireader.ui.homeScreen
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,15 +17,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.ImageLoader
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
@@ -60,74 +64,77 @@ fun Gallery(
             }"
         }
         val description = remember(text) { content[it].substringAfter('|') }
-        OutlinedCard(
-            modifier = Modifier.padding(16.dp),
-            onClick = { onClick(uriHigh, description) }
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
         ) {
             FeedImage(
                 source = uriLow,
                 description = description,
-                width = 1,
-                height = 1,
                 imageLoader = imageLoader,
-                loadingIndicator = false
+                loadingIndicator = false,
+                modifier = Modifier
+                    .clip(shapes.large)
+                    .clickable(onClick = { onClick(uriHigh, description) })
             )
             Text(
                 description.toWikitextAnnotatedString(
                     colorScheme = colorScheme,
-                    fontSize = fontSize,
+                    fontSize = fontSize - 2,
                     loadPage = onLinkClick,
                     typography = typography
                 ),
-                modifier = Modifier.padding(16.dp)
+                fontSize = (fontSize - 2).sp,
+                textAlign = TextAlign.Center,
+                color = colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(8.dp)
             )
         }
     }
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 16.dp),
+            .padding(bottom = 8.dp),
         contentAlignment = Alignment.Center
     ) {
-        OutlinedCard(shape = shapes.extraLarge) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(
-                    onClick = {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(
-                                pagerState.currentPage - 1
-                            )
-                        }
-                    },
-                    enabled = pagerState.currentPage != 0
-                ) {
-                    Icon(
-                        Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
-                        contentDescription = stringResource(R.string.scrollLeft)
-                    )
-                }
-                Text(
-                    stringResource(
-                        R.string.imageCounter,
-                        pagerState.currentPage + 1,
-                        pagerState.pageCount
-                    )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(
+                onClick = {
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(
+                            pagerState.currentPage - 1
+                        )
+                    }
+                },
+                enabled = pagerState.currentPage != 0
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
+                    contentDescription = stringResource(R.string.scrollLeft)
                 )
-                IconButton(
-                    onClick = {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(
-                                pagerState.currentPage + 1
-                            )
-                        }
-                    },
-                    enabled = pagerState.currentPage != pagerState.pageCount - 1
-                ) {
-                    Icon(
-                        Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-                        contentDescription = stringResource(R.string.scrollRight)
-                    )
-                }
+            }
+            Text(
+                stringResource(
+                    R.string.imageCounter,
+                    pagerState.currentPage + 1,
+                    pagerState.pageCount
+                )
+            )
+            IconButton(
+                onClick = {
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(
+                            pagerState.currentPage + 1
+                        )
+                    }
+                },
+                enabled = pagerState.currentPage != pagerState.pageCount - 1
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                    contentDescription = stringResource(R.string.scrollRight)
+                )
             }
         }
     }
