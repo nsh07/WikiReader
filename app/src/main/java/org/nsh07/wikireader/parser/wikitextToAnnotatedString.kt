@@ -11,6 +11,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextIndent
@@ -559,9 +560,10 @@ fun String.toWikitextAnnotatedString(
                     } else append(input[i])
 
                 '&' ->
-                    if (input.substring(i).substringBefore(';') == "&nbsp") {
-                        append(nbsp)
-                        i += 5
+                    if (input.substring(i, min(i + 10, input.length)).contains(';')) {
+                        val curr = input.substring(i, input.indexOf(';', i) + 1)
+                        append(AnnotatedString.fromHtml(curr))
+                        i += curr.length - 1
                     } else append(input[i])
 
                 '*' ->

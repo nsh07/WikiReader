@@ -1002,7 +1002,11 @@ class UiViewModel(
                 } else if (stack == 0 && parsed[i] == '[' && parsed.getOrNull(i + 1) == '[') {
                     val currSubstring = parsed.substringMatchingParen('[', ']', i)
                     if (currSubstring.contains(':')) {
-                        if (currSubstring.matches(".*\\.jpg.*|.*\\.jpeg.*|.*\\.png.*|.*\\.svg.*|.*\\.gif.*".toRegex())
+                        if (currSubstring
+                                .matches(
+                                    ".*\\.jpg.*|.*\\.jpeg.*|.*\\.png.*|.*\\.svg.*|.*\\.gif.*"
+                                        .toRegex(RegexOption.IGNORE_CASE)
+                                )
                         ) {
                             out.add(
                                 curr.toWikitextAnnotatedString(
@@ -1020,7 +1024,7 @@ class UiViewModel(
                                     append(
                                         currSubstring.substringAfter('|').substringBeforeLast("]]")
                                             .split('|')
-                                            .filterNot { it.matches("thumb|frame|frameless|border|baseline|class=.*|center|left|right|upright.*|.+px|alt=.*".toRegex()) }
+                                            .filterNot { it.matches("thumb|thumbnail|frame|frameless|border|baseline|class=.*|center|left|right|upright.*|.+px|alt=.*".toRegex()) }
                                             .joinToString("|")
                                     )
                                     if (currSubstring.contains("class=skin-invert-image")) {

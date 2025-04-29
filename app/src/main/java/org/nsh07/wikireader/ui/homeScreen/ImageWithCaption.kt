@@ -69,6 +69,7 @@ fun ImageWithCaption(
             typography = typography
         ),
         fontSize = (fontSize - 2).sp,
+        lineHeight = (24 * ((fontSize - 2) / 16.0)).toInt().sp,
         textAlign = TextAlign.Center,
         color = colorScheme.onSurfaceVariant,
         modifier = Modifier
