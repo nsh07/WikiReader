@@ -1,5 +1,6 @@
 package org.nsh07.wikireader.ui.settingsScreen
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -49,14 +50,16 @@ fun ColorPickerButton(
             .clip(CircleShape)
             .background(color)
     ) {
-        when (isSelected) {
-            true -> Icon(Icons.Outlined.Check, tint = Color.Black, contentDescription = null)
-            false ->
-                if (color == Color.White) Icon(
-                    painterResource(R.drawable.colors),
-                    tint = Color.Black,
-                    contentDescription = null
-                )
+        AnimatedContent(isSelected) { isSelected ->
+            when (isSelected) {
+                true -> Icon(Icons.Outlined.Check, tint = Color.Black, contentDescription = null)
+                else ->
+                    if (color == Color.White) Icon(
+                        painterResource(R.drawable.colors),
+                        tint = Color.Black,
+                        contentDescription = null
+                    )
+            }
         }
     }
 }

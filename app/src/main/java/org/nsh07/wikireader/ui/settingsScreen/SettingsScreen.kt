@@ -9,12 +9,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Info
@@ -74,6 +72,7 @@ fun SettingsScreen(
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier
 ) {
+    // TODO: Optimize settings screen, don't pass ViewModel
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
     val appInfoIntent =
@@ -133,13 +132,6 @@ fun SettingsScreen(
         else 0f
     }
 
-    val expandedIcon =
-        if (expandedSections) R.drawable.expand_all
-        else R.drawable.collapse_all
-    val dataSaverIcon =
-        if (dataSaver) R.drawable.data_saver_on
-        else R.drawable.data_saver_off
-
     val (showThemeDialog, setShowThemeDialog) = remember { mutableStateOf(false) }
     val (showColorSchemeDialog, setShowColorSchemeDialog) = remember { mutableStateOf(false) }
     val (showLanguageSheet, setShowLanguageSheet) = remember { mutableStateOf(false) }
@@ -185,321 +177,344 @@ fun SettingsScreen(
     ) { insets ->
         Row {
             if (weight != 0f) Spacer(Modifier.weight(weight))
-            Column(
-                modifier = Modifier
-                    .padding(top = insets.calculateTopPadding())
-                    .weight(4f)
-                    .verticalScroll(
-                        rememberScrollState()
-                    )
+            LazyColumn(
+                contentPadding = insets,
+                modifier = Modifier.weight(4f)
             ) {
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painterResource(R.drawable.palette),
-                            tint = colorScheme.primary,
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(string.settingColorScheme)) },
-                    supportingContent = {
-                        if (color == Color.White) Text(stringResource(string.colorSchemeDynamic))
-                        else Text(stringResource(string.colorSchemeColor))
-                    },
-                    modifier = Modifier
-                        .clickable(onClick = { setShowColorSchemeDialog(true) })
-                )
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painterResource(themeMap[theme]!!.first),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(string.settingTheme)) },
-                    supportingContent = { Text(themeMap[theme]!!.second) },
-                    modifier = Modifier
-                        .clickable(onClick = { setShowThemeDialog(true) })
-                )
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painterResource(R.drawable.translate),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(string.settingWikipediaLanguage)) },
-                    supportingContent = { Text(langCodeToName(preferencesState.lang)) },
-                    modifier = Modifier
-                        .clickable(onClick = { setShowLanguageSheet(true) })
-                )
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painterResource(R.drawable.serif),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(string.settingFontStyle)) },
-                    supportingContent = {
-                        SingleChoiceSegmentedButtonRow {
-                            fontStyles.forEachIndexed { index, label ->
-                                SegmentedButton(
-                                    shape = SegmentedButtonDefaults.itemShape(
-                                        index = index,
-                                        count = fontStyles.size
-                                    ),
-                                    onClick = {
-                                        viewModel.saveFontStyle(
-                                            reverseFontStyleMap[label] ?: "sans"
+                item {
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                painterResource(R.drawable.palette),
+                                tint = colorScheme.primary,
+                                contentDescription = null
+                            )
+                        },
+                        headlineContent = { Text(stringResource(string.settingColorScheme)) },
+                        supportingContent = {
+                            if (color == Color.White) Text(stringResource(string.colorSchemeDynamic))
+                            else Text(stringResource(string.colorSchemeColor))
+                        },
+                        modifier = Modifier
+                            .clickable(onClick = { setShowColorSchemeDialog(true) })
+                    )
+                }
+                item {
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                painterResource(themeMap[theme]!!.first),
+                                contentDescription = null
+                            )
+                        },
+                        headlineContent = { Text(stringResource(string.settingTheme)) },
+                        supportingContent = { Text(themeMap[theme]!!.second) },
+                        modifier = Modifier
+                            .clickable(onClick = { setShowThemeDialog(true) })
+                    )
+                }
+                item {
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                painterResource(R.drawable.translate),
+                                contentDescription = null
+                            )
+                        },
+                        headlineContent = { Text(stringResource(string.settingWikipediaLanguage)) },
+                        supportingContent = { Text(langCodeToName(preferencesState.lang)) },
+                        modifier = Modifier
+                            .clickable(onClick = { setShowLanguageSheet(true) })
+                    )
+                }
+                item {
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                painterResource(R.drawable.serif),
+                                contentDescription = null
+                            )
+                        },
+                        headlineContent = { Text(stringResource(string.settingFontStyle)) },
+                        supportingContent = {
+                            SingleChoiceSegmentedButtonRow {
+                                fontStyles.forEachIndexed { index, label ->
+                                    SegmentedButton(
+                                        shape = SegmentedButtonDefaults.itemShape(
+                                            index = index,
+                                            count = fontStyles.size
+                                        ),
+                                        onClick = {
+                                            viewModel.saveFontStyle(
+                                                reverseFontStyleMap[label] ?: "sans"
+                                            )
+                                        },
+                                        selected = label == fontStyleMap[fontStyle],
+                                        label = { Text(label) },
+                                        modifier = if (weight != 0f) Modifier.width(160.dp) else Modifier.width(
+                                            512.dp
                                         )
-                                    },
-                                    selected = label == fontStyleMap[fontStyle],
-                                    label = { Text(label) },
-                                    modifier = if (weight != 0f) Modifier.width(160.dp) else Modifier.width(
-                                        512.dp
                                     )
+                                }
+                            }
+                        }
+                    )
+                }
+                item {
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                painterResource(R.drawable.format_size),
+                                contentDescription = null
+                            )
+                        },
+                        headlineContent = { Text(stringResource(string.settingFontSize)) },
+                        supportingContent = {
+                            Column {
+                                Text(round(fontSizeFloat).toInt().toString())
+                                Slider(
+                                    value = fontSizeFloat,
+                                    onValueChange = { fontSizeFloat = it },
+                                    valueRange = 10f..22f,
+                                    steps = 5,
+                                    onValueChangeFinished = {
+                                        viewModel.saveFontSize(round(fontSizeFloat).toInt())
+                                    }
                                 )
                             }
                         }
-                    }
-                )
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painterResource(R.drawable.format_size),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(string.settingFontSize)) },
-                    supportingContent = {
-                        Column {
-                            Text(round(fontSizeFloat).toInt().toString())
-                            Slider(
-                                value = fontSizeFloat,
-                                onValueChange = { fontSizeFloat = it },
-                                valueRange = 10f..22f,
-                                steps = 5,
-                                onValueChangeFinished = {
-                                    viewModel.saveFontSize(round(fontSizeFloat).toInt())
+                    )
+                }
+                item {
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                painterResource(R.drawable.contrast),
+                                contentDescription = null
+                            )
+                        },
+                        headlineContent = { Text(stringResource(string.settingBlackTheme)) },
+                        supportingContent = { Text(stringResource(string.settingBlackThemeDesc)) },
+                        trailingContent = {
+                            Switch(
+                                checked = blackTheme,
+                                onCheckedChange = {
+                                    blackTheme = it
+                                    viewModel.saveBlackTheme(it)
+                                },
+                                thumbContent = {
+                                    if (blackTheme) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Check,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                                        )
+                                    }
                                 }
                             )
                         }
-                    }
-                )
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painterResource(R.drawable.contrast),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(string.settingBlackTheme)) },
-                    supportingContent = { Text(stringResource(string.settingBlackThemeDesc)) },
-                    trailingContent = {
-                        Switch(
-                            checked = blackTheme,
-                            onCheckedChange = {
-                                blackTheme = it
-                                viewModel.saveBlackTheme(it)
-                            },
-                            thumbContent = {
-                                if (blackTheme) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Check,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize),
-                                    )
+                    )
+                }
+                item {
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                painterResource(R.drawable.data_saver_on),
+                                contentDescription = null
+                            )
+                        },
+                        headlineContent = { Text(stringResource(string.settingDataSaver)) },
+                        supportingContent = { Text(stringResource(string.settingDataSaverDesc)) },
+                        trailingContent = {
+                            Switch(
+                                checked = dataSaver,
+                                onCheckedChange = {
+                                    dataSaver = it
+                                    viewModel.saveDataSaver(it)
+                                },
+                                thumbContent = {
+                                    if (dataSaver) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Check,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                                        )
+                                    }
                                 }
-                            }
-                        )
-                    }
-                )
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painterResource(dataSaverIcon),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(string.settingDataSaver)) },
-                    supportingContent = { Text(stringResource(string.settingDataSaverDesc)) },
-                    trailingContent = {
-                        Switch(
-                            checked = dataSaver,
-                            onCheckedChange = {
-                                dataSaver = it
-                                viewModel.saveDataSaver(it)
-                            },
-                            thumbContent = {
-                                if (dataSaver) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Check,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize),
-                                    )
+                            )
+                        }
+                    )
+                }
+                item {
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                painterResource(R.drawable.expand_all),
+                                contentDescription = null
+                            )
+                        },
+                        headlineContent = { Text(stringResource(string.settingExpandSections)) },
+                        supportingContent = { Text(stringResource(string.settingExpandSectionsDesc)) },
+                        trailingContent = {
+                            Switch(
+                                checked = expandedSections,
+                                onCheckedChange = {
+                                    expandedSections = it
+                                    viewModel.saveExpandedSections(it)
+                                },
+                                thumbContent = {
+                                    if (expandedSections) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Check,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                                        )
+                                    }
                                 }
-                            }
-                        )
-                    }
-                )
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painterResource(expandedIcon),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(string.settingExpandSections)) },
-                    supportingContent = { Text(stringResource(string.settingExpandSectionsDesc)) },
-                    trailingContent = {
-                        Switch(
-                            checked = expandedSections,
-                            onCheckedChange = {
-                                expandedSections = it
-                                viewModel.saveExpandedSections(it)
-                            },
-                            thumbContent = {
-                                if (expandedSections) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Check,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize),
-                                    )
+                            )
+                        }
+                    )
+                }
+                item {
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                painterResource(R.drawable.open_in_full),
+                                contentDescription = null
+                            )
+                        },
+                        headlineContent = { Text(stringResource(string.settingImmersiveMode)) },
+                        supportingContent = { Text(stringResource(string.settingImmersiveModeDesc)) },
+                        trailingContent = {
+                            Switch(
+                                checked = immersiveMode,
+                                onCheckedChange = {
+                                    immersiveMode = it
+                                    viewModel.saveImmersiveMode(it)
+                                },
+                                thumbContent = {
+                                    if (immersiveMode) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Check,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                                        )
+                                    }
                                 }
-                            }
-                        )
-                    }
-                )
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painterResource(R.drawable.open_in_full),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(string.settingImmersiveMode)) },
-                    supportingContent = { Text(stringResource(string.settingImmersiveModeDesc)) },
-                    trailingContent = {
-                        Switch(
-                            checked = immersiveMode,
-                            onCheckedChange = {
-                                immersiveMode = it
-                                viewModel.saveImmersiveMode(it)
-                            },
-                            thumbContent = {
-                                if (immersiveMode) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Check,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize),
-                                    )
+                            )
+                        }
+                    )
+                }
+                item {
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                painterResource(R.drawable.function),
+                                contentDescription = null
+                            )
+                        },
+                        headlineContent = { Text(stringResource(string.settingRenderMath)) },
+                        supportingContent = {
+                            Text(stringResource(string.settingRenderMathDesc))
+                        },
+                        trailingContent = {
+                            Switch(
+                                checked = renderMath,
+                                onCheckedChange = {
+                                    renderMath = it
+                                    viewModel.saveRenderMath(it)
+                                },
+                                thumbContent = {
+                                    if (renderMath) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Check,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                                        )
+                                    }
                                 }
-                            }
-                        )
-                    }
-                )
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painterResource(R.drawable.function),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(string.settingRenderMath)) },
-                    supportingContent = {
-                        Text(stringResource(string.settingRenderMathDesc))
-                    },
-                    trailingContent = {
-                        Switch(
-                            checked = renderMath,
-                            onCheckedChange = {
-                                renderMath = it
-                                viewModel.saveRenderMath(it)
-                            },
-                            thumbContent = {
-                                if (renderMath) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Check,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize),
-                                    )
+                            )
+                        }
+                    )
+                }
+                item {
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                painterResource(R.drawable.history),
+                                contentDescription = null
+                            )
+                        },
+                        headlineContent = { Text(stringResource(string.settingSearchHistory)) },
+                        supportingContent = {
+                            Text(stringResource(string.settingSearchHistoryDesc))
+                        },
+                        trailingContent = {
+                            Switch(
+                                checked = searchHistory,
+                                onCheckedChange = {
+                                    searchHistory = it
+                                    viewModel.saveSearchHistory(it)
+                                },
+                                thumbContent = {
+                                    if (searchHistory) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Check,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                                        )
+                                    }
                                 }
-                            }
-                        )
-                    }
-                )
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painterResource(R.drawable.history),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(string.settingSearchHistory)) },
-                    supportingContent = {
-                        Text(stringResource(string.settingSearchHistoryDesc))
-                    },
-                    trailingContent = {
-                        Switch(
-                            checked = searchHistory,
-                            onCheckedChange = {
-                                searchHistory = it
-                                viewModel.saveSearchHistory(it)
-                            },
-                            thumbContent = {
-                                if (searchHistory) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Check,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize),
-                                    )
-                                }
-                            }
-                        )
-                    }
-                )
+                            )
+                        }
+                    )
+                }
 
-                OutlinedCard(
-                    modifier = Modifier.padding(16.dp),
-                    shape = shapes.extraLarge
-                ) {
-                    Column(
-                        modifier = Modifier.padding(20.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                item {
+                    OutlinedCard(
+                        modifier = Modifier.padding(16.dp),
+                        shape = shapes.extraLarge
                     ) {
-                        Icon(
-                            Icons.Outlined.Info,
-                            tint = colorScheme.secondary,
-                            contentDescription = stringResource(string.information),
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Text(stringResource(string.setAsDefault), style = typography.headlineSmall)
-                        Text(
-                            text = stringResource(string.setAsDefaultDesc),
-                            style = typography.bodyLarge,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Row(
-                            modifier = Modifier.align(Alignment.End),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Button(onClick = { context.startActivity(appInfoIntent) }) {
-                                Text(stringResource(string.settings))
-                            }
-                            FilledTonalButton(
-                                onClick = {
-                                    uriHandler.openUri("https://gist.github.com/nsh07/ed7571f3e2014b412037626a39d68ecd")
-                                }
+                            Icon(
+                                Icons.Outlined.Info,
+                                tint = colorScheme.secondary,
+                                contentDescription = stringResource(string.information),
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Text(
+                                stringResource(string.setAsDefault),
+                                style = typography.headlineSmall
+                            )
+                            Text(
+                                text = stringResource(string.setAsDefaultDesc),
+                                style = typography.bodyLarge,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Row(
+                                modifier = Modifier.align(Alignment.End),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Text(stringResource(string.instructions))
+                                Button(onClick = { context.startActivity(appInfoIntent) }) {
+                                    Text(stringResource(string.settings))
+                                }
+                                FilledTonalButton(
+                                    onClick = {
+                                        uriHandler.openUri("https://gist.github.com/nsh07/ed7571f3e2014b412037626a39d68ecd")
+                                    }
+                                ) {
+                                    Text(stringResource(string.instructions))
+                                }
                             }
                         }
                     }
                 }
 
-                Spacer(Modifier.height(insets.calculateBottomPadding()))
+//                Spacer(Modifier.height(insets.calculateBottomPadding()))
             }
             if (weight != 0f) Spacer(Modifier.weight(weight))
         }

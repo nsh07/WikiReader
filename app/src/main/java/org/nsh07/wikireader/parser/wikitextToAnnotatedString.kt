@@ -38,7 +38,6 @@ fun String.toWikitextAnnotatedString(
     newLine: Boolean = true,
     inIndentCode: Boolean = false
 ): AnnotatedString {
-    // TODO: Implement more Wikitext features
     val input = this
     var i = 0
     return buildAnnotatedString {
@@ -221,16 +220,18 @@ fun String.toWikitextAnnotatedString(
                                 )
                             )
                         ) {
-                            append('\n')
-                            append(
-                                curr.toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize
+                            withStyle(SpanStyle(color = colorScheme.onSurfaceVariant)) {
+                                append('\n')
+                                append(
+                                    curr.toWikitextAnnotatedString(
+                                        colorScheme,
+                                        typography,
+                                        loadPage,
+                                        fontSize
+                                    )
                                 )
-                            )
-                            append('\n')
+                                append('\n')
+                            }
                         }
                         i += 12 + curr.length + 13
                     } else if (currSubstring.startsWith("<!--")) {
@@ -443,19 +444,21 @@ fun String.toWikitextAnnotatedString(
                                     )
                                 )
                             ) {
-                                append('\n')
-                                append(
-                                    curr.substringAfter("text=")
-                                        .substringBefore('=')
-                                        .substringBeforeLast('|')
-                                        .toWikitextAnnotatedString(
-                                            colorScheme,
-                                            typography,
-                                            loadPage,
-                                            fontSize
-                                        )
-                                )
-                                append('\n')
+                                withStyle(SpanStyle(color = colorScheme.onSurfaceVariant)) {
+                                    append('\n')
+                                    append(
+                                        curr.substringAfter("text=")
+                                            .substringBefore('=')
+                                            .substringBeforeLast('|')
+                                            .toWikitextAnnotatedString(
+                                                colorScheme,
+                                                typography,
+                                                loadPage,
+                                                fontSize
+                                            )
+                                    )
+                                    append('\n')
+                                }
                             }
                         } else if (currSubstring.startsWith("{{further", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')

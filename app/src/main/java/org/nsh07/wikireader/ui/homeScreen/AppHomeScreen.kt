@@ -10,11 +10,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -48,6 +51,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
@@ -95,6 +99,8 @@ fun AppHomeScreen(
     languageSearchStr: String,
     languageSearchQuery: String,
     showLanguageSheet: Boolean,
+    searchBarOffset: Float,
+    searchBarOffsetLimit: Float,
     onImageClick: () -> Unit,
     onGalleryImageClick: (String, String) -> Unit,
     onLinkClick: (String) -> Unit,
@@ -144,7 +150,10 @@ fun AppHomeScreen(
             type = "text/plain"
         }
     val shareIntent = Intent.createChooser(sendIntent, null)
+
     val context = LocalContext.current
+    val systemBars = WindowInsets.systemBars
+
     val lang = preferencesState.lang
     val pageId = homeScreenState.pageId
 
@@ -345,10 +354,20 @@ fun AppHomeScreen(
             visible = homeScreenState.isLoading,
             enter = expandVertically(expandFrom = Alignment.Top),
             exit = shrinkVertically(shrinkTowards = Alignment.Top),
-            modifier = Modifier.padding(horizontal = 4.dp)
+            modifier = Modifier
+                .padding(
+                    top = (systemBars.asPaddingValues()
+                        .calculateTopPadding() + (searchBarOffsetLimit.dp - searchBarOffset.dp)).coerceAtLeast(
+                        0.dp
+                    )
+                )
         ) {
             if (homeScreenState.loadingProgress == null)
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp)
+                )
             else {
                 val animatedProgress by animateFloatAsState(
                     targetValue = homeScreenState.loadingProgress,
@@ -356,7 +375,9 @@ fun AppHomeScreen(
                 )
                 LinearProgressIndicator(
                     { animatedProgress },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp)
                 )
             }
         }

@@ -364,8 +364,6 @@ class UiViewModel(
         viewModelScope.launch(loaderJob) {
             var setLang = preferencesState.value.lang
             if (title != null || random) {
-                Log.d("ViewModel", "Cancelled all jobs")
-
                 try {
                     if (lang != null) {
                         interceptor.setHost("$lang.wikipedia.org")
@@ -465,7 +463,6 @@ class UiViewModel(
                         _articleListState.update {
                             LazyListState(listStatePair.first, listStatePair.second)
                         }
-                    Log.d("ViewModel", "Search: HomeScreenState updated")
                 } catch (e: Exception) {
                     Log.e("ViewModel", "Error in fetching results: ${e.message}")
                     e.printStackTrace()
@@ -494,7 +491,6 @@ class UiViewModel(
                             savedStatus = SavedStatus.NOT_SAVED
                         )
                     }
-                    Log.d("ViewModel", "Search: HomeScreenState updated")
                 }
 
                 if (lang != null)
@@ -579,8 +575,6 @@ class UiViewModel(
                     else _homeScreenState.update { currentState ->
                         currentState.copy(isLoading = false)
                     }
-
-                    Log.d("ViewModel", "Feed: HomeScreenState updated")
                 } catch (e: Exception) {
                     Log.e("ViewModel", "Error in loading feed: ${e.message}")
                     _homeScreenState.update { currentState ->
@@ -688,7 +682,6 @@ class UiViewModel(
                     )
                 }
                 updateLanguageFilters()
-                Log.d("ViewModel", "Updated saved state to ${homeScreenState.value.savedStatus}")
                 return WRStatus.SUCCESS
             } catch (e: Exception) {
                 Log.e(
@@ -724,7 +717,6 @@ class UiViewModel(
      * completed
      */
     fun migrateArticles() {
-        Log.d("ViewModel", "Migrating pre-2.0 articles")
         try {
             val articleList =
                 listArticles(filter = false).filterNot { it.contains("-api.") || it.contains("-content.") }
@@ -732,10 +724,6 @@ class UiViewModel(
             viewModelScope.launch {
                 articleList.forEach { // Sequentially reload and save articles, then delete old files
                     val oldFile = File(articlesDir, it)
-                    Log.d(
-                        "ViewModel",
-                        "Migrating ${it.substringBefore('.')} : ${it.substringAfterLast('.')}"
-                    )
                     val saved =
                         saveArticle(
                             title = it.substringBefore('.'),
@@ -743,10 +731,8 @@ class UiViewModel(
                         )
                     if (saved == WRStatus.SUCCESS) {
                         oldFile.delete()
-                        Log.d("ViewModel", "Migrated $it")
                     }
                 }
-                Log.d("ViewModel", "${articleList.size} articles migrated")
                 interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
             }
         } catch (e: Exception) {
@@ -818,7 +804,6 @@ class UiViewModel(
             out.add(it.fileName.toString())
         }
         out.sort()
-        Log.d("ViewModel", "${out.size} articles loaded")
         return if (filter) out.filter { it.contains("-api.") } else out
     }
 
@@ -836,7 +821,6 @@ class UiViewModel(
                     )
                 }
                 updateLanguageFilters()
-                Log.d("ViewModel", "${out.size} articles loaded")
             } catch (e: Exception) {
                 Log.e("ViewModel", "Cannot load list of downloaded articles, IO error")
                 e.printStackTrace()
@@ -855,7 +839,6 @@ class UiViewModel(
                 .walkTopDown()
                 .map { it.length() }
                 .sum()
-            Log.d("ViewModel", "Articles size loaded: $size")
             return size
         } catch (e: Exception) {
             Log.e("ViewModel", "Cannot load total article size, IO error")
@@ -930,7 +913,6 @@ class UiViewModel(
 
                 return@withContext WRStatus.SUCCESS
             } catch (e: Exception) {
-                Log.d("ViewModel", "Cannot load saved article, IO error")
                 e.printStackTrace()
                 return@withContext WRStatus.IO_ERROR
             }

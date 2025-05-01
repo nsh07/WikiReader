@@ -1,7 +1,6 @@
 package org.nsh07.wikireader.ui
 
 import android.os.Build.VERSION.SDK_INT
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -173,7 +172,6 @@ fun AppScreen(
             val uriQuery = remember { backStackEntry.arguments?.getString("query") }
             LaunchedEffect(uriQuery) {
                 if (uriQuery != null && !deepLinkHandled) {
-                    Log.d("AppScreen", "Deep link handled: uriQuery: $uriQuery")
                     deepLinkHandled = true
                     val lang = backStackEntry.arguments?.getString("lang")
                     viewModel.stopAll()
@@ -302,6 +300,8 @@ fun AppScreen(
                     feedState = feedState,
                     feedListState = feedListState,
                     imageLoader = imageLoader,
+                    searchBarOffset = searchBarScrollBehavior?.scrollOffset ?: 0f,
+                    searchBarOffsetLimit = searchBarScrollBehavior?.scrollOffsetLimit ?: -100f,
                     languageSearchStr = languageSearchStr.value,
                     languageSearchQuery = languageSearchQuery.value,
                     showLanguageSheet = showArticleLanguageSheet,
@@ -506,7 +506,7 @@ fun DeleteHistoryItemDialog(
 @Composable
 private fun StatusBarProtection(
     color: Color = MaterialTheme.colorScheme.surface,
-    heightProvider: () -> Float = calculateGradientHeight(),
+    heightProvider: () -> Float = calculateStatusBarHeight(),
 ) {
     Canvas(Modifier.fillMaxSize()) {
         val calculatedHeight = heightProvider()
@@ -518,10 +518,10 @@ private fun StatusBarProtection(
 }
 
 @Composable
-fun calculateGradientHeight(): () -> Float {
+fun calculateStatusBarHeight(): () -> Float {
     val statusBars = WindowInsets.statusBars
     val density = LocalDensity.current
-    return { statusBars.getTop(density).times(1.2f) }
+    return { statusBars.getTop(density).toFloat() }
 }
 
 
