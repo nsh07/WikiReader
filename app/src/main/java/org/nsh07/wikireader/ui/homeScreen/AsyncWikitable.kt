@@ -1,16 +1,35 @@
 package org.nsh07.wikireader.ui.homeScreen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
@@ -18,51 +37,104 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.nsh07.wikireader.parser.parseWikitable
 import kotlin.math.max
 
 @Composable
-fun Wikitable(
+fun AsyncWikitable(
     text: String,
     fontSize: Int,
     onLinkClick: (String) -> Unit
 ) {
     val colorScheme = colorScheme
     val typography = typography
-    val rows = remember { parseWikitable(text, colorScheme, typography, onLinkClick, fontSize) }
-    Box(
-        modifier = Modifier
-            .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp)
-            .border(Dp.Hairline, color = colorScheme.onSurface)
+    val coroutineScope = rememberCoroutineScope()
+
+    var rows by remember {
+        mutableStateOf(
+            Pair(
+                AnnotatedString(""),
+                emptyList<List<AnnotatedString>>()
+            )
+        )
+    }
+    var expanded by remember { mutableStateOf(false) }
+    val tableTitle =
+        buildAnnotatedString { withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("Table") } }
+
+    LaunchedEffect(text) {
+        coroutineScope.launch(Dispatchers.IO) {
+            rows = parseWikitable(text, colorScheme, typography, onLinkClick, fontSize)
+        }
+    }
+
+    OutlinedCard(
+        onClick = { expanded = !expanded },
+        border = BorderStroke(1.dp, colorScheme.outline),
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        Table(
-            rows.size,
-            rows.getOrNull(0)?.size ?: 0,
+        Row(
             verticalAlignment = Alignment.CenterVertically
-        ) { row, column ->
-            if (row == 0 || column == 0)
+        ) {
+            IconButton(
+                onClick = { expanded = !expanded },
+                modifier = Modifier.padding(8.dp)
+            ) {
+                if (!expanded)
+                    Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = null)
+                else
+                    Icon(Icons.Outlined.KeyboardArrowUp, contentDescription = null)
+            }
+            Text(
+                if (rows.first != AnnotatedString("")) rows.first
+                else tableTitle,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = 16.dp)
+                    .padding(end = 16.dp)
+            )
+        }
+    }
+
+    AnimatedVisibility(
+        expanded,
+        enter = expandVertically(expandFrom = Alignment.CenterVertically) + fadeIn(),
+        exit = shrinkVertically(shrinkTowards = Alignment.CenterVertically) + fadeOut()
+    ) {
+        Box(
+            modifier = Modifier
+                .horizontalScroll(rememberScrollState())
+                .padding(vertical = 8.dp, horizontal = 16.dp)
+                .border(1.dp, color = colorScheme.outline, shape = shapes.large)
+        ) {
+            Table(
+                rows.second.size,
+                rows.second.getOrNull(0)?.size ?: 0,
+                verticalAlignment = Alignment.CenterVertically
+            ) { row, column ->
                 Text(
-                    rows[row][column],
+                    rows.second[row][column],
+                    fontSize = fontSize.sp,
+                    lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
                     modifier = Modifier
                         .padding(8.dp)
-                        .widthIn(max = 256.dp),
-                    fontWeight = FontWeight.Bold
-                )
-            else
-                Text(
-                    rows[row][column],
-                    modifier = Modifier
-                        .padding(vertical = 4.dp, horizontal = 8.dp)
                         .widthIn(max = 256.dp)
                 )
+            }
         }
     }
 }
+
 
 @Composable
 fun Table(

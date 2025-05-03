@@ -61,7 +61,7 @@ fun ParsedBodyText(
                         onLinkClick = onLinkClick
                     )
                 } else if (body[i].startsWith("{|")) {
-                    Wikitable(
+                    AsyncWikitable(
                         text = body[i].toString(),
                         fontSize = fontSize,
                         onLinkClick = onLinkClick
