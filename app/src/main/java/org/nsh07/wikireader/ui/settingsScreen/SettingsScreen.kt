@@ -68,6 +68,11 @@ fun SettingsScreen(
     languageSearchStr: String,
     languageSearchQuery: String,
     windowSizeClass: WindowSizeClass,
+    themeMap: Map<String, Pair<Int, String>>,
+    reverseThemeMap: Map<String, String>,
+    fontStyles: List<String>,
+    fontStyleMap: Map<String, String>,
+    reverseFontStyleMap: Map<String, String>,
     saveTheme: (String) -> Unit,
     saveColorScheme: (String) -> Unit,
     saveLang: (String) -> Unit,
@@ -92,42 +97,6 @@ fun SettingsScreen(
         Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
             data = Uri.fromParts("package", context.packageName, null)
         }
-    }
-
-    val themeMap: Map<String, Pair<Int, String>> = remember {
-        mapOf(
-            "auto" to Pair(
-                R.drawable.brightness_auto,
-                context.getString(string.themeSystemDefault)
-            ),
-            "light" to Pair(R.drawable.light_mode, context.getString(string.themeLight)),
-            "dark" to Pair(R.drawable.dark_mode, context.getString(string.themeDark))
-        )
-    }
-    val reverseThemeMap: Map<String, String> = remember {
-        mapOf(
-            context.getString(string.themeSystemDefault) to "auto",
-            context.getString(string.themeLight) to "light",
-            context.getString(string.themeDark) to "dark"
-        )
-    }
-    val fontStyleMap: Map<String, String> = remember {
-        mapOf(
-            "sans" to context.getString(string.fontStyleSansSerif),
-            "serif" to context.getString(string.fontStyleSerif)
-        )
-    }
-    val reverseFontStyleMap: Map<String, String> = remember {
-        mapOf(
-            context.getString(string.fontStyleSansSerif) to "sans",
-            context.getString(string.fontStyleSerif) to "serif"
-        )
-    }
-    val fontStyles = remember {
-        listOf(
-            context.getString(string.fontStyleSansSerif),
-            context.getString(string.fontStyleSerif)
-        )
     }
 
     val theme = preferencesState.theme

@@ -2,7 +2,8 @@ package org.nsh07.wikireader.ui
 
 import android.os.Build.VERSION.SDK_INT
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -69,6 +70,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.R.string
 import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiPhoto
@@ -101,9 +103,46 @@ fun AppScreen(
     val feedListState = rememberLazyListState()
     val languageSearchStr by viewModel.languageSearchStr.collectAsState()
     val languageSearchQuery by viewModel.languageSearchQuery.collectAsState("")
+    val context = LocalContext.current
     var showArticleLanguageSheet by remember { mutableStateOf(false) }
     var deepLinkHandled by rememberSaveable { mutableStateOf(false) }
-    val context = LocalContext.current
+
+    // Used by the settings screen. These are hoisted here to make the settings screen faster
+    val themeMap: Map<String, Pair<Int, String>> = remember {
+        mapOf(
+            "auto" to Pair(
+                R.drawable.brightness_auto,
+                context.getString(string.themeSystemDefault)
+            ),
+            "light" to Pair(R.drawable.light_mode, context.getString(string.themeLight)),
+            "dark" to Pair(R.drawable.dark_mode, context.getString(string.themeDark))
+        )
+    }
+    val reverseThemeMap: Map<String, String> = remember {
+        mapOf(
+            context.getString(string.themeSystemDefault) to "auto",
+            context.getString(string.themeLight) to "light",
+            context.getString(string.themeDark) to "dark"
+        )
+    }
+    val fontStyleMap: Map<String, String> = remember {
+        mapOf(
+            "sans" to context.getString(string.fontStyleSansSerif),
+            "serif" to context.getString(string.fontStyleSerif)
+        )
+    }
+    val reverseFontStyleMap: Map<String, String> = remember {
+        mapOf(
+            context.getString(string.fontStyleSansSerif) to "sans",
+            context.getString(string.fontStyleSerif) to "serif"
+        )
+    }
+    val fontStyles = remember {
+        listOf(
+            context.getString(string.fontStyleSansSerif),
+            context.getString(string.fontStyleSerif)
+        )
+    }
 
     val searchBarScrollBehavior =
         if (
@@ -139,27 +178,23 @@ fun AppScreen(
         startDestination = Home(),
         enterTransition = {
             slideInHorizontally(
-                initialOffsetX = { it / 8 },
-                animationSpec = tween(200)
-            ) + fadeIn(tween(100))
+                initialOffsetX = { it / 8 }
+            ) + fadeIn()
         },
         exitTransition = {
             slideOutHorizontally(
-                targetOffsetX = { -it / 8 },
-                animationSpec = tween(200)
-            ) + fadeOut(tween(100))
+                targetOffsetX = { -it / 8 }
+            ) + fadeOut(spring(stiffness = Spring.StiffnessHigh))
         },
         popEnterTransition = {
             slideInHorizontally(
-                initialOffsetX = { -it / 8 },
-                animationSpec = tween(200)
-            ) + fadeIn(tween(200))
+                initialOffsetX = { -it / 8 }
+            ) + fadeIn()
         },
         popExitTransition = {
             slideOutHorizontally(
-                targetOffsetX = { it / 8 },
-                animationSpec = tween(200)
-            ) + fadeOut(tween(100))
+                targetOffsetX = { it / 8 }
+            ) + fadeOut(spring(stiffness = Spring.StiffnessHigh))
         },
         modifier = modifier.background(MaterialTheme.colorScheme.background)
     ) {
@@ -205,7 +240,6 @@ fun AppScreen(
                 }
 
             Scaffold(
-                // TODO: Add unit conversion
                 topBar = {
                     AppSearchBar(
                         appSearchBarState = appSearchBarState,
@@ -319,11 +353,11 @@ fun AppScreen(
                             if (homeScreenState.savedStatus == SavedStatus.NOT_SAVED) {
                                 val status = viewModel.saveArticle()
                                 if (status == WRStatus.SUCCESS)
-                                    snackBarHostState.showSnackbar(context.getString(R.string.snackbarArticleSaved))
+                                    snackBarHostState.showSnackbar(context.getString(string.snackbarArticleSaved))
                                 else
                                     snackBarHostState.showSnackbar(
                                         context.getString(
-                                            R.string.snackbarUnableToSave,
+                                            string.snackbarUnableToSave,
                                             status.name
                                         )
                                     )
@@ -331,11 +365,11 @@ fun AppScreen(
                             } else if (homeScreenState.savedStatus == SavedStatus.SAVED) {
                                 val status = viewModel.deleteArticle()
                                 if (status == WRStatus.SUCCESS)
-                                    snackBarHostState.showSnackbar(context.getString(R.string.snackbarArticleDeleted))
+                                    snackBarHostState.showSnackbar(context.getString(string.snackbarArticleDeleted))
                                 else
                                     snackBarHostState.showSnackbar(
                                         context.getString(
-                                            R.string.snackbarUnableToDelete,
+                                            string.snackbarUnableToDelete,
                                             status.name
                                         )
                                     )
@@ -348,7 +382,7 @@ fun AppScreen(
                                 snackBarHostState
                                     .showSnackbar(
                                         context.getString(
-                                            R.string.snackbarUnableToLoadFeed,
+                                            string.snackbarUnableToLoadFeed,
                                             homeScreenState.status.name
                                         )
                                     )
@@ -434,6 +468,11 @@ fun AppScreen(
                 windowSizeClass = windowSizeClass,
                 languageSearchStr = languageSearchStr,
                 languageSearchQuery = languageSearchQuery,
+                themeMap = themeMap,
+                reverseThemeMap = reverseThemeMap,
+                fontStyles = fontStyles,
+                fontStyleMap = fontStyleMap,
+                reverseFontStyleMap = reverseFontStyleMap,
                 saveTheme = viewModel::saveTheme,
                 saveColorScheme = viewModel::saveColorScheme,
                 saveLang = viewModel::saveLang,
@@ -472,11 +511,11 @@ fun DeleteHistoryItemDialog(
         onDismissRequest = { setShowDeleteDialog(false) }
     ) {
         val titleText =
-            if (item != "") stringResource(R.string.dialogDeleteSearchHistory)
-            else stringResource(R.string.dialogDeleteSearchHistoryDesc)
+            if (item != "") stringResource(string.dialogDeleteSearchHistory)
+            else stringResource(string.dialogDeleteSearchHistoryDesc)
         val descText =
-            if (item != "") stringResource(R.string.dialogDeleteHistoryItem, item)
-            else stringResource(R.string.dialogDeleteHistoryItemDesc)
+            if (item != "") stringResource(string.dialogDeleteHistoryItem, item)
+            else stringResource(string.dialogDeleteHistoryItemDesc)
 
         Surface(
             modifier = Modifier
@@ -498,13 +537,13 @@ fun DeleteHistoryItemDialog(
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(modifier = Modifier.align(Alignment.End)) {
                     TextButton(onClick = { setShowDeleteDialog(false) }) {
-                        Text(text = stringResource(R.string.cancel))
+                        Text(text = stringResource(string.cancel))
                     }
                     TextButton(onClick = {
                         setShowDeleteDialog(false)
                         removeHistoryItem(item)
                     }) {
-                        Text(text = stringResource(R.string.delete))
+                        Text(text = stringResource(string.delete))
                     }
                 }
             }
