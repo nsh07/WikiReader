@@ -51,8 +51,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
@@ -99,8 +99,6 @@ fun AppHomeScreen(
     languageSearchStr: String,
     languageSearchQuery: String,
     showLanguageSheet: Boolean,
-    searchBarOffset: Float,
-    searchBarOffsetLimit: Float,
     onImageClick: () -> Unit,
     onGalleryImageClick: (String, String) -> Unit,
     onLinkClick: (String) -> Unit,
@@ -152,7 +150,7 @@ fun AppHomeScreen(
     val shareIntent = Intent.createChooser(sendIntent, null)
 
     val context = LocalContext.current
-    val systemBars = WindowInsets.systemBars
+    val systemBars = WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
 
     val lang = preferencesState.lang
     val pageId = homeScreenState.pageId
@@ -200,6 +198,7 @@ fun AppHomeScreen(
                 ) {
                     LazyColumn( // The article
                         state = listState,
+                        contentPadding = insets,
                         modifier = Modifier.fillMaxSize()
                     ) {
                         item { // Title
@@ -308,9 +307,8 @@ fun AppHomeScreen(
                                     )
                                 }
                         }
-
                         item {
-                            Spacer(Modifier.height(insets.calculateBottomPadding() + 152.dp))
+                            Spacer(Modifier.height(156.dp))
                         }
                     }
                 }
@@ -356,10 +354,10 @@ fun AppHomeScreen(
             exit = shrinkVertically(shrinkTowards = Alignment.Top),
             modifier = Modifier
                 .padding(
-                    top = (systemBars.asPaddingValues()
-                        .calculateTopPadding() + (searchBarOffsetLimit.dp - searchBarOffset.dp)).coerceAtLeast(
-                        0.dp
-                    )
+                    top = (max(
+                        systemBars,
+                        insets.calculateTopPadding()
+                    ))
                 )
         ) {
             if (homeScreenState.loadingProgress == null)

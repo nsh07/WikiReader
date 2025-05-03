@@ -49,6 +49,7 @@ fun ArticleLanguageBottomSheet(
 ) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    val layoutDirection = LocalLayoutDirection.current
     val bottomSheetState =
         rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val insets = WindowInsets.safeDrawing.asPaddingValues()
@@ -61,8 +62,8 @@ fun ArticleLanguageBottomSheet(
         sheetState = bottomSheetState,
         contentWindowInsets = {
            WindowInsets(
-               left = insets.calculateLeftPadding(LocalLayoutDirection.current),
-               right = insets.calculateRightPadding(LocalLayoutDirection.current)
+               left = insets.calculateLeftPadding(layoutDirection),
+               right = insets.calculateRightPadding(layoutDirection)
            )
         },
         modifier = modifier.padding(top = insets.calculateTopPadding())

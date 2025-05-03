@@ -35,7 +35,6 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -59,7 +58,6 @@ import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.toColor
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
-import org.nsh07.wikireader.ui.viewModel.UiViewModel
 import kotlin.math.round
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,24 +65,41 @@ import kotlin.math.round
 fun SettingsScreen(
     preferencesState: PreferencesState,
     homeScreenState: HomeScreenState,
-    viewModel: UiViewModel,
-    onBack: () -> Unit,
+    languageSearchStr: String,
+    languageSearchQuery: String,
     windowSizeClass: WindowSizeClass,
+    saveTheme: (String) -> Unit,
+    saveColorScheme: (String) -> Unit,
+    saveLang: (String) -> Unit,
+    saveFontStyle: (String) -> Unit,
+    saveFontSize: (Int) -> Unit,
+    saveBlackTheme: (Boolean) -> Unit,
+    saveDataSaver: (Boolean) -> Unit,
+    saveExpandedSections: (Boolean) -> Unit,
+    saveImmersiveMode: (Boolean) -> Unit,
+    saveRenderMath: (Boolean) -> Unit,
+    saveSearchHistory: (Boolean) -> Unit,
+    updateLanguageSearchStr: (String) -> Unit,
+    loadFeed: () -> Unit,
+    reloadPage: () -> Unit,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // TODO: Optimize settings screen, don't pass ViewModel
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
-    val appInfoIntent =
+
+    val appInfoIntent = remember {
         Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
             data = Uri.fromParts("package", context.packageName, null)
         }
-    val languageSearchStr = viewModel.languageSearchStr.collectAsState()
-    val languageSearchQuery = viewModel.languageSearchQuery.collectAsState("")
+    }
 
     val themeMap: Map<String, Pair<Int, String>> = remember {
         mapOf(
-            "auto" to Pair(R.drawable.brightness_auto, context.getString(string.themeSystemDefault)),
+            "auto" to Pair(
+                R.drawable.brightness_auto,
+                context.getString(string.themeSystemDefault)
+            ),
             "light" to Pair(R.drawable.light_mode, context.getString(string.themeLight)),
             "dark" to Pair(R.drawable.dark_mode, context.getString(string.themeDark))
         )
@@ -109,7 +124,10 @@ fun SettingsScreen(
         )
     }
     val fontStyles = remember {
-        listOf(context.getString(string.fontStyleSansSerif), context.getString(string.fontStyleSerif))
+        listOf(
+            context.getString(string.fontStyleSansSerif),
+            context.getString(string.fontStyleSerif)
+        )
     }
 
     val theme = preferencesState.theme
@@ -143,30 +161,30 @@ fun SettingsScreen(
             reverseThemeMap = reverseThemeMap,
             theme = theme,
             setShowThemeDialog = setShowThemeDialog,
-            setTheme = { viewModel.saveTheme(it) }
+            setTheme = saveTheme
         )
     if (showColorSchemeDialog)
         ColorSchemePickerDialog(
             currentColor = color,
-            onColorChange = { viewModel.saveColorScheme(it.toString()) },
+            onColorChange = { saveColorScheme(it.toString()) },
             setShowDialog = setShowColorSchemeDialog
         )
     if (showLanguageSheet)
         LanguageBottomSheet(
             lang = preferencesState.lang,
-            searchStr = languageSearchStr.value,
-            searchQuery = languageSearchQuery.value,
+            searchStr = languageSearchStr,
+            searchQuery = languageSearchQuery,
             setShowSheet = setShowLanguageSheet,
             setLang = {
-                viewModel.saveLang(it)
+                saveLang(it)
                 if (homeScreenState.status != WRStatus.FEED_NETWORK_ERROR &&
                     homeScreenState.status != WRStatus.FEED_LOADED
                 )
-                    viewModel.reloadPage()
+                    reloadPage()
                 else
-                    viewModel.loadFeed()
+                    loadFeed()
             },
-            setSearchStr = { viewModel.updateLanguageSearchStr(it) }
+            setSearchStr = updateLanguageSearchStr
         )
 
     Scaffold(
@@ -245,15 +263,14 @@ fun SettingsScreen(
                                             count = fontStyles.size
                                         ),
                                         onClick = {
-                                            viewModel.saveFontStyle(
+                                            saveFontStyle(
                                                 reverseFontStyleMap[label] ?: "sans"
                                             )
                                         },
                                         selected = label == fontStyleMap[fontStyle],
                                         label = { Text(label) },
-                                        modifier = if (weight != 0f) Modifier.width(160.dp) else Modifier.width(
-                                            512.dp
-                                        )
+                                        modifier = if (weight != 0f) Modifier.width(160.dp)
+                                        else Modifier.width(512.dp)
                                     )
                                 }
                             }
@@ -278,7 +295,7 @@ fun SettingsScreen(
                                     valueRange = 10f..22f,
                                     steps = 5,
                                     onValueChangeFinished = {
-                                        viewModel.saveFontSize(round(fontSizeFloat).toInt())
+                                        saveFontSize(round(fontSizeFloat).toInt())
                                     }
                                 )
                             }
@@ -300,7 +317,7 @@ fun SettingsScreen(
                                 checked = blackTheme,
                                 onCheckedChange = {
                                     blackTheme = it
-                                    viewModel.saveBlackTheme(it)
+                                    saveBlackTheme(it)
                                 },
                                 thumbContent = {
                                     if (blackTheme) {
@@ -330,7 +347,7 @@ fun SettingsScreen(
                                 checked = dataSaver,
                                 onCheckedChange = {
                                     dataSaver = it
-                                    viewModel.saveDataSaver(it)
+                                    saveDataSaver(it)
                                 },
                                 thumbContent = {
                                     if (dataSaver) {
@@ -360,7 +377,7 @@ fun SettingsScreen(
                                 checked = expandedSections,
                                 onCheckedChange = {
                                     expandedSections = it
-                                    viewModel.saveExpandedSections(it)
+                                    saveExpandedSections(it)
                                 },
                                 thumbContent = {
                                     if (expandedSections) {
@@ -390,7 +407,7 @@ fun SettingsScreen(
                                 checked = immersiveMode,
                                 onCheckedChange = {
                                     immersiveMode = it
-                                    viewModel.saveImmersiveMode(it)
+                                    saveImmersiveMode(it)
                                 },
                                 thumbContent = {
                                     if (immersiveMode) {
@@ -422,7 +439,7 @@ fun SettingsScreen(
                                 checked = renderMath,
                                 onCheckedChange = {
                                     renderMath = it
-                                    viewModel.saveRenderMath(it)
+                                    saveRenderMath(it)
                                 },
                                 thumbContent = {
                                     if (renderMath) {
@@ -454,7 +471,7 @@ fun SettingsScreen(
                                 checked = searchHistory,
                                 onCheckedChange = {
                                     searchHistory = it
-                                    viewModel.saveSearchHistory(it)
+                                    saveSearchHistory(it)
                                 },
                                 thumbContent = {
                                     if (searchHistory) {
@@ -513,8 +530,6 @@ fun SettingsScreen(
                         }
                     }
                 }
-
-//                Spacer(Modifier.height(insets.calculateBottomPadding()))
             }
             if (weight != 0f) Spacer(Modifier.weight(weight))
         }

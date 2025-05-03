@@ -56,7 +56,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
@@ -76,7 +76,8 @@ import java.time.format.FormatStyle
 import kotlin.math.absoluteValue
 import kotlin.math.min
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
     ExperimentalMaterial3ExpressiveApi::class
 )
 @Composable
@@ -91,20 +92,20 @@ fun ArticleFeed(
     onImageClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
+    val configuration = LocalConfiguration.current
     var isRefreshing by remember { mutableStateOf(false) }
     val pullToRefreshState = rememberPullToRefreshState()
     val wide = remember { windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED }
     val df = remember {
         CompactDecimalFormat.getInstance(
-            context.resources.configuration.getLocales().get(0),
+            configuration.getLocales().get(0),
             CompactDecimalFormat.CompactStyle.SHORT
         )
     }
     val dtf = remember {
         DateTimeFormatter
             .ofLocalizedDate(FormatStyle.LONG)
-            .withLocale(context.resources.configuration.getLocales().get(0))
+            .withLocale(configuration.getLocales().get(0))
     }
     val coroutineScope = rememberCoroutineScope()
 
@@ -122,7 +123,9 @@ fun ArticleFeed(
         },
         indicator = {
             LoadingIndicator(
-                modifier = Modifier.align(Alignment.TopCenter),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = insets.calculateTopPadding()),
                 isRefreshing = isRefreshing,
                 state = pullToRefreshState
             )
@@ -131,6 +134,7 @@ fun ArticleFeed(
     ) {
         LazyColumn(
             state = listState,
+            contentPadding = insets,
             modifier = modifier.fillMaxSize()
         ) {
             if (feedState.tfa != null) {
@@ -587,7 +591,7 @@ fun ArticleFeed(
                 }
             }
             item {
-                Spacer(Modifier.height(insets.calculateBottomPadding() + 152.dp))
+                Spacer(Modifier.height(156.dp))
             }
         }
     }

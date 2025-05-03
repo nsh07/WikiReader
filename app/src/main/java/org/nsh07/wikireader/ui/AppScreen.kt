@@ -99,8 +99,8 @@ fun AppScreen(
     val searchListState by viewModel.searchListState.collectAsState()
     val searchBarState = rememberSearchBarState()
     val feedListState = rememberLazyListState()
-    val languageSearchStr = viewModel.languageSearchStr.collectAsState()
-    val languageSearchQuery = viewModel.languageSearchQuery.collectAsState("")
+    val languageSearchStr by viewModel.languageSearchStr.collectAsState()
+    val languageSearchQuery by viewModel.languageSearchQuery.collectAsState("")
     var showArticleLanguageSheet by remember { mutableStateOf(false) }
     var deepLinkHandled by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
@@ -258,10 +258,8 @@ fun AppScreen(
                 floatingActionButton = {
                     AppFab(
                         index = if (homeScreenState.status != WRStatus.FEED_LOADED) index else feedIndex,
-                        visible = if (preferencesState.immersiveMode) {
-                            if (homeScreenState.status != WRStatus.FEED_LOADED)
-                                listState.lastScrolledBackward else feedListState.lastScrolledBackward
-                        } else true,
+                        visible = (searchBarScrollBehavior?.scrollOffset
+                            ?: 0f) != searchBarScrollBehavior?.scrollOffsetLimit,
                         focusSearch = {
                             viewModel.focusSearchBar()
                             textFieldState.setTextAndPlaceCursorAtEnd(textFieldState.text.toString())
@@ -300,10 +298,8 @@ fun AppScreen(
                     feedState = feedState,
                     feedListState = feedListState,
                     imageLoader = imageLoader,
-                    searchBarOffset = searchBarScrollBehavior?.scrollOffset ?: 0f,
-                    searchBarOffsetLimit = searchBarScrollBehavior?.scrollOffsetLimit ?: -100f,
-                    languageSearchStr = languageSearchStr.value,
-                    languageSearchQuery = languageSearchQuery.value,
+                    languageSearchStr = languageSearchStr,
+                    languageSearchQuery = languageSearchQuery,
                     showLanguageSheet = showArticleLanguageSheet,
                     onImageClick = {
                         if (homeScreenState.photo != null || homeScreenState.status == WRStatus.FEED_LOADED)
@@ -360,9 +356,7 @@ fun AppScreen(
                     },
                     insets = insets,
                     windowSizeClass = windowSizeClass,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = insets.calculateTopPadding())
+                    modifier = Modifier.fillMaxSize()
                 )
 
                 StatusBarProtection()
@@ -437,9 +431,24 @@ fun AppScreen(
             SettingsScreen(
                 preferencesState = preferencesState,
                 homeScreenState = homeScreenState,
-                onBack = navController::navigateUp,
-                viewModel = viewModel,
-                windowSizeClass = windowSizeClass
+                windowSizeClass = windowSizeClass,
+                languageSearchStr = languageSearchStr,
+                languageSearchQuery = languageSearchQuery,
+                saveTheme = viewModel::saveTheme,
+                saveColorScheme = viewModel::saveColorScheme,
+                saveLang = viewModel::saveLang,
+                saveFontStyle = viewModel::saveFontStyle,
+                saveFontSize = viewModel::saveFontSize,
+                saveBlackTheme = viewModel::saveBlackTheme,
+                saveDataSaver = viewModel::saveDataSaver,
+                saveExpandedSections = viewModel::saveExpandedSections,
+                saveImmersiveMode = viewModel::saveImmersiveMode,
+                saveRenderMath = viewModel::saveRenderMath,
+                saveSearchHistory = viewModel::saveSearchHistory,
+                updateLanguageSearchStr = viewModel::updateLanguageSearchStr,
+                loadFeed = viewModel::loadFeed,
+                reloadPage = viewModel::reloadPage,
+                onBack = navController::navigateUp
             )
         }
 

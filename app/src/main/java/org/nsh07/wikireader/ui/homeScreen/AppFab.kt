@@ -3,7 +3,12 @@ package org.nsh07.wikireader.ui.homeScreen
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -14,6 +19,7 @@ import androidx.compose.material3.animateFloatingActionButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -28,13 +34,24 @@ fun AppFab(
     scrollToTop: () -> Unit,
     performRandomPageSearch: () -> Unit
 ) {
-    Column(horizontalAlignment = Alignment.End) {
+    Column(
+        horizontalAlignment = Alignment.End,
+        modifier = Modifier.padding(
+            end = WindowInsets
+                .systemBars
+                .asPaddingValues()
+                .calculateEndPadding(LocalLayoutDirection.current)
+        )
+    ) {
         SmallFloatingActionButton(
             onClick = {
                 if (index > 1) scrollToTop()
                 else performRandomPageSearch()
             },
-            modifier = Modifier.animateFloatingActionButton(visible, alignment = Alignment.BottomEnd)
+            modifier = Modifier.animateFloatingActionButton(
+                visible,
+                alignment = Alignment.BottomEnd
+            )
         ) {
             AnimatedContent(targetState = index > 1, label = "FAB Icon Animation") { isScrolled ->
                 if (isScrolled) {
@@ -55,7 +72,10 @@ fun AppFab(
 
         FloatingActionButton(
             onClick = focusSearch,
-            modifier = Modifier.animateFloatingActionButton(visible, alignment = Alignment.BottomEnd)
+            modifier = Modifier.animateFloatingActionButton(
+                visible,
+                alignment = Alignment.BottomEnd
+            )
         ) {
             Icon(
                 Icons.Outlined.Search,

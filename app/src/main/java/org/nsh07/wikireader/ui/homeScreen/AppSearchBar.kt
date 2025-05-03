@@ -40,6 +40,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.SearchBarDefaults
@@ -55,6 +56,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
@@ -100,6 +102,7 @@ fun AppSearchBar(
 ) {
     val focusRequester = appSearchBarState.focusRequester
     val haptic = LocalHapticFeedback.current
+    val colorScheme = colorScheme
     val (dropdownExpanded, setDropdownExpanded) = remember { mutableStateOf(false) }
     val history = appSearchBarState.history.toList()
     val size = history.size
@@ -203,6 +206,9 @@ fun AppSearchBar(
         inputField = inputField,
         modifier = modifier
             .fillMaxWidth()
+            .drawBehind {
+                drawRect(color = colorScheme.surface)
+            }
             .padding(horizontal = 8.dp)
     )
 
