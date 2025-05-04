@@ -2,8 +2,6 @@ package org.nsh07.wikireader.ui
 
 import android.os.Build.VERSION.SDK_INT
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -27,6 +25,7 @@ import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SnackbarHost
@@ -105,6 +104,7 @@ fun AppScreen(
     val languageSearchStr by viewModel.languageSearchStr.collectAsState()
     val languageSearchQuery by viewModel.languageSearchQuery.collectAsState("")
     val context = LocalContext.current
+    val motionScheme = motionScheme
     var showArticleLanguageSheet by remember { mutableStateOf(false) }
     var deepLinkHandled by rememberSaveable { mutableStateOf(false) }
 
@@ -179,23 +179,27 @@ fun AppScreen(
         startDestination = Home(),
         enterTransition = {
             slideInHorizontally(
-                initialOffsetX = { it / 8 }
-            ) + fadeIn()
+                initialOffsetX = { it / 8 },
+                animationSpec = motionScheme.defaultSpatialSpec()
+            ) + fadeIn(motionScheme.defaultEffectsSpec())
         },
         exitTransition = {
             slideOutHorizontally(
-                targetOffsetX = { -it / 8 }
-            ) + fadeOut(spring(stiffness = Spring.StiffnessHigh))
+                targetOffsetX = { -it / 8 },
+                animationSpec = motionScheme.fastSpatialSpec()
+            ) + fadeOut(motionScheme.fastEffectsSpec())
         },
         popEnterTransition = {
             slideInHorizontally(
-                initialOffsetX = { -it / 8 }
-            ) + fadeIn()
+                initialOffsetX = { -it / 8 },
+                animationSpec = motionScheme.defaultSpatialSpec()
+            ) + fadeIn(motionScheme.defaultEffectsSpec())
         },
         popExitTransition = {
             slideOutHorizontally(
-                targetOffsetX = { it / 8 }
-            ) + fadeOut(spring(stiffness = Spring.StiffnessHigh))
+                targetOffsetX = { it / 8 },
+                animationSpec = motionScheme.fastSpatialSpec()
+            ) + fadeOut(motionScheme.fastEffectsSpec())
         },
         modifier = modifier.background(MaterialTheme.colorScheme.background)
     ) {

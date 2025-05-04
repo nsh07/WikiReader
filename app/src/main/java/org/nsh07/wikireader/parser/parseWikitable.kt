@@ -80,8 +80,11 @@ fun parseWikitable(
                 // Header cells, can be split by '!!' or on multiple lines
                 val content = line.removePrefix("!")
                 val cells = mutableListOf<AnnotatedString>()
-                if ("!!" in line) {
-                    content.split("!!").forEach {
+                var sep = "!!"
+                val pipeSep = "||" in line
+                if ("!!" in line || pipeSep) {
+                    if (pipeSep) sep = "||"
+                    content.split(sep).forEach {
                         var colspan = 1
                         if (it.contains("colspan")) {
                             colspan = it.substringAfter("colspan=").substringBefore('|')
