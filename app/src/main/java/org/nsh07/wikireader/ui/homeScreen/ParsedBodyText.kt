@@ -27,83 +27,73 @@ fun ParsedBodyText(
     imageLoader: ImageLoader,
     renderMath: Boolean,
     darkTheme: Boolean,
+    dataSaver: Boolean,
     onLinkClick: (String) -> Unit,
     onGalleryImageClick: (String, String) -> Unit
 ) {
-    if (renderMath) {
-        val context = LocalContext.current
-        val dpi = context.resources.displayMetrics.density
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            for (i in 0..body.lastIndex) {
-                if (body[i].startsWith("<math")) {
-                    EquationImage(
-                        context = context,
-                        dpi = dpi,
-                        latex = remember { body[i].toString().substringAfter('>') },
-                        fontSize = fontSize,
-                        darkTheme = darkTheme
-                    )
-                } else if (body[i].startsWith("[[File:")) {
+    val context = LocalContext.current
+    val dpi = context.resources.displayMetrics.density
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        body.forEach {
+            if (it.startsWith("[[File:")) {
+                if (!dataSaver) {
                     ImageWithCaption(
-                        text = body[i].toString(),
+                        text = it.toString(),
                         fontSize = fontSize,
                         imageLoader = imageLoader,
                         onLinkClick = onLinkClick,
                         onClick = onGalleryImageClick,
                         darkTheme = darkTheme
                     )
-                } else if (body[i].startsWith("<gallery")) {
+                }
+            } else if (it.startsWith("<gallery")) {
+                if (!dataSaver) {
                     Gallery(
-                        text = body[i].toString(),
+                        text = it.toString(),
                         fontSize = fontSize,
                         imageLoader = imageLoader,
                         onClick = onGalleryImageClick,
                         onLinkClick = onLinkClick
                     )
-                } else if (body[i].startsWith("{|")) {
-                    AsyncWikitable(
-                        text = body[i].toString(),
+                }
+            } else if (it.startsWith("<math")) {
+                if (renderMath) {
+                    EquationImage(
+                        context = context,
+                        dpi = dpi,
+                        latex = remember { it.toString().substringAfter('>') },
                         fontSize = fontSize,
-                        onLinkClick = onLinkClick
+                        darkTheme = darkTheme
                     )
                 } else {
                     Text(
-                        text = body[i],
-                        style = typography.bodyLarge.copy(hyphens = Hyphens.Auto),
-                        fontSize = fontSize.sp,
-                        fontFamily = fontFamily,
-                        lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                    )
-                }
-            }
-        }
-    } else {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            for (i in 0..body.lastIndex) {
-                if (i % 2 == 0)
-                    Text(
-                        text = body[i],
-                        style = typography.bodyLarge.copy(hyphens = Hyphens.Auto),
-                        fontSize = fontSize.sp,
-                        fontFamily = fontFamily,
-                        lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                    )
-                else
-                    Text(
-                        text = LaTeX2Unicode.convert(body[i].toString())
-                            .replace(' ', nbsp),
+                        text = LaTeX2Unicode.convert(it.toString())
+                            .replace(' ', nbsp).substringAfter('>'),
                         fontFamily = FontFamily.Serif,
                         fontSize = (fontSize + 4).sp,
                         lineHeight = (24 * (fontSize / 16.0) + 4).toInt().sp,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                     )
+                }
+            } else if (it.startsWith("{|")) {
+                AsyncWikitable(
+                    text = it.toString(),
+                    fontSize = fontSize,
+                    onLinkClick = onLinkClick
+                )
+            } else {
+                Text(
+                    text = it,
+                    style = typography.bodyLarge.copy(hyphens = Hyphens.Auto),
+                    fontSize = fontSize.sp,
+                    fontFamily = fontFamily,
+                    lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                )
             }
         }
     }

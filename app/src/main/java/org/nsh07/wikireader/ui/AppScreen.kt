@@ -25,6 +25,7 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBarDefaults
@@ -85,7 +86,7 @@ import org.nsh07.wikireader.ui.settingsScreen.SettingsScreen
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.viewModel.UiViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppScreen(
     viewModel: UiViewModel,
@@ -335,6 +336,7 @@ fun AppScreen(
                     languageSearchStr = languageSearchStr,
                     languageSearchQuery = languageSearchQuery,
                     showLanguageSheet = showArticleLanguageSheet,
+                    onFontSizeChange = viewModel::saveFontSize,
                     onImageClick = {
                         if (homeScreenState.photo != null || homeScreenState.status == WRStatus.FEED_LOADED)
                             navController.navigate(FullScreenImage())

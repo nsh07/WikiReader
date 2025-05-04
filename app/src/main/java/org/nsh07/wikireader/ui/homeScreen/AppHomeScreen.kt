@@ -6,6 +6,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -68,6 +70,7 @@ import org.nsh07.wikireader.ui.theme.isDark
 import org.nsh07.wikireader.ui.viewModel.FeedState
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
+import kotlin.math.round
 
 /**
  * The app home screen composable.
@@ -99,6 +102,7 @@ fun AppHomeScreen(
     languageSearchStr: String,
     languageSearchQuery: String,
     showLanguageSheet: Boolean,
+    onFontSizeChange: (Int) -> Unit,
     onImageClick: () -> Unit,
     onGalleryImageClick: (String, String) -> Unit,
     onLinkClick: (String) -> Unit,
@@ -129,6 +133,9 @@ fun AppHomeScreen(
     }
 
     val pullToRefreshState = rememberPullToRefreshState()
+    val transformableState = rememberTransformableState { zoomChange, _, _ ->
+        onFontSizeChange(round(fontSize * zoomChange).toInt().coerceIn(10, 22))
+    }
 
     var isRefreshing by remember { mutableStateOf(false) }
 
@@ -199,7 +206,9 @@ fun AppHomeScreen(
                     LazyColumn( // The article
                         state = listState,
                         contentPadding = insets,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .transformable(transformableState)
                     ) {
                         item { // Title
                             Row(modifier = Modifier.padding(16.dp)) {
@@ -282,6 +291,7 @@ fun AppHomeScreen(
                                         renderMath = preferencesState.renderMath,
                                         imageLoader = imageLoader,
                                         darkTheme = colorScheme.isDark(),
+                                        dataSaver = preferencesState.dataSaver,
                                         onLinkClick = onLinkClick,
                                         onGalleryImageClick = onGalleryImageClick
                                     )
@@ -301,6 +311,7 @@ fun AppHomeScreen(
                                         imageLoader = imageLoader,
                                         expanded = preferencesState.expandedSections,
                                         darkTheme = colorScheme.isDark(),
+                                        dataSaver = preferencesState.dataSaver,
                                         renderMath = preferencesState.renderMath,
                                         onLinkClick = onLinkClick,
                                         onGalleryImageClick = onGalleryImageClick

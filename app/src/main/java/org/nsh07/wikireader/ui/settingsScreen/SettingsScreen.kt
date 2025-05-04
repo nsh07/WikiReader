@@ -2,6 +2,8 @@ package org.nsh07.wikireader.ui.settingsScreen
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,10 +20,12 @@ import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.OutlinedCard
@@ -60,7 +64,7 @@ import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
 import kotlin.math.round
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsScreen(
     preferencesState: PreferencesState,
@@ -122,7 +126,13 @@ fun SettingsScreen(
     val (showThemeDialog, setShowThemeDialog) = remember { mutableStateOf(false) }
     val (showColorSchemeDialog, setShowColorSchemeDialog) = remember { mutableStateOf(false) }
     val (showLanguageSheet, setShowLanguageSheet) = remember { mutableStateOf(false) }
+    var animateFontSize by remember { mutableStateOf(false) }
     var fontSizeFloat by remember { mutableFloatStateOf(preferencesState.fontSize.toFloat()) }
+    val fontSizeAnimated by animateFloatAsState(
+        fontSizeFloat,
+        animationSpec = if (animateFontSize) motionScheme.defaultSpatialSpec()
+        else tween(durationMillis = 0)
+    )
 
     if (showThemeDialog)
         ThemeDialog(
@@ -259,12 +269,16 @@ fun SettingsScreen(
                             Column {
                                 Text(round(fontSizeFloat).toInt().toString())
                                 Slider(
-                                    value = fontSizeFloat,
-                                    onValueChange = { fontSizeFloat = it },
+                                    value = fontSizeAnimated,
+                                    onValueChange = {
+                                        animateFontSize = false
+                                        fontSizeFloat = it
+                                    },
                                     valueRange = 10f..22f,
-                                    steps = 5,
                                     onValueChangeFinished = {
+                                        animateFontSize = true
                                         saveFontSize(round(fontSizeFloat).toInt())
+                                        fontSizeFloat = round(fontSizeFloat)
                                     }
                                 )
                             }

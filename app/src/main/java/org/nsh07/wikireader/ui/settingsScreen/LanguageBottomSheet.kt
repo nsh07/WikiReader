@@ -3,12 +3,8 @@ package org.nsh07.wikireader.ui.settingsScreen
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -32,7 +28,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -58,9 +53,7 @@ fun LanguageBottomSheet(
     var selectedOption by remember { mutableStateOf(langCodeToName(lang)) }
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
-    val bottomSheetState =
-        rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val insets = WindowInsets.safeDrawing.asPaddingValues()
+    val bottomSheetState = rememberModalBottomSheetState()
 
     ModalBottomSheet(
         onDismissRequest = {
@@ -68,13 +61,7 @@ fun LanguageBottomSheet(
             setSearchStr("")
         },
         sheetState = bottomSheetState,
-        contentWindowInsets = {
-            WindowInsets(
-                left = insets.calculateLeftPadding(LocalLayoutDirection.current),
-                right = insets.calculateRightPadding(LocalLayoutDirection.current)
-            )
-        },
-        modifier = modifier.padding(top = insets.calculateTopPadding())
+        modifier = modifier
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
@@ -127,7 +114,6 @@ fun LanguageBottomSheet(
                                 })
                         )
                 }
-                item { Spacer(Modifier.height(insets.calculateBottomPadding())) }
             }
             Spacer(Modifier.weight(1f))
         }
