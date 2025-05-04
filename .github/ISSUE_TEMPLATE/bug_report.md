@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Create a report to help improve this app
 title: "[BUG] Enter your title here"
 labels: bug
 assignees: nsh07
