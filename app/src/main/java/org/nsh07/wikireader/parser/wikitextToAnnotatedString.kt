@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.withLink
@@ -71,7 +72,7 @@ fun String.toWikitextAnnotatedString(
                         val curr = currSubstring.substringBefore("</nowiki>").substringAfter('>')
                         append(curr)
                         i += 8 + curr.length + 8
-                    } else if (currSubstring.startsWith("<br")) {
+                    } else if (currSubstring.startsWith("<br", ignoreCase = true)) {
                         append('\n')
                         i += currSubstring.substringBefore('>').length
                     } else if (currSubstring.startsWith("<u>")) {
@@ -101,6 +102,9 @@ fun String.toWikitextAnnotatedString(
                             )
                         )
                         i += divTag.length + 1 + curr.length + 5
+                    } else if (currSubstring.startsWith("<section")) {
+                        val curr = currSubstring.substringBefore('>')
+                        i += curr.length
                     } else if (currSubstring.startsWith("<noinclude>")) {
                         val curr = currSubstring.substringBefore("</noinclude>").substringAfter('>')
                         append(
@@ -578,7 +582,14 @@ fun String.toWikitextAnnotatedString(
                                 input.substring(i + bulletCount + 1).substringBefore('\n')
                             } else input.substring(i + bulletCount).substringBefore('\n')
                         withStyle(
-                            ParagraphStyle(textIndent = TextIndent(restLine = (12 * bulletCount).sp))
+                            ParagraphStyle(
+                                textIndent = TextIndent(restLine = (12 * bulletCount).sp),
+                                lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
+                                lineHeightStyle = LineHeightStyle(
+                                    alignment = LineHeightStyle.Alignment.Center,
+                                    trim = LineHeightStyle.Trim.None
+                                )
+                            )
                         ) {
                             append("\t\t".repeat(bulletCount - 1))
                             append(bullet)

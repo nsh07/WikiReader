@@ -4,6 +4,7 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.AnnotatedString
 import kotlin.math.max
+import kotlin.text.Typography.mdash
 
 fun parseWikitable(
     table: String, colorScheme: ColorScheme,
@@ -14,11 +15,12 @@ fun parseWikitable(
     val rows = mutableListOf<MutableList<AnnotatedString>>()
     var caption = AnnotatedString("")
     val lines = table.lines().map { it.trim() }.filter { it.isNotEmpty() }
-    val styling = "class=|align=|scope=|style=|rowspan=|colspan=|width=|nowrap".toRegex()
+    val styling = "class=|align=|scope=|style=|rowspan=|colspan=|width=|nowrap|data-sort".toRegex()
 
     var currentRow = mutableListOf<AnnotatedString>()
     val rowSpan = mutableMapOf<Int, Int>()
     var maxSize = 0
+    var lastNestedTableEnd = 2
     var insideTable = false
 
     for (line in lines) {
@@ -33,7 +35,17 @@ fun parseWikitable(
         when {
             line.startsWith("{|") -> {
                 // Table begin
-                insideTable = true
+                if (!insideTable) insideTable = true
+                else {
+                    currentRow[currentRow.lastIndex] += AnnotatedString(
+                        table.substringMatchingParen(
+                            '{',
+                            '}',
+                            table.indexOf("{|", lastNestedTableEnd)
+                        )
+                    )
+                    lastNestedTableEnd = table.indexOf("|}", lastNestedTableEnd)
+                }
             }
 
             line.startsWith("|+") -> {
@@ -59,7 +71,7 @@ fun parseWikitable(
                 // Row delimiter
                 if (currentRow.isNotEmpty()) {
                     rows.add(currentRow)
-                    maxSize = max(currentRow.size, maxSize)
+                    maxSize = max(currentRow.size, maxSize) // Keep track of max row size
                     currentRow = mutableListOf()
                 }
             }
@@ -89,7 +101,7 @@ fun parseWikitable(
                         }
 
                         cells.add(
-                            ("'''$curr'''").trim()
+                            ("'''${curr.trim()}'''")
                                 .toWikitextAnnotatedString(
                                     colorScheme,
                                     typography,
@@ -113,7 +125,7 @@ fun parseWikitable(
                             content.substringAfter('|')
                         } else content
 
-                    if (content.contains("rowspan")) { // Read rowspan count of cell
+                    if (content.contains("rowspan")) { // Store rowspan count of cell
                         rowSpan[currentRow.size] =
                             content.substringAfter("rowspan=").substringBefore('|')
                                 .substringBefore(' ').trim('"')
@@ -121,7 +133,7 @@ fun parseWikitable(
                     }
 
                     cells.add(
-                        ("'''$curr'''").trim()
+                        ("'''${curr.trim()}'''")
                             .toWikitextAnnotatedString(
                                 colorScheme,
                                 typography,
@@ -160,15 +172,19 @@ fun parseWikitable(
                                     .toIntOrNull() ?: 1
                         }
 
-                        cells.add(
-                            curr.trim()
-                                .toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize
-                                )
-                        )
+                        if (it.contains("{{n/a}}", ignoreCase = true)) {
+                            cells.add(AnnotatedString("$mdash"))
+                        } else {
+                            cells.add(
+                                curr.trim()
+                                    .toWikitextAnnotatedString(
+                                        colorScheme,
+                                        typography,
+                                        loadPage,
+                                        fontSize
+                                    )
+                            )
+                        }
                         repeat(colspan - 1) {
                             cells.add(AnnotatedString(""))
                         }
@@ -192,15 +208,19 @@ fun parseWikitable(
                                 .toIntOrNull() ?: 1
                     }
 
-                    cells.add(
-                        curr.trim()
-                            .toWikitextAnnotatedString(
-                                colorScheme,
-                                typography,
-                                loadPage,
-                                fontSize
-                            )
-                    )
+                    if (content.contains("{{n/a}}", ignoreCase = true)) {
+                        cells.add(AnnotatedString("$mdash"))
+                    } else {
+                        cells.add(
+                            curr.trim()
+                                .toWikitextAnnotatedString(
+                                    colorScheme,
+                                    typography,
+                                    loadPage,
+                                    fontSize
+                                )
+                        )
+                    }
                     repeat(colspan - 1) {
                         cells.add(AnnotatedString(""))
                     }
@@ -212,8 +232,9 @@ fun parseWikitable(
                 // Possibly a continuation of a multi-line cell?
                 if (insideTable) {
                     val lastIndex = currentRow.lastIndex
-                    currentRow[lastIndex] += line.trim()
-                        .toWikitextAnnotatedString(colorScheme, typography, loadPage, fontSize)
+                    if (lastIndex != -1)
+                        currentRow[lastIndex] += line.trim()
+                            .toWikitextAnnotatedString(colorScheme, typography, loadPage, fontSize)
                 }
             }
         }
