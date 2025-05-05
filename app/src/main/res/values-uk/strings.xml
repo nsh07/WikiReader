@@ -105,4 +105,6 @@
     <string name="translate">Перекласти</string>
     <string name="translateDesc">Допоможіть перекласти WikiReader вашою мовою</string>
     <string name="imageCounter">Зображення %1$s з %2$s</string>
+    <string name="settingImageBackground">Фонове зображення</string>
+    <string name="settingImageBackgroundDesc">Додайте білий фон до прозорих зображень. Фон може покращити читабельність у темному режимі.</string>
 </resources>
