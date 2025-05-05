@@ -38,6 +38,7 @@ import org.nsh07.wikireader.ui.image.FeedImage
 fun Gallery(
     text: String,
     fontSize: Int,
+    background: Boolean,
     imageLoader: ImageLoader,
     onLinkClick: (String) -> Unit,
     onClick: (String, String) -> Unit
@@ -74,6 +75,7 @@ fun Gallery(
                 description = description,
                 imageLoader = imageLoader,
                 loadingIndicator = false,
+                background = background,
                 modifier = Modifier
                     .clip(shapes.large)
                     .clickable(onClick = { onClick(uriHigh, description) })

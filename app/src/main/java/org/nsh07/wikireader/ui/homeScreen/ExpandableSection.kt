@@ -48,6 +48,7 @@ fun ExpandableSection(
     renderMath: Boolean,
     darkTheme: Boolean,
     dataSaver: Boolean,
+    imageBackground: Boolean,
     modifier: Modifier = Modifier,
     onLinkClick: (String) -> Unit,
     onGalleryImageClick: (String, String) -> Unit
@@ -109,6 +110,7 @@ fun ExpandableSection(
                 imageLoader = imageLoader,
                 darkTheme = darkTheme,
                 dataSaver = dataSaver,
+                background = imageBackground,
                 onLinkClick = onLinkClick,
                 onGalleryImageClick = onGalleryImageClick
             )
@@ -129,6 +131,7 @@ fun ExpandableSectionPreview() {
             expanded = false,
             renderMath = true,
             darkTheme = false,
+            false,
             false,
             onLinkClick = {}
         ) { a, b -> }

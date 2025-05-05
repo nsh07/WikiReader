@@ -85,6 +85,7 @@ fun SettingsScreen(
     saveBlackTheme: (Boolean) -> Unit,
     saveDataSaver: (Boolean) -> Unit,
     saveExpandedSections: (Boolean) -> Unit,
+    saveImageBackground: (Boolean) -> Unit,
     saveImmersiveMode: (Boolean) -> Unit,
     saveRenderMath: (Boolean) -> Unit,
     saveSearchHistory: (Boolean) -> Unit,
@@ -111,6 +112,7 @@ fun SettingsScreen(
 
     var blackTheme by remember { mutableStateOf(preferencesState.blackTheme) }
     var expandedSections by remember { mutableStateOf(preferencesState.expandedSections) }
+    var imageBackground by remember { mutableStateOf(preferencesState.imageBackground) }
     var immersiveMode by remember { mutableStateOf(preferencesState.immersiveMode) }
     var dataSaver by remember { mutableStateOf(preferencesState.dataSaver) }
     var renderMath by remember { mutableStateOf(preferencesState.renderMath) }
@@ -394,6 +396,36 @@ fun SettingsScreen(
                                 },
                                 thumbContent = {
                                     if (immersiveMode) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Check,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    )
+                }
+                item {
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                painterResource(R.drawable.texture),
+                                contentDescription = null
+                            )
+                        },
+                        headlineContent = { Text(stringResource(string.settingImageBackground)) },
+                        supportingContent = { Text(stringResource(string.settingImageBackgroundDesc)) },
+                        trailingContent = {
+                            Switch(
+                                checked = imageBackground,
+                                onCheckedChange = {
+                                    imageBackground = it
+                                    saveImageBackground(it)
+                                },
+                                thumbContent = {
+                                    if (imageBackground) {
                                         Icon(
                                             imageVector = Icons.Outlined.Check,
                                             contentDescription = null,

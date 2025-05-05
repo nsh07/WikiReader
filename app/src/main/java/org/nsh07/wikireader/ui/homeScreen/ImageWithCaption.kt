@@ -26,18 +26,19 @@ fun ImageWithCaption(
     text: String,
     fontSize: Int,
     darkTheme: Boolean,
+    background: Boolean,
     imageLoader: ImageLoader,
     onLinkClick: (String) -> Unit,
     onClick: (String, String) -> Unit
 ) {
     val uriLow = remember(text) {
         "https://commons.wikimedia.org/wiki/Special:FilePath/${
-            text.substringAfter(':').substringBefore('|')
+            text.substringAfter(':').substringBefore('|').substringBefore("]]")
         }?width=720"
     }
     val uriHigh = remember(text) {
         "https://commons.wikimedia.org/wiki/Special:FilePath/${
-            text.substringAfter(':').substringBefore('|')
+            text.substringAfter(':').substringBefore('|').substringBefore("]]")
         }"
     }
     val description = remember(text) { text.substringAfter('|', "").substringBefore('|') }
@@ -48,12 +49,13 @@ fun ImageWithCaption(
         description = description,
         imageLoader = imageLoader,
         loadingIndicator = false,
-        colorFilter = if (invert && darkTheme) // Invert colors in dark theme
+        colorFilter = if (invert && darkTheme && !background) // Invert colors in dark theme
             PorterDuffColorFilter(
                 0xffffffff.toInt(),
                 PorterDuff.Mode.SRC_IN
             ).asComposeColorFilter()
         else null,
+        background = background,
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .padding(top = 8.dp)

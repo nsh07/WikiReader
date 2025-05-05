@@ -1,6 +1,7 @@
 package org.nsh07.wikireader.ui.image
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +16,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -37,6 +39,7 @@ fun FeedImage(
     height: Int? = null,
     imageLoader: ImageLoader,
     loadingIndicator: Boolean,
+    background: Boolean,
     colorFilter: ColorFilter? = null,
     contentScale: ContentScale = ContentScale.Crop
 ) {
@@ -63,9 +66,11 @@ fun FeedImage(
                     modifier
                         .fillMaxWidth()
                         .aspectRatio(width.toFloat() / height.toFloat())
+                        .background(if (background) Color.White else Color.Transparent)
                 else
                     modifier
                         .fillMaxSize()
+                        .background(if (background) Color.White else Color.Transparent)
         )
     } else if (painterState is AsyncImagePainter.State.Loading) {
         Box(

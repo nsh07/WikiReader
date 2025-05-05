@@ -1,13 +1,13 @@
 package org.nsh07.wikireader.ui.image
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,21 +16,22 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
-import coil3.compose.SubcomposeAsyncImage
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
 
 /**
  * Composable for displaying a Wikipedia image with its associated text
  *
- * Displays a [SubcomposeAsyncImage] composable with a [androidx.compose.material3.CircularWavyProgressIndicator] while the image is
- * loading, with the image title and description at the bottom of a card.
+ * Displays an [androidx.compose.foundation.Image] composable fetched from a URI with a
+ * [androidx.compose.material3.CircularWavyProgressIndicator] while the image is loading, with the
+ * image title and description at the bottom of a card.
  *
  * @param photo A (nullable) WikiPhoto object. The image url and aspect ratio are provided by this
  * object
  * @param photoDesc A WikiPhotoDesc object that provides the image title and description
  */
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ImageCard(
     photo: WikiPhoto?,
@@ -38,6 +39,7 @@ fun ImageCard(
     title: String,
     imageLoader: ImageLoader,
     showPhoto: Boolean,
+    background: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -53,7 +55,7 @@ fun ImageCard(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .animateContentSize(tween(easing = FastOutSlowInEasing))
+                .animateContentSize(motionScheme.defaultSpatialSpec())
         ) {
             if (photo != null && showPhoto) {
                 PageImage(
@@ -61,6 +63,7 @@ fun ImageCard(
                     photoDesc = photoDesc,
                     contentScale = ContentScale.Crop,
                     imageLoader = imageLoader,
+                    background = background,
                     modifier = Modifier.fillMaxWidth()
                 )
             }

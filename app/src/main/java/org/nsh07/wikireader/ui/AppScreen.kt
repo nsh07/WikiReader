@@ -415,6 +415,7 @@ fun AppScreen(
                         photoDesc = homeScreenState.photoDesc,
                         title = homeScreenState.title,
                         imageLoader = imageLoader,
+                        background = preferencesState.imageBackground,
                         link = homeScreenState.photo?.source,
                         onBack = navController::navigateUp
                     )
@@ -434,6 +435,7 @@ fun AppScreen(
                         title = feedState.image?.title ?: "",
                         imageLoader = imageLoader,
                         link = feedState.image?.filePage,
+                        background = preferencesState.imageBackground,
                         onBack = navController::navigateUp
                     )
                 }
@@ -443,6 +445,7 @@ fun AppScreen(
                     description = description ?: "",
                     imageLoader = imageLoader,
                     link = uri,
+                    background = preferencesState.imageBackground,
                     onBack = navController::navigateUp
                 )
             }
@@ -487,6 +490,7 @@ fun AppScreen(
                 saveBlackTheme = viewModel::saveBlackTheme,
                 saveDataSaver = viewModel::saveDataSaver,
                 saveExpandedSections = viewModel::saveExpandedSections,
+                saveImageBackground = viewModel::saveImageBackground,
                 saveImmersiveMode = viewModel::saveImmersiveMode,
                 saveRenderMath = viewModel::saveRenderMath,
                 saveSearchHistory = viewModel::saveSearchHistory,

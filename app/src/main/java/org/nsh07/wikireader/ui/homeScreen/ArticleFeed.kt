@@ -87,6 +87,7 @@ fun ArticleFeed(
     insets: PaddingValues,
     listState: LazyListState,
     windowSizeClass: WindowSizeClass,
+    imageBackground: Boolean,
     loadPage: (String) -> Unit,
     refreshFeed: () -> Unit,
     onImageClick: () -> Unit,
@@ -167,6 +168,7 @@ fun ArticleFeed(
                             width = feedState.tfa.originalImage?.width ?: 1,
                             height = feedState.tfa.originalImage?.height ?: 1,
                             imageLoader = imageLoader,
+                            background = imageBackground,
                             loadingIndicator = false
                         )
                         Text(
@@ -283,6 +285,7 @@ fun ArticleFeed(
                                                 description = feedState.mostReadArticles[i].titles?.normalized,
                                                 imageLoader = imageLoader,
                                                 loadingIndicator = true,
+                                                background = imageBackground,
                                                 modifier = Modifier
                                                     .padding(16.dp)
                                                     .clip(shapes.large)
@@ -360,6 +363,7 @@ fun ArticleFeed(
                             width = feedState.image.image?.width ?: 1,
                             height = feedState.image.image?.height ?: 1,
                             imageLoader = imageLoader,
+                            background = imageBackground,
                             loadingIndicator = false
                         )
                         Text(
@@ -411,6 +415,7 @@ fun ArticleFeed(
                                 description = null,
                                 imageLoader = imageLoader,
                                 loadingIndicator = false,
+                                background = imageBackground,
                                 modifier = Modifier
                                     .maskClip(shapes.extraLarge)
                             )
@@ -520,6 +525,7 @@ fun ArticleFeed(
                                     description = null,
                                     imageLoader = imageLoader,
                                     loadingIndicator = false,
+                                    background = imageBackground,
                                     modifier = Modifier
                                         .maskClip(shapes.extraLarge)
                                 )

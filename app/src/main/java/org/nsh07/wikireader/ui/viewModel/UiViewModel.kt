@@ -129,6 +129,9 @@ class UiViewModel(
                 appPreferencesRepository.readBooleanPreference("expanded-sections")
                     ?: appPreferencesRepository.saveBooleanPreference("expanded-sections", false)
 
+            val imageBackground = appPreferencesRepository.readBooleanPreference("image-background")
+                ?: appPreferencesRepository.saveBooleanPreference("image-background", false)
+
             val immersiveMode = appPreferencesRepository.readBooleanPreference("immersive-mode")
                 ?: appPreferencesRepository.saveBooleanPreference("immersive-mode", false)
 
@@ -146,6 +149,7 @@ class UiViewModel(
                     expandedSections = expandedSections,
                     fontSize = fontSize,
                     fontStyle = fontStyle,
+                    imageBackground = imageBackground,
                     immersiveMode = immersiveMode,
                     lang = lang,
                     renderMath = renderMath,
@@ -1015,7 +1019,7 @@ class UiViewModel(
                                 }
                             )
                             curr = ""
-                            i += currSubstring.length
+                            i += currSubstring.length - 1
                         } else
                             curr += parsed[i]
                     } else {
@@ -1187,6 +1191,15 @@ class UiViewModel(
             appPreferencesRepository.saveBooleanPreference("data-saver", dataSaver)
             _preferencesState.update { currentState ->
                 currentState.copy(dataSaver = dataSaver)
+            }
+        }
+    }
+
+    fun saveImageBackground(imageBackground: Boolean) {
+        viewModelScope.launch {
+            appPreferencesRepository.saveBooleanPreference("image-background", imageBackground)
+            _preferencesState.update { currentState ->
+                currentState.copy(imageBackground = imageBackground)
             }
         }
     }

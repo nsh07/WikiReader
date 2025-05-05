@@ -42,6 +42,7 @@ fun FullScreenImage(
     photo: WikiPhoto?,
     photoDesc: WikiPhotoDesc?,
     title: String,
+    background: Boolean,
     imageLoader: ImageLoader,
     modifier: Modifier = Modifier,
     link: String? = null,
@@ -104,12 +105,13 @@ fun FullScreenImage(
         val coroutineScope = rememberCoroutineScope()
 
         if (photo != null && photoDesc != null)
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                 PageImage(
                     photo = photo,
                     photoDesc = photoDesc,
                     imageLoader = imageLoader,
                     contentScale = ContentScale.Inside,
+                    background = background,
                     modifier = Modifier
                         .onSizeChanged { size = it }
                         .graphicsLayer(
@@ -119,7 +121,6 @@ fun FullScreenImage(
                             translationY = offset.y
                         )
                         .transformable(state = state)
-                        .align(Alignment.Center)
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onTap = {
@@ -148,6 +149,7 @@ fun FullScreenImage(
     imageLoader: ImageLoader,
     modifier: Modifier = Modifier,
     link: String? = null,
+    background: Boolean,
     onBack: () -> Unit,
 ) {
     var currentLightStatusBars = true
@@ -205,12 +207,13 @@ fun FullScreenImage(
 
         val coroutineScope = rememberCoroutineScope()
 
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
             PageImage(
                 uri = uri,
                 description = description,
                 imageLoader = imageLoader,
                 contentScale = ContentScale.Inside,
+                background = background,
                 modifier = Modifier
                     .onSizeChanged { size = it }
                     .graphicsLayer(
@@ -220,7 +223,6 @@ fun FullScreenImage(
                         translationY = offset.y
                     )
                     .transformable(state = state)
-                    .align(Alignment.Center)
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onTap = {

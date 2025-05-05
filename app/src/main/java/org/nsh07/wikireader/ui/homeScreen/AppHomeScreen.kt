@@ -277,6 +277,7 @@ fun AppHomeScreen(
                                     imageLoader = imageLoader,
                                     showPhoto = !preferencesState.dataSaver,
                                     onClick = onImageClick,
+                                    background = preferencesState.imageBackground,
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
                             }
@@ -292,6 +293,7 @@ fun AppHomeScreen(
                                         imageLoader = imageLoader,
                                         darkTheme = colorScheme.isDark(),
                                         dataSaver = preferencesState.dataSaver,
+                                        background = preferencesState.imageBackground,
                                         onLinkClick = onLinkClick,
                                         onGalleryImageClick = onGalleryImageClick
                                     )
@@ -313,6 +315,7 @@ fun AppHomeScreen(
                                         darkTheme = colorScheme.isDark(),
                                         dataSaver = preferencesState.dataSaver,
                                         renderMath = preferencesState.renderMath,
+                                        imageBackground = preferencesState.imageBackground,
                                         onLinkClick = onLinkClick,
                                         onGalleryImageClick = onGalleryImageClick
                                     )
@@ -353,6 +356,7 @@ fun AppHomeScreen(
                     onImageClick = onImageClick,
                     listState = feedListState,
                     windowSizeClass = windowSizeClass,
+                    imageBackground = preferencesState.imageBackground,
                     modifier = Modifier.weight(4f)
                 )
                 if (weight != 0f) Spacer(modifier = Modifier.weight(weight))

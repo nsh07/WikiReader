@@ -330,6 +330,7 @@ fun AppSearchBar(
                                                 imageLoader = imageLoader,
                                                 contentScale = ContentScale.Crop,
                                                 loadingIndicator = true,
+                                                background = preferencesState.imageBackground,
                                                 modifier = Modifier
                                                     .padding(vertical = 4.dp)
                                                     .size(56.dp)
@@ -393,6 +394,7 @@ fun AppSearchBar(
                                                 imageLoader = imageLoader,
                                                 contentScale = ContentScale.Crop,
                                                 loadingIndicator = true,
+                                                background = preferencesState.imageBackground,
                                                 modifier = Modifier
                                                     .padding(vertical = 4.dp)
                                                     .size(56.dp)
@@ -460,6 +462,7 @@ fun AppSearchBar(
                                                 imageLoader = imageLoader,
                                                 contentScale = ContentScale.Crop,
                                                 loadingIndicator = true,
+                                                background = preferencesState.imageBackground,
                                                 modifier = Modifier
                                                     .padding(vertical = 4.dp)
                                                     .size(56.dp)
@@ -529,6 +532,7 @@ fun AppSearchBar(
                                                 imageLoader = imageLoader,
                                                 contentScale = ContentScale.Crop,
                                                 loadingIndicator = true,
+                                                background = preferencesState.imageBackground,
                                                 modifier = Modifier
                                                     .padding(vertical = 4.dp)
                                                     .size(56.dp)

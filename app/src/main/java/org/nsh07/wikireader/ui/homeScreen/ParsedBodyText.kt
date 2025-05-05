@@ -25,6 +25,7 @@ fun ParsedBodyText(
     fontSize: Int,
     fontFamily: FontFamily,
     imageLoader: ImageLoader,
+    background: Boolean,
     renderMath: Boolean,
     darkTheme: Boolean,
     dataSaver: Boolean,
@@ -44,7 +45,8 @@ fun ParsedBodyText(
                         imageLoader = imageLoader,
                         onLinkClick = onLinkClick,
                         onClick = onGalleryImageClick,
-                        darkTheme = darkTheme
+                        darkTheme = darkTheme,
+                        background = background
                     )
                 }
             } else if (it.startsWith("<gallery")) {
@@ -54,7 +56,8 @@ fun ParsedBodyText(
                         fontSize = fontSize,
                         imageLoader = imageLoader,
                         onClick = onGalleryImageClick,
-                        onLinkClick = onLinkClick
+                        onLinkClick = onLinkClick,
+                        background = background
                     )
                 }
             } else if (it.startsWith("<math")) {

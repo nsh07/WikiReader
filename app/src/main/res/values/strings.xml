@@ -104,4 +104,6 @@
     <string name="wikipediaWebsiteDesc">Visit the Wikipedia website</string>
     <string name="wikipedia_logo">Wikipedia\'s Logo</string>
     <string name="imageCounter">Image %1$s of %2$s</string>
+    <string name="settingImageBackground">Image background</string>
+    <string name="settingImageBackgroundDesc">Add a white background to transparent images. The background can help increase readability in dark mode.</string>
 </resources>
