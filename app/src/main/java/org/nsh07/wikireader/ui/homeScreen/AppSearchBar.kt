@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -27,15 +25,9 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material3.ExpandedFullScreenSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -51,7 +43,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopSearchBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -95,15 +86,12 @@ fun AppSearchBar(
     setQuery: (String) -> Unit,
     removeHistoryItem: (String) -> Unit,
     clearHistory: () -> Unit,
-    onSavedArticlesClick: ((Boolean) -> Unit) -> Unit,
-    onSettingsClick: ((Boolean) -> Unit) -> Unit,
-    onAboutClick: ((Boolean) -> Unit) -> Unit,
+    onMenuIconClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = appSearchBarState.focusRequester
     val haptic = LocalHapticFeedback.current
     val colorScheme = colorScheme
-    val (dropdownExpanded, setDropdownExpanded) = remember { mutableStateOf(false) }
     val history = appSearchBarState.history.toList()
     val size = history.size
     val weight = remember {
@@ -124,72 +112,25 @@ fun AppSearchBar(
                 onSearch = loadSearch,
                 placeholder = { Text(stringResource(R.string.searchWikipedia)) },
                 leadingIcon = {
-                    Icon(
-                        Icons.Outlined.Search,
-                        contentDescription = stringResource(R.string.search)
-                    )
+                    IconButton(onClick = onMenuIconClicked) {
+                        Icon(
+                            Icons.Outlined.Menu,
+                            contentDescription = stringResource(R.string.moreOptions)
+                        )
+                    }
                 },
                 trailingIcon = {
-                    Row {
-                        if (textFieldState.text != "") {
-                            IconButton(
-                                onClick = {
-                                    setQuery("")
-                                    focusRequester.requestFocus()
-                                }
-                            ) {
-                                Icon(
-                                    Icons.Outlined.Clear,
-                                    contentDescription = stringResource(R.string.clearSearchField)
-                                )
+                    if (textFieldState.text != "") {
+                        IconButton(
+                            onClick = {
+                                setQuery("")
+                                focusRequester.requestFocus()
                             }
-                        }
-                        Column {
-                            IconButton(onClick = { setDropdownExpanded(!dropdownExpanded) }) {
-                                Icon(
-                                    Icons.Outlined.MoreVert,
-                                    contentDescription = stringResource(R.string.moreOptions)
-                                )
-                            }
-                            DropdownMenu(
-                                expanded = dropdownExpanded,
-                                onDismissRequest = { setDropdownExpanded(false) }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.savedArticles)) },
-                                    onClick = { onSavedArticlesClick(setDropdownExpanded) },
-                                    leadingIcon = {
-                                        Icon(
-                                            painterResource(R.drawable.download_done),
-                                            contentDescription = null
-                                        )
-                                    },
-                                    modifier = Modifier.width(200.dp)
-                                )
-                                HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.settings)) },
-                                    onClick = { onSettingsClick(setDropdownExpanded) },
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Outlined.Settings,
-                                            contentDescription = null
-                                        )
-                                    },
-                                    modifier = Modifier.width(200.dp)
-                                )
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.about)) },
-                                    onClick = { onAboutClick(setDropdownExpanded) },
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Outlined.Info,
-                                            contentDescription = null
-                                        )
-                                    },
-                                    modifier = Modifier.width(200.dp)
-                                )
-                            }
+                        ) {
+                            Icon(
+                                Icons.Outlined.Clear,
+                                contentDescription = stringResource(R.string.clearSearchField)
+                            )
                         }
                     }
                 },
