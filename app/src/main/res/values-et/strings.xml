@@ -107,4 +107,7 @@
     <string name="setAsDefaultDesc">Sa võid VikiLugeja määrata Vikipeedia linkide vaikimise avajaks. Lisateavet leiad allpooltoodud nupust ja seadistustest saad seda siis muuta.</string>
     <string name="settingImageBackground">Pildi taust</string>
     <string name="settingImageBackgroundDesc">Lisa läbipaistvatele piltidele valge taust. Muu hulgas parandab see loetavust tumedas kujunduses.</string>
+    <string name="app">Rakendus</string>
+    <string name="home">Avaleht</string>
+    <string name="sections">Lõigud</string>
 </resources>
