@@ -106,4 +106,7 @@
     <string name="imageCounter">Image %1$s of %2$s</string>
     <string name="settingImageBackground">Image background</string>
     <string name="settingImageBackgroundDesc">Add a white background to transparent images. The background can help increase readability in dark mode.</string>
+    <string name="app">App</string>
+    <string name="home">Home</string>
+    <string name="sections">Sections</string>
 </resources>

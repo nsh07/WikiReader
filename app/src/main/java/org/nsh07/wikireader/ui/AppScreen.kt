@@ -186,7 +186,9 @@ fun AppScreen(
         drawerContent = {
             AppNavigationDrawer(
                 drawerState,
+                status = homeScreenState.status,
                 onAboutClick = { navController.navigate(About) },
+                onHomeClick = { navController.navigate(Home()) },
                 onSavedArticlesClick = { navController.navigate(SavedArticles) },
                 onSettingsClick = { navController.navigate(Settings) },
                 hasRoute = { navBackStackEntry?.destination?.hasRoute(it) == true }
