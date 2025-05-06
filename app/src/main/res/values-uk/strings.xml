@@ -107,4 +107,7 @@
     <string name="imageCounter">Зображення %1$s з %2$s</string>
     <string name="settingImageBackground">Фонове зображення</string>
     <string name="settingImageBackgroundDesc">Додайте білий фон до прозорих зображень. Фон може покращити читабельність у темному режимі.</string>
+    <string name="home">Дім</string>
+    <string name="app">Додаток</string>
+    <string name="sections">Розділи</string>
 </resources>
