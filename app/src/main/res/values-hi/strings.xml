@@ -107,4 +107,7 @@
     <string name="imageCounter">छवि %2$s में से %1$s</string>
     <string name="settingImageBackgroundDesc">पारदर्शी छवियों में एक सफेद पृष्ठभूमि जोड़ें। पृष्ठभूमि काले मोड में पठनीयता बढ़ाने में मदद कर सकती है।</string>
     <string name="settingImageBackground">छवि पृष्ठभूमि</string>
+    <string name="app">ऐप</string>
+    <string name="home">होम</string>
+    <string name="sections">अनुभाग</string>
 </resources>
