@@ -508,7 +508,6 @@ fun AppScreen(
             composable<SavedArticles> {
                 SavedArticlesScreen(
                     savedArticlesState = savedArticlesState,
-                    windowSizeClass = windowSizeClass,
                     openSavedArticle = {
                         coroutineScope.launch {
                             navController.navigateUp()
@@ -556,10 +555,7 @@ fun AppScreen(
             }
 
             composable<About> {
-                AboutScreen(
-                    windowSizeClass = windowSizeClass,
-                    onBack = navController::navigateUp
-                )
+                AboutScreen(onBack = navController::navigateUp)
             }
         }
     }

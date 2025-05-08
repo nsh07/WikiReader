@@ -8,7 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -172,11 +171,8 @@ fun SettingsScreen(
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { insets ->
-        Row {
-            if (weight != 0f) Spacer(Modifier.weight(weight))
             LazyColumn(
-                contentPadding = insets,
-                modifier = Modifier.weight(4f)
+                contentPadding = insets
             ) {
                 item {
                     ListItem(
@@ -249,7 +245,7 @@ fun SettingsScreen(
                                         selected = label == fontStyleMap[fontStyle],
                                         label = { Text(label) },
                                         modifier = if (weight != 0f) Modifier.width(160.dp)
-                                        else Modifier.width(512.dp)
+                                        else Modifier.width(256.dp)
                                     )
                                 }
                             }
@@ -544,7 +540,5 @@ fun SettingsScreen(
                     }
                 }
             }
-            if (weight != 0f) Spacer(Modifier.weight(weight))
-        }
     }
 }

@@ -43,8 +43,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.window.core.layout.WindowSizeClass
-import androidx.window.core.layout.WindowWidthSizeClass
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WRStatus
@@ -59,7 +57,6 @@ import org.nsh07.wikireader.ui.viewModel.SavedArticlesState
 @Composable
 fun SavedArticlesScreen(
     savedArticlesState: SavedArticlesState,
-    windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
     deleteAll: () -> WRStatus,
     onBack: () -> Unit,
@@ -76,12 +73,6 @@ fun SavedArticlesScreen(
         savedArticlesState.languageFilters.filter { it.selected }.map { it.langCode }
     if (selectedLangs.isEmpty()) selectedLangs =
         savedArticlesState.languageFilters.map { it.langCode }
-
-    val weight = remember {
-        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM)
-            1f
-        else 0f
-    }
 
     if (showArticleDeleteDialog)
         DeleteArticleDialog(
@@ -100,101 +91,96 @@ fun SavedArticlesScreen(
             .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { insets ->
         if (savedArticlesState.savedArticles.isNotEmpty())
-            Row {
-                if (weight != 0f) Spacer(Modifier.weight(weight))
-                LazyColumn(
-                    contentPadding = insets,
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(4f)
-                ) {
-                    item {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                stringResource(
-                                    R.string.articlesSize,
-                                    savedArticlesState.savedArticles.size,
-                                    bytesToHumanReadableSize(
-                                        savedArticlesState.articlesSize.toDouble()
-                                    )
-                                ),
-                                style = MaterialTheme.typography.labelLarge,
-                                modifier = Modifier.padding(16.dp)
-                            )
-                            Spacer(Modifier.weight(1f))
-                            TextButton(
-                                onClick = {
-                                    toDelete = null
-                                    showArticleDeleteDialog = true
-                                },
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            ) { Text(stringResource(R.string.deleteAll)) }
-                        }
-                    }
-                    if (savedArticlesState.languageFilters.size > 1)
-                        item {
-                            FlowRow(
-                                Modifier.padding(horizontal = 16.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                savedArticlesState.languageFilters.forEach { filterOption ->
-                                    FilterChip(
-                                        selected = filterOption.selected,
-                                        onClick = {
-                                            filterOption.selected = !filterOption.selected
-                                        },
-                                        label = { Text(filterOption.option) },
-                                        leadingIcon = {
-                                            AnimatedVisibility(filterOption.selected) {
-                                                Icon(
-                                                    Icons.Outlined.Check,
-                                                    contentDescription = null
-                                                )
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    items(savedArticlesState.savedArticles.filter {
-                        selectedLangs.contains(
-                            it.substringAfterLast(
-                                '.'
-                            )
-                        )
-                    }, key = { it }) {
-                        ListItem(
-                            headlineContent = {
-                                Text(
-                                    remember {
-                                        it.substringBeforeLast('.').substringBeforeLast('.')
-                                    },
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
+            LazyColumn(
+                contentPadding = insets,
+                modifier = Modifier
+                    .fillMaxHeight()
+            ) {
+                item {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            stringResource(
+                                R.string.articlesSize,
+                                savedArticlesState.savedArticles.size,
+                                bytesToHumanReadableSize(
+                                    savedArticlesState.articlesSize.toDouble()
                                 )
-                            },
-                            supportingContent = {
-                                Text(remember {
-                                    langCodeToWikiName(
-                                        it.substringAfterLast(
-                                            '.'
-                                        )
-                                    )
-                                })
-                            },
-                            modifier = Modifier
-                                .combinedClickable(
-                                    onClick = { openSavedArticle(it) },
-                                    onLongClick = {
-                                        toDelete = it
-                                        showArticleDeleteDialog = true
-                                    }
-                                )
-                                .animateItem()
+                            ),
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier.padding(16.dp)
                         )
+                        Spacer(Modifier.weight(1f))
+                        TextButton(
+                            onClick = {
+                                toDelete = null
+                                showArticleDeleteDialog = true
+                            },
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        ) { Text(stringResource(R.string.deleteAll)) }
                     }
                 }
-                if (weight != 0f) Spacer(Modifier.weight(weight))
+                if (savedArticlesState.languageFilters.size > 1)
+                    item {
+                        FlowRow(
+                            Modifier.padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            savedArticlesState.languageFilters.forEach { filterOption ->
+                                FilterChip(
+                                    selected = filterOption.selected,
+                                    onClick = {
+                                        filterOption.selected = !filterOption.selected
+                                    },
+                                    label = { Text(filterOption.option) },
+                                    leadingIcon = {
+                                        AnimatedVisibility(filterOption.selected) {
+                                            Icon(
+                                                Icons.Outlined.Check,
+                                                contentDescription = null
+                                            )
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }
+                items(savedArticlesState.savedArticles.filter {
+                    selectedLangs.contains(
+                        it.substringAfterLast(
+                            '.'
+                        )
+                    )
+                }, key = { it }) {
+                    ListItem(
+                        headlineContent = {
+                            Text(
+                                remember {
+                                    it.substringBeforeLast('.').substringBeforeLast('.')
+                                },
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
+                        supportingContent = {
+                            Text(remember {
+                                langCodeToWikiName(
+                                    it.substringAfterLast(
+                                        '.'
+                                    )
+                                )
+                            })
+                        },
+                        modifier = Modifier
+                            .combinedClickable(
+                                onClick = { openSavedArticle(it) },
+                                onLongClick = {
+                                    toDelete = it
+                                    showArticleDeleteDialog = true
+                                }
+                            )
+                            .animateItem()
+                    )
+                }
             }
         else
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

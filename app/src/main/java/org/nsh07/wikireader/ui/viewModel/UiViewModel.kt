@@ -9,6 +9,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.core.text.parseAsHtml
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -457,7 +458,7 @@ class UiViewModel(
                             articleSections.add(
                                 Pair(
                                     sectionIndex,
-                                    parsed.joinToString(separator = "")
+                                    parsed.joinToString(separator = "").parseAsHtml().toString()
                                 )
                             )
                             sectionIndex += 2
@@ -946,7 +947,7 @@ class UiViewModel(
                         articleSections.add(
                             Pair(
                                 sectionIndex,
-                                parsed.joinToString(separator = "")
+                                parsed.joinToString(separator = "").parseAsHtml().toString()
                             )
                         )
                         sectionIndex += 2

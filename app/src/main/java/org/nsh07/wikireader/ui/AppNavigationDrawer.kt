@@ -1,13 +1,17 @@
 package org.nsh07.wikireader.ui
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -15,16 +19,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.PermanentDrawerSheet
 import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.Text
@@ -61,7 +70,8 @@ fun AppNavigationDrawer(
     hasRoute: (KClass<out Any>) -> Boolean,
     content: @Composable () -> Unit
 ) {
-    if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.EXPANDED) {
+    val coroutineScope = rememberCoroutineScope()
+    if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT) {
         ModalNavigationDrawer(
             drawerContent = {
                 AppNavigationDrawerSheet(
@@ -81,7 +91,41 @@ fun AppNavigationDrawer(
             drawerState = drawerState,
             content = content
         )
-    } else {
+    } else if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM) {
+        Row {
+            NavigationRail(
+                header = {
+                    AnimatedContent(drawerState.targetValue) { targetValue ->
+                        if (targetValue == DrawerValue.Closed)
+                            IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
+                                Icon(Icons.Outlined.Menu, null)
+                            }
+                        else
+                            Box(Modifier.width(316.dp)) {
+                                IconButton(onClick = { coroutineScope.launch { drawerState.close() } }) {
+                                    Icon(Icons.Outlined.Menu, null)
+                                }
+                            }
+                    }
+                },
+                content = {
+                    AppNavigationRailContent(
+                        drawerState = drawerState,
+                        feedState = feedState,
+                        homeScreenState = homeScreenState,
+                        listState = listState,
+                        feedListState = feedListState,
+                        onAboutClick = onAboutClick,
+                        onHomeClick = onHomeClick,
+                        onSavedArticlesClick = onSavedArticlesClick,
+                        onSettingsClick = onSettingsClick,
+                        hasRoute = hasRoute
+                    )
+                }
+            )
+            content()
+        }
+    } else if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
         PermanentNavigationDrawer(
             drawerContent = {
                 AppNavigationDrawerSheet(
@@ -198,7 +242,7 @@ fun AppNavigationDrawerSheetContent(
             selected = hasRoute(Home::class),
             onClick = {
                 coroutineScope.launch {
-                    if (!hasRoute(Home::class)) onHomeClick()
+                    onHomeClick()
                     drawerState.close()
                 }
             },
@@ -221,7 +265,7 @@ fun AppNavigationDrawerSheetContent(
             selected = hasRoute(SavedArticles::class),
             onClick = {
                 coroutineScope.launch {
-                    if (!hasRoute(SavedArticles::class)) onSavedArticlesClick()
+                    onSavedArticlesClick()
                     drawerState.close()
                 }
             },
@@ -243,7 +287,7 @@ fun AppNavigationDrawerSheetContent(
             selected = hasRoute(Settings::class),
             onClick = {
                 coroutineScope.launch {
-                    if (!hasRoute(Settings::class)) onSettingsClick()
+                    onSettingsClick()
                     drawerState.close()
                 }
             },
@@ -265,7 +309,7 @@ fun AppNavigationDrawerSheetContent(
             selected = hasRoute(About::class),
             onClick = {
                 coroutineScope.launch {
-                    if (!hasRoute(About::class)) onAboutClick()
+                    onAboutClick()
                     drawerState.close()
                 }
             },
@@ -351,6 +395,87 @@ fun AppNavigationDrawerSheetContent(
             }
         }
         Spacer(Modifier.height(windowInsets.calculateBottomPadding()))
+    }
+}
+
+@Composable
+fun AppNavigationRailContent(
+    drawerState: DrawerState,
+    feedState: FeedState,
+    homeScreenState: HomeScreenState,
+    listState: LazyListState,
+    feedListState: LazyListState,
+    onAboutClick: () -> Unit,
+    onHomeClick: () -> Unit,
+    onSavedArticlesClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    hasRoute: (KClass<out Any>) -> Boolean,
+    modifier: Modifier = Modifier
+) {
+    AnimatedContent(drawerState.targetValue == DrawerValue.Closed) {
+        if (it) {
+            Column(modifier = modifier) {
+                NavigationRailItem(
+                    icon = {
+                        Icon(
+                            Icons.Outlined.Home,
+                            contentDescription = null
+                        )
+                    },
+                    selected = hasRoute(Home::class),
+                    onClick = onHomeClick,
+                    modifier = Modifier
+                        .padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+                NavigationRailItem(
+                    icon = {
+                        Icon(
+                            painterResource(drawable.download_done),
+                            contentDescription = null
+                        )
+                    },
+                    selected = hasRoute(SavedArticles::class),
+                    onClick = onSavedArticlesClick,
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+                NavigationRailItem(
+                    icon = {
+                        Icon(
+                            Icons.Outlined.Settings,
+                            contentDescription = null
+                        )
+                    },
+                    selected = hasRoute(Settings::class),
+                    onClick = onSettingsClick,
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+                NavigationRailItem(
+                    icon = {
+                        Icon(
+                            Icons.Outlined.Info,
+                            contentDescription = null
+                        )
+                    },
+                    selected = hasRoute(About::class),
+                    onClick = onAboutClick,
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+            }
+        } else {
+            AppNavigationDrawerSheetContent(
+                drawerState = drawerState,
+                feedState = feedState,
+                homeScreenState = homeScreenState,
+                listState = listState,
+                feedListState = feedListState,
+                onAboutClick = onAboutClick,
+                onHomeClick = onHomeClick,
+                onSavedArticlesClick = onSavedArticlesClick,
+                onSettingsClick = onSettingsClick,
+                hasRoute = hasRoute,
+                modifier = Modifier.width(360.dp)
+            )
+        }
     }
 }
 
