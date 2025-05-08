@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
@@ -48,7 +49,75 @@ fun AppNavigationDrawer(
     homeScreenState: HomeScreenState,
     listState: LazyListState,
     feedListState: LazyListState,
-    status: WRStatus,
+    onAboutClick: () -> Unit,
+    onHomeClick: () -> Unit,
+    onSavedArticlesClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    hasRoute: (KClass<out Any>) -> Boolean,
+    content: @Composable () -> Unit
+) {
+    ModalNavigationDrawer(
+        drawerContent = {
+            AppNavigationDrawerSheet(
+                drawerState = drawerState,
+                feedState = feedState,
+                homeScreenState = homeScreenState,
+                listState = listState,
+                feedListState = feedListState,
+                onAboutClick = onAboutClick,
+                onHomeClick = onHomeClick,
+                onSavedArticlesClick = onSavedArticlesClick,
+                onSettingsClick = onSettingsClick,
+                hasRoute = hasRoute
+            )
+        },
+        drawerState = drawerState,
+        content = content
+    )
+}
+
+@Composable
+fun AppNavigationDrawerSheet(
+    drawerState: DrawerState,
+    feedState: FeedState,
+    homeScreenState: HomeScreenState,
+    listState: LazyListState,
+    feedListState: LazyListState,
+    onAboutClick: () -> Unit,
+    onHomeClick: () -> Unit,
+    onSavedArticlesClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    hasRoute: (KClass<out Any>) -> Boolean,
+    modifier: Modifier = Modifier
+) {
+    ModalDrawerSheet(
+        modifier = modifier,
+        drawerState = drawerState,
+        windowInsets = WindowInsets(0.dp),
+        content = {
+            AppNavigationDrawerSheetContent(
+                drawerState = drawerState,
+                feedState = feedState,
+                homeScreenState = homeScreenState,
+                listState = listState,
+                feedListState = feedListState,
+                onAboutClick = onAboutClick,
+                onHomeClick = onHomeClick,
+                onSavedArticlesClick = onSavedArticlesClick,
+                onSettingsClick = onSettingsClick,
+                hasRoute = hasRoute
+            )
+        }
+    )
+}
+
+@Composable
+fun AppNavigationDrawerSheetContent(
+    drawerState: DrawerState,
+    feedState: FeedState,
+    homeScreenState: HomeScreenState,
+    listState: LazyListState,
+    feedListState: LazyListState,
     onAboutClick: () -> Unit,
     onHomeClick: () -> Unit,
     onSavedArticlesClick: () -> Unit,
@@ -59,115 +128,111 @@ fun AppNavigationDrawer(
     val coroutineScope = rememberCoroutineScope()
     val statusList = remember { listOf(WRStatus.FEED_LOADED, WRStatus.SUCCESS) }
     val windowInsets = WindowInsets.systemBars.asPaddingValues()
-    ModalDrawerSheet(
-        modifier = modifier,
-        drawerState = drawerState,
-        windowInsets = WindowInsets(0.dp)
-    ) {
-        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-            Spacer(Modifier.height(windowInsets.calculateTopPadding()))
-            Text(
-                stringResource(string.app),
-                style = typography.titleSmall,
-                modifier = Modifier
-                    .padding(NavigationDrawerItemDefaults.ItemPadding)
-                    .padding(16.dp)
-            )
-            NavigationDrawerItem(
-                label = { Text(stringResource(string.home), style = typography.labelLarge) },
-                icon = {
-                    Icon(
-                        Icons.Outlined.Home,
-                        contentDescription = null
-                    )
-                },
-                selected = hasRoute(Home::class),
-                onClick = {
-                    coroutineScope.launch {
-                        if (!hasRoute(Home::class)) onHomeClick()
-                        drawerState.close()
-                    }
-                },
-                modifier = Modifier
-                    .padding(NavigationDrawerItemDefaults.ItemPadding)
-            )
-            NavigationDrawerItem(
-                label = {
-                    Text(
-                        stringResource(string.savedArticles),
-                        style = typography.labelLarge
-                    )
-                },
-                icon = {
-                    Icon(
-                        painterResource(drawable.download_done),
-                        contentDescription = null
-                    )
-                },
-                selected = hasRoute(SavedArticles::class),
-                onClick = {
-                    coroutineScope.launch {
-                        if (!hasRoute(SavedArticles::class)) onSavedArticlesClick()
-                        drawerState.close()
-                    }
-                },
-                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-            )
-            NavigationDrawerItem(
-                label = {
-                    Text(
-                        stringResource(string.settings),
-                        style = typography.labelLarge
-                    )
-                },
-                icon = {
-                    Icon(
-                        Icons.Outlined.Settings,
-                        contentDescription = null
-                    )
-                },
-                selected = hasRoute(Settings::class),
-                onClick = {
-                    coroutineScope.launch {
-                        if (!hasRoute(Settings::class)) onSettingsClick()
-                        drawerState.close()
-                    }
-                },
-                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-            )
-            NavigationDrawerItem(
-                label = {
-                    Text(
-                        stringResource(string.about),
-                        style = typography.labelLarge
-                    )
-                },
-                icon = {
-                    Icon(
-                        Icons.Outlined.Info,
-                        contentDescription = null
-                    )
-                },
-                selected = hasRoute(About::class),
-                onClick = {
-                    coroutineScope.launch {
-                        if (!hasRoute(About::class)) onAboutClick()
-                        drawerState.close()
-                    }
-                },
-                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-            )
-            AnimatedVisibility(status in statusList && hasRoute(Home::class)) {
-                Column {
-                    HorizontalDivider(Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
-                    Text(
-                        stringResource(string.sections),
-                        style = typography.titleSmall,
-                        modifier = Modifier
-                            .padding(NavigationDrawerItemDefaults.ItemPadding)
-                            .padding(16.dp)
-                    )
-                    if (status == WRStatus.FEED_LOADED) {
+    Column(modifier = modifier.verticalScroll(rememberScrollState())) {
+        Spacer(Modifier.height(windowInsets.calculateTopPadding()))
+        Text(
+            stringResource(string.app),
+            style = typography.titleSmall,
+            modifier = Modifier
+                .padding(NavigationDrawerItemDefaults.ItemPadding)
+                .padding(16.dp)
+        )
+        NavigationDrawerItem(
+            label = { Text(stringResource(string.home), style = typography.labelLarge) },
+            icon = {
+                Icon(
+                    Icons.Outlined.Home,
+                    contentDescription = null
+                )
+            },
+            selected = hasRoute(Home::class),
+            onClick = {
+                coroutineScope.launch {
+                    if (!hasRoute(Home::class)) onHomeClick()
+                    drawerState.close()
+                }
+            },
+            modifier = Modifier
+                .padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+        NavigationDrawerItem(
+            label = {
+                Text(
+                    stringResource(string.savedArticles),
+                    style = typography.labelLarge
+                )
+            },
+            icon = {
+                Icon(
+                    painterResource(drawable.download_done),
+                    contentDescription = null
+                )
+            },
+            selected = hasRoute(SavedArticles::class),
+            onClick = {
+                coroutineScope.launch {
+                    if (!hasRoute(SavedArticles::class)) onSavedArticlesClick()
+                    drawerState.close()
+                }
+            },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+        NavigationDrawerItem(
+            label = {
+                Text(
+                    stringResource(string.settings),
+                    style = typography.labelLarge
+                )
+            },
+            icon = {
+                Icon(
+                    Icons.Outlined.Settings,
+                    contentDescription = null
+                )
+            },
+            selected = hasRoute(Settings::class),
+            onClick = {
+                coroutineScope.launch {
+                    if (!hasRoute(Settings::class)) onSettingsClick()
+                    drawerState.close()
+                }
+            },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+        NavigationDrawerItem(
+            label = {
+                Text(
+                    stringResource(string.about),
+                    style = typography.labelLarge
+                )
+            },
+            icon = {
+                Icon(
+                    Icons.Outlined.Info,
+                    contentDescription = null
+                )
+            },
+            selected = hasRoute(About::class),
+            onClick = {
+                coroutineScope.launch {
+                    if (!hasRoute(About::class)) onAboutClick()
+                    drawerState.close()
+                }
+            },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+        AnimatedVisibility(homeScreenState.status in statusList && hasRoute(Home::class)) {
+            Column {
+                HorizontalDivider(Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                Text(
+                    stringResource(string.sections),
+                    style = typography.titleSmall,
+                    modifier = Modifier
+                        .padding(NavigationDrawerItemDefaults.ItemPadding)
+                        .padding(16.dp)
+                )
+                when (homeScreenState.status) {
+                    WRStatus.FEED_LOADED -> {
                         feedState.sections.forEach { section ->
                             NavigationDrawerItem(
                                 label = {
@@ -197,7 +262,9 @@ fun AppNavigationDrawer(
                                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                             )
                         }
-                    } else if (status == WRStatus.SUCCESS) {
+                    }
+
+                    WRStatus.SUCCESS -> {
                         homeScreenState.sections.forEach { section ->
                             NavigationDrawerItem(
                                 label = {
@@ -228,10 +295,12 @@ fun AppNavigationDrawer(
                             )
                         }
                     }
+
+                    else -> {}
                 }
             }
-            Spacer(Modifier.height(windowInsets.calculateBottomPadding()))
         }
+        Spacer(Modifier.height(windowInsets.calculateBottomPadding()))
     }
 }
 

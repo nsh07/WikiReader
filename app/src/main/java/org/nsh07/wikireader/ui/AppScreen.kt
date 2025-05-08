@@ -28,7 +28,6 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.MaterialTheme.typography
-import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SnackbarHost
@@ -182,23 +181,17 @@ fun AppScreen(
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
-    ModalNavigationDrawer(
-        drawerContent = {
-            AppNavigationDrawer(
-                drawerState = drawerState,
-                feedState = feedState,
-                homeScreenState = homeScreenState,
-                listState = listState,
-                feedListState = feedListState,
-                status = homeScreenState.status,
-                onAboutClick = { navController.navigate(About) },
-                onHomeClick = { navController.navigate(Home()) },
-                onSavedArticlesClick = { navController.navigate(SavedArticles) },
-                onSettingsClick = { navController.navigate(Settings) },
-                hasRoute = { navBackStackEntry?.destination?.hasRoute(it) == true }
-            )
-        },
-        drawerState = drawerState
+    AppNavigationDrawer(
+        drawerState = drawerState,
+        feedState = feedState,
+        homeScreenState = homeScreenState,
+        listState = listState,
+        feedListState = feedListState,
+        onAboutClick = { navController.navigate(About) },
+        onHomeClick = { navController.navigate(Home()) },
+        onSavedArticlesClick = { navController.navigate(SavedArticles) },
+        onSettingsClick = { navController.navigate(Settings) },
+        hasRoute = { navBackStackEntry?.destination?.hasRoute(it) == true }
     ) {
         NavHost(
             navController = navController,

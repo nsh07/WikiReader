@@ -26,6 +26,7 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Menu
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExpandedFullScreenSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -38,6 +39,7 @@ import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarScrollBehavior
 import androidx.compose.material3.SearchBarState
+import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopSearchBar
@@ -112,11 +114,24 @@ fun AppSearchBar(
                 onSearch = loadSearch,
                 placeholder = { Text(stringResource(R.string.searchWikipedia)) },
                 leadingIcon = {
-                    IconButton(onClick = onMenuIconClicked) {
-                        Icon(
-                            Icons.Outlined.Menu,
-                            contentDescription = stringResource(R.string.moreOptions)
-                        )
+                    AnimatedContent(searchBarState.targetValue) { currentValue ->
+                        when (currentValue) {
+                            SearchBarValue.Collapsed ->
+                                IconButton(onClick = onMenuIconClicked) {
+                                    Icon(
+                                        Icons.Outlined.Menu,
+                                        contentDescription = stringResource(R.string.moreOptions)
+                                    )
+                                }
+
+                            else ->
+                                IconButton(onClick = { loadSearch(textFieldState.text.toString()) }) {
+                                    Icon(
+                                        Icons.Outlined.Search,
+                                        contentDescription = null
+                                    )
+                                }
+                        }
                     }
                 },
                 trailingIcon = {
@@ -219,7 +234,9 @@ fun AppSearchBar(
                                                     )
                                                 },
                                                 onLongClick = {
-                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                                    haptic.performHapticFeedback(
+                                                        HapticFeedbackType.LongPress
+                                                    )
                                                     removeHistoryItem(currentText)
                                                 }
                                             )
