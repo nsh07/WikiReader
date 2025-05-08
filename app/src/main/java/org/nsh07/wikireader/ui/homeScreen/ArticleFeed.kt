@@ -158,38 +158,78 @@ fun ArticleFeed(
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
-                        FeedImage(
-                            source = feedState.tfa.originalImage?.source,
-                            description = feedState.tfa.titles?.normalized,
-                            width = feedState.tfa.originalImage?.width ?: 1,
-                            height = feedState.tfa.originalImage?.height ?: 1,
-                            imageLoader = imageLoader,
-                            background = imageBackground,
-                            loadingIndicator = false
-                        )
-                        Text(
-                            feedState.tfa.titles?.normalized ?: "",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontFamily = FontFamily.Serif,
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp)
-                                .padding(top = 16.dp)
-                        )
-                        Text(
-                            feedState.tfa.description ?: "",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp, vertical = 4.dp)
-                        )
-                        Text(
-                            feedState.tfa.extract ?: "",
-                            maxLines = 5,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp)
-                                .padding(top = 8.dp, bottom = 16.dp)
-                        )
+                        if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.EXPANDED) {
+                            FeedImage(
+                                source = feedState.tfa.originalImage?.source,
+                                description = feedState.tfa.titles?.normalized,
+                                width = feedState.tfa.originalImage?.width ?: 1,
+                                height = feedState.tfa.originalImage?.height ?: 1,
+                                imageLoader = imageLoader,
+                                background = imageBackground,
+                                loadingIndicator = false
+                            )
+                            Text(
+                                feedState.tfa.titles?.normalized ?: "",
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontFamily = FontFamily.Serif,
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .padding(top = 16.dp)
+                            )
+                            Text(
+                                feedState.tfa.description ?: "",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                            )
+                            Text(
+                                feedState.tfa.extract ?: "",
+                                maxLines = 5,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .padding(top = 8.dp, bottom = 16.dp)
+                            )
+                        } else {
+                            Row {
+                                FeedImage(
+                                    source = feedState.tfa.originalImage?.source,
+                                    description = feedState.tfa.titles?.normalized,
+                                    width = feedState.tfa.originalImage?.width ?: 1,
+                                    height = feedState.tfa.originalImage?.height ?: 1,
+                                    imageLoader = imageLoader,
+                                    background = imageBackground,
+                                    loadingIndicator = false,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        feedState.tfa.titles?.normalized ?: "",
+                                        style = MaterialTheme.typography.headlineMedium,
+                                        fontFamily = FontFamily.Serif,
+                                        modifier = Modifier
+                                            .padding(horizontal = 16.dp)
+                                            .padding(top = 16.dp)
+                                    )
+                                    Text(
+                                        feedState.tfa.description ?: "",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier
+                                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                                    )
+                                    Text(
+                                        feedState.tfa.extract ?: "",
+                                        maxLines = 5,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier
+                                            .padding(horizontal = 16.dp)
+                                            .padding(top = 8.dp, bottom = 16.dp)
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -353,30 +393,64 @@ fun ArticleFeed(
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
-                        FeedImage(
-                            source = feedState.image.image?.source,
-                            description = feedState.image.description?.text,
-                            width = feedState.image.image?.width ?: 1,
-                            height = feedState.image.image?.height ?: 1,
-                            imageLoader = imageLoader,
-                            background = imageBackground,
-                            loadingIndicator = false
-                        )
-                        Text(
-                            feedState.image.description?.text?.parseAsHtml().toString(),
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp)
-                                .padding(top = 16.dp)
-                        )
-                        Text(
-                            (feedState.image.artist?.name
-                                ?: feedState.image.artist?.text)?.substringBefore('\n') +
-                                    " (" + feedState.image.credit?.text?.substringBefore(';') + ")",
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp)
-                                .padding(top = 8.dp, bottom = 16.dp)
-                        )
+                        if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.EXPANDED) {
+                            FeedImage(
+                                source = feedState.image.image?.source,
+                                description = feedState.image.description?.text,
+                                width = feedState.image.image?.width ?: 1,
+                                height = feedState.image.image?.height ?: 1,
+                                imageLoader = imageLoader,
+                                background = imageBackground,
+                                loadingIndicator = false
+                            )
+                            Text(
+                                feedState.image.description?.text?.parseAsHtml().toString(),
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .padding(top = 16.dp)
+                            )
+                            Text(
+                                (feedState.image.artist?.name
+                                    ?: feedState.image.artist?.text)?.substringBefore('\n') +
+                                        " (" + feedState.image.credit?.text?.substringBefore(';') + ")",
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .padding(top = 8.dp, bottom = 16.dp)
+                            )
+                        } else {
+                            Row {
+                                FeedImage(
+                                    source = feedState.image.image?.source,
+                                    description = feedState.image.description?.text,
+                                    width = feedState.image.image?.width ?: 1,
+                                    height = feedState.image.image?.height ?: 1,
+                                    imageLoader = imageLoader,
+                                    background = imageBackground,
+                                    loadingIndicator = false,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Column(Modifier.weight(1f)) {
+                                    Text(
+                                        feedState.image.description?.text?.parseAsHtml().toString(),
+                                        modifier = Modifier
+                                            .padding(horizontal = 16.dp)
+                                            .padding(top = 16.dp)
+                                    )
+                                    Text(
+                                        (feedState.image.artist?.name
+                                            ?: feedState.image.artist?.text)?.substringBefore('\n') +
+                                                " (" + feedState.image.credit?.text?.substringBefore(
+                                            ';'
+                                        ) + ")",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier
+                                            .padding(horizontal = 16.dp)
+                                            .padding(top = 8.dp, bottom = 16.dp)
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
