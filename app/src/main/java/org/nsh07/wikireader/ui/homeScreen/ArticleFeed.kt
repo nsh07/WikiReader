@@ -152,10 +152,6 @@ fun ArticleFeed(
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
-                }
-            }
-            if (feedState.tfa != null) {
-                item {
                     ElevatedCard(
                         onClick = { loadPage(feedState.tfa.titles?.canonical ?: "") },
                         modifier = Modifier

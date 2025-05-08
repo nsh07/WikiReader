@@ -1,5 +1,6 @@
 <resources>
     <string name="about">About</string>
+    <string name="app">App</string>
     <string name="appTagline">Read Wikipedia pages distraction-free</string>
     <string name="app_name">WikiReader</string>
     <string name="articleDeleted">Article deleted</string>
@@ -34,6 +35,8 @@
     <string name="fontStyleSansSerif">Sans-serif</string>
     <string name="fontStyleSerif">Serif</string>
     <string name="history">History</string>
+    <string name="home">Home</string>
+    <string name="imageCounter">Image %1$s of %2$s</string>
     <string name="inArticleMatches">In-article matches</string>
     <string name="inTheNews">In the news</string>
     <string name="information">Information</string>
@@ -59,6 +62,7 @@
     <string name="search">Search</string>
     <string name="searchLanguages">Search languages…</string>
     <string name="searchWikipedia">Search Wikipedia…</string>
+    <string name="sections">Sections</string>
     <string name="selectedLabel">Selected</string>
     <string name="setAsDefault">Set as default</string>
     <string name="setAsDefaultDesc">You can set WikiReader as your default app for opening Wikipedia links. Click on the buttons below to know more or open settings.</string>
@@ -71,6 +75,8 @@
     <string name="settingExpandSectionsDesc">Expand all sections by default</string>
     <string name="settingFontSize">Font size</string>
     <string name="settingFontStyle">Font style</string>
+    <string name="settingImageBackground">Image background</string>
+    <string name="settingImageBackgroundDesc">Add a white background to transparent images. The background can help increase readability in dark mode.</string>
     <string name="settingImmersiveMode">Immersive mode</string>
     <string name="settingImmersiveModeDesc">Hide search bar and floating action buttons while scrolling. Enabled by default on small screen sizes.</string>
     <string name="settingRenderMath">Render math expressions</string>
@@ -103,10 +109,4 @@
     <string name="wikipedia">Wikipedia</string>
     <string name="wikipediaWebsiteDesc">Visit the Wikipedia website</string>
     <string name="wikipedia_logo">Wikipedia\'s Logo</string>
-    <string name="imageCounter">Image %1$s of %2$s</string>
-    <string name="settingImageBackground">Image background</string>
-    <string name="settingImageBackgroundDesc">Add a white background to transparent images. The background can help increase readability in dark mode.</string>
-    <string name="app">App</string>
-    <string name="home">Home</string>
-    <string name="sections">Sections</string>
 </resources>

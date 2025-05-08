@@ -432,6 +432,8 @@ class UiViewModel(
                     }
 
                     sections = extract.size
+                    var sectionIndex = 3
+                    val articleSections = mutableListOf<Pair<Int, String>>()
                     val parsedExtract = mutableListOf<List<AnnotatedString>>()
 
                     _homeScreenState.update { currentState ->
@@ -450,11 +452,22 @@ class UiViewModel(
 
                     extract.forEachIndexed { index, it ->
                         currentSection = index + 1
-                        parsedExtract.add(parseWikitext(it))
+                        val parsed = parseWikitext(it)
+                        if (index % 2 == 1) {
+                            articleSections.add(
+                                Pair(
+                                    sectionIndex,
+                                    parsed.joinToString(separator = "")
+                                )
+                            )
+                            sectionIndex += 2
+                        }
+                        parsedExtract.add(parsed)
                         _homeScreenState.update { currentState ->
                             currentState.copy(
                                 loadingProgress = currentSection.toFloat() / sections,
                                 extract = parsedExtract,
+                                sections = articleSections
                             )
                         }
                     }
@@ -554,6 +567,8 @@ class UiViewModel(
 
                 try {
                     val feed = wikipediaRepository.getFeed()
+                    val sections = mutableListOf<Pair<Int, FeedSection>>()
+                    var currentSection = 0
 
                     _feedState.update { currentState ->
                         currentState.copy(
@@ -563,6 +578,30 @@ class UiViewModel(
                             news = feed.news,
                             onThisDay = feed.onThisDay
                         )
+                    }
+
+                    if (feedState.value.tfa != null) {
+                        sections.add(Pair(currentSection, FeedSection.TFA))
+                        currentSection++
+                    }
+                    if (feedState.value.mostReadArticles != null) {
+                        sections.add(Pair(currentSection, FeedSection.MOST_READ))
+                        currentSection++
+                    }
+                    if (feedState.value.image != null) {
+                        sections.add(Pair(currentSection, FeedSection.IMAGE))
+                        currentSection++
+                    }
+                    if (feedState.value.news != null) {
+                        sections.add(Pair(currentSection, FeedSection.NEWS))
+                        currentSection++
+                    }
+                    if (feedState.value.onThisDay != null) {
+                        sections.add(Pair(currentSection, FeedSection.ON_THIS_DAY))
+                    }
+
+                    _feedState.update { currentState ->
+                        currentState.copy(sections = sections)
                     }
 
                     if (!listOf(

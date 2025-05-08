@@ -185,7 +185,11 @@ fun AppScreen(
     ModalNavigationDrawer(
         drawerContent = {
             AppNavigationDrawer(
-                drawerState,
+                drawerState = drawerState,
+                feedState = feedState,
+                homeScreenState = homeScreenState,
+                listState = listState,
+                feedListState = feedListState,
                 status = homeScreenState.status,
                 onAboutClick = { navController.navigate(About) },
                 onHomeClick = { navController.navigate(Home()) },

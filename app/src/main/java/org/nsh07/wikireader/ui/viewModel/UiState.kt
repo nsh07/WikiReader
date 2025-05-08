@@ -30,6 +30,7 @@ data class AppSearchBarState(
 data class HomeScreenState(
     val title: String = "",
     val extract: List<List<AnnotatedString>> = emptyList(),
+    val sections: List<Pair<Int, String>> = emptyList(),
     val photo: WikiPhoto? = null,
     val photoDesc: WikiPhotoDesc? = null,
     val langs: List<WikiLang>? = null,
@@ -64,7 +65,8 @@ data class FeedState(
     val mostReadArticles: List<MostReadArticle>? = null,
     val image: FeedApiImage? = null,
     val news: List<FeedApiNews>? = null,
-    val onThisDay: List<FeedApiOTD>? = null
+    val onThisDay: List<FeedApiOTD>? = null,
+    val sections: List<Pair<Int, FeedSection>> = emptyList()
 )
 
 @Immutable
@@ -74,3 +76,7 @@ data class SavedArticlesState(
     val languageFilters: List<LanguageFilterOption> = emptyList(),
     val articlesSize: Long = 0L
 )
+
+enum class FeedSection {
+    TFA, MOST_READ, IMAGE, NEWS, ON_THIS_DAY
+}

@@ -210,7 +210,7 @@ fun AppHomeScreen(
                             .fillMaxSize()
                             .transformable(transformableState)
                     ) {
-                        item { // Title
+                        item { // Top buttons
                             Row(modifier = Modifier.padding(16.dp)) {
                                 FilledTonalButton(
                                     onClick = { setShowArticleLanguageSheet(true) },
