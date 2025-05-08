@@ -176,12 +176,6 @@ fun AppNavigationDrawer(
                                         style = typography.labelLarge
                                     )
                                 },
-                                badge = {
-                                    Text(
-                                        (section.first + 1).toString(),
-                                        style = typography.labelLarge
-                                    )
-                                },
                                 selected = feedListState.firstVisibleItemIndex == section.first,
                                 onClick = {
                                     coroutineScope.launch {
@@ -198,8 +192,7 @@ fun AppNavigationDrawer(
                                 colors = NavigationDrawerItemDefaults.colors(
                                     selectedContainerColor = colorScheme.tertiaryContainer,
                                     selectedTextColor = colorScheme.onTertiaryContainer,
-                                    selectedIconColor = colorScheme.onTertiaryContainer,
-                                    selectedBadgeColor = colorScheme.onTertiaryContainer
+                                    selectedIconColor = colorScheme.onTertiaryContainer
                                 ),
                                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                             )
@@ -210,12 +203,6 @@ fun AppNavigationDrawer(
                                 label = {
                                     Text(
                                         section.second,
-                                        style = typography.labelLarge
-                                    )
-                                },
-                                badge = {
-                                    Text(
-                                        (section.first / 2).toString(),
                                         style = typography.labelLarge
                                     )
                                 },
@@ -235,8 +222,7 @@ fun AppNavigationDrawer(
                                 colors = NavigationDrawerItemDefaults.colors(
                                     selectedContainerColor = colorScheme.tertiaryContainer,
                                     selectedTextColor = colorScheme.onTertiaryContainer,
-                                    selectedIconColor = colorScheme.onTertiaryContainer,
-                                    selectedBadgeColor = colorScheme.onTertiaryContainer
+                                    selectedIconColor = colorScheme.onTertiaryContainer
                                 ),
                                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                             )

@@ -905,6 +905,8 @@ class UiViewModel(
                 val extract: List<String> = parseSections(contentFile.readText())
 
                 sections = extract.size
+                var sectionIndex = 3
+                val articleSections = mutableListOf<Pair<Int, String>>()
                 val parsedExtract = mutableListOf<List<AnnotatedString>>()
 
                 val articleState = articleListState.value
@@ -939,11 +941,22 @@ class UiViewModel(
 
                 extract.forEachIndexed { index, it ->
                     currentSection = index + 1
-                    parsedExtract.add(parseWikitext(it))
+                    val parsed = parseWikitext(it)
+                    if (index % 2 == 1) {
+                        articleSections.add(
+                            Pair(
+                                sectionIndex,
+                                parsed.joinToString(separator = "")
+                            )
+                        )
+                        sectionIndex += 2
+                    }
+                    parsedExtract.add(parsed)
                     _homeScreenState.update { currentState ->
                         currentState.copy(
                             loadingProgress = currentSection.toFloat() / sections,
                             extract = parsedExtract,
+                            sections = articleSections
                         )
                     }
                 }

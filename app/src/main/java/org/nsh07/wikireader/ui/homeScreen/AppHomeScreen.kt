@@ -196,7 +196,9 @@ fun AppHomeScreen(
                     },
                     indicator = {
                         LoadingIndicator(
-                            modifier = Modifier.align(Alignment.TopCenter),
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .padding(top = insets.calculateTopPadding()),
                             isRefreshing = isRefreshing,
                             state = pullToRefreshState
                         )
