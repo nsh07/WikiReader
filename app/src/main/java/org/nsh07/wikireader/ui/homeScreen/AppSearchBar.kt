@@ -97,9 +97,7 @@ fun AppSearchBar(
     val history = appSearchBarState.history.toList()
     val size = history.size
     val weight = remember {
-        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM ||
-            windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED
-        )
+        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM)
             1f
         else 0f
     }
@@ -114,9 +112,12 @@ fun AppSearchBar(
                 onSearch = loadSearch,
                 placeholder = { Text(stringResource(R.string.searchWikipedia)) },
                 leadingIcon = {
-                    AnimatedContent(searchBarState.targetValue) { currentValue ->
+                    AnimatedContent(
+                        searchBarState.targetValue == SearchBarValue.Collapsed &&
+                                windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.EXPANDED
+                    ) { currentValue ->
                         when (currentValue) {
-                            SearchBarValue.Collapsed ->
+                            true ->
                                 IconButton(onClick = onMenuIconClicked) {
                                     Icon(
                                         Icons.Outlined.Menu,

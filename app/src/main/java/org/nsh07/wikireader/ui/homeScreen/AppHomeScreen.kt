@@ -121,9 +121,7 @@ fun AppHomeScreen(
     val photoDesc = homeScreenState.photoDesc
     val fontSize = preferencesState.fontSize
     val weight = remember {
-        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM ||
-            windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED
-        )
+        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM)
             1f
         else 0f
     }
@@ -208,6 +206,7 @@ fun AppHomeScreen(
                     LazyColumn( // The article
                         state = listState,
                         contentPadding = insets,
+                        horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .fillMaxSize()
                             .transformable(transformableState)

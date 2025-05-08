@@ -53,9 +53,7 @@ fun AboutScreen(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val isAlpha = remember { BuildConfig.VERSION_NAME.contains('a') }
     val weight = remember {
-        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM ||
-            windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED
-        )
+        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM)
             1f
         else 0f
     }

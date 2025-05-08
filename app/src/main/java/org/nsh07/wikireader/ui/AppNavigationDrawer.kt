@@ -25,6 +25,8 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.PermanentDrawerSheet
+import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -33,6 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowWidthSizeClass
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R.drawable
 import org.nsh07.wikireader.R.string
@@ -49,6 +53,7 @@ fun AppNavigationDrawer(
     homeScreenState: HomeScreenState,
     listState: LazyListState,
     feedListState: LazyListState,
+    windowSizeClass: WindowSizeClass,
     onAboutClick: () -> Unit,
     onHomeClick: () -> Unit,
     onSavedArticlesClick: () -> Unit,
@@ -56,24 +61,46 @@ fun AppNavigationDrawer(
     hasRoute: (KClass<out Any>) -> Boolean,
     content: @Composable () -> Unit
 ) {
-    ModalNavigationDrawer(
-        drawerContent = {
-            AppNavigationDrawerSheet(
-                drawerState = drawerState,
-                feedState = feedState,
-                homeScreenState = homeScreenState,
-                listState = listState,
-                feedListState = feedListState,
-                onAboutClick = onAboutClick,
-                onHomeClick = onHomeClick,
-                onSavedArticlesClick = onSavedArticlesClick,
-                onSettingsClick = onSettingsClick,
-                hasRoute = hasRoute
-            )
-        },
-        drawerState = drawerState,
-        content = content
-    )
+    if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.EXPANDED) {
+        ModalNavigationDrawer(
+            drawerContent = {
+                AppNavigationDrawerSheet(
+                    drawerState = drawerState,
+                    feedState = feedState,
+                    homeScreenState = homeScreenState,
+                    listState = listState,
+                    feedListState = feedListState,
+                    windowSizeClass = windowSizeClass,
+                    onAboutClick = onAboutClick,
+                    onHomeClick = onHomeClick,
+                    onSavedArticlesClick = onSavedArticlesClick,
+                    onSettingsClick = onSettingsClick,
+                    hasRoute = hasRoute
+                )
+            },
+            drawerState = drawerState,
+            content = content
+        )
+    } else {
+        PermanentNavigationDrawer(
+            drawerContent = {
+                AppNavigationDrawerSheet(
+                    drawerState = drawerState,
+                    feedState = feedState,
+                    homeScreenState = homeScreenState,
+                    listState = listState,
+                    feedListState = feedListState,
+                    windowSizeClass = windowSizeClass,
+                    onAboutClick = onAboutClick,
+                    onHomeClick = onHomeClick,
+                    onSavedArticlesClick = onSavedArticlesClick,
+                    onSettingsClick = onSettingsClick,
+                    hasRoute = hasRoute
+                )
+            },
+            content = content
+        )
+    }
 }
 
 @Composable
@@ -83,6 +110,7 @@ fun AppNavigationDrawerSheet(
     homeScreenState: HomeScreenState,
     listState: LazyListState,
     feedListState: LazyListState,
+    windowSizeClass: WindowSizeClass,
     onAboutClick: () -> Unit,
     onHomeClick: () -> Unit,
     onSavedArticlesClick: () -> Unit,
@@ -90,25 +118,47 @@ fun AppNavigationDrawerSheet(
     hasRoute: (KClass<out Any>) -> Boolean,
     modifier: Modifier = Modifier
 ) {
-    ModalDrawerSheet(
-        modifier = modifier,
-        drawerState = drawerState,
-        windowInsets = WindowInsets(0.dp),
-        content = {
-            AppNavigationDrawerSheetContent(
-                drawerState = drawerState,
-                feedState = feedState,
-                homeScreenState = homeScreenState,
-                listState = listState,
-                feedListState = feedListState,
-                onAboutClick = onAboutClick,
-                onHomeClick = onHomeClick,
-                onSavedArticlesClick = onSavedArticlesClick,
-                onSettingsClick = onSettingsClick,
-                hasRoute = hasRoute
-            )
-        }
-    )
+    if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.EXPANDED) {
+        ModalDrawerSheet(
+            modifier = modifier,
+            drawerState = drawerState,
+            windowInsets = WindowInsets(0.dp),
+            content = {
+                AppNavigationDrawerSheetContent(
+                    drawerState = drawerState,
+                    feedState = feedState,
+                    homeScreenState = homeScreenState,
+                    listState = listState,
+                    feedListState = feedListState,
+                    onAboutClick = onAboutClick,
+                    onHomeClick = onHomeClick,
+                    onSavedArticlesClick = onSavedArticlesClick,
+                    onSettingsClick = onSettingsClick,
+                    hasRoute = hasRoute
+                )
+            }
+        )
+    } else {
+        PermanentDrawerSheet(
+            modifier = modifier,
+            windowInsets = WindowInsets(0.dp),
+            content = {
+                AppNavigationDrawerSheetContent(
+                    drawerState = drawerState,
+                    feedState = feedState,
+                    homeScreenState = homeScreenState,
+                    listState = listState,
+                    feedListState = feedListState,
+                    onAboutClick = onAboutClick,
+                    onHomeClick = onHomeClick,
+                    onSavedArticlesClick = onSavedArticlesClick,
+                    onSettingsClick = onSettingsClick,
+                    hasRoute = hasRoute
+
+                )
+            }
+        )
+    }
 }
 
 @Composable

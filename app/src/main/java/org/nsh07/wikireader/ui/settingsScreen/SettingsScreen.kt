@@ -118,9 +118,7 @@ fun SettingsScreen(
     var renderMath by remember { mutableStateOf(preferencesState.renderMath) }
     var searchHistory by remember { mutableStateOf(preferencesState.searchHistory) }
     val weight = remember {
-        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM ||
-            windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED
-        )
+        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM)
             1f
         else 0f
     }

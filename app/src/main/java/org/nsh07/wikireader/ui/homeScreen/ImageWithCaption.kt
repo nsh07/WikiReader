@@ -5,6 +5,7 @@ import android.graphics.PorterDuffColorFilter
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
@@ -61,6 +62,7 @@ fun ImageWithCaption(
             .padding(top = 8.dp)
             .clip(shapes.large)
             .animateContentSize()
+            .widthIn(max = 512.dp)
             .clickable(onClick = { onClick(uriHigh, description) })
     )
     Text(
