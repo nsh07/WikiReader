@@ -2,6 +2,7 @@ package org.nsh07.wikireader.ui
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,10 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Menu
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.HorizontalDivider
@@ -41,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -71,6 +70,36 @@ fun AppNavigationDrawer(
     content: @Composable () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val items = listOf(
+        Item(
+            string.home,
+            painterResource(drawable.outline_home),
+            painterResource(drawable.filled_home),
+            Home::class,
+            onHomeClick
+        ),
+        Item(
+            string.savedArticles,
+            painterResource(drawable.download_done),
+            painterResource(drawable.filled_download_done),
+            SavedArticles::class,
+            onSavedArticlesClick
+        ),
+        Item(
+            string.settings,
+            painterResource(drawable.outline_settings),
+            painterResource(drawable.filled_settings),
+            Settings::class,
+            onSettingsClick
+        ),
+        Item(
+            string.about,
+            painterResource(drawable.outline_info),
+            painterResource(drawable.filled_info),
+            About::class,
+            onAboutClick
+        )
+    )
     if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT) {
         ModalNavigationDrawer(
             drawerContent = {
@@ -81,10 +110,7 @@ fun AppNavigationDrawer(
                     listState = listState,
                     feedListState = feedListState,
                     windowSizeClass = windowSizeClass,
-                    onAboutClick = onAboutClick,
-                    onHomeClick = onHomeClick,
-                    onSavedArticlesClick = onSavedArticlesClick,
-                    onSettingsClick = onSettingsClick,
+                    items = items,
                     hasRoute = hasRoute
                 )
             },
@@ -115,10 +141,7 @@ fun AppNavigationDrawer(
                         homeScreenState = homeScreenState,
                         listState = listState,
                         feedListState = feedListState,
-                        onAboutClick = onAboutClick,
-                        onHomeClick = onHomeClick,
-                        onSavedArticlesClick = onSavedArticlesClick,
-                        onSettingsClick = onSettingsClick,
+                        items = items,
                         hasRoute = hasRoute
                     )
                 }
@@ -135,10 +158,7 @@ fun AppNavigationDrawer(
                     listState = listState,
                     feedListState = feedListState,
                     windowSizeClass = windowSizeClass,
-                    onAboutClick = onAboutClick,
-                    onHomeClick = onHomeClick,
-                    onSavedArticlesClick = onSavedArticlesClick,
-                    onSettingsClick = onSettingsClick,
+                    items = items,
                     hasRoute = hasRoute
                 )
             },
@@ -148,17 +168,14 @@ fun AppNavigationDrawer(
 }
 
 @Composable
-fun AppNavigationDrawerSheet(
+private fun AppNavigationDrawerSheet(
     drawerState: DrawerState,
     feedState: FeedState,
     homeScreenState: HomeScreenState,
     listState: LazyListState,
     feedListState: LazyListState,
     windowSizeClass: WindowSizeClass,
-    onAboutClick: () -> Unit,
-    onHomeClick: () -> Unit,
-    onSavedArticlesClick: () -> Unit,
-    onSettingsClick: () -> Unit,
+    items: List<Item>,
     hasRoute: (KClass<out Any>) -> Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -174,10 +191,7 @@ fun AppNavigationDrawerSheet(
                     homeScreenState = homeScreenState,
                     listState = listState,
                     feedListState = feedListState,
-                    onAboutClick = onAboutClick,
-                    onHomeClick = onHomeClick,
-                    onSavedArticlesClick = onSavedArticlesClick,
-                    onSettingsClick = onSettingsClick,
+                    items = items,
                     hasRoute = hasRoute
                 )
             }
@@ -193,10 +207,7 @@ fun AppNavigationDrawerSheet(
                     homeScreenState = homeScreenState,
                     listState = listState,
                     feedListState = feedListState,
-                    onAboutClick = onAboutClick,
-                    onHomeClick = onHomeClick,
-                    onSavedArticlesClick = onSavedArticlesClick,
-                    onSettingsClick = onSettingsClick,
+                    items = items,
                     hasRoute = hasRoute
 
                 )
@@ -206,16 +217,13 @@ fun AppNavigationDrawerSheet(
 }
 
 @Composable
-fun AppNavigationDrawerSheetContent(
+private fun AppNavigationDrawerSheetContent(
     drawerState: DrawerState,
     feedState: FeedState,
     homeScreenState: HomeScreenState,
     listState: LazyListState,
     feedListState: LazyListState,
-    onAboutClick: () -> Unit,
-    onHomeClick: () -> Unit,
-    onSavedArticlesClick: () -> Unit,
-    onSettingsClick: () -> Unit,
+    items: List<Item>,
     hasRoute: (KClass<out Any>) -> Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -231,90 +239,36 @@ fun AppNavigationDrawerSheetContent(
                 .padding(NavigationDrawerItemDefaults.ItemPadding)
                 .padding(16.dp)
         )
-        NavigationDrawerItem(
-            label = { Text(stringResource(string.home), style = typography.labelLarge) },
-            icon = {
-                Icon(
-                    Icons.Outlined.Home,
-                    contentDescription = null
-                )
-            },
-            selected = hasRoute(Home::class),
-            onClick = {
-                coroutineScope.launch {
-                    onHomeClick()
-                    drawerState.close()
-                }
-            },
-            modifier = Modifier
-                .padding(NavigationDrawerItemDefaults.ItemPadding)
-        )
-        NavigationDrawerItem(
-            label = {
-                Text(
-                    stringResource(string.savedArticles),
-                    style = typography.labelLarge
-                )
-            },
-            icon = {
-                Icon(
-                    painterResource(drawable.download_done),
-                    contentDescription = null
-                )
-            },
-            selected = hasRoute(SavedArticles::class),
-            onClick = {
-                coroutineScope.launch {
-                    onSavedArticlesClick()
-                    drawerState.close()
-                }
-            },
-            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-        )
-        NavigationDrawerItem(
-            label = {
-                Text(
-                    stringResource(string.settings),
-                    style = typography.labelLarge
-                )
-            },
-            icon = {
-                Icon(
-                    Icons.Outlined.Settings,
-                    contentDescription = null
-                )
-            },
-            selected = hasRoute(Settings::class),
-            onClick = {
-                coroutineScope.launch {
-                    onSettingsClick()
-                    drawerState.close()
-                }
-            },
-            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-        )
-        NavigationDrawerItem(
-            label = {
-                Text(
-                    stringResource(string.about),
-                    style = typography.labelLarge
-                )
-            },
-            icon = {
-                Icon(
-                    Icons.Outlined.Info,
-                    contentDescription = null
-                )
-            },
-            selected = hasRoute(About::class),
-            onClick = {
-                coroutineScope.launch {
-                    onAboutClick()
-                    drawerState.close()
-                }
-            },
-            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-        )
+        items.forEach {
+            NavigationDrawerItem(
+                label = { Text(stringResource(it.labelId), style = typography.labelLarge) },
+                icon = {
+                    Crossfade(hasRoute(it.route)) { selected ->
+                        when (selected) {
+                            true -> Icon(
+                                it.filledIcon,
+                                contentDescription = null
+                            )
+
+                            else ->
+                                Icon(
+                                    it.outlinedIcon,
+                                    contentDescription = null
+                                )
+                        }
+                    }
+                },
+                selected = hasRoute(it.route),
+                onClick = {
+                    coroutineScope.launch {
+                        it.onClick()
+                        drawerState.close()
+                    }
+                },
+                modifier = Modifier
+                    .padding(NavigationDrawerItemDefaults.ItemPadding)
+            )
+        }
         AnimatedVisibility(homeScreenState.status in statusList && hasRoute(Home::class)) {
             Column {
                 HorizontalDivider(Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
@@ -399,67 +353,41 @@ fun AppNavigationDrawerSheetContent(
 }
 
 @Composable
-fun AppNavigationRailContent(
+private fun AppNavigationRailContent(
     drawerState: DrawerState,
     feedState: FeedState,
     homeScreenState: HomeScreenState,
     listState: LazyListState,
     feedListState: LazyListState,
-    onAboutClick: () -> Unit,
-    onHomeClick: () -> Unit,
-    onSavedArticlesClick: () -> Unit,
-    onSettingsClick: () -> Unit,
+    items: List<Item>,
     hasRoute: (KClass<out Any>) -> Boolean,
     modifier: Modifier = Modifier
 ) {
     AnimatedContent(drawerState.targetValue == DrawerValue.Closed) {
         if (it) {
             Column(modifier = modifier) {
-                NavigationRailItem(
-                    icon = {
-                        Icon(
-                            Icons.Outlined.Home,
-                            contentDescription = null
-                        )
-                    },
-                    selected = hasRoute(Home::class),
-                    onClick = onHomeClick,
-                    modifier = Modifier
-                        .padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-                NavigationRailItem(
-                    icon = {
-                        Icon(
-                            painterResource(drawable.download_done),
-                            contentDescription = null
-                        )
-                    },
-                    selected = hasRoute(SavedArticles::class),
-                    onClick = onSavedArticlesClick,
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-                NavigationRailItem(
-                    icon = {
-                        Icon(
-                            Icons.Outlined.Settings,
-                            contentDescription = null
-                        )
-                    },
-                    selected = hasRoute(Settings::class),
-                    onClick = onSettingsClick,
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-                NavigationRailItem(
-                    icon = {
-                        Icon(
-                            Icons.Outlined.Info,
-                            contentDescription = null
-                        )
-                    },
-                    selected = hasRoute(About::class),
-                    onClick = onAboutClick,
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
+                items.forEach {
+                    NavigationRailItem(
+                        icon = {
+                            Crossfade(hasRoute(it.route)) { selected ->
+                                when (selected) {
+                                    true -> Icon(
+                                        it.filledIcon,
+                                        contentDescription = null
+                                    )
+
+                                    else ->
+                                        Icon(
+                                            it.outlinedIcon,
+                                            contentDescription = null
+                                        )
+                                }
+                            }
+                        },
+                        selected = hasRoute(it.route),
+                        onClick = it.onClick
+                    )
+                }
             }
         } else {
             AppNavigationDrawerSheetContent(
@@ -468,10 +396,7 @@ fun AppNavigationRailContent(
                 homeScreenState = homeScreenState,
                 listState = listState,
                 feedListState = feedListState,
-                onAboutClick = onAboutClick,
-                onHomeClick = onHomeClick,
-                onSavedArticlesClick = onSavedArticlesClick,
-                onSettingsClick = onSettingsClick,
+                items = items,
                 hasRoute = hasRoute,
                 modifier = Modifier.width(360.dp)
             )
@@ -489,3 +414,11 @@ fun feedSectionName(section: FeedSection): String {
         FeedSection.ON_THIS_DAY -> stringResource(string.onThisDay)
     }
 }
+
+private data class Item(
+    val labelId: Int,
+    val outlinedIcon: Painter,
+    val filledIcon: Painter,
+    val route: KClass<out Any>,
+    val onClick: () -> Unit
+)
