@@ -42,7 +42,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import kotlinx.coroutines.launch
@@ -62,11 +65,11 @@ fun AppNavigationDrawer(
     listState: LazyListState,
     feedListState: LazyListState,
     windowSizeClass: WindowSizeClass,
+    backStackEntry: NavBackStackEntry?,
     onAboutClick: () -> Unit,
     onHomeClick: () -> Unit,
     onSavedArticlesClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    hasRoute: (KClass<out Any>) -> Boolean,
     content: @Composable () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -110,8 +113,8 @@ fun AppNavigationDrawer(
                     listState = listState,
                     feedListState = feedListState,
                     windowSizeClass = windowSizeClass,
-                    items = items,
-                    hasRoute = hasRoute
+                    backStackEntry = backStackEntry,
+                    items = items
                 )
             },
             drawerState = drawerState,
@@ -141,8 +144,8 @@ fun AppNavigationDrawer(
                         homeScreenState = homeScreenState,
                         listState = listState,
                         feedListState = feedListState,
-                        items = items,
-                        hasRoute = hasRoute
+                        backStackEntry = backStackEntry,
+                        items = items
                     )
                 }
             )
@@ -158,8 +161,8 @@ fun AppNavigationDrawer(
                     listState = listState,
                     feedListState = feedListState,
                     windowSizeClass = windowSizeClass,
-                    items = items,
-                    hasRoute = hasRoute
+                    backStackEntry = backStackEntry,
+                    items = items
                 )
             },
             content = content
@@ -175,8 +178,8 @@ private fun AppNavigationDrawerSheet(
     listState: LazyListState,
     feedListState: LazyListState,
     windowSizeClass: WindowSizeClass,
+    backStackEntry: NavBackStackEntry?,
     items: List<Item>,
-    hasRoute: (KClass<out Any>) -> Boolean,
     modifier: Modifier = Modifier
 ) {
     if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.EXPANDED) {
@@ -191,8 +194,8 @@ private fun AppNavigationDrawerSheet(
                     homeScreenState = homeScreenState,
                     listState = listState,
                     feedListState = feedListState,
-                    items = items,
-                    hasRoute = hasRoute
+                    backStackEntry = backStackEntry,
+                    items = items
                 )
             }
         )
@@ -207,8 +210,8 @@ private fun AppNavigationDrawerSheet(
                     homeScreenState = homeScreenState,
                     listState = listState,
                     feedListState = feedListState,
-                    items = items,
-                    hasRoute = hasRoute
+                    backStackEntry = backStackEntry,
+                    items = items
 
                 )
             }
@@ -223,8 +226,8 @@ private fun AppNavigationDrawerSheetContent(
     homeScreenState: HomeScreenState,
     listState: LazyListState,
     feedListState: LazyListState,
+    backStackEntry: NavBackStackEntry?,
     items: List<Item>,
-    hasRoute: (KClass<out Any>) -> Boolean,
     modifier: Modifier = Modifier
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -241,9 +244,16 @@ private fun AppNavigationDrawerSheetContent(
         )
         items.forEach {
             NavigationDrawerItem(
-                label = { Text(stringResource(it.labelId), style = typography.labelLarge) },
+                label = {
+                    Text(
+                        stringResource(it.labelId),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = typography.labelLarge
+                    )
+                },
                 icon = {
-                    Crossfade(hasRoute(it.route)) { selected ->
+                    Crossfade(backStackEntry?.destination?.hasRoute(it.route)) { selected ->
                         when (selected) {
                             true -> Icon(
                                 it.filledIcon,
@@ -258,18 +268,21 @@ private fun AppNavigationDrawerSheetContent(
                         }
                     }
                 },
-                selected = hasRoute(it.route),
+                selected = backStackEntry?.destination?.hasRoute(it.route) == true,
                 onClick = {
                     coroutineScope.launch {
-                        it.onClick()
                         drawerState.close()
+                        it.onClick()
                     }
                 },
                 modifier = Modifier
                     .padding(NavigationDrawerItemDefaults.ItemPadding)
             )
         }
-        AnimatedVisibility(homeScreenState.status in statusList && hasRoute(Home::class)) {
+        AnimatedVisibility(
+            homeScreenState.status in statusList &&
+                    backStackEntry?.destination?.hasRoute(Home::class) == true
+        ) {
             Column {
                 HorizontalDivider(Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
                 Text(
@@ -286,6 +299,8 @@ private fun AppNavigationDrawerSheetContent(
                                 label = {
                                     Text(
                                         feedSectionName(section.second),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
                                         style = typography.labelLarge
                                     )
                                 },
@@ -318,6 +333,8 @@ private fun AppNavigationDrawerSheetContent(
                                 label = {
                                     Text(
                                         section.second,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
                                         style = typography.labelLarge
                                     )
                                 },
@@ -359,8 +376,8 @@ private fun AppNavigationRailContent(
     homeScreenState: HomeScreenState,
     listState: LazyListState,
     feedListState: LazyListState,
+    backStackEntry: NavBackStackEntry?,
     items: List<Item>,
-    hasRoute: (KClass<out Any>) -> Boolean,
     modifier: Modifier = Modifier
 ) {
     AnimatedContent(drawerState.targetValue == DrawerValue.Closed) {
@@ -369,7 +386,7 @@ private fun AppNavigationRailContent(
                 items.forEach {
                     NavigationRailItem(
                         icon = {
-                            Crossfade(hasRoute(it.route)) { selected ->
+                            Crossfade(backStackEntry?.destination?.hasRoute(it.route)) { selected ->
                                 when (selected) {
                                     true -> Icon(
                                         it.filledIcon,
@@ -384,7 +401,7 @@ private fun AppNavigationRailContent(
                                 }
                             }
                         },
-                        selected = hasRoute(it.route),
+                        selected = backStackEntry?.destination?.hasRoute(it.route) == true,
                         onClick = it.onClick
                     )
                 }
@@ -396,8 +413,8 @@ private fun AppNavigationRailContent(
                 homeScreenState = homeScreenState,
                 listState = listState,
                 feedListState = feedListState,
+                backStackEntry = backStackEntry,
                 items = items,
-                hasRoute = hasRoute,
                 modifier = Modifier.width(360.dp)
             )
         }
