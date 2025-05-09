@@ -2,8 +2,10 @@ package org.nsh07.wikireader.ui
 
 import android.os.Build.VERSION.SDK_INT
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Canvas
@@ -67,6 +69,7 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import androidx.window.core.layout.WindowHeightSizeClass
 import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
 import coil3.gif.AnimatedImageDecoder
 import coil3.gif.GifDecoder
@@ -230,28 +233,48 @@ fun AppScreen(
             navController = navController,
             startDestination = Home(),
             enterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { it / 8 },
-                    animationSpec = motionScheme.defaultSpatialSpec()
-                ) + fadeIn(motionScheme.defaultEffectsSpec())
+                if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT)
+                    slideInHorizontally(
+                        initialOffsetX = { it / 8 },
+                        animationSpec = motionScheme.defaultSpatialSpec()
+                    ) + fadeIn(motionScheme.defaultEffectsSpec())
+                else
+                    fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+                            scaleIn(
+                                initialScale = 0.92f,
+                                animationSpec = tween(220, delayMillis = 90)
+                            )
             },
             exitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { -it / 8 },
-                    animationSpec = motionScheme.fastSpatialSpec()
-                ) + fadeOut(motionScheme.fastEffectsSpec())
+                if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT)
+                    slideOutHorizontally(
+                        targetOffsetX = { -it / 8 },
+                        animationSpec = motionScheme.fastSpatialSpec()
+                    ) + fadeOut(motionScheme.fastEffectsSpec())
+                else
+                    fadeOut(animationSpec = tween(90))
             },
             popEnterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { -it / 8 },
-                    animationSpec = motionScheme.defaultSpatialSpec()
-                ) + fadeIn(motionScheme.defaultEffectsSpec())
+                if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT)
+                    slideInHorizontally(
+                        initialOffsetX = { -it / 8 },
+                        animationSpec = motionScheme.defaultSpatialSpec()
+                    ) + fadeIn(motionScheme.defaultEffectsSpec())
+                else
+                    fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+                            scaleIn(
+                                initialScale = 0.92f,
+                                animationSpec = tween(220, delayMillis = 90)
+                            )
             },
             popExitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { it / 8 },
-                    animationSpec = motionScheme.fastSpatialSpec()
-                ) + fadeOut(motionScheme.fastEffectsSpec())
+                if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT)
+                    slideOutHorizontally(
+                        targetOffsetX = { it / 8 },
+                        animationSpec = motionScheme.fastSpatialSpec()
+                    ) + fadeOut(motionScheme.fastEffectsSpec())
+                else
+                    fadeOut(animationSpec = tween(90))
             },
             modifier = modifier.background(MaterialTheme.colorScheme.background)
         ) {
