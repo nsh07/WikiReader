@@ -135,18 +135,22 @@ fun AppHomeScreen(
     if (s > 1) s -= 2
     else s = 0
 
-    val sendIntent: Intent = Intent()
-        .apply {
-            action = Intent.ACTION_SEND
-            putExtra(
-                Intent.EXTRA_TEXT,
-                "https://${preferencesState.lang}.wikipedia.org/wiki/${
-                    homeScreenState.title.replace(' ', '_')
-                }"
-            )
-            type = "text/plain"
-        }
-    val shareIntent = Intent.createChooser(sendIntent, null)
+    val sendIntent: Intent = remember(homeScreenState.title, homeScreenState.currentLang) {
+        Intent()
+            .apply {
+                action = Intent.ACTION_SEND
+                putExtra(
+                    Intent.EXTRA_TEXT,
+                    "https://${preferencesState.lang}.wikipedia.org/wiki/${
+                        homeScreenState.title.replace(' ', '_')
+                    }"
+                )
+                type = "text/plain"
+            }
+    }
+    val shareIntent = remember(homeScreenState.title, homeScreenState.currentLang) {
+        Intent.createChooser(sendIntent, null)
+    }
 
     val context = LocalContext.current
     val systemBars = WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
@@ -213,8 +217,13 @@ fun AppHomeScreen(
                             }
                             Spacer(Modifier.weight(1f))
                             FilledTonalIconButton(
-                                onClick = {
-                                    context.startActivity(shareIntent)
+                                onClick = remember(
+                                    homeScreenState.title,
+                                    homeScreenState.currentLang
+                                ) {
+                                    {
+                                        context.startActivity(shareIntent)
+                                    }
                                 },
                                 enabled = homeScreenState.status == WRStatus.SUCCESS,
                                 modifier = Modifier.padding(end = 8.dp)
@@ -261,10 +270,10 @@ fun AppHomeScreen(
                             modifier = Modifier.padding(16.dp)
                         )
                         if (photoDesc != null) {
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
+//                            Box(
+//                                contentAlignment = Alignment.Center,
+//                                modifier = Modifier.fillMaxWidth()
+//                            ) {
                                 ImageCard(
                                     photo = photo,
                                     photoDesc = photoDesc,
@@ -275,7 +284,7 @@ fun AppHomeScreen(
                                     background = preferencesState.imageBackground,
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
-                            }
+//                            }
                         }
                     }
                     item { // Main description

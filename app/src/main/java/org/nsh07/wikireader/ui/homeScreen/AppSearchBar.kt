@@ -75,7 +75,6 @@ fun AppSearchBar(
     preferencesState: PreferencesState,
     textFieldState: TextFieldState,
     searchBarEnabled: Boolean,
-    dataSaver: Boolean,
     imageLoader: ImageLoader,
     searchListState: LazyListState,
     windowSizeClass: WindowSizeClass,
@@ -273,7 +272,7 @@ fun AppSearchBar(
                                         }
                                     } else null,
                                     trailingContent = {
-                                        if (it.thumbnail != null && !dataSaver)
+                                        if (it.thumbnail != null && !preferencesState.dataSaver)
                                             FeedImage(
                                                 source = it.thumbnail.source,
                                                 imageLoader = imageLoader,
@@ -337,7 +336,7 @@ fun AppSearchBar(
                                         )
                                     },
                                     trailingContent = {
-                                        if (it.thumbnail != null && !dataSaver)
+                                        if (it.thumbnail != null && !preferencesState.dataSaver)
                                             FeedImage(
                                                 source = it.thumbnail.source,
                                                 imageLoader = imageLoader,
@@ -405,7 +404,7 @@ fun AppSearchBar(
                                         }
                                     } else null,
                                     trailingContent = {
-                                        if (it.thumbnail != null && !dataSaver)
+                                        if (it.thumbnail != null && !preferencesState.dataSaver)
                                             FeedImage(
                                                 source = it.thumbnail.source,
                                                 imageLoader = imageLoader,
@@ -475,7 +474,7 @@ fun AppSearchBar(
                                         )
                                     },
                                     trailingContent = {
-                                        if (it.thumbnail != null && !dataSaver)
+                                        if (it.thumbnail != null && !preferencesState.dataSaver)
                                             FeedImage(
                                                 source = it.thumbnail.source,
                                                 imageLoader = imageLoader,

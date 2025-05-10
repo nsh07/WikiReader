@@ -68,7 +68,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import androidx.window.core.layout.WindowHeightSizeClass
-import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
 import coil3.gif.AnimatedImageDecoder
@@ -98,9 +97,12 @@ import org.nsh07.wikireader.ui.viewModel.UiViewModel
 fun AppScreen(
     viewModel: UiViewModel,
     preferencesState: PreferencesState,
-    modifier: Modifier = Modifier,
-    windowSizeClass: WindowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val appSearchBarState by viewModel.appSearchBarState.collectAsState()
     val homeScreenState by viewModel.homeScreenState.collectAsState()
     val feedState by viewModel.feedState.collectAsState()
@@ -112,9 +114,8 @@ fun AppScreen(
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val languageSearchStr by viewModel.languageSearchStr.collectAsState()
     val languageSearchQuery by viewModel.languageSearchQuery.collectAsState("")
-    val context = LocalContext.current
     val motionScheme = motionScheme
-    var showArticleLanguageSheet by remember { mutableStateOf(false) }
+    var showArticleLanguageSheet by rememberSaveable { mutableStateOf(false) }
     var deepLinkHandled by rememberSaveable { mutableStateOf(false) }
 
     // Used by the settings screen. These are hoisted here to make the settings screen faster
@@ -162,18 +163,19 @@ fun AppScreen(
         else null
     val textFieldState = viewModel.textFieldState
 
-    val imageLoader = ImageLoader.Builder(context)
-        .components {
-            add(SvgDecoder.Factory())
-            if (SDK_INT >= 28) {
-                add(AnimatedImageDecoder.Factory())
-            } else {
-                add(GifDecoder.Factory())
+    val imageLoader = remember {
+        ImageLoader.Builder(context)
+            .components {
+                add(SvgDecoder.Factory())
+                if (SDK_INT >= 28) {
+                    add(AnimatedImageDecoder.Factory())
+                } else {
+                    add(GifDecoder.Factory())
+                }
             }
-        }
-        .build()
+            .build()
+    }
 
-    val coroutineScope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
 
     val index by remember { derivedStateOf { listState.firstVisibleItemIndex } }
@@ -328,12 +330,11 @@ fun AppScreen(
                             textFieldState = textFieldState,
                             scrollBehavior = searchBarScrollBehavior,
                             searchBarEnabled = !showArticleLanguageSheet,
-                            dataSaver = preferencesState.dataSaver,
                             imageLoader = imageLoader,
                             searchListState = searchListState,
                             windowSizeClass = windowSizeClass,
                             loadSearch = {
-                                coroutineScope.launch {
+                                scope.launch {
                                     searchBarState.animateToCollapsed()
                                 }
                                 viewModel.loadSearch(it)
@@ -341,7 +342,7 @@ fun AppScreen(
                             loadSearchDebounced = viewModel::loadSearchResultsDebounced,
                             loadPage = viewModel::loadPage,
                             onExpandedChange = {
-                                coroutineScope.launch {
+                                scope.launch {
                                     if (it) searchBarState.animateToExpanded()
                                     else searchBarState.animateToCollapsed()
                                 }
@@ -356,7 +357,7 @@ fun AppScreen(
                                 setShowDeleteDialog(true)
                             },
                             onMenuIconClicked = {
-                                coroutineScope.launch {
+                                scope.launch {
                                     drawerState.open()
                                 }
                             }
@@ -372,7 +373,7 @@ fun AppScreen(
                                 textFieldState.setTextAndPlaceCursorAtEnd(textFieldState.text.toString())
                             },
                             scrollToTop = {
-                                coroutineScope.launch {
+                                scope.launch {
                                     if (homeScreenState.status != WRStatus.FEED_LOADED)
                                         listState.animateScrollToItem(0)
                                     else
@@ -380,7 +381,7 @@ fun AppScreen(
                                 }
                             },
                             performRandomPageSearch = {
-                                coroutineScope.launch {
+                                scope.launch {
                                     searchBarState.animateToCollapsed()
                                 }
                                 viewModel.loadPage(
@@ -423,7 +424,7 @@ fun AppScreen(
                         setSearchStr = viewModel::updateLanguageSearchStr,
                         setShowArticleLanguageSheet = { showArticleLanguageSheet = it },
                         saveArticle = {
-                            coroutineScope.launch {
+                            scope.launch {
                                 if (homeScreenState.savedStatus == SavedStatus.NOT_SAVED) {
                                     val status = viewModel.saveArticle()
                                     if (status == WRStatus.SUCCESS)
@@ -459,7 +460,7 @@ fun AppScreen(
                             }
                         },
                         showFeedErrorSnackBar = {
-                            coroutineScope.launch {
+                            scope.launch {
                                 if (!deepLinkHandled)
                                     snackBarHostState
                                         .showSnackbar(
@@ -531,7 +532,7 @@ fun AppScreen(
                 SavedArticlesScreen(
                     savedArticlesState = savedArticlesState,
                     openSavedArticle = {
-                        coroutineScope.launch {
+                        scope.launch {
                             navController.navigateUp()
                             viewModel.loadSavedArticle(it)
                         }
