@@ -3,18 +3,25 @@ package org.nsh07.wikireader.ui
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
@@ -25,20 +32,24 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailDefaults
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.PermanentDrawerSheet
 import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -121,35 +132,55 @@ fun AppNavigationDrawer(
             content = content
         )
     } else if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM) {
-        Row {
-            NavigationRail(
-                header = {
-                    AnimatedContent(drawerState.targetValue) { targetValue ->
-                        if (targetValue == DrawerValue.Closed)
-                            IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
-                                Icon(Icons.Outlined.Menu, null)
-                            }
-                        else
-                            Box(Modifier.width(316.dp)) {
-                                IconButton(onClick = { coroutineScope.launch { drawerState.close() } }) {
+        val containerColor by animateColorAsState(
+            if (drawerState.targetValue == DrawerValue.Closed) NavigationRailDefaults.ContainerColor
+            else colorScheme.surfaceContainerLow
+        )
+        BoxWithConstraints {
+            Row(modifier = Modifier.horizontalScroll(rememberScrollState(), enabled = false)) {
+                NavigationRail(
+                    containerColor = containerColor,
+                    windowInsets = WindowInsets.systemBars.only(
+                        WindowInsetsSides.Top + WindowInsetsSides.Start
+                    ),
+                    header = {
+                        AnimatedContent(drawerState.targetValue) { targetValue ->
+                            if (targetValue == DrawerValue.Closed)
+                                IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
                                     Icon(Icons.Outlined.Menu, null)
                                 }
-                            }
-                    }
-                },
-                content = {
-                    AppNavigationRailContent(
-                        drawerState = drawerState,
-                        feedState = feedState,
-                        homeScreenState = homeScreenState,
-                        listState = listState,
-                        feedListState = feedListState,
-                        backStackEntry = backStackEntry,
-                        items = items
-                    )
+                            else
+                                Box(Modifier.width(316.dp)) {
+                                    IconButton(onClick = { coroutineScope.launch { drawerState.close() } }) {
+                                        Icon(Icons.Outlined.Menu, null)
+                                    }
+                                }
+                        }
+                    },
+                    content = {
+                        AppNavigationRailContent(
+                            drawerState = drawerState,
+                            feedState = feedState,
+                            homeScreenState = homeScreenState,
+                            listState = listState,
+                            feedListState = feedListState,
+                            backStackEntry = backStackEntry,
+                            items = items
+                        )
+                    },
+                    modifier = Modifier
+                        .background(colorScheme.surface)
+                        .clip(
+                            shapes.large.copy(
+                                topStart = CornerSize(0.dp),
+                                bottomStart = CornerSize(0.dp)
+                            )
+                        )
+                )
+                Box(Modifier.width(this@BoxWithConstraints.maxWidth - 80.dp)) {
+                    content()
                 }
-            )
-            content()
+            }
         }
     } else if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
         PermanentNavigationDrawer(
@@ -228,13 +259,14 @@ private fun AppNavigationDrawerSheetContent(
     feedListState: LazyListState,
     backStackEntry: NavBackStackEntry?,
     items: List<Item>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    applyInsetPadding: Boolean = true
 ) {
     val coroutineScope = rememberCoroutineScope()
     val statusList = remember { listOf(WRStatus.FEED_LOADED, WRStatus.SUCCESS) }
     val windowInsets = WindowInsets.systemBars.asPaddingValues()
     Column(modifier = modifier.verticalScroll(rememberScrollState())) {
-        Spacer(Modifier.height(windowInsets.calculateTopPadding()))
+        if (applyInsetPadding) Spacer(Modifier.height(windowInsets.calculateTopPadding()))
         Text(
             stringResource(string.app),
             style = typography.titleSmall,
@@ -308,7 +340,7 @@ private fun AppNavigationDrawerSheetContent(
                                 onClick = {
                                     coroutineScope.launch {
                                         drawerState.close()
-                                        feedListState.animateScrollToItem(section.first)
+                                        feedListState.scrollToItem(section.first)
                                     }
                                 },
                                 icon = {
@@ -342,7 +374,7 @@ private fun AppNavigationDrawerSheetContent(
                                 onClick = {
                                     coroutineScope.launch {
                                         drawerState.close()
-                                        listState.animateScrollToItem(section.first)
+                                        listState.scrollToItem(section.first)
                                     }
                                 },
                                 icon = {
@@ -380,7 +412,9 @@ private fun AppNavigationRailContent(
     items: List<Item>,
     modifier: Modifier = Modifier
 ) {
-    AnimatedContent(drawerState.targetValue == DrawerValue.Closed) {
+    AnimatedContent(
+        drawerState.targetValue == DrawerValue.Closed
+    ) {
         if (it) {
             Column(modifier = modifier) {
                 items.forEach {
@@ -415,7 +449,8 @@ private fun AppNavigationRailContent(
                 feedListState = feedListState,
                 backStackEntry = backStackEntry,
                 items = items,
-                modifier = Modifier.width(360.dp)
+                modifier = Modifier.width(360.dp),
+                applyInsetPadding = false
             )
         }
     }
