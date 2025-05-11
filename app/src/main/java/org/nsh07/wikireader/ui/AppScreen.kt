@@ -237,7 +237,7 @@ fun AppScreen(
             enterTransition = {
                 if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT)
                     slideInHorizontally(
-                        initialOffsetX = { it / 8 },
+                        initialOffsetX = { it / 4 },
                         animationSpec = motionScheme.defaultSpatialSpec()
                     ) + fadeIn(motionScheme.defaultEffectsSpec())
                 else
@@ -250,7 +250,7 @@ fun AppScreen(
             exitTransition = {
                 if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT)
                     slideOutHorizontally(
-                        targetOffsetX = { -it / 8 },
+                        targetOffsetX = { -it / 4 },
                         animationSpec = motionScheme.fastSpatialSpec()
                     ) + fadeOut(motionScheme.fastEffectsSpec())
                 else
@@ -259,7 +259,7 @@ fun AppScreen(
             popEnterTransition = {
                 if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT)
                     slideInHorizontally(
-                        initialOffsetX = { -it / 8 },
+                        initialOffsetX = { -it / 4 },
                         animationSpec = motionScheme.defaultSpatialSpec()
                     ) + fadeIn(motionScheme.defaultEffectsSpec())
                 else
@@ -272,7 +272,7 @@ fun AppScreen(
             popExitTransition = {
                 if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT)
                     slideOutHorizontally(
-                        targetOffsetX = { it / 8 },
+                        targetOffsetX = { it / 4 },
                         animationSpec = motionScheme.fastSpatialSpec()
                     ) + fadeOut(motionScheme.fastEffectsSpec())
                 else
@@ -308,7 +308,7 @@ fun AppScreen(
                                 (homeScreenState.status != WRStatus.FEED_LOADED &&
                                         homeScreenState.status != WRStatus.FEED_NETWORK_ERROR &&
                                         homeScreenState.status != WRStatus.UNINITIALIZED)
-                    } && drawerState.isClosed,
+                    },
                     onBack = viewModel::loadPreviousPage
                 )
 

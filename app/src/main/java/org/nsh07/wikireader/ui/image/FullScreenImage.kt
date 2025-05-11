@@ -3,17 +3,20 @@ package org.nsh07.wikireader.ui.image
 import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.gestures.animateZoomBy
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -31,11 +34,14 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntSize
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import coil3.ImageLoader
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun FullScreenImage(
@@ -50,28 +56,49 @@ fun FullScreenImage(
 ) {
     var currentLightStatusBars = true
     val view = LocalView.current
+    val window = remember { (view.context as Activity).window }
+    val insetsController = remember { WindowCompat.getInsetsController(window, view) }
     DisposableEffect(null) {
         if (!view.isInEditMode) {
-            val window = (view.context as Activity).window
-            currentLightStatusBars =
-                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+            currentLightStatusBars = insetsController.isAppearanceLightStatusBars
+            insetsController.isAppearanceLightStatusBars = false
         }
 
         onDispose {
-            val window = (view.context as Activity).window
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
-                currentLightStatusBars
+            insetsController.apply {
+                show(WindowInsetsCompat.Type.statusBars())
+                show(WindowInsetsCompat.Type.navigationBars())
+                systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
+            }
+            insetsController.isAppearanceLightStatusBars = currentLightStatusBars
         }
     }
 
     var showTopBar by remember { mutableStateOf(true) }
+
+    LaunchedEffect(showTopBar) {
+        if (showTopBar) {
+            insetsController.apply {
+                show(WindowInsetsCompat.Type.statusBars())
+                show(WindowInsetsCompat.Type.navigationBars())
+                systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
+            }
+        } else {
+            insetsController.apply {
+                hide(WindowInsetsCompat.Type.statusBars())
+                hide(WindowInsetsCompat.Type.navigationBars())
+                systemBarsBehavior =
+                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             AnimatedVisibility(
                 showTopBar,
-                enter = fadeIn(),
-                exit = fadeOut()
+                enter = slideInVertically(motionScheme.defaultSpatialSpec()) { -it },
+                exit = slideOutVertically(motionScheme.defaultSpatialSpec()) { -it }
             ) {
                 FullScreenImageTopBar(
                     photoDesc = photoDesc,
@@ -141,6 +168,7 @@ fun FullScreenImage(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun FullScreenImage(
@@ -154,28 +182,49 @@ fun FullScreenImage(
 ) {
     var currentLightStatusBars = true
     val view = LocalView.current
+    val window = remember { (view.context as Activity).window }
+    val insetsController = remember { WindowCompat.getInsetsController(window, view) }
     DisposableEffect(null) {
         if (!view.isInEditMode) {
-            val window = (view.context as Activity).window
-            currentLightStatusBars =
-                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+            currentLightStatusBars = insetsController.isAppearanceLightStatusBars
+            insetsController.isAppearanceLightStatusBars = false
         }
 
         onDispose {
-            val window = (view.context as Activity).window
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
-                currentLightStatusBars
+            insetsController.apply {
+                show(WindowInsetsCompat.Type.statusBars())
+                show(WindowInsetsCompat.Type.navigationBars())
+                systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
+            }
+            insetsController.isAppearanceLightStatusBars = currentLightStatusBars
         }
     }
 
     var showTopBar by remember { mutableStateOf(true) }
+
+    LaunchedEffect(showTopBar) {
+        if (showTopBar) {
+            insetsController.apply {
+                show(WindowInsetsCompat.Type.statusBars())
+                show(WindowInsetsCompat.Type.navigationBars())
+                systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
+            }
+        } else {
+            insetsController.apply {
+                hide(WindowInsetsCompat.Type.statusBars())
+                hide(WindowInsetsCompat.Type.navigationBars())
+                systemBarsBehavior =
+                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             AnimatedVisibility(
                 showTopBar,
-                enter = fadeIn(),
-                exit = fadeOut()
+                enter = slideInVertically(motionScheme.defaultSpatialSpec()) { -it },
+                exit = slideOutVertically(motionScheme.defaultSpatialSpec()) { -it }
             ) {
                 FullScreenImageTopBar(
                     description = description,
