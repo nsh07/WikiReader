@@ -515,20 +515,3 @@ fun AppSearchBar(
         }
     }
 }
-
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Preview(
-//    widthDp = 400,
-//    heightDp = 750,
-//    showBackground = true
-//)
-//@Composable
-//fun AppSearchBarPreview() {
-//    WikiReaderTheme {
-//        AppSearchBar(
-//            appSearchBarState = AppSearchBarState(), true, false, 0, ImageLoader(LocalContext.current),
-//            rememberLazyListState(), windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-//            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
-//        )
-//    }
-//}

@@ -1,6 +1,5 @@
 package org.nsh07.wikireader.ui.savedArticlesScreen
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -132,14 +131,14 @@ fun SavedArticlesScreen(
                                         filterOption.selected = !filterOption.selected
                                     },
                                     label = { Text(filterOption.option) },
-                                    leadingIcon = {
-                                        AnimatedVisibility(filterOption.selected) {
+                                    leadingIcon = if (filterOption.selected) {
+                                        {
                                             Icon(
                                                 Icons.Outlined.Check,
                                                 contentDescription = null
                                             )
                                         }
-                                    }
+                                    } else null
                                 )
                             }
                         }

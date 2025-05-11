@@ -308,7 +308,7 @@ fun AppScreen(
                                 (homeScreenState.status != WRStatus.FEED_LOADED &&
                                         homeScreenState.status != WRStatus.FEED_NETWORK_ERROR &&
                                         homeScreenState.status != WRStatus.UNINITIALIZED)
-                    },
+                    } && drawerState.isClosed,
                     onBack = viewModel::loadPreviousPage
                 )
 
