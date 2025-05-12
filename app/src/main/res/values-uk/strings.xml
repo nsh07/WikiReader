@@ -110,4 +110,9 @@
     <string name="home">Дім</string>
     <string name="app">Додаток</string>
     <string name="sections">Розділи</string>
+    <string name="resetSettingsDialogDesc">Усі налаштування будуть відновлені до заводських</string>
+    <string name="settingsRestored">Відновлено налаштування за замовчуванням</string>
+    <string name="resetSettingsIconDesc">Скинути налаштування до заводських</string>
+    <string name="resetSettingsDialog">Скинути налаштування?</string>
+    <string name="reset">Скинути</string>
 </resources>
