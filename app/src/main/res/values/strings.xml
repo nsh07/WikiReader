@@ -109,4 +109,9 @@
     <string name="wikipedia">Wikipedia</string>
     <string name="wikipediaWebsiteDesc">Visit the Wikipedia website</string>
     <string name="wikipedia_logo">Wikipedia\'s Logo</string>
+    <string name="resetSettingsDialog">Reset Settings?</string>
+    <string name="resetSettingsDialogDesc">All settings will be restored to default</string>
+    <string name="settingsRestored">Default settings restored</string>
+    <string name="reset">Reset</string>
+    <string name="resetSettingsIconDesc">Reset settings to default</string>
 </resources>

@@ -1266,6 +1266,20 @@ class UiViewModel(
         }
     }
 
+    fun resetSettings() {
+        viewModelScope.launch {
+            try {
+                appPreferencesRepository.resetSettings()
+                _preferencesState.update {
+                    PreferencesState()
+                }
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Error in restoring settings: ${e.message}")
+                e.printStackTrace()
+            }
+        }
+    }
+
     fun updateLanguageSearchStr(str: String) {
         _languageSearchStr.update {
             str

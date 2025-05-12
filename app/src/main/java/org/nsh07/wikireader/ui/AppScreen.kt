@@ -573,7 +573,8 @@ fun AppScreen(
                     updateLanguageSearchStr = viewModel::updateLanguageSearchStr,
                     loadFeed = viewModel::loadFeed,
                     reloadPage = viewModel::reloadPage,
-                    onBack = navController::navigateUp
+                    onBack = navController::navigateUp,
+                    onResetSettings = viewModel::resetSettings
                 )
             }
 
