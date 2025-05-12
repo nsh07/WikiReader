@@ -110,4 +110,9 @@
     <string name="app">Rakendus</string>
     <string name="home">Avaleht</string>
     <string name="sections">Lõigud</string>
+    <string name="reset">Lähtesta</string>
+    <string name="settingsRestored">Vaikimisi seadistused on taastatud</string>
+    <string name="resetSettingsIconDesc">Lähtesta kõik seadistused</string>
+    <string name="resetSettingsDialogDesc">Järgnevaga muutuvad kõik seadistused vaikimisi väärtusteks</string>
+    <string name="resetSettingsDialog">Kas lähtestame seadistused?</string>
 </resources>
