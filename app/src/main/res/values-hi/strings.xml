@@ -110,4 +110,9 @@
     <string name="app">ऐप</string>
     <string name="home">होम</string>
     <string name="sections">अनुभाग</string>
+    <string name="resetSettingsDialogDesc">सभी सेटिंग्स उनके डिफ़ॉल्ट मानों पर पुनर्स्थापित हो जाएंगी</string>
+    <string name="settingsRestored">डिफ़ॉल्ट सेटिंग्स बहाल की गई</string>
+    <string name="reset">रीसेट करें</string>
+    <string name="resetSettingsDialog">सेटिंग रीसेट करें?</string>
+    <string name="resetSettingsIconDesc">सेटिंग्स को उनके डिफ़ॉल्ट पर रीसेट करें</string>
 </resources>
