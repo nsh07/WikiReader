@@ -577,10 +577,7 @@ fun String.toWikitextAnnotatedString(
                     if ((i == 0 || input[i - 1] == '\n') && newLine) {
                         val bulletCount =
                             input.substring(i).substringBefore(' ').count { it == '*' }
-                        val curr =
-                            if (input.getOrNull(i + bulletCount) == ' ') {
-                                input.substring(i + bulletCount + 1).substringBefore('\n')
-                            } else input.substring(i + bulletCount).substringBefore('\n')
+                        val curr = input.substring(i).substringBefore('\n')
                         withStyle(
                             ParagraphStyle(
                                 textIndent = TextIndent(restLine = (12 * bulletCount).sp),
@@ -595,15 +592,17 @@ fun String.toWikitextAnnotatedString(
                             append(bullet)
                             append("\t\t")
                             append(
-                                curr.toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize
-                                )
+                                curr.substringAfterLast('*')
+                                    .trim()
+                                    .toWikitextAnnotatedString(
+                                        colorScheme,
+                                        typography,
+                                        loadPage,
+                                        fontSize
+                                    )
                             )
                         }
-                        i += bulletCount + curr.length + 1
+                        i += curr.length
                     } else append(input[i])
 
                 '=' ->

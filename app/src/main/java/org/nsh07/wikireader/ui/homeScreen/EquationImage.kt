@@ -1,15 +1,15 @@
 package org.nsh07.wikireader.ui.homeScreen
 
 import android.content.Context
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asComposeColorFilter
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -25,6 +25,15 @@ fun EquationImage(
     fontSize: Int,
     darkTheme: Boolean
 ) {
+    val colorMatrixInvert = remember {
+        floatArrayOf(
+            -1f, 0f, 0f, 0f, 255f, // Red
+            0f, -1f, 0f, 0f, 255f, // Green
+            0f, 0f, -1f, 0f, 255f, // Blue
+            0f, 0f, 0f, 1f, 0f   // Alpha
+        )
+    }
+
     Box(modifier = Modifier.horizontalScroll(rememberScrollState())) {
         AsyncImage(
             model = ImageRequest.Builder(context)
@@ -39,10 +48,7 @@ fun EquationImage(
             error = painterResource(R.drawable.error),
             contentDescription = null,
             colorFilter = if (darkTheme) // Invert colors in dark theme
-                PorterDuffColorFilter(
-                    0xffffffff.toInt(),
-                    PorterDuff.Mode.SRC_IN
-                ).asComposeColorFilter()
+                ColorFilter.colorMatrix(ColorMatrix(colorMatrixInvert))
             else null,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
         )

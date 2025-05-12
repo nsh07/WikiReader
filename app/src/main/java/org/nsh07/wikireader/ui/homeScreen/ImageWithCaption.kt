@@ -1,7 +1,5 @@
 package org.nsh07.wikireader.ui.homeScreen
 
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
@@ -14,7 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.asComposeColorFilter
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,6 +31,15 @@ fun ImageWithCaption(
     onLinkClick: (String) -> Unit,
     onClick: (String, String) -> Unit
 ) {
+    val colorMatrixInvert = remember {
+        floatArrayOf(
+            -1f, 0f, 0f, 0f, 255f, // Red
+            0f, -1f, 0f, 0f, 255f, // Green
+            0f, 0f, -1f, 0f, 255f, // Blue
+            0f, 0f, 0f, 1f, 0f   // Alpha
+        )
+    }
+
     val uriLow = remember(text) {
         "https://commons.wikimedia.org/wiki/Special:FilePath/${
             text.substringAfter(':').substringBefore('|').substringBefore("]]")
@@ -51,10 +59,7 @@ fun ImageWithCaption(
         imageLoader = imageLoader,
         loadingIndicator = false,
         colorFilter = if (invert && darkTheme && !background) // Invert colors in dark theme
-            PorterDuffColorFilter(
-                0xffffffff.toInt(),
-                PorterDuff.Mode.SRC_IN
-            ).asComposeColorFilter()
+            ColorFilter.colorMatrix(ColorMatrix(colorMatrixInvert))
         else null,
         background = background,
         modifier = Modifier
