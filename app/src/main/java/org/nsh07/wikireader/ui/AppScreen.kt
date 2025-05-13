@@ -14,8 +14,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -31,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -333,6 +336,8 @@ fun AppScreen(
                             imageLoader = imageLoader,
                             searchListState = searchListState,
                             windowSizeClass = windowSizeClass,
+                            languageSearchStr = languageSearchStr,
+                            languageSearchQuery = languageSearchQuery,
                             loadSearch = {
                                 scope.launch {
                                     searchBarState.animateToCollapsed()
@@ -341,6 +346,8 @@ fun AppScreen(
                             },
                             loadSearchDebounced = viewModel::loadSearchResultsDebounced,
                             loadPage = viewModel::loadPage,
+                            saveLang = viewModel::saveLang,
+                            updateLanguageSearchStr = viewModel::updateLanguageSearchStr,
                             onExpandedChange = {
                                 scope.launch {
                                     if (it) searchBarState.animateToExpanded()
@@ -392,6 +399,11 @@ fun AppScreen(
                         )
                     },
                     snackbarHost = { SnackbarHost(snackBarHostState) },
+                    contentWindowInsets =
+                        if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT)
+                            ScaffoldDefaults.contentWindowInsets
+                                .only(WindowInsetsSides.Top + WindowInsetsSides.Bottom + WindowInsetsSides.End)
+                        else ScaffoldDefaults.contentWindowInsets,
                     modifier =
                         if (searchBarScrollBehavior != null)
                             Modifier

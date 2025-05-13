@@ -4,15 +4,19 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -29,6 +33,7 @@ import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExpandedFullScreenSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -45,6 +50,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopSearchBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,7 +70,9 @@ import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.ui.image.FeedImage
+import org.nsh07.wikireader.ui.settingsScreen.LanguageBottomSheet
 import org.nsh07.wikireader.ui.viewModel.AppSearchBarState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
 
@@ -79,6 +88,10 @@ fun AppSearchBar(
     searchListState: LazyListState,
     windowSizeClass: WindowSizeClass,
     scrollBehavior: SearchBarScrollBehavior?,
+    languageSearchStr: String,
+    languageSearchQuery: String,
+    saveLang: (String) -> Unit,
+    updateLanguageSearchStr: (String) -> Unit,
     loadSearch: (String) -> Unit,
     loadSearchDebounced: (String) -> Unit,
     loadPage: (String) -> Unit,
@@ -94,9 +107,13 @@ fun AppSearchBar(
     val colorScheme = colorScheme
     val history = appSearchBarState.history.toList()
     val size = history.size
+
+    val (showLanguageSheet, setShowLanguageSheet) = remember { mutableStateOf(false) }
+
     LaunchedEffect(textFieldState.text) {
         loadSearchDebounced(textFieldState.text.toString())
     }
+
     val inputField =
         @Composable {
             SearchBarDefaults.InputField(
@@ -154,6 +171,11 @@ fun AppSearchBar(
         state = searchBarState,
         scrollBehavior = scrollBehavior,
         inputField = inputField,
+        windowInsets =
+            if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT)
+                SearchBarDefaults.windowInsets
+                    .only(WindowInsetsSides.Top + WindowInsetsSides.Bottom + WindowInsetsSides.End)
+            else SearchBarDefaults.windowInsets,
         modifier = modifier
             .fillMaxWidth()
             .drawBehind {
@@ -166,6 +188,18 @@ fun AppSearchBar(
         state = searchBarState,
         inputField = inputField
     ) {
+        if (showLanguageSheet)
+            LanguageBottomSheet(
+                lang = preferencesState.lang,
+                searchStr = languageSearchStr,
+                searchQuery = languageSearchQuery,
+                setShowSheet = setShowLanguageSheet,
+                setLang = {
+                    saveLang(it)
+                    loadSearchDebounced(textFieldState.text.toString())
+                },
+                setSearchStr = updateLanguageSearchStr
+            )
         AnimatedContent(textFieldState.text.trim().isEmpty()) {
             when (it) {
                 true ->
@@ -247,8 +281,24 @@ fun AppSearchBar(
                     }
 
                 else ->
-                    if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT)
+                    if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT) {
                         LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+                            item(span = { GridItemSpan(2) }) {
+                                Box(Modifier.padding(bottom = 16.dp)) {
+                                    FilledTonalButton(
+                                        onClick = { setShowLanguageSheet(true) },
+                                        modifier = Modifier.padding(
+                                            start = 16.dp,
+                                            end = 16.dp,
+                                            top = 16.dp
+                                        )
+                                    ) {
+                                        Icon(painterResource(R.drawable.translate), null)
+                                        Spacer(Modifier.width(8.dp))
+                                        Text(langCodeToName(preferencesState.lang))
+                                    }
+                                }
+                            }
                             items(
                                 appSearchBarState.prefixSearchResults ?: emptyList(),
                                 key = { "${it.title}-prefix" }
@@ -373,8 +423,22 @@ fun AppSearchBar(
                                 )
                             }
                         }
-                    else {
+                    } else {
                         LazyColumn(state = searchListState) {
+                            item {
+                                FilledTonalButton(
+                                    onClick = { setShowLanguageSheet(true) },
+                                    modifier = Modifier.padding(
+                                        start = 16.dp,
+                                        end = 16.dp,
+                                        top = 16.dp
+                                    )
+                                ) {
+                                    Icon(painterResource(R.drawable.translate), null)
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(langCodeToName(preferencesState.lang))
+                                }
+                            }
                             item {
                                 Text(
                                     text = stringResource(R.string.titleMatches),

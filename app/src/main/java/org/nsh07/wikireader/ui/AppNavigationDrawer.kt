@@ -1,6 +1,5 @@
 package org.nsh07.wikireader.ui
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
@@ -9,7 +8,6 @@ import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -20,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -59,6 +58,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -75,6 +75,7 @@ import org.nsh07.wikireader.ui.viewModel.FeedSection
 import org.nsh07.wikireader.ui.viewModel.FeedState
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 import kotlin.reflect.KClass
+
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -164,32 +165,33 @@ fun AppNavigationDrawer(
                 ) {
                     NavigationRail(
                         containerColor = containerColor,
-                        windowInsets = WindowInsets.systemBars.only(
-                            WindowInsetsSides.Top + WindowInsetsSides.Start
-                        ),
+                        windowInsets = NavigationRailDefaults.windowInsets
+                            .only(WindowInsetsSides.Top + WindowInsetsSides.Start),
                         header = {
-                            AnimatedContent(
-                                drawerState.targetValue,
-                                transitionSpec = {
-                                    (fadeIn(animationSpec = motionScheme.defaultEffectsSpec()) +
-                                            expandHorizontally(animationSpec = motionScheme.defaultSpatialSpec()))
-                                        .togetherWith(
-                                            fadeOut(animationSpec = motionScheme.defaultEffectsSpec()) +
-                                                    shrinkHorizontally(animationSpec = motionScheme.defaultSpatialSpec())
-                                        )
-                                }
-                            ) { targetValue ->
-                                when (targetValue) {
-                                    DrawerValue.Closed ->
-                                        IconButton(
-                                            onClick = {
-                                                coroutineScope.launch { drawerState.open() }
-                                            }
-                                        ) {
-                                            Icon(Icons.Outlined.Menu, null)
+                            Box {
+                                this@NavigationRail.AnimatedVisibility(
+                                    drawerState.targetValue == DrawerValue.Closed,
+                                    enter = fadeIn(animationSpec = motionScheme.defaultEffectsSpec()) +
+                                            expandHorizontally(animationSpec = motionScheme.defaultSpatialSpec()),
+                                    exit = fadeOut(animationSpec = motionScheme.defaultEffectsSpec()) +
+                                            shrinkHorizontally(animationSpec = motionScheme.defaultSpatialSpec())
+                                ) {
+                                    IconButton(
+                                        onClick = {
+                                            coroutineScope.launch { drawerState.open() }
                                         }
-
-                                    else -> Box(Modifier.width(316.dp)) {
+                                    ) {
+                                        Icon(Icons.Outlined.Menu, null)
+                                    }
+                                }
+                                this@NavigationRail.AnimatedVisibility(
+                                    drawerState.targetValue == DrawerValue.Open,
+                                    enter = fadeIn(animationSpec = motionScheme.defaultEffectsSpec()) +
+                                            expandHorizontally(animationSpec = motionScheme.defaultSpatialSpec()),
+                                    exit = fadeOut(animationSpec = motionScheme.defaultEffectsSpec()) +
+                                            shrinkHorizontally(animationSpec = motionScheme.defaultSpatialSpec())
+                                ) {
+                                    Box(Modifier.width(316.dp)) {
                                         IconButton(onClick = { coroutineScope.launch { drawerState.close() } }) {
                                             Icon(Icons.Outlined.Menu, null)
                                         }
@@ -218,7 +220,12 @@ fun AppNavigationDrawer(
                             )
                     )
                 }
-                Box(Modifier.width(this@BoxWithConstraints.maxWidth - drawerWidth)) {
+                Box(
+                    Modifier.width(
+                        this@BoxWithConstraints.maxWidth - (drawerWidth + NavigationRailDefaults.windowInsets.asPaddingValues()
+                            .calculateStartPadding(LocalLayoutDirection.current))
+                    )
+                ) {
                     content()
                 }
             }
@@ -462,58 +469,57 @@ private fun AppNavigationRailContent(
     modifier: Modifier = Modifier
 ) {
     val motionScheme = motionScheme
-    AnimatedContent(
-        drawerState.targetValue == DrawerValue.Closed,
-        transitionSpec = {
-            (fadeIn(animationSpec = motionScheme.defaultEffectsSpec()) +
-                    expandHorizontally(animationSpec = motionScheme.defaultSpatialSpec()))
-                .togetherWith(
-                    fadeOut(animationSpec = motionScheme.defaultEffectsSpec()) +
-                            shrinkHorizontally(animationSpec = motionScheme.defaultSpatialSpec())
-                )
-        }
-    ) {
-        when {
-            it -> {
-                Column(modifier = modifier) {
-                    items.forEach {
-                        NavigationRailItem(
-                            icon = {
-                                Crossfade(backStackEntry?.destination?.hasRoute(it.route)) { selected ->
-                                    when (selected) {
-                                        true -> Icon(
-                                            it.filledIcon,
+    Box {
+        AnimatedVisibility(
+            drawerState.targetValue == DrawerValue.Closed,
+            enter = fadeIn(animationSpec = motionScheme.defaultEffectsSpec()) +
+                    expandHorizontally(animationSpec = motionScheme.defaultSpatialSpec()),
+            exit = fadeOut(animationSpec = motionScheme.defaultEffectsSpec()) +
+                    shrinkHorizontally(animationSpec = motionScheme.defaultSpatialSpec())
+        ) {
+            Column(modifier = modifier) {
+                items.forEach {
+                    NavigationRailItem(
+                        icon = {
+                            Crossfade(backStackEntry?.destination?.hasRoute(it.route)) { selected ->
+                                when (selected) {
+                                    true -> Icon(
+                                        it.filledIcon,
+                                        contentDescription = null
+                                    )
+
+                                    else ->
+                                        Icon(
+                                            it.outlinedIcon,
                                             contentDescription = null
                                         )
-
-                                        else ->
-                                            Icon(
-                                                it.outlinedIcon,
-                                                contentDescription = null
-                                            )
-                                    }
                                 }
-                            },
-                            selected = backStackEntry?.destination?.hasRoute(it.route) == true,
-                            onClick = it.onClick
-                        )
-                    }
+                            }
+                        },
+                        selected = backStackEntry?.destination?.hasRoute(it.route) == true,
+                        onClick = it.onClick
+                    )
                 }
             }
-
-            else -> {
-                AppNavigationDrawerSheetContent(
-                    drawerState = drawerState,
-                    feedState = feedState,
-                    homeScreenState = homeScreenState,
-                    listState = listState,
-                    feedListState = feedListState,
-                    backStackEntry = backStackEntry,
-                    items = items,
-                    modifier = Modifier.width(360.dp),
-                    applyInsetPadding = false
-                )
-            }
+        }
+        AnimatedVisibility(
+            drawerState.targetValue == DrawerValue.Open,
+            enter = fadeIn(animationSpec = motionScheme.defaultEffectsSpec()) +
+                    expandHorizontally(animationSpec = motionScheme.defaultSpatialSpec()),
+            exit = fadeOut(animationSpec = motionScheme.defaultEffectsSpec()) +
+                    shrinkHorizontally(animationSpec = motionScheme.defaultSpatialSpec())
+        ) {
+            AppNavigationDrawerSheetContent(
+                drawerState = drawerState,
+                feedState = feedState,
+                homeScreenState = homeScreenState,
+                listState = listState,
+                feedListState = feedListState,
+                backStackEntry = backStackEntry,
+                items = items,
+                modifier = Modifier.width(360.dp),
+                applyInsetPadding = false
+            )
         }
     }
 }
