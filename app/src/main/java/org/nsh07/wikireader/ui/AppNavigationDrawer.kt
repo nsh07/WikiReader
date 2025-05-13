@@ -86,6 +86,7 @@ fun AppNavigationDrawer(
     feedListState: LazyListState,
     windowSizeClass: WindowSizeClass,
     backStackEntry: NavBackStackEntry?,
+    modifier: Modifier = Modifier,
     onAboutClick: () -> Unit,
     onHomeClick: () -> Unit,
     onSavedArticlesClick: () -> Unit,
@@ -93,6 +94,7 @@ fun AppNavigationDrawer(
     content: @Composable () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val motionScheme = motionScheme
     val items = listOf(
         Item(
             string.home,
@@ -139,6 +141,7 @@ fun AppNavigationDrawer(
             },
             drawerState = drawerState,
             gesturesEnabled = backStackEntry?.destination?.hasRoute(FullScreenImage::class) != true,
+            modifier = modifier,
             content = content
         )
     } else if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM) {
@@ -152,7 +155,7 @@ fun AppNavigationDrawer(
             else 0.dp,
             animationSpec = motionScheme.defaultSpatialSpec()
         )
-        BoxWithConstraints {
+        BoxWithConstraints(modifier = modifier) {
             Row(modifier = Modifier.horizontalScroll(rememberScrollState(), enabled = false)) {
                 AnimatedVisibility(
                     backStackEntry?.destination?.hasRoute(FullScreenImage::class) != true,
@@ -165,17 +168,33 @@ fun AppNavigationDrawer(
                             WindowInsetsSides.Top + WindowInsetsSides.Start
                         ),
                         header = {
-                            AnimatedContent(drawerState.targetValue) { targetValue ->
-                                if (targetValue == DrawerValue.Closed)
-                                    IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
-                                        Icon(Icons.Outlined.Menu, null)
-                                    }
-                                else
-                                    Box(Modifier.width(316.dp)) {
+                            AnimatedContent(
+                                drawerState.targetValue,
+                                transitionSpec = {
+                                    (fadeIn(animationSpec = motionScheme.defaultEffectsSpec()) +
+                                            expandHorizontally(animationSpec = motionScheme.defaultSpatialSpec()))
+                                        .togetherWith(
+                                            fadeOut(animationSpec = motionScheme.defaultEffectsSpec()) +
+                                                    shrinkHorizontally(animationSpec = motionScheme.defaultSpatialSpec())
+                                        )
+                                }
+                            ) { targetValue ->
+                                when (targetValue) {
+                                    DrawerValue.Closed ->
+                                        IconButton(
+                                            onClick = {
+                                                coroutineScope.launch { drawerState.open() }
+                                            }
+                                        ) {
+                                            Icon(Icons.Outlined.Menu, null)
+                                        }
+
+                                    else -> Box(Modifier.width(316.dp)) {
                                         IconButton(onClick = { coroutineScope.launch { drawerState.close() } }) {
                                             Icon(Icons.Outlined.Menu, null)
                                         }
                                     }
+                                }
                             }
                         },
                         content = {
@@ -224,6 +243,7 @@ fun AppNavigationDrawer(
                     )
                 }
             },
+            modifier = modifier,
             content = content
         )
     }
@@ -453,43 +473,47 @@ private fun AppNavigationRailContent(
                 )
         }
     ) {
-        if (it) {
-            Column(modifier = modifier) {
-                items.forEach {
-                    NavigationRailItem(
-                        icon = {
-                            Crossfade(backStackEntry?.destination?.hasRoute(it.route)) { selected ->
-                                when (selected) {
-                                    true -> Icon(
-                                        it.filledIcon,
-                                        contentDescription = null
-                                    )
-
-                                    else ->
-                                        Icon(
-                                            it.outlinedIcon,
+        when {
+            it -> {
+                Column(modifier = modifier) {
+                    items.forEach {
+                        NavigationRailItem(
+                            icon = {
+                                Crossfade(backStackEntry?.destination?.hasRoute(it.route)) { selected ->
+                                    when (selected) {
+                                        true -> Icon(
+                                            it.filledIcon,
                                             contentDescription = null
                                         )
+
+                                        else ->
+                                            Icon(
+                                                it.outlinedIcon,
+                                                contentDescription = null
+                                            )
+                                    }
                                 }
-                            }
-                        },
-                        selected = backStackEntry?.destination?.hasRoute(it.route) == true,
-                        onClick = it.onClick
-                    )
+                            },
+                            selected = backStackEntry?.destination?.hasRoute(it.route) == true,
+                            onClick = it.onClick
+                        )
+                    }
                 }
             }
-        } else {
-            AppNavigationDrawerSheetContent(
-                drawerState = drawerState,
-                feedState = feedState,
-                homeScreenState = homeScreenState,
-                listState = listState,
-                feedListState = feedListState,
-                backStackEntry = backStackEntry,
-                items = items,
-                modifier = Modifier.width(360.dp),
-                applyInsetPadding = false
-            )
+
+            else -> {
+                AppNavigationDrawerSheetContent(
+                    drawerState = drawerState,
+                    feedState = feedState,
+                    homeScreenState = homeScreenState,
+                    listState = listState,
+                    feedListState = feedListState,
+                    backStackEntry = backStackEntry,
+                    items = items,
+                    modifier = Modifier.width(360.dp),
+                    applyInsetPadding = false
+                )
+            }
         }
     }
 }

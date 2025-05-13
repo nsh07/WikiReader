@@ -54,16 +54,20 @@ fun AppFab(
             )
         ) {
             AnimatedContent(targetState = index > 1, label = "FAB Icon Animation") { isScrolled ->
-                if (isScrolled) {
-                    Icon(
-                        painterResource(R.drawable.upward),
-                        contentDescription = stringResource(R.string.scroll_to_top)
-                    )
-                } else {
-                    Icon(
-                        painterResource(R.drawable.shuffle),
-                        contentDescription = stringResource(R.string.randomArticle)
-                    )
+                when {
+                    isScrolled -> {
+                        Icon(
+                            painterResource(R.drawable.upward),
+                            contentDescription = stringResource(R.string.scroll_to_top)
+                        )
+                    }
+
+                    else -> {
+                        Icon(
+                            painterResource(R.drawable.shuffle),
+                            contentDescription = stringResource(R.string.randomArticle)
+                        )
+                    }
                 }
             }
         }

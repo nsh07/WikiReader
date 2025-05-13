@@ -229,7 +229,8 @@ fun AppScreen(
                 launchSingleTop = true
                 restoreState = true
             }
-        }
+        },
+        modifier = modifier.background(MaterialTheme.colorScheme.surface)
     ) {
         NavHost(
             navController = navController,
@@ -277,8 +278,7 @@ fun AppScreen(
                     ) + fadeOut(motionScheme.fastEffectsSpec())
                 else
                     fadeOut(animationSpec = tween(90))
-            },
-            modifier = modifier.background(MaterialTheme.colorScheme.background)
+            }
         ) {
             composable<Home>(
                 deepLinks = listOf(

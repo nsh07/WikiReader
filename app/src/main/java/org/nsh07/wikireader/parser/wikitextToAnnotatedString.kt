@@ -404,6 +404,30 @@ fun String.toWikitextAnnotatedString(
                         } else if (currSubstring.startsWith("{{IPAc-en", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
                             append("/${curr.replace("|", "").replace(' ', nbsp)}/")
+                        } else if (currSubstring.startsWith("{{langx", ignoreCase = true)) {
+                            val lang = langCodeToName(
+                                currSubstring.substringAfter('|').substringBefore('|').trim()
+                            )
+                            val text = currSubstring.substringAfter('|').substringAfter('|')
+                                .substringBefore('|').trim()
+                            append(
+                                "[[$lang|$lang]]: ".toWikitextAnnotatedString(
+                                    colorScheme,
+                                    typography,
+                                    loadPage,
+                                    fontSize
+                                )
+                            )
+                            withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                                append(
+                                    text.toWikitextAnnotatedString(
+                                        colorScheme,
+                                        typography,
+                                        loadPage,
+                                        fontSize
+                                    )
+                                )
+                            }
                         } else if (currSubstring.startsWith("{{lang|", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
                             withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {

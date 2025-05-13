@@ -1,5 +1,6 @@
 package org.nsh07.wikireader.ui.homeScreen
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -68,16 +69,21 @@ fun ExpandableSection(
                 .clip(MaterialTheme.shapes.large)
                 .clickable(onClick = { expanded = !expanded })
         ) {
-            if (expanded) Icon(
-                Icons.Outlined.KeyboardArrowUp,
-                contentDescription = stringResource(R.string.collapse_section),
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-            else Icon(
-                Icons.Outlined.KeyboardArrowDown,
-                contentDescription = stringResource(R.string.expand_section),
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
+            AnimatedContent(expanded) { expanded ->
+                when (expanded) {
+                    true -> Icon(
+                        Icons.Outlined.KeyboardArrowUp,
+                        contentDescription = stringResource(R.string.collapse_section),
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+
+                    else -> Icon(
+                        Icons.Outlined.KeyboardArrowDown,
+                        contentDescription = stringResource(R.string.expand_section),
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
+            }
 
             Text(
                 text = remember {
