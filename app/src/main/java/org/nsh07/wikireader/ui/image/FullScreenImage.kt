@@ -3,18 +3,20 @@ package org.nsh07.wikireader.ui.image
 import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.gestures.animateZoomBy
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -32,18 +34,21 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntSize
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import coil3.ImageLoader
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FullScreenImage(
     photo: WikiPhoto?,
     photoDesc: WikiPhotoDesc?,
     title: String,
+    background: Boolean,
     imageLoader: ImageLoader,
     modifier: Modifier = Modifier,
     link: String? = null,
@@ -51,28 +56,49 @@ fun FullScreenImage(
 ) {
     var currentLightStatusBars = true
     val view = LocalView.current
+    val window = remember { (view.context as Activity).window }
+    val insetsController = remember { WindowCompat.getInsetsController(window, view) }
     DisposableEffect(null) {
         if (!view.isInEditMode) {
-            val window = (view.context as Activity).window
-            currentLightStatusBars =
-                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+            currentLightStatusBars = insetsController.isAppearanceLightStatusBars
+            insetsController.isAppearanceLightStatusBars = false
         }
 
         onDispose {
-            val window = (view.context as Activity).window
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
-                currentLightStatusBars
+            insetsController.apply {
+                show(WindowInsetsCompat.Type.statusBars())
+                show(WindowInsetsCompat.Type.navigationBars())
+                systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
+            }
+            insetsController.isAppearanceLightStatusBars = currentLightStatusBars
         }
     }
 
     var showTopBar by remember { mutableStateOf(true) }
+
+    LaunchedEffect(showTopBar) {
+        if (showTopBar) {
+            insetsController.apply {
+                show(WindowInsetsCompat.Type.statusBars())
+                show(WindowInsetsCompat.Type.navigationBars())
+                systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
+            }
+        } else {
+            insetsController.apply {
+                hide(WindowInsetsCompat.Type.statusBars())
+                hide(WindowInsetsCompat.Type.navigationBars())
+                systemBarsBehavior =
+                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             AnimatedVisibility(
                 showTopBar,
-                enter = fadeIn(),
-                exit = fadeOut()
+                enter = slideInVertically(motionScheme.defaultSpatialSpec()) { -it },
+                exit = slideOutVertically(motionScheme.defaultSpatialSpec()) { -it }
             ) {
                 FullScreenImageTopBar(
                     photoDesc = photoDesc,
@@ -106,12 +132,13 @@ fun FullScreenImage(
         val coroutineScope = rememberCoroutineScope()
 
         if (photo != null && photoDesc != null)
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                 PageImage(
                     photo = photo,
                     photoDesc = photoDesc,
                     imageLoader = imageLoader,
                     contentScale = ContentScale.Inside,
+                    background = background,
                     modifier = Modifier
                         .onSizeChanged { size = it }
                         .graphicsLayer(
@@ -121,7 +148,6 @@ fun FullScreenImage(
                             translationY = offset.y
                         )
                         .transformable(state = state)
-                        .align(Alignment.Center)
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onTap = {
@@ -139,5 +165,129 @@ fun FullScreenImage(
                         }
                 )
             }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+fun FullScreenImage(
+    uri: String,
+    description: String,
+    imageLoader: ImageLoader,
+    modifier: Modifier = Modifier,
+    link: String? = null,
+    background: Boolean,
+    onBack: () -> Unit,
+) {
+    var currentLightStatusBars = true
+    val view = LocalView.current
+    val window = remember { (view.context as Activity).window }
+    val insetsController = remember { WindowCompat.getInsetsController(window, view) }
+    DisposableEffect(null) {
+        if (!view.isInEditMode) {
+            currentLightStatusBars = insetsController.isAppearanceLightStatusBars
+            insetsController.isAppearanceLightStatusBars = false
+        }
+
+        onDispose {
+            insetsController.apply {
+                show(WindowInsetsCompat.Type.statusBars())
+                show(WindowInsetsCompat.Type.navigationBars())
+                systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
+            }
+            insetsController.isAppearanceLightStatusBars = currentLightStatusBars
+        }
+    }
+
+    var showTopBar by remember { mutableStateOf(true) }
+
+    LaunchedEffect(showTopBar) {
+        if (showTopBar) {
+            insetsController.apply {
+                show(WindowInsetsCompat.Type.statusBars())
+                show(WindowInsetsCompat.Type.navigationBars())
+                systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
+            }
+        } else {
+            insetsController.apply {
+                hide(WindowInsetsCompat.Type.statusBars())
+                hide(WindowInsetsCompat.Type.navigationBars())
+                systemBarsBehavior =
+                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            AnimatedVisibility(
+                showTopBar,
+                enter = slideInVertically(motionScheme.defaultSpatialSpec()) { -it },
+                exit = slideOutVertically(motionScheme.defaultSpatialSpec()) { -it }
+            ) {
+                FullScreenImageTopBar(
+                    description = description,
+                    link = link,
+                    onBack = onBack
+                )
+            }
+        },
+        containerColor = Color.Black,
+        modifier = modifier
+    ) { _ ->
+        var scale by remember { mutableFloatStateOf(1f) }
+        var offset by remember { mutableStateOf(Offset.Zero) }
+        var size by remember { mutableStateOf(IntSize.Zero) }
+
+        // Zoom/Offset logic. Also prevents image from going out of bounds
+        val state = rememberTransformableState { scaleChange, offsetChange, _ ->
+            val maxX = (size.width * (scale - 1) / 2f)
+            val maxY = (size.height * (scale - 1) / 2f)
+
+            scale = (scale * scaleChange).coerceIn(1f..8f)
+
+            offset += offsetChange.times(scale)
+            offset = Offset(
+                offset.x.coerceIn(-maxX, maxX),
+                offset.y.coerceIn(-maxY, maxY)
+            )
+        }
+
+        val coroutineScope = rememberCoroutineScope()
+
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+            PageImage(
+                uri = uri,
+                description = description,
+                imageLoader = imageLoader,
+                contentScale = ContentScale.Inside,
+                background = background,
+                modifier = Modifier
+                    .onSizeChanged { size = it }
+                    .graphicsLayer(
+                        scaleX = scale,
+                        scaleY = scale,
+                        translationX = offset.x,
+                        translationY = offset.y
+                    )
+                    .transformable(state = state)
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = {
+                                showTopBar = !showTopBar
+                            },
+                            onDoubleTap = {
+                                coroutineScope.launch {
+                                    if (scale == 1f) // Zoom in only if the image is zoomed out
+                                        state.animateZoomBy(4f)
+                                    else
+                                        state.animateZoomBy(0.25f)
+                                }
+                            }
+                        )
+                    }
+            )
+        }
     }
 }

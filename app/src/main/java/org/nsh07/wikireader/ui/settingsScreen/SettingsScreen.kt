@@ -2,28 +2,29 @@ package org.nsh07.wikireader.ui.settingsScreen
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.OutlinedCard
@@ -32,16 +33,18 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,88 +53,86 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
+import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.R.string
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.toColor
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
-import org.nsh07.wikireader.ui.viewModel.UiViewModel
 import kotlin.math.round
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsScreen(
     preferencesState: PreferencesState,
     homeScreenState: HomeScreenState,
-    viewModel: UiViewModel,
-    onBack: () -> Unit,
     windowSizeClass: WindowSizeClass,
+    languageSearchStr: String,
+    languageSearchQuery: String,
+    themeMap: Map<String, Pair<Int, String>>,
+    reverseThemeMap: Map<String, String>,
+    fontStyles: List<String>,
+    fontStyleMap: Map<String, String>,
+    reverseFontStyleMap: Map<String, String>,
+    saveTheme: (String) -> Unit,
+    saveColorScheme: (String) -> Unit,
+    saveLang: (String) -> Unit,
+    saveFontStyle: (String) -> Unit,
+    saveFontSize: (Int) -> Unit,
+    saveBlackTheme: (Boolean) -> Unit,
+    saveDataSaver: (Boolean) -> Unit,
+    saveExpandedSections: (Boolean) -> Unit,
+    saveImageBackground: (Boolean) -> Unit,
+    saveImmersiveMode: (Boolean) -> Unit,
+    saveRenderMath: (Boolean) -> Unit,
+    saveSearchHistory: (Boolean) -> Unit,
+    updateLanguageSearchStr: (String) -> Unit,
+    loadFeed: () -> Unit,
+    reloadPage: () -> Unit,
+    onBack: () -> Unit,
+    onResetSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
-    val appInfoIntent =
+    val coroutineScope = rememberCoroutineScope()
+
+    val appInfoIntent = remember {
         Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
             data = Uri.fromParts("package", context.packageName, null)
         }
-    val languageSearchStr = viewModel.languageSearchStr.collectAsState()
-    val languageSearchQuery = viewModel.languageSearchQuery.collectAsState("")
-
-    val themeMap: Map<String, Pair<Int, String>> = mapOf(
-        "auto" to Pair(R.drawable.brightness_auto, "System default"),
-        "light" to Pair(R.drawable.light_mode, "Light"),
-        "dark" to Pair(R.drawable.dark_mode, "Dark")
-    )
-    val reverseThemeMap: Map<String, String> = mapOf(
-        "System default" to "auto",
-        "Light" to "light",
-        "Dark" to "dark"
-    )
-    val fontStyleMap: Map<String, String> = mapOf(
-        "sans" to "Sans-serif",
-        "serif" to "Serif"
-    )
-    val reverseFontStyleMap: Map<String, String> = mapOf(
-        "Sans-serif" to "sans",
-        "Serif" to "serif"
-    )
-    val fontStyles = listOf("Sans-serif", "Serif")
+    }
 
     val theme = preferencesState.theme
     val fontStyle = preferencesState.fontStyle
     val color = preferencesState.colorScheme.toColor()
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val snackBarHostState = remember { SnackbarHostState() }
 
-    var blackTheme by remember { mutableStateOf(preferencesState.blackTheme) }
-    var expandedSections by remember { mutableStateOf(preferencesState.expandedSections) }
-    var immersiveMode by remember { mutableStateOf(preferencesState.immersiveMode) }
-    var dataSaver by remember { mutableStateOf(preferencesState.dataSaver) }
-    var renderMath by remember { mutableStateOf(preferencesState.renderMath) }
-    var searchHistory by remember { mutableStateOf(preferencesState.searchHistory) }
     val weight = remember {
-        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM ||
-            windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED
-        )
+        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM)
             1f
         else 0f
     }
 
-    val expandedIcon =
-        if (expandedSections) R.drawable.expand_all
-        else R.drawable.collapse_all
-    val dataSaverIcon =
-        if (dataSaver) R.drawable.data_saver_on
-        else R.drawable.data_saver_off
-
     val (showThemeDialog, setShowThemeDialog) = remember { mutableStateOf(false) }
+    val (showResetSettingsDialog, setShowResetSettingsDialog) = remember { mutableStateOf(false) }
     val (showColorSchemeDialog, setShowColorSchemeDialog) = remember { mutableStateOf(false) }
     val (showLanguageSheet, setShowLanguageSheet) = remember { mutableStateOf(false) }
-    var fontSizeFloat by remember { mutableFloatStateOf(preferencesState.fontSize.toFloat()) }
+    var animateFontSize by remember { mutableStateOf(true) }
+    var fontSizeFloat by remember(preferencesState.fontSize) { mutableFloatStateOf(preferencesState.fontSize.toFloat()) }
+    val fontSizeAnimated by animateFloatAsState(
+        fontSizeFloat,
+        animationSpec = if (animateFontSize) motionScheme.defaultSpatialSpec()
+        else tween(durationMillis = 0)
+    )
 
     if (showThemeDialog)
         ThemeDialog(
@@ -139,48 +140,54 @@ fun SettingsScreen(
             reverseThemeMap = reverseThemeMap,
             theme = theme,
             setShowThemeDialog = setShowThemeDialog,
-            setTheme = { viewModel.saveTheme(it) }
+            setTheme = saveTheme
         )
     if (showColorSchemeDialog)
         ColorSchemePickerDialog(
             currentColor = color,
-            onColorChange = { viewModel.saveColorScheme(it.toString()) },
+            onColorChange = { saveColorScheme(it.toString()) },
             setShowDialog = setShowColorSchemeDialog
+        )
+    if (showResetSettingsDialog)
+        ResetSettingsDialog(
+            onResetSettings = onResetSettings,
+            setShowResetSettingsDialog = setShowResetSettingsDialog,
+            showSnackbar = { coroutineScope.launch { snackBarHostState.showSnackbar(it) } }
         )
     if (showLanguageSheet)
         LanguageBottomSheet(
             lang = preferencesState.lang,
-            searchStr = languageSearchStr.value,
-            searchQuery = languageSearchQuery.value,
+            searchStr = languageSearchStr,
+            searchQuery = languageSearchQuery,
             setShowSheet = setShowLanguageSheet,
             setLang = {
-                viewModel.saveLang(it)
+                saveLang(it)
                 if (homeScreenState.status != WRStatus.FEED_NETWORK_ERROR &&
                     homeScreenState.status != WRStatus.FEED_LOADED
                 )
-                    viewModel.reloadPage()
+                    reloadPage()
                 else
-                    viewModel.loadFeed()
+                    loadFeed()
             },
-            setSearchStr = { viewModel.updateLanguageSearchStr(it) }
+            setSearchStr = updateLanguageSearchStr
         )
 
     Scaffold(
-        topBar = { SettingsTopBar(scrollBehavior = scrollBehavior, onBack = onBack) },
+        topBar = {
+            SettingsTopBar(
+                scrollBehavior = scrollBehavior,
+                onBack = onBack,
+                onResetSettings = { setShowResetSettingsDialog(true) })
+        },
+        snackbarHost = { SnackbarHost(snackBarHostState) },
         modifier = modifier
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { insets ->
-        Row {
-            if (weight != 0f) Spacer(Modifier.weight(weight))
-            Column(
-                modifier = Modifier
-                    .padding(top = insets.calculateTopPadding())
-                    .weight(4f)
-                    .verticalScroll(
-                        rememberScrollState()
-                    )
-            ) {
+        LazyColumn(
+            contentPadding = insets
+        ) {
+            item {
                 ListItem(
                     leadingContent = {
                         Icon(
@@ -189,14 +196,16 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Color scheme") },
+                    headlineContent = { Text(stringResource(string.settingColorScheme)) },
                     supportingContent = {
-                        if (color == Color.White) Text("Dynamic")
-                        else Text("Color")
+                        if (color == Color.White) Text(stringResource(string.colorSchemeDynamic))
+                        else Text(stringResource(string.colorSchemeColor))
                     },
                     modifier = Modifier
                         .clickable(onClick = { setShowColorSchemeDialog(true) })
                 )
+            }
+            item {
                 ListItem(
                     leadingContent = {
                         Icon(
@@ -204,11 +213,13 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Theme") },
+                    headlineContent = { Text(stringResource(string.settingTheme)) },
                     supportingContent = { Text(themeMap[theme]!!.second) },
                     modifier = Modifier
                         .clickable(onClick = { setShowThemeDialog(true) })
                 )
+            }
+            item {
                 ListItem(
                     leadingContent = {
                         Icon(
@@ -216,11 +227,13 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Wikipedia language") },
+                    headlineContent = { Text(stringResource(string.settingWikipediaLanguage)) },
                     supportingContent = { Text(langCodeToName(preferencesState.lang)) },
                     modifier = Modifier
                         .clickable(onClick = { setShowLanguageSheet(true) })
                 )
+            }
+            item {
                 ListItem(
                     leadingContent = {
                         Icon(
@@ -228,7 +241,7 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Font style") },
+                    headlineContent = { Text(stringResource(string.settingFontStyle)) },
                     supportingContent = {
                         SingleChoiceSegmentedButtonRow {
                             fontStyles.forEachIndexed { index, label ->
@@ -238,20 +251,21 @@ fun SettingsScreen(
                                         count = fontStyles.size
                                     ),
                                     onClick = {
-                                        viewModel.saveFontStyle(
+                                        saveFontStyle(
                                             reverseFontStyleMap[label] ?: "sans"
                                         )
                                     },
                                     selected = label == fontStyleMap[fontStyle],
                                     label = { Text(label) },
-                                    modifier = if (weight != 0f) Modifier.width(160.dp) else Modifier.width(
-                                        512.dp
-                                    )
+                                    modifier = if (weight != 0f) Modifier.width(160.dp)
+                                    else Modifier.width(256.dp)
                                 )
                             }
                         }
                     }
                 )
+            }
+            item {
                 ListItem(
                     leadingContent = {
                         Icon(
@@ -259,22 +273,28 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Font size") },
+                    headlineContent = { Text(stringResource(string.settingFontSize)) },
                     supportingContent = {
                         Column {
-                            Text("${round(fontSizeFloat).toInt()}pt")
+                            Text(round(fontSizeFloat).toInt().toString())
                             Slider(
-                                value = fontSizeFloat,
-                                onValueChange = { fontSizeFloat = it },
+                                value = fontSizeAnimated,
+                                onValueChange = {
+                                    animateFontSize = false
+                                    fontSizeFloat = it
+                                },
                                 valueRange = 10f..22f,
-                                steps = 5,
                                 onValueChangeFinished = {
-                                    viewModel.saveFontSize(round(fontSizeFloat).toInt())
+                                    animateFontSize = true
+                                    saveFontSize(round(fontSizeFloat).toInt())
+                                    fontSizeFloat = round(fontSizeFloat)
                                 }
                             )
                         }
                     }
                 )
+            }
+            item {
                 ListItem(
                     leadingContent = {
                         Icon(
@@ -282,17 +302,14 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Black theme") },
-                    supportingContent = { Text("Use a pure black dark theme") },
+                    headlineContent = { Text(stringResource(string.settingBlackTheme)) },
+                    supportingContent = { Text(stringResource(string.settingBlackThemeDesc)) },
                     trailingContent = {
                         Switch(
-                            checked = blackTheme,
-                            onCheckedChange = {
-                                blackTheme = it
-                                viewModel.saveBlackTheme(it)
-                            },
+                            checked = preferencesState.blackTheme,
+                            onCheckedChange = { saveBlackTheme(it) },
                             thumbContent = {
-                                if (blackTheme) {
+                                if (preferencesState.blackTheme) {
                                     Icon(
                                         imageVector = Icons.Outlined.Check,
                                         contentDescription = null,
@@ -303,24 +320,23 @@ fun SettingsScreen(
                         )
                     }
                 )
+            }
+            item {
                 ListItem(
                     leadingContent = {
                         Icon(
-                            painterResource(dataSaverIcon),
+                            painterResource(R.drawable.data_saver_on),
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Data saver") },
-                    supportingContent = { Text("Disable images and feed. Page images can still be opened by clicking the description card.") },
+                    headlineContent = { Text(stringResource(string.settingDataSaver)) },
+                    supportingContent = { Text(stringResource(string.settingDataSaverDesc)) },
                     trailingContent = {
                         Switch(
-                            checked = dataSaver,
-                            onCheckedChange = {
-                                dataSaver = it
-                                viewModel.saveDataSaver(it)
-                            },
+                            checked = preferencesState.dataSaver,
+                            onCheckedChange = { saveDataSaver(it) },
                             thumbContent = {
-                                if (dataSaver) {
+                                if (preferencesState.dataSaver) {
                                     Icon(
                                         imageVector = Icons.Outlined.Check,
                                         contentDescription = null,
@@ -331,24 +347,23 @@ fun SettingsScreen(
                         )
                     }
                 )
+            }
+            item {
                 ListItem(
                     leadingContent = {
                         Icon(
-                            painterResource(expandedIcon),
+                            painterResource(R.drawable.expand_all),
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Expand sections") },
-                    supportingContent = { Text("Expand all sections by default") },
+                    headlineContent = { Text(stringResource(string.settingExpandSections)) },
+                    supportingContent = { Text(stringResource(string.settingExpandSectionsDesc)) },
                     trailingContent = {
                         Switch(
-                            checked = expandedSections,
-                            onCheckedChange = {
-                                expandedSections = it
-                                viewModel.saveExpandedSections(it)
-                            },
+                            checked = preferencesState.expandedSections,
+                            onCheckedChange = { saveExpandedSections(it) },
                             thumbContent = {
-                                if (expandedSections) {
+                                if (preferencesState.expandedSections) {
                                     Icon(
                                         imageVector = Icons.Outlined.Check,
                                         contentDescription = null,
@@ -359,6 +374,8 @@ fun SettingsScreen(
                         )
                     }
                 )
+            }
+            item {
                 ListItem(
                     leadingContent = {
                         Icon(
@@ -366,17 +383,14 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Immersive mode") },
-                    supportingContent = { Text("Hide search bar and floating action buttons while scrolling. Enabled by default on small screen sizes.") },
+                    headlineContent = { Text(stringResource(string.settingImmersiveMode)) },
+                    supportingContent = { Text(stringResource(string.settingImmersiveModeDesc)) },
                     trailingContent = {
                         Switch(
-                            checked = immersiveMode,
-                            onCheckedChange = {
-                                immersiveMode = it
-                                viewModel.saveImmersiveMode(it)
-                            },
+                            checked = preferencesState.immersiveMode,
+                            onCheckedChange = { saveImmersiveMode(it) },
                             thumbContent = {
-                                if (immersiveMode) {
+                                if (preferencesState.immersiveMode) {
                                     Icon(
                                         imageVector = Icons.Outlined.Check,
                                         contentDescription = null,
@@ -387,6 +401,35 @@ fun SettingsScreen(
                         )
                     }
                 )
+            }
+            item {
+                ListItem(
+                    leadingContent = {
+                        Icon(
+                            painterResource(R.drawable.texture),
+                            contentDescription = null
+                        )
+                    },
+                    headlineContent = { Text(stringResource(string.settingImageBackground)) },
+                    supportingContent = { Text(stringResource(string.settingImageBackgroundDesc)) },
+                    trailingContent = {
+                        Switch(
+                            checked = preferencesState.imageBackground,
+                            onCheckedChange = { saveImageBackground(it) },
+                            thumbContent = {
+                                if (preferencesState.imageBackground) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                    )
+                                }
+                            }
+                        )
+                    }
+                )
+            }
+            item {
                 ListItem(
                     leadingContent = {
                         Icon(
@@ -394,19 +437,16 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Render math expressions") },
+                    headlineContent = { Text(stringResource(string.settingRenderMath)) },
                     supportingContent = {
-                        Text("Requires small amounts of additional data. Turn off to improve performance at the cost of readability.")
+                        Text(stringResource(string.settingRenderMathDesc))
                     },
                     trailingContent = {
                         Switch(
-                            checked = renderMath,
-                            onCheckedChange = {
-                                renderMath = it
-                                viewModel.saveRenderMath(it)
-                            },
+                            checked = preferencesState.renderMath,
+                            onCheckedChange = { saveRenderMath(it) },
                             thumbContent = {
-                                if (renderMath) {
+                                if (preferencesState.renderMath) {
                                     Icon(
                                         imageVector = Icons.Outlined.Check,
                                         contentDescription = null,
@@ -417,6 +457,8 @@ fun SettingsScreen(
                         )
                     }
                 )
+            }
+            item {
                 ListItem(
                     leadingContent = {
                         Icon(
@@ -424,19 +466,16 @@ fun SettingsScreen(
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text("Search history") },
+                    headlineContent = { Text(stringResource(string.settingSearchHistory)) },
                     supportingContent = {
-                        Text("Save search history. Existing history is unaffected by this option.")
+                        Text(stringResource(string.settingSearchHistoryDesc))
                     },
                     trailingContent = {
                         Switch(
-                            checked = searchHistory,
-                            onCheckedChange = {
-                                searchHistory = it
-                                viewModel.saveSearchHistory(it)
-                            },
+                            checked = preferencesState.searchHistory,
+                            onCheckedChange = { saveSearchHistory(it) },
                             thumbContent = {
-                                if (searchHistory) {
+                                if (preferencesState.searchHistory) {
                                     Icon(
                                         imageVector = Icons.Outlined.Check,
                                         contentDescription = null,
@@ -447,7 +486,9 @@ fun SettingsScreen(
                         )
                     }
                 )
+            }
 
+            item {
                 OutlinedCard(
                     modifier = Modifier.padding(16.dp),
                     shape = shapes.extraLarge
@@ -460,12 +501,15 @@ fun SettingsScreen(
                         Icon(
                             Icons.Outlined.Info,
                             tint = colorScheme.secondary,
-                            contentDescription = "Information",
+                            contentDescription = stringResource(string.information),
                             modifier = Modifier.size(24.dp)
                         )
-                        Text("Set as default", style = typography.headlineSmall)
                         Text(
-                            text = "You can set WikiReader as your default app for opening Wikipedia links. Click on the buttons below to know more or open settings.",
+                            stringResource(string.setAsDefault),
+                            style = typography.headlineSmall
+                        )
+                        Text(
+                            text = stringResource(string.setAsDefaultDesc),
                             style = typography.bodyLarge,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -474,22 +518,19 @@ fun SettingsScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Button(onClick = { context.startActivity(appInfoIntent) }) {
-                                Text("Settings")
+                                Text(stringResource(string.settings))
                             }
                             FilledTonalButton(
                                 onClick = {
                                     uriHandler.openUri("https://gist.github.com/nsh07/ed7571f3e2014b412037626a39d68ecd")
                                 }
                             ) {
-                                Text("Instructions")
+                                Text(stringResource(string.instructions))
                             }
                         }
                     }
                 }
-
-                Spacer(Modifier.height(insets.calculateBottomPadding()))
             }
-            if (weight != 0f) Spacer(Modifier.weight(weight))
         }
     }
 }

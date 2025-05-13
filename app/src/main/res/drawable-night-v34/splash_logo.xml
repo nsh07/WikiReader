@@ -1,0 +1,53 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:name="vector"
+            android:width="33dp"
+            android:height="33dp"
+            android:viewportWidth="33"
+            android:viewportHeight="33">
+            <group
+                android:name="group"
+                android:scaleX="0.7"
+                android:scaleY="0.7"
+                android:translateX="5"
+                android:translateY="5">
+                <path
+                    android:name="path"
+                    android:fillAlpha="0.75"
+                    android:fillColor="@android:color/system_on_surface_dark"
+                    android:pathData="M 16.933 23.192 L 9.706 10.675 L 24.16 10.675 Z" />
+                <path
+                    android:name="path_1"
+                    android:fillAlpha="0.75"
+                    android:fillColor="@android:color/system_on_surface_dark"
+                    android:pathData="M 16.933 23.192 L 9.706 10.675 L 24.16 10.675 Z" />
+            </group>
+        </vector>
+    </aapt:attr>
+    <target android:name="path">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="300"
+                android:interpolator="@android:anim/overshoot_interpolator"
+                android:propertyName="pathData"
+                android:startOffset="250"
+                android:valueFrom="M 16.933 23.192 L 9.706 10.675 L 24.16 10.675 Z"
+                android:valueTo="M 13.375 23.192 L 6.148 10.675 L 20.601 10.675 Z"
+                android:valueType="pathType" />
+        </aapt:attr>
+    </target>
+    <target android:name="path_1">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="300"
+                android:interpolator="@android:anim/overshoot_interpolator"
+                android:propertyName="pathData"
+                android:startOffset="250"
+                android:valueFrom="M 16.933 23.192 L 9.706 10.675 L 24.16 10.675 Z"
+                android:valueTo="M 20.492 23.192 L 13.265 10.675 L 27.718 10.675 Z"
+                android:valueType="pathType" />
+        </aapt:attr>
+    </target>
+</animated-vector>

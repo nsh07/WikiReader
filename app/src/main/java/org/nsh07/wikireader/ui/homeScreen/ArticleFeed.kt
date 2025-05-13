@@ -1,6 +1,7 @@
 package org.nsh07.wikireader.ui.homeScreen
 
 import android.icu.text.CompactDecimalFormat
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -55,7 +56,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -65,6 +67,7 @@ import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.viewModel.FeedState
 import java.time.LocalDate
@@ -73,7 +76,8 @@ import java.time.format.FormatStyle
 import kotlin.math.absoluteValue
 import kotlin.math.min
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
     ExperimentalMaterial3ExpressiveApi::class
 )
 @Composable
@@ -83,25 +87,26 @@ fun ArticleFeed(
     insets: PaddingValues,
     listState: LazyListState,
     windowSizeClass: WindowSizeClass,
+    imageBackground: Boolean,
     loadPage: (String) -> Unit,
     refreshFeed: () -> Unit,
     onImageClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
+    val configuration = LocalConfiguration.current
     var isRefreshing by remember { mutableStateOf(false) }
     val pullToRefreshState = rememberPullToRefreshState()
     val wide = remember { windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED }
     val df = remember {
         CompactDecimalFormat.getInstance(
-            context.resources.configuration.getLocales().get(0),
+            configuration.getLocales().get(0),
             CompactDecimalFormat.CompactStyle.SHORT
         )
     }
     val dtf = remember {
         DateTimeFormatter
             .ofLocalizedDate(FormatStyle.LONG)
-            .withLocale(context.resources.configuration.getLocales().get(0))
+            .withLocale(configuration.getLocales().get(0))
     }
     val coroutineScope = rememberCoroutineScope()
 
@@ -119,7 +124,9 @@ fun ArticleFeed(
         },
         indicator = {
             LoadingIndicator(
-                modifier = Modifier.align(Alignment.TopCenter),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = insets.calculateTopPadding()),
                 isRefreshing = isRefreshing,
                 state = pullToRefreshState
             )
@@ -128,12 +135,13 @@ fun ArticleFeed(
     ) {
         LazyColumn(
             state = listState,
+            contentPadding = insets,
             modifier = modifier.fillMaxSize()
         ) {
             if (feedState.tfa != null) {
                 item {
                     Text(
-                        "Featured article",
+                        stringResource(R.string.featuredArticle),
                         style = MaterialTheme.typography.headlineMedium,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
@@ -144,60 +152,98 @@ fun ArticleFeed(
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
-                }
-            }
-            if (feedState.tfa != null) {
-                item {
                     ElevatedCard(
                         onClick = { loadPage(feedState.tfa.titles?.canonical ?: "") },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
-                        FeedImage(
-                            source = feedState.tfa.originalImage?.source,
-                            description = feedState.tfa.titles?.normalized,
-                            width = feedState.tfa.originalImage?.width ?: 1,
-                            height = feedState.tfa.originalImage?.height ?: 1,
-                            imageLoader = imageLoader
-                        )
-                        Text(
-                            feedState.tfa.titles?.normalized ?: "(No Title)",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontFamily = FontFamily.Serif,
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp)
-                                .padding(top = 16.dp)
-                        )
-                        Text(
-                            feedState.tfa.description ?: "(No description)",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp, vertical = 4.dp)
-                        )
-                        Text(
-                            feedState.tfa.extract ?: "(No extract)",
-                            maxLines = 5,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp)
-                                .padding(top = 8.dp, bottom = 16.dp)
-                        )
+                        if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.EXPANDED) {
+                            FeedImage(
+                                source = feedState.tfa.originalImage?.source,
+                                description = feedState.tfa.titles?.normalized,
+                                width = feedState.tfa.originalImage?.width ?: 1,
+                                height = feedState.tfa.originalImage?.height ?: 1,
+                                imageLoader = imageLoader,
+                                background = imageBackground,
+                                loadingIndicator = false
+                            )
+                            Text(
+                                feedState.tfa.titles?.normalized ?: "",
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontFamily = FontFamily.Serif,
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .padding(top = 16.dp)
+                            )
+                            Text(
+                                feedState.tfa.description ?: "",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                            )
+                            Text(
+                                feedState.tfa.extract ?: "",
+                                maxLines = 5,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .padding(top = 8.dp, bottom = 16.dp)
+                            )
+                        } else {
+                            Row {
+                                FeedImage(
+                                    source = feedState.tfa.originalImage?.source,
+                                    description = feedState.tfa.titles?.normalized,
+                                    width = feedState.tfa.originalImage?.width ?: 1,
+                                    height = feedState.tfa.originalImage?.height ?: 1,
+                                    imageLoader = imageLoader,
+                                    background = imageBackground,
+                                    loadingIndicator = false,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        feedState.tfa.titles?.normalized ?: "",
+                                        style = MaterialTheme.typography.headlineMedium,
+                                        fontFamily = FontFamily.Serif,
+                                        modifier = Modifier
+                                            .padding(horizontal = 16.dp)
+                                            .padding(top = 16.dp)
+                                    )
+                                    Text(
+                                        feedState.tfa.description ?: "",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier
+                                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                                    )
+                                    Text(
+                                        feedState.tfa.extract ?: "",
+                                        maxLines = 5,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier
+                                            .padding(horizontal = 16.dp)
+                                            .padding(top = 8.dp, bottom = 16.dp)
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
             if (feedState.mostReadArticles != null) {
                 item {
                     Text(
-                        "Trending articles",
+                        stringResource(R.string.trendingArticles),
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .padding(top = 32.dp)
                     )
                     Text(
-                        "Top articles of the day",
+                        stringResource(R.string.topArticlesOTD),
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
@@ -206,7 +252,9 @@ fun ArticleFeed(
                     HorizontalPager(
                         state = pagerState,
                         verticalAlignment = Alignment.Top,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .animateContentSize()
                     ) {
                         ElevatedCard(
                             modifier = Modifier
@@ -221,7 +269,7 @@ fun ArticleFeed(
                                                 onClick = {
                                                     loadPage(
                                                         feedState.mostReadArticles[i].titles?.normalized
-                                                            ?: "(No title)"
+                                                            ?: ""
                                                     )
                                                 }
                                             )
@@ -233,13 +281,13 @@ fun ArticleFeed(
                                         ) {
                                             Text(
                                                 feedState.mostReadArticles[i].titles?.normalized
-                                                    ?: "(No title)",
+                                                    ?: "",
                                                 style = MaterialTheme.typography.titleMedium,
                                                 modifier = Modifier.padding(top = 16.dp)
                                             )
                                             Text(
                                                 feedState.mostReadArticles[i].description
-                                                    ?: "(No description)",
+                                                    ?: "",
                                                 maxLines = 2,
                                                 overflow = TextOverflow.Ellipsis
                                             )
@@ -272,6 +320,8 @@ fun ArticleFeed(
                                                 source = feedState.mostReadArticles[i].thumbnail?.source,
                                                 description = feedState.mostReadArticles[i].titles?.normalized,
                                                 imageLoader = imageLoader,
+                                                loadingIndicator = true,
+                                                background = imageBackground,
                                                 modifier = Modifier
                                                     .padding(16.dp)
                                                     .clip(shapes.large)
@@ -298,10 +348,16 @@ fun ArticleFeed(
                                 ) {
                                     Icon(
                                         Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
-                                        contentDescription = "Scroll left"
+                                        contentDescription = stringResource(R.string.scrollLeft)
                                     )
                                 }
-                                Text("Page ${pagerState.currentPage + 1} of ${pagerState.pageCount}")
+                                Text(
+                                    stringResource(
+                                        R.string.pageIndicator,
+                                        pagerState.currentPage + 1,
+                                        pagerState.pageCount
+                                    )
+                                )
                                 IconButton(
                                     onClick = {
                                         coroutineScope.launch {
@@ -314,7 +370,7 @@ fun ArticleFeed(
                                 ) {
                                     Icon(
                                         Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-                                        contentDescription = "Scroll right"
+                                        contentDescription = stringResource(R.string.scrollRight)
                                     )
                                 }
                             }
@@ -325,7 +381,7 @@ fun ArticleFeed(
             if (feedState.image != null) {
                 item {
                     Text(
-                        "Picture of the day",
+                        stringResource(R.string.picOfTheDay),
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
@@ -337,28 +393,64 @@ fun ArticleFeed(
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
-                        FeedImage(
-                            source = feedState.image.image?.source,
-                            description = feedState.image.description?.text,
-                            width = feedState.image.image?.width ?: 1,
-                            height = feedState.image.image?.height ?: 1,
-                            imageLoader = imageLoader
-                        )
-                        Text(
-                            feedState.image.description?.text?.parseAsHtml().toString(),
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp)
-                                .padding(top = 16.dp)
-                        )
-                        Text(
-                            (feedState.image.artist?.name
-                                ?: feedState.image.artist?.text)?.substringBefore('\n') +
-                                    " (" + feedState.image.credit?.text?.substringBefore(';') + ")",
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp)
-                                .padding(top = 8.dp, bottom = 16.dp)
-                        )
+                        if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.EXPANDED) {
+                            FeedImage(
+                                source = feedState.image.image?.source,
+                                description = feedState.image.description?.text,
+                                width = feedState.image.image?.width ?: 1,
+                                height = feedState.image.image?.height ?: 1,
+                                imageLoader = imageLoader,
+                                background = imageBackground,
+                                loadingIndicator = false
+                            )
+                            Text(
+                                feedState.image.description?.text?.parseAsHtml().toString(),
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .padding(top = 16.dp)
+                            )
+                            Text(
+                                (feedState.image.artist?.name
+                                    ?: feedState.image.artist?.text)?.substringBefore('\n') +
+                                        " (" + feedState.image.credit?.text?.substringBefore(';') + ")",
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .padding(top = 8.dp, bottom = 16.dp)
+                            )
+                        } else {
+                            Row {
+                                FeedImage(
+                                    source = feedState.image.image?.source,
+                                    description = feedState.image.description?.text,
+                                    width = feedState.image.image?.width ?: 1,
+                                    height = feedState.image.image?.height ?: 1,
+                                    imageLoader = imageLoader,
+                                    background = imageBackground,
+                                    loadingIndicator = false,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Column(Modifier.weight(1f)) {
+                                    Text(
+                                        feedState.image.description?.text?.parseAsHtml().toString(),
+                                        modifier = Modifier
+                                            .padding(horizontal = 16.dp)
+                                            .padding(top = 16.dp)
+                                    )
+                                    Text(
+                                        (feedState.image.artist?.name
+                                            ?: feedState.image.artist?.text)?.substringBefore('\n') +
+                                                " (" + feedState.image.credit?.text?.substringBefore(
+                                            ';'
+                                        ) + ")",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier
+                                            .padding(horizontal = 16.dp)
+                                            .padding(top = 8.dp, bottom = 16.dp)
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -366,7 +458,7 @@ fun ArticleFeed(
                 item {
                     val carouselState = rememberCarouselState(0) { feedState.news.size }
                     Text(
-                        "In the news",
+                        stringResource(R.string.inTheNews),
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
@@ -392,6 +484,8 @@ fun ArticleFeed(
                                     ?.thumbnail?.source,
                                 description = null,
                                 imageLoader = imageLoader,
+                                loadingIndicator = false,
+                                background = imageBackground,
                                 modifier = Modifier
                                     .maskClip(shapes.extraLarge)
                             )
@@ -462,7 +556,7 @@ fun ArticleFeed(
                 item {
                     val carouselState = rememberCarouselState(0) { feedState.onThisDay.size }
                     Text(
-                        "On this day",
+                        stringResource(R.string.onThisDay),
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
@@ -500,6 +594,8 @@ fun ArticleFeed(
                                         ?.thumbnail?.source,
                                     description = null,
                                     imageLoader = imageLoader,
+                                    loadingIndicator = false,
+                                    background = imageBackground,
                                     modifier = Modifier
                                         .maskClip(shapes.extraLarge)
                                 )
@@ -518,7 +614,7 @@ fun ArticleFeed(
                                 ) {}
                                 Column(modifier = Modifier.align(Alignment.BottomStart)) {
                                     Text(
-                                        feedState.onThisDay[i].text ?: "(No text)",
+                                        feedState.onThisDay[i].text ?: "",
                                         maxLines = 10,
                                         overflow = TextOverflow.Ellipsis,
                                         color = Color.White,
@@ -556,7 +652,7 @@ fun ArticleFeed(
                                                     }
                                                 ) {
                                                     Text(
-                                                        it.titles?.normalized ?: "(No title)",
+                                                        it.titles?.normalized ?: "",
                                                         maxLines = 1,
                                                         overflow = TextOverflow.Ellipsis,
                                                         color = Color.White
@@ -571,7 +667,7 @@ fun ArticleFeed(
                 }
             }
             item {
-                Spacer(Modifier.height(insets.calculateBottomPadding() + 152.dp))
+                Spacer(Modifier.height(156.dp))
             }
         }
     }

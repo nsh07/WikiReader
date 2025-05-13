@@ -10,6 +10,9 @@
 
 <div align="center">
 
+<a href="https://hosted.weblate.org/engage/wikireader/?utm_source=widget">
+  <img src="https://img.shields.io/weblate/progress/wikireader?logo=weblate&labelColor=1a1a1a&color=2ecba9">
+</a>
 <a href="https://github.com/nsh07/WikiReader/releases/latest">
   <img src="https://img.shields.io/github/v/release/nsh07/WikiReader?logo=github&labelColor=1a1a1a">
 </a>
@@ -25,12 +28,19 @@ A lightweight Android app for reading Wikipedia articles distraction-free
 
 Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia languages
 
-<a href="https://apt.izzysoft.de/fdroid/index/apk/org.nsh07.wikireader">
-  <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" width="200">
-</a>
-<a href="https://f-droid.org/packages/org.nsh07.wikireader">
-    <img src="https://f-droid.org/badge/get-it-on.png" width="200">
-</a>
+<p>
+  <a href="https://apt.izzysoft.de/fdroid/index/apk/org.nsh07.wikireader">
+    <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" width="200">
+  </a>
+  <a href="https://f-droid.org/packages/org.nsh07.wikireader">
+      <img src="https://f-droid.org/badge/get-it-on.png" width="200">
+  </a>
+</p>
+<p>
+  <a href="https://hosted.weblate.org/engage/wikireader/">
+    <img src="https://hosted.weblate.org/widget/wikireader/287x66-black.png" alt="Translation status" />
+  </a>
+</p>
 
 </div>
 
@@ -45,6 +55,8 @@ Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia l
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="30%">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="30%">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width="30%">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width="30%">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" width="60%">
 </p>
 
 ## Features
@@ -69,6 +81,21 @@ Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia l
 - **Data saver:** Save your limited data plan by loading text only
 - **Math expressions:** View properly rendered mathematical expressions for easily reading
   mathematical articles
+
+## Translation
+
+This project is [available on Hosted Weblate](https://hosted.weblate.org/engage/wikireader/) for
+translation.
+
+You can contribute to this project even if you are not a developer by helping in
+translating this project into languages you know.
+
+<a href="https://hosted.weblate.org/engage/wikireader/">
+<img src="https://hosted.weblate.org/widget/wikireader/open-graph.png" alt="Translation status" width="400" />
+</a>
+<a href="https://hosted.weblate.org/engage/wikireader/">
+<img src="https://hosted.weblate.org/widget/wikireader/multi-auto.svg" alt="Translation statistics" />
+</a>
 
 ## Special Thanks
 

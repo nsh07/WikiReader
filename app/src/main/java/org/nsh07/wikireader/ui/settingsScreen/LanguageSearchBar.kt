@@ -9,6 +9,8 @@ import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import org.nsh07.wikireader.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,8 +27,13 @@ fun LanguageSearchBar(
                 onSearch = {},
                 expanded = false,
                 onExpandedChange = {},
-                placeholder = { Text("Search languages...") },
-                leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = "Search") },
+                placeholder = { Text(stringResource(R.string.searchLanguages)) },
+                leadingIcon = {
+                    Icon(
+                        Icons.Outlined.Search,
+                        contentDescription = stringResource(R.string.search)
+                    )
+                },
             )
         },
         expanded = false,

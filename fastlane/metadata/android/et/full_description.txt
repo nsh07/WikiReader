@@ -1,0 +1,19 @@
+<p>Lihtne ja kiire Androidi rakendus Vikipeedia artiklite lugemiseks kõrvalise mürata. Toetab heledat ja tumedat kujundust, Material You dünaamilisi värve ja üle 300 Vikipeedia keele ning on kohandatav lihtsast kasutajaliidesest.</p>
+
+<p>Kirjeldus</p>
+<ul>
+    <li><b>Kiire laadimine:</b> Artikli tekst laaditakse esimesena ja saad kohe asuda sisu lugema</li>
+    <li><b>Uudisvood:</b> Tänase päeva artikkel, populaarsust koguvad otsingud ja viimased uudised </li>
+    <li><b>Artikli pildid:</b> Vaata teemakohast pilti ja suurenda seda kasvõi täisekraanivaateni</li>
+    <li><b>Juhuslik artikkel:</b> Tahad vaadata, mis ette satub? Klõpsi juhusliku artikli linki ja loe seda</li>
+    <li><b>Vali oma keel: Leia endale sobilik enam kui 300 Vikipeedia keele seast</b></li>
+    <li><b>Salvesta artikleid:</b> Laadi artiklid oma nutiseadmesse ja loe hiljem ilma võrguühendust kasutamata (näiteks lennukis)</li>
+    <li><b>Kasutatav ühe käega:</b> Selleks vajalikud ujuvad juhtnupud asuvadekraani alumises ääres </li>
+    <li><b>Väike:</b> Käivitud kiiresti ja toimib sujuvalt</li>
+    <li><b>Material Design 3:</b> Vastab viimastele Material Design 3 reeglitele</li>
+    <li><b>Sujuvad animatsioonid:</b> Lendleva tunnetusega animatsioonid</li>
+    <li><b>Sulle sobivad värvid:</b> Vali heleda ja tumeda kujunduse vahel ning kasuta Material Design 3 värvikohendusi</li>
+    <li><b>Sulle sobiv kirjatüüp:</b> Vali selline kirjatüübi suurus, mis vastab sinu lugemisharjumusele </li>
+    <li><b>Andmesäästlik:</b> Võid piirduda vaid tekstide kuvamisega ja säästa andmeliikluse mahu peal</li>
+    <li><b>Matemaatikavalemid:</b> Teemakohastes artiklites joonistatakse valemid sellistena, nagu nad olema peavad</li>
+</ul>

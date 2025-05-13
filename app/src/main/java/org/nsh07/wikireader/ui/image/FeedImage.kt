@@ -1,22 +1,27 @@
 package org.nsh07.wikireader.ui.image
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import coil3.ImageLoader
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
@@ -33,6 +38,9 @@ fun FeedImage(
     width: Int? = null,
     height: Int? = null,
     imageLoader: ImageLoader,
+    loadingIndicator: Boolean,
+    background: Boolean,
+    colorFilter: ColorFilter? = null,
     contentScale: ContentScale = ContentScale.Crop
 ) {
     val context = LocalContext.current
@@ -42,7 +50,7 @@ fun FeedImage(
             .crossfade(true)
             .build(),
         imageLoader = imageLoader,
-        contentScale = contentScale
+        contentScale = contentScale,
     )
 
     val painterState by painter.state.collectAsState()
@@ -52,13 +60,17 @@ fun FeedImage(
             painter = painter,
             contentDescription = description,
             contentScale = contentScale,
+            colorFilter = colorFilter,
             modifier =
                 if (width != null && height != null)
                     modifier
                         .fillMaxWidth()
                         .aspectRatio(width.toFloat() / height.toFloat())
+                        .background(if (background) Color.White else Color.Transparent)
                 else
-                    modifier.fillMaxSize()
+                    modifier
+                        .fillMaxSize()
+                        .background(if (background) Color.White else Color.Transparent)
         )
     } else if (painterState is AsyncImagePainter.State.Loading) {
         Box(
@@ -69,9 +81,11 @@ fun FeedImage(
                         .fillMaxWidth()
                         .aspectRatio(width.toFloat() / height.toFloat())
                 else
-                    modifier.fillMaxSize()
+                    modifier
+                        .fillMaxSize()
         ) {
-            LoadingIndicator()
+            if (loadingIndicator) LoadingIndicator()
+            else CircularWavyProgressIndicator()
         }
     } else {
         Box(
@@ -86,8 +100,8 @@ fun FeedImage(
         ) {
             Icon(
                 painterResource(R.drawable.error),
-                contentDescription = "Error loading image",
-                tint = MaterialTheme.colorScheme.error
+                contentDescription = stringResource(R.string.errorLoadingImage),
+                tint = colorScheme.error
             )
         }
     }

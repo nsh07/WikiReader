@@ -1,5 +1,6 @@
 package org.nsh07.wikireader.ui.settingsScreen
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.nsh07.wikireader.R
@@ -48,14 +50,16 @@ fun ColorPickerButton(
             .clip(CircleShape)
             .background(color)
     ) {
-        when (isSelected) {
-            true -> Icon(Icons.Outlined.Check, tint = Color.Black, contentDescription = null)
-            false ->
-                if (color == Color.White) Icon(
-                    painterResource(R.drawable.colors),
-                    tint = Color.Black,
-                    contentDescription = null
-                )
+        AnimatedContent(isSelected) { isSelected ->
+            when (isSelected) {
+                true -> Icon(Icons.Outlined.Check, tint = Color.Black, contentDescription = null)
+                else ->
+                    if (color == Color.White) Icon(
+                        painterResource(R.drawable.colors),
+                        tint = Color.Black,
+                        contentDescription = null
+                    )
+            }
         }
     }
 }
@@ -88,7 +92,7 @@ fun ColorSchemePickerDialog(
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
                 Text(
-                    text = "Choose color scheme",
+                    text = stringResource(R.string.chooseColorScheme),
                     style = MaterialTheme.typography.headlineSmall
                 )
 
@@ -121,7 +125,7 @@ fun ColorSchemePickerDialog(
                     onClick = { setShowDialog(false) },
                     modifier = Modifier.align(Alignment.End)
                 ) {
-                    Text("OK")
+                    Text(stringResource(R.string.ok))
                 }
             }
         }

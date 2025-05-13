@@ -9,6 +9,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.core.text.parseAsHtml
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -129,6 +130,9 @@ class UiViewModel(
                 appPreferencesRepository.readBooleanPreference("expanded-sections")
                     ?: appPreferencesRepository.saveBooleanPreference("expanded-sections", false)
 
+            val imageBackground = appPreferencesRepository.readBooleanPreference("image-background")
+                ?: appPreferencesRepository.saveBooleanPreference("image-background", false)
+
             val immersiveMode = appPreferencesRepository.readBooleanPreference("immersive-mode")
                 ?: appPreferencesRepository.saveBooleanPreference("immersive-mode", false)
 
@@ -146,6 +150,7 @@ class UiViewModel(
                     expandedSections = expandedSections,
                     fontSize = fontSize,
                     fontStyle = fontStyle,
+                    imageBackground = imageBackground,
                     immersiveMode = immersiveMode,
                     lang = lang,
                     renderMath = renderMath,
@@ -364,8 +369,6 @@ class UiViewModel(
         viewModelScope.launch(loaderJob) {
             var setLang = preferencesState.value.lang
             if (title != null || random) {
-                Log.d("ViewModel", "Cancelled all jobs")
-
                 try {
                     if (lang != null) {
                         interceptor.setHost("$lang.wikipedia.org")
@@ -430,6 +433,8 @@ class UiViewModel(
                     }
 
                     sections = extract.size
+                    var sectionIndex = 3
+                    val articleSections = mutableListOf<Pair<Int, String>>()
                     val parsedExtract = mutableListOf<List<AnnotatedString>>()
 
                     _homeScreenState.update { currentState ->
@@ -448,11 +453,22 @@ class UiViewModel(
 
                     extract.forEachIndexed { index, it ->
                         currentSection = index + 1
-                        parsedExtract.add(parseWikitext(it))
+                        val parsed = parseWikitext(it)
+                        if (index % 2 == 1) {
+                            articleSections.add(
+                                Pair(
+                                    sectionIndex,
+                                    parsed.joinToString(separator = "").parseAsHtml().toString()
+                                )
+                            )
+                            sectionIndex += 2
+                        }
+                        parsedExtract.add(parsed)
                         _homeScreenState.update { currentState ->
                             currentState.copy(
                                 loadingProgress = currentSection.toFloat() / sections,
                                 extract = parsedExtract,
+                                sections = articleSections
                             )
                         }
                     }
@@ -465,7 +481,6 @@ class UiViewModel(
                         _articleListState.update {
                             LazyListState(listStatePair.first, listStatePair.second)
                         }
-                    Log.d("ViewModel", "Search: HomeScreenState updated")
                 } catch (e: Exception) {
                     Log.e("ViewModel", "Error in fetching results: ${e.message}")
                     e.printStackTrace()
@@ -494,7 +509,6 @@ class UiViewModel(
                             savedStatus = SavedStatus.NOT_SAVED
                         )
                     }
-                    Log.d("ViewModel", "Search: HomeScreenState updated")
                 }
 
                 if (lang != null)
@@ -554,6 +568,8 @@ class UiViewModel(
 
                 try {
                     val feed = wikipediaRepository.getFeed()
+                    val sections = mutableListOf<Pair<Int, FeedSection>>()
+                    var currentSection = 0
 
                     _feedState.update { currentState ->
                         currentState.copy(
@@ -563,6 +579,30 @@ class UiViewModel(
                             news = feed.news,
                             onThisDay = feed.onThisDay
                         )
+                    }
+
+                    if (feedState.value.tfa != null) {
+                        sections.add(Pair(currentSection, FeedSection.TFA))
+                        currentSection++
+                    }
+                    if (feedState.value.mostReadArticles != null) {
+                        sections.add(Pair(currentSection, FeedSection.MOST_READ))
+                        currentSection++
+                    }
+                    if (feedState.value.image != null) {
+                        sections.add(Pair(currentSection, FeedSection.IMAGE))
+                        currentSection++
+                    }
+                    if (feedState.value.news != null) {
+                        sections.add(Pair(currentSection, FeedSection.NEWS))
+                        currentSection++
+                    }
+                    if (feedState.value.onThisDay != null) {
+                        sections.add(Pair(currentSection, FeedSection.ON_THIS_DAY))
+                    }
+
+                    _feedState.update { currentState ->
+                        currentState.copy(sections = sections)
                     }
 
                     if (!listOf(
@@ -579,8 +619,6 @@ class UiViewModel(
                     else _homeScreenState.update { currentState ->
                         currentState.copy(isLoading = false)
                     }
-
-                    Log.d("ViewModel", "Feed: HomeScreenState updated")
                 } catch (e: Exception) {
                     Log.e("ViewModel", "Error in loading feed: ${e.message}")
                     _homeScreenState.update { currentState ->
@@ -688,7 +726,6 @@ class UiViewModel(
                     )
                 }
                 updateLanguageFilters()
-                Log.d("ViewModel", "Updated saved state to ${homeScreenState.value.savedStatus}")
                 return WRStatus.SUCCESS
             } catch (e: Exception) {
                 Log.e(
@@ -724,7 +761,6 @@ class UiViewModel(
      * completed
      */
     fun migrateArticles() {
-        Log.d("ViewModel", "Migrating pre-2.0 articles")
         try {
             val articleList =
                 listArticles(filter = false).filterNot { it.contains("-api.") || it.contains("-content.") }
@@ -732,10 +768,6 @@ class UiViewModel(
             viewModelScope.launch {
                 articleList.forEach { // Sequentially reload and save articles, then delete old files
                     val oldFile = File(articlesDir, it)
-                    Log.d(
-                        "ViewModel",
-                        "Migrating ${it.substringBefore('.')} : ${it.substringAfterLast('.')}"
-                    )
                     val saved =
                         saveArticle(
                             title = it.substringBefore('.'),
@@ -743,10 +775,8 @@ class UiViewModel(
                         )
                     if (saved == WRStatus.SUCCESS) {
                         oldFile.delete()
-                        Log.d("ViewModel", "Migrated $it")
                     }
                 }
-                Log.d("ViewModel", "${articleList.size} articles migrated")
                 interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
             }
         } catch (e: Exception) {
@@ -818,7 +848,6 @@ class UiViewModel(
             out.add(it.fileName.toString())
         }
         out.sort()
-        Log.d("ViewModel", "${out.size} articles loaded")
         return if (filter) out.filter { it.contains("-api.") } else out
     }
 
@@ -836,7 +865,6 @@ class UiViewModel(
                     )
                 }
                 updateLanguageFilters()
-                Log.d("ViewModel", "${out.size} articles loaded")
             } catch (e: Exception) {
                 Log.e("ViewModel", "Cannot load list of downloaded articles, IO error")
                 e.printStackTrace()
@@ -855,7 +883,6 @@ class UiViewModel(
                 .walkTopDown()
                 .map { it.length() }
                 .sum()
-            Log.d("ViewModel", "Articles size loaded: $size")
             return size
         } catch (e: Exception) {
             Log.e("ViewModel", "Cannot load total article size, IO error")
@@ -879,6 +906,8 @@ class UiViewModel(
                 val extract: List<String> = parseSections(contentFile.readText())
 
                 sections = extract.size
+                var sectionIndex = 3
+                val articleSections = mutableListOf<Pair<Int, String>>()
                 val parsedExtract = mutableListOf<List<AnnotatedString>>()
 
                 val articleState = articleListState.value
@@ -913,11 +942,22 @@ class UiViewModel(
 
                 extract.forEachIndexed { index, it ->
                     currentSection = index + 1
-                    parsedExtract.add(parseWikitext(it))
+                    val parsed = parseWikitext(it)
+                    if (index % 2 == 1) {
+                        articleSections.add(
+                            Pair(
+                                sectionIndex,
+                                parsed.joinToString(separator = "").parseAsHtml().toString()
+                            )
+                        )
+                        sectionIndex += 2
+                    }
+                    parsedExtract.add(parsed)
                     _homeScreenState.update { currentState ->
                         currentState.copy(
                             loadingProgress = currentSection.toFloat() / sections,
                             extract = parsedExtract,
+                            sections = articleSections
                         )
                     }
                 }
@@ -930,7 +970,6 @@ class UiViewModel(
 
                 return@withContext WRStatus.SUCCESS
             } catch (e: Exception) {
-                Log.d("ViewModel", "Cannot load saved article, IO error")
                 e.printStackTrace()
                 return@withContext WRStatus.IO_ERROR
             }
@@ -961,9 +1000,15 @@ class UiViewModel(
             val parsed = cleanUpWikitext(wikitext)
             var curr = ""
             var i = 0
+            var stack = 0
             val out = mutableListOf<AnnotatedString>()
 
             while (i < parsed.length) {
+                if (parsed[i] == '{')
+                    stack++
+                else if (parsed[i] == '}')
+                    stack--
+
                 if (parsed[i] == '<') {
                     var currSubstring = parsed.substring(i, min(i + 16, parsed.length))
                     if (currSubstring.startsWith("<math display")) {
@@ -976,13 +1021,11 @@ class UiViewModel(
                                 fontSize = preferencesState.value.fontSize
                             )
                         )
-                        out.add(buildAnnotatedString { append(currSubstring) })
+                        out.add(AnnotatedString(currSubstring))
                         i += currSubstring.length + 7
                         curr = ""
-                    } else curr += parsed[i]
-                } else if (parsed[i] == '{' && parsed.getOrNull(i + 1) == '|') {
-                    val currSubstring = parsed.substringMatchingParen('{', '}', i)
-                    if (!currSubstring.substring(min(i + 2, currSubstring.lastIndex)).contains("{|")) {
+                    } else if (currSubstring.startsWith("<gallery")) {
+                        currSubstring = parsed.substring(i).substringBefore("</gallery>")
                         out.add(
                             curr.toWikitextAnnotatedString(
                                 colorScheme = colorScheme,
@@ -991,7 +1034,64 @@ class UiViewModel(
                                 fontSize = preferencesState.value.fontSize
                             )
                         )
-                        out.add(buildAnnotatedString { append(currSubstring) })
+                        out.add(AnnotatedString(currSubstring))
+                        i += currSubstring.length + 10
+                        curr = ""
+                    } else curr += parsed[i]
+                } else if (stack == 0 && parsed[i] == '[' && parsed.getOrNull(i + 1) == '[') {
+                    val currSubstring = parsed.substringMatchingParen('[', ']', i)
+                    if (currSubstring.contains(':')) {
+                        if (currSubstring
+                                .matches(
+                                    ".*\\.jpg.*|.*\\.jpeg.*|.*\\.png.*|.*\\.svg.*|.*\\.gif.*"
+                                        .toRegex(RegexOption.IGNORE_CASE)
+                                )
+                        ) {
+                            out.add(
+                                curr.toWikitextAnnotatedString(
+                                    colorScheme = colorScheme,
+                                    typography = typography,
+                                    loadPage = ::loadPage,
+                                    fontSize = preferencesState.value.fontSize
+                                )
+                            )
+                            out.add(
+                                buildAnnotatedString {
+                                    append("[[File:")
+                                    append(currSubstring.substringAfter(':').substringBefore('|'))
+                                    append('|')
+                                    append(
+                                        currSubstring.substringAfter('|').substringBeforeLast("]]")
+                                            .split('|')
+                                            .filterNot { it.matches("thumb|thumbnail|frame|frameless|border|baseline|class=.*|center|left|right|upright.*|.+px|alt=.*".toRegex()) }
+                                            .joinToString("|")
+                                    )
+                                    if (currSubstring.contains("class=skin-invert-image")) {
+                                        append("|invert")
+                                    }
+                                }
+                            )
+                            curr = ""
+                            i += currSubstring.length - 1
+                        } else
+                            curr += parsed[i]
+                    } else {
+                        curr += parsed[i]
+                    }
+                } else if (parsed[i] == '{' && parsed.getOrNull(i + 1) == '|') {
+                    val currSubstring = parsed.substringMatchingParen('{', '}', i)
+                    if (!currSubstring.substring(min(i + 2, currSubstring.lastIndex))
+                            .contains("{|")
+                    ) {
+                        out.add(
+                            curr.toWikitextAnnotatedString(
+                                colorScheme = colorScheme,
+                                typography = typography,
+                                loadPage = ::loadPage,
+                                fontSize = preferencesState.value.fontSize
+                            )
+                        )
+                        out.add(AnnotatedString(currSubstring))
                         curr = ""
                         i += currSubstring.length
                     } else {
@@ -1005,7 +1105,7 @@ class UiViewModel(
                                 fontSize = preferencesState.value.fontSize
                             )
                         )
-                        out.add(buildAnnotatedString { append(currSubstringNestedTable) })
+                        out.add(AnnotatedString(currSubstringNestedTable))
                         curr = ""
                         i += currSubstring.length
                     }
@@ -1020,7 +1120,7 @@ class UiViewModel(
                     fontSize = preferencesState.value.fontSize
                 )
             )
-            return@withContext out.toList()
+            out.toList()
         }
 
     fun focusSearchBar() {
@@ -1148,11 +1248,34 @@ class UiViewModel(
         }
     }
 
+    fun saveImageBackground(imageBackground: Boolean) {
+        viewModelScope.launch {
+            appPreferencesRepository.saveBooleanPreference("image-background", imageBackground)
+            _preferencesState.update { currentState ->
+                currentState.copy(imageBackground = imageBackground)
+            }
+        }
+    }
+
     fun saveImmersiveMode(immersiveMode: Boolean) {
         viewModelScope.launch {
             appPreferencesRepository.saveBooleanPreference("immersive-mode", immersiveMode)
             _preferencesState.update { currentState ->
                 currentState.copy(immersiveMode = immersiveMode)
+            }
+        }
+    }
+
+    fun resetSettings() {
+        viewModelScope.launch {
+            try {
+                appPreferencesRepository.resetSettings()
+                _preferencesState.update {
+                    PreferencesState()
+                }
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Error in restoring settings: ${e.message}")
+                e.printStackTrace()
             }
         }
     }

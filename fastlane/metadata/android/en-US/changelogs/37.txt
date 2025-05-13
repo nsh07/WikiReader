@@ -1,0 +1,14 @@
+New features:
+- New navigation rail for navigation and browsing article sections
+- In-article images and galleries are now supported
+- New settings options for image background and reset default settings
+- Pinch gesture to change font size
+- Splash screen now follows system colors and theme
+
+Enhancements:
+- Enhanced table handling
+- Bouncier and smoother animations (M3 Expressive)
+- Significantly improved tablet and foldable UX
+- Faster article loading
+
+And many more bug fixes and enhancements

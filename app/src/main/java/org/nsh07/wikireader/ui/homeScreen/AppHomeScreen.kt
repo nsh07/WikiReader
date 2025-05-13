@@ -6,15 +6,20 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -45,11 +50,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.window.core.layout.WindowSizeClass
-import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
 import kotlinx.coroutines.delay
 import org.nsh07.wikireader.R
@@ -63,6 +69,7 @@ import org.nsh07.wikireader.ui.theme.isDark
 import org.nsh07.wikireader.ui.viewModel.FeedState
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
+import kotlin.math.round
 
 /**
  * The app home screen composable.
@@ -94,8 +101,9 @@ fun AppHomeScreen(
     languageSearchStr: String,
     languageSearchQuery: String,
     showLanguageSheet: Boolean,
-    deepLinkHandled: Boolean,
+    onFontSizeChange: (Int) -> Unit,
     onImageClick: () -> Unit,
+    onGalleryImageClick: (String, String) -> Unit,
     onLinkClick: (String) -> Unit,
     refreshSearch: () -> Unit,
     refreshFeed: () -> Unit,
@@ -111,19 +119,15 @@ fun AppHomeScreen(
     val photo = homeScreenState.photo
     val photoDesc = homeScreenState.photoDesc
     val fontSize = preferencesState.fontSize
-    val weight = remember {
-        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM ||
-            windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED
-        )
-            1f
-        else 0f
-    }
     val fontFamily = remember(preferencesState.fontStyle) {
         if (preferencesState.fontStyle == "sans") FontFamily.SansSerif
         else FontFamily.Serif
     }
 
     val pullToRefreshState = rememberPullToRefreshState()
+    val transformableState = rememberTransformableState { zoomChange, _, _ ->
+        onFontSizeChange(round(fontSize * zoomChange).toInt().coerceIn(10, 22))
+    }
 
     var isRefreshing by remember { mutableStateOf(false) }
 
@@ -131,19 +135,26 @@ fun AppHomeScreen(
     if (s > 1) s -= 2
     else s = 0
 
-    val sendIntent: Intent = Intent()
-        .apply {
-            action = Intent.ACTION_SEND
-            putExtra(
-                Intent.EXTRA_TEXT,
-                "https://${preferencesState.lang}.wikipedia.org/wiki/${
-                    homeScreenState.title.replace(' ', '_')
-                }"
-            )
-            type = "text/plain"
-        }
-    val shareIntent = Intent.createChooser(sendIntent, null)
+    val sendIntent: Intent = remember(homeScreenState.title, homeScreenState.currentLang) {
+        Intent()
+            .apply {
+                action = Intent.ACTION_SEND
+                putExtra(
+                    Intent.EXTRA_TEXT,
+                    "https://${preferencesState.lang}.wikipedia.org/wiki/${
+                        homeScreenState.title.replace(' ', '_')
+                    }"
+                )
+                type = "text/plain"
+            }
+    }
+    val shareIntent = remember(homeScreenState.title, homeScreenState.currentLang) {
+        Intent.createChooser(sendIntent, null)
+    }
+
     val context = LocalContext.current
+    val systemBars = WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
+
     val lang = preferencesState.lang
     val pageId = homeScreenState.pageId
 
@@ -167,91 +178,102 @@ fun AppHomeScreen(
                 delay(3000)
                 isRefreshing = false
             } // hide refresh indicator after a delay
-            Row {
-                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
-                PullToRefreshBox(
-                    isRefreshing = isRefreshing,
-                    state = pullToRefreshState,
-                    onRefresh = {
-                        if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR)
-                            refreshFeed()
-                        else
-                            refreshSearch()
-                        isRefreshing = true
-                    },
-                    indicator = {
-                        LoadingIndicator(
-                            modifier = Modifier.align(Alignment.TopCenter),
-                            isRefreshing = isRefreshing,
-                            state = pullToRefreshState
-                        )
-                    },
-                    modifier = Modifier.weight(4f)
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                state = pullToRefreshState,
+                onRefresh = {
+                    if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR)
+                        refreshFeed()
+                    else
+                        refreshSearch()
+                    isRefreshing = true
+                },
+                indicator = {
+                    LoadingIndicator(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(top = insets.calculateTopPadding()),
+                        isRefreshing = isRefreshing,
+                        state = pullToRefreshState
+                    )
+                }
+            ) {
+                LazyColumn( // The article
+                    state = listState,
+                    contentPadding = insets,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .transformable(transformableState)
                 ) {
-                    LazyColumn( // The article
-                        state = listState,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        item { // Title
-                            Row(modifier = Modifier.padding(16.dp)) {
-                                FilledTonalButton(
-                                    onClick = { setShowArticleLanguageSheet(true) },
-                                    enabled = homeScreenState.langs?.isEmpty() == false
+                    item { // Top buttons
+                        Row(modifier = Modifier.padding(16.dp)) {
+                            FilledTonalButton(
+                                onClick = { setShowArticleLanguageSheet(true) },
+                                enabled = homeScreenState.langs?.isEmpty() == false
+                            ) {
+                                Icon(painterResource(R.drawable.translate), null)
+                                Spacer(Modifier.width(8.dp))
+                                Text(langCodeToName(preferencesState.lang))
+                            }
+                            Spacer(Modifier.weight(1f))
+                            FilledTonalIconButton(
+                                onClick = remember(
+                                    homeScreenState.title,
+                                    homeScreenState.currentLang
                                 ) {
-                                    Icon(painterResource(R.drawable.translate), null)
-                                    Spacer(Modifier.width(8.dp))
-                                    Text(langCodeToName(preferencesState.lang))
-                                }
-                                Spacer(Modifier.weight(1f))
-                                FilledTonalIconButton(
-                                    onClick = {
+                                    {
                                         context.startActivity(shareIntent)
-                                    },
-                                    enabled = homeScreenState.status == WRStatus.SUCCESS,
-                                    modifier = Modifier.padding(end = 8.dp)
-                                ) {
-                                    Icon(
-                                        painterResource(R.drawable.share),
-                                        contentDescription = "Share page"
-                                    )
-                                }
-                                FilledTonalIconButton(
-                                    onClick = saveArticle,
-                                    enabled = homeScreenState.status == WRStatus.SUCCESS
-                                ) {
-                                    AnimatedContent(
-                                        homeScreenState.savedStatus,
-                                        label = "saveAnimation"
-                                    ) { saved ->
-                                        when (saved) {
-                                            SavedStatus.SAVED ->
-                                                Icon(
-                                                    painterResource(R.drawable.download_done),
-                                                    contentDescription = "Delete downloaded article"
-                                                )
+                                    }
+                                },
+                                enabled = homeScreenState.status == WRStatus.SUCCESS,
+                                modifier = Modifier.padding(end = 8.dp)
+                            ) {
+                                Icon(
+                                    painterResource(R.drawable.share),
+                                    contentDescription = stringResource(R.string.sharePage)
+                                )
+                            }
+                            FilledTonalIconButton(
+                                onClick = saveArticle,
+                                enabled = homeScreenState.status == WRStatus.SUCCESS
+                            ) {
+                                AnimatedContent(
+                                    homeScreenState.savedStatus,
+                                    label = "saveAnimation"
+                                ) { saved ->
+                                    when (saved) {
+                                        SavedStatus.SAVED ->
+                                            Icon(
+                                                painterResource(R.drawable.download_done),
+                                                contentDescription = stringResource(R.string.deleteArticle)
+                                            )
 
-                                            SavedStatus.SAVING ->
-                                                LoadingIndicator()
+                                        SavedStatus.SAVING ->
+                                            LoadingIndicator()
 
-                                            else ->
-                                                Icon(
-                                                    painterResource(R.drawable.download),
-                                                    contentDescription = "Download article"
-                                                )
-                                        }
+                                        else ->
+                                            Icon(
+                                                painterResource(R.drawable.download),
+                                                contentDescription = stringResource(R.string.downloadArticle)
+                                            )
                                     }
                                 }
                             }
-                            HorizontalDivider()
                         }
-                        item { // Title + Image/description
-                            Text(
-                                text = homeScreenState.title,
-                                style = MaterialTheme.typography.displayMedium,
-                                fontFamily = FontFamily.Serif,
-                                modifier = Modifier.padding(16.dp)
-                            )
-                            if (photoDesc != null) {
+                        HorizontalDivider()
+                    }
+                    item { // Title + Image/description
+                        Text(
+                            text = homeScreenState.title,
+                            style = MaterialTheme.typography.displayMedium,
+                            fontFamily = FontFamily.Serif,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                        if (photoDesc != null) {
+//                            Box(
+//                                contentAlignment = Alignment.Center,
+//                                modifier = Modifier.fillMaxWidth()
+//                            ) {
                                 ImageCard(
                                     photo = photo,
                                     photoDesc = photoDesc,
@@ -259,54 +281,59 @@ fun AppHomeScreen(
                                     imageLoader = imageLoader,
                                     showPhoto = !preferencesState.dataSaver,
                                     onClick = onImageClick,
+                                    background = preferencesState.imageBackground,
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
-                            }
-                        }
-                        item { // Main description
-                            if (homeScreenState.extract.isNotEmpty())
-                                SelectionContainer {
-                                    ParsedBodyText(
-                                        body = homeScreenState.extract[0],
-                                        fontSize = fontSize,
-                                        fontFamily = fontFamily,
-                                        renderMath = preferencesState.renderMath,
-                                        darkTheme = colorScheme.isDark()
-                                    )
-                                }
-                        }
-                        itemsIndexed(
-                            homeScreenState.extract,
-                            key = { i, it -> "$pageId.$lang#$i" }
-                        ) { i: Int, it: List<AnnotatedString> ->// Expandable sections logic
-                            if (i % 2 == 1)
-                                SelectionContainer {
-                                    ExpandableSection(
-                                        title = homeScreenState.extract[i],
-                                        body = homeScreenState.extract.getOrElse(i + 1) { emptyList() },
-                                        fontSize = fontSize,
-                                        fontFamily = fontFamily,
-                                        expanded = preferencesState.expandedSections,
-                                        darkTheme = colorScheme.isDark(),
-                                        renderMath = preferencesState.renderMath
-                                    )
-                                }
-                        }
-
-                        item {
-                            Spacer(Modifier.height(insets.calculateBottomPadding() + 152.dp))
+//                            }
                         }
                     }
+                    item { // Main description
+                        if (homeScreenState.extract.isNotEmpty())
+                            SelectionContainer {
+                                ParsedBodyText(
+                                    body = homeScreenState.extract[0],
+                                    fontSize = fontSize,
+                                    fontFamily = fontFamily,
+                                    renderMath = preferencesState.renderMath,
+                                    imageLoader = imageLoader,
+                                    darkTheme = colorScheme.isDark(),
+                                    dataSaver = preferencesState.dataSaver,
+                                    background = preferencesState.imageBackground,
+                                    onLinkClick = onLinkClick,
+                                    onGalleryImageClick = onGalleryImageClick
+                                )
+                            }
+                    }
+                    itemsIndexed(
+                        homeScreenState.extract,
+                        key = { i, it -> "$pageId.$lang#$i" }
+                    ) { i: Int, it: List<AnnotatedString> ->// Expandable sections logic
+                        if (i % 2 == 1)
+                            SelectionContainer {
+                                ExpandableSection(
+                                    title = homeScreenState.extract[i],
+                                    body = homeScreenState.extract.getOrElse(i + 1) { emptyList() },
+                                    fontSize = fontSize,
+                                    fontFamily = fontFamily,
+                                    imageLoader = imageLoader,
+                                    expanded = preferencesState.expandedSections,
+                                    darkTheme = colorScheme.isDark(),
+                                    dataSaver = preferencesState.dataSaver,
+                                    renderMath = preferencesState.renderMath,
+                                    imageBackground = preferencesState.imageBackground,
+                                    onLinkClick = onLinkClick,
+                                    onGalleryImageClick = onGalleryImageClick
+                                )
+                            }
+                    }
+                    item {
+                        Spacer(Modifier.height(156.dp))
+                    }
                 }
-                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
             }
         } else if ((homeScreenState.status == WRStatus.UNINITIALIZED) && !preferencesState.dataSaver) {
-            Row {
-                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
-                AnimatedShimmer {
-                    FeedLoader(brush = it, insets = insets, modifier = Modifier.weight(4f))
-                }
-                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
+            AnimatedShimmer {
+                FeedLoader(brush = it, insets = insets)
             }
         } else if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR || homeScreenState.status == WRStatus.UNINITIALIZED) {
             Icon(
@@ -317,32 +344,37 @@ fun AppHomeScreen(
                     .align(Alignment.Center)
             )
         } else {
-            Row {
-                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
-                ArticleFeed(
-                    feedState = feedState,
-                    imageLoader = imageLoader,
-                    insets = insets,
-                    loadPage = onLinkClick,
-                    refreshFeed = refreshFeed,
-                    onImageClick = onImageClick,
-                    listState = feedListState,
-                    windowSizeClass = windowSizeClass,
-                    modifier = Modifier.weight(4f)
-                )
-                if (weight != 0f) Spacer(modifier = Modifier.weight(weight))
-            }
+            ArticleFeed(
+                feedState = feedState,
+                imageLoader = imageLoader,
+                insets = insets,
+                loadPage = onLinkClick,
+                refreshFeed = refreshFeed,
+                onImageClick = onImageClick,
+                listState = feedListState,
+                windowSizeClass = windowSizeClass,
+                imageBackground = preferencesState.imageBackground
+            )
         }
 
         AnimatedVisibility( // The linear progress bar that shows up when the article is loading
-            visible = homeScreenState.isLoading &&
-                    (homeScreenState.status != WRStatus.UNINITIALIZED || preferencesState.dataSaver || deepLinkHandled),
+            visible = homeScreenState.isLoading,
             enter = expandVertically(expandFrom = Alignment.Top),
             exit = shrinkVertically(shrinkTowards = Alignment.Top),
-            modifier = Modifier.padding(horizontal = 4.dp)
+            modifier = Modifier
+                .padding(
+                    top = (max(
+                        systemBars,
+                        insets.calculateTopPadding()
+                    ))
+                )
         ) {
             if (homeScreenState.loadingProgress == null)
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp)
+                )
             else {
                 val animatedProgress by animateFloatAsState(
                     targetValue = homeScreenState.loadingProgress,
@@ -350,7 +382,9 @@ fun AppHomeScreen(
                 )
                 LinearProgressIndicator(
                     { animatedProgress },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp)
                 )
             }
         }

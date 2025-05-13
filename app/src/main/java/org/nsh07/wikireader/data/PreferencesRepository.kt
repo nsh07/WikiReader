@@ -23,6 +23,8 @@ interface PreferencesRepository {
     suspend fun readIntPreference(key: String): Int?
     suspend fun readBooleanPreference(key: String): Boolean?
     suspend fun readHistory(): Set<String>?
+
+    suspend fun resetSettings()
 }
 
 class AppPreferencesRepository(
@@ -104,5 +106,13 @@ class AppPreferencesRepository(
         withContext(ioDispatcher) {
             val dataStoreKey = stringSetPreferencesKey("history")
             context.dataStore.data.first()[dataStoreKey]
+        }
+
+    override suspend fun resetSettings() =
+        withContext(ioDispatcher) {
+            context.dataStore.edit { preferences ->
+                preferences.clear()
+            }
+            Unit
         }
 }

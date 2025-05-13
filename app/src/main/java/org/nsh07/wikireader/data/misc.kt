@@ -1,6 +1,5 @@
 package org.nsh07.wikireader.data
 
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 
 /**
@@ -13,7 +12,6 @@ import androidx.compose.ui.graphics.Color
  */
 fun String.toColor(): Color {
     // Sample string: Color(0.0, 0.0, 0.0, 1.0, sRGB IEC61966-2.1)
-    Log.d("Color", this)
     val comma1 = this.indexOf(',')
     val comma2 = this.indexOf(',', comma1 + 1)
     val comma3 = this.indexOf(',', comma2 + 1)
@@ -35,15 +33,23 @@ fun String.toColor(): Color {
  *
  *      {intro text, heading1, body1, heading2, body2, ...}
  *
- * Note that subheadings are *not* parsed, and are left as is (surrounded by three '=' signs on
- * either side)
+ * Note that subheadings are *not* parsed, and are left as is (surrounded by three or more '=' signs
+ * on either side)
  */
 fun parseSections(text: String): List<String> {
     val out = text.split("\n==(?!=)|(?<!=)==[\n ]|(?<!=)==(?=<!--)".toRegex()).toMutableList()
 
     for (i in out.lastIndex downTo 1) {
         val curr = out[i].trim()
-        if (curr in listOf("References", "External links", "Gallery", "Footnotes", "Bibliography", "Notes", "Reference notes")) {
+        if (curr in listOf(
+                "References",
+                "External links",
+                "Footnotes",
+                "Bibliography",
+                "Notes",
+                "Reference notes"
+            )
+        ) {
             out.removeAt(i + 1)
             out.removeAt(i)
         } else if (i + 1 <= out.lastIndex) {
@@ -57,6 +63,16 @@ fun parseSections(text: String): List<String> {
     return out
 }
 
+/**
+ * Function to convert a number of bytes into a human-readable format
+ *
+ * @param bytes The number of bytes to convert
+ * @return String in the format: (number) (unit), where unit is one of:
+ *
+ *      bytes, kB, MB, GB
+ * For example, 1024 bytes would be converted to "1 kB" and 2^20 bytes to "1.0 MB". Note that kB and
+ * bytes don't have a decimal part but MB and GB have a single decimal digit.
+ */
 fun bytesToHumanReadableSize(bytes: Double) = when {
     bytes >= 1 shl 30 -> "%.1f GB".format(bytes / (1 shl 30))
     bytes >= 1 shl 20 -> "%.1f MB".format(bytes / (1 shl 20))
@@ -64,20 +80,26 @@ fun bytesToHumanReadableSize(bytes: Double) = when {
     else -> "$bytes bytes"
 }
 
+/**
+ * Converts a Wikipedia URL language code (e.g. "en" in en.wikipedia.org for the English Wikipedia)
+ * into its corresponding language name (e.g. "English" for en)
+ */
 fun langCodeToName(langCode: String): String {
-    try {
-        return LanguageData.langNames[LanguageData.langCodes.binarySearch(langCode)]
+    return try {
+        LanguageData.langNames[LanguageData.langCodes.binarySearch(langCode)]
     } catch (_: Exception) {
-        Log.e("Language", "Unknown Language: $langCode")
-        return langCode
+        langCode
     }
 }
 
+/**
+ * Converts a Wikipedia URL language code (e.g. "en" in en.wikipedia.org for the English Wikipedia)
+ * into its corresponding Wikipedia name (e.g. "English Wikipedia" for en)
+ */
 fun langCodeToWikiName(langCode: String): String {
-    try {
-        return LanguageData.wikipediaNames[LanguageData.langCodes.binarySearch(langCode)]
+    return try {
+        LanguageData.wikipediaNames[LanguageData.langCodes.binarySearch(langCode)]
     } catch (_: Exception) {
-        Log.e("Language", "Unknown Language: $langCode")
-        return langCode
+        langCode
     }
 }

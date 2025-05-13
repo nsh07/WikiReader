@@ -11,7 +11,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.withLink
@@ -22,6 +24,7 @@ import org.nsh07.wikireader.data.langCodeToName
 import kotlin.math.min
 import kotlin.text.Typography.bullet
 import kotlin.text.Typography.nbsp
+import kotlin.text.Typography.ndash
 
 private const val MAGIC_SEP = "{{!}}"
 
@@ -36,9 +39,17 @@ fun String.toWikitextAnnotatedString(
     newLine: Boolean = true,
     inIndentCode: Boolean = false
 ): AnnotatedString {
-    // TODO: Implement more Wikitext features
     val input = this
     var i = 0
+
+    val twas: String.() -> AnnotatedString = {
+        this.toWikitextAnnotatedString(colorScheme, typography, loadPage, fontSize)
+    }
+
+    val twasNoNewline: String.() -> AnnotatedString = {
+        this.toWikitextAnnotatedString(colorScheme, typography, loadPage, fontSize, newLine = false)
+    }
+
     return buildAnnotatedString {
         while (i < input.length) {
             when (input[i]) {
@@ -66,47 +77,32 @@ fun String.toWikitextAnnotatedString(
 
                 '<' -> {
                     val currSubstring = input.substring(i)
-                    if (currSubstring.startsWith("<br")) {
+                    if (currSubstring.startsWith("<nowiki>")) {
+                        val curr = currSubstring.substringBefore("</nowiki>").substringAfter('>')
+                        append(curr)
+                        i += 8 + curr.length + 8
+                    } else if (currSubstring.startsWith("<br", ignoreCase = true)) {
                         append('\n')
                         i += currSubstring.substringBefore('>').length
                     } else if (currSubstring.startsWith("<u>")) {
                         val curr = currSubstring.substringBefore("</u>").substringAfter('>')
                         withStyle(SpanStyle(textDecoration = TextDecoration.Underline)) {
-                            append(
-                                curr.toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize,
-                                    newLine = false
-                                )
-                            )
+                            append(curr.twasNoNewline())
                         }
                         i += 3 + curr.length + 3
                     } else if (currSubstring.startsWith("<div")) {
                         val divTag = currSubstring.substringBefore('>')
                         val curr = currSubstring.substringBefore("</div>").substringAfter('>')
                         append(
-                            curr.toWikitextAnnotatedString(
-                                colorScheme,
-                                typography,
-                                loadPage,
-                                fontSize,
-                                newLine = false
-                            )
+                            curr.twasNoNewline()
                         )
                         i += divTag.length + 1 + curr.length + 5
+                    } else if (currSubstring.startsWith("<section")) {
+                        val curr = currSubstring.substringBefore('>')
+                        i += curr.length
                     } else if (currSubstring.startsWith("<noinclude>")) {
                         val curr = currSubstring.substringBefore("</noinclude>").substringAfter('>')
-                        append(
-                            curr.toWikitextAnnotatedString(
-                                colorScheme,
-                                typography,
-                                loadPage,
-                                fontSize,
-                                newLine = false
-                            )
-                        )
+                        append(curr.twasNoNewline())
                         i += 11 + curr.length + 11
                     } else if (currSubstring.startsWith("<code>")) {
                         val curr = currSubstring.substringBefore("</code>").substringAfter('>')
@@ -115,18 +111,18 @@ fun String.toWikitextAnnotatedString(
                                 fontFamily = FontFamily.Monospace,
                                 color = colorScheme.onSurfaceVariant
                             )
-                        ) {
-                            append(
-                                curr.toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize,
-                                    newLine = false
-                                )
-                            )
-                        }
+                        ) { append(curr.twasNoNewline()) }
                         i += 6 + curr.length + 6
+                    } else if (currSubstring.startsWith("<syntaxhighlight")) {
+                        val curr =
+                            currSubstring.substringBefore("</syntaxhighlight>").substringAfter('>')
+                        withStyle(
+                            SpanStyle(
+                                fontFamily = FontFamily.Monospace,
+                                color = colorScheme.onSurfaceVariant
+                            )
+                        ) { append(curr) }
+                        i += currSubstring.substringBefore('>').length + curr.length + 18
                     } else if (currSubstring.startsWith("<sub>")) {
                         val curr = currSubstring.substringBefore("</sub>").substringAfter('>')
                         withStyle(
@@ -134,17 +130,7 @@ fun String.toWikitextAnnotatedString(
                                 baselineShift = BaselineShift.Subscript,
                                 fontSize = (fontSize - 2).sp
                             )
-                        ) {
-                            append(
-                                curr.toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize,
-                                    newLine = false
-                                )
-                            )
-                        }
+                        ) { append(curr.twasNoNewline()) }
                         i += 5 + curr.length + 5
                     } else if (currSubstring.startsWith("<sup>")) {
                         val curr = currSubstring.substringBefore("</sup>").substringAfter('>')
@@ -153,30 +139,12 @@ fun String.toWikitextAnnotatedString(
                                 baselineShift = BaselineShift.Superscript,
                                 fontSize = (fontSize - 2).sp
                             )
-                        ) {
-                            append(
-                                curr.toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize,
-                                    newLine = false
-                                )
-                            )
-                        }
+                        ) { append(curr.twasNoNewline()) }
                         i += 5 + curr.length + 5
                     } else if (currSubstring.startsWith("<small>")) {
                         val curr = currSubstring.substringBefore("</small>").substringAfter('>')
                         withStyle(SpanStyle(fontSize = (fontSize - 2).sp)) {
-                            append(
-                                curr.toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize,
-                                    newLine = false
-                                )
-                            )
+                            append(curr.twasNoNewline())
                         }
                         i += 7 + curr.length + 7
                     } else if (currSubstring.startsWith("<math>")) {
@@ -203,19 +171,11 @@ fun String.toWikitextAnnotatedString(
                                 )
                             )
                         ) {
-                            append('\n')
-                            withStyle(SpanStyle(fontSize = (fontSize + 8).sp)) {
-                                append("❝")
+                            withStyle(SpanStyle(color = colorScheme.onSurfaceVariant)) {
+                                append('\n')
+                                append(curr.twas())
+                                append('\n')
                             }
-                            append(
-                                curr.toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize
-                                )
-                            )
-                            append('\n')
                         }
                         i += 12 + curr.length + 13
                     } else if (currSubstring.startsWith("<!--")) {
@@ -230,29 +190,16 @@ fun String.toWikitextAnnotatedString(
                     if (input.getOrNull(i + 1) == '{') {
                         val currSubstring =
                             substringMatchingParen('{', '}', i).substringBeforeLast("}}")
-                        if (currSubstring.startsWith("{{abbr", ignoreCase = true)) {
+                        if (currSubstring.startsWith("{{nowrap", ignoreCase = true)) {
+                            val curr = currSubstring.substringAfter('|')
+                            append(curr.replace(' ', nbsp).twas())
+                        } else if (currSubstring.startsWith("{{abbr", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|').substringBefore('|')
-                            append(
-                                curr.toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize
-                                )
-                            )
+                            append(curr.twas())
                         } else if (currSubstring.startsWith("{{TableTBA", ignoreCase = true)) {
-                            append(
-                                "<small>TBA</small>".toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize
-                                )
-                            )
-                        } else if (currSubstring.startsWith(
-                                "{{convert",
-                                ignoreCase = true
-                            ) || currSubstring.startsWith("{{cvt")
+                            append("<small>TBA</small>".twas())
+                        } else if (currSubstring.startsWith("{{convert", ignoreCase = true) ||
+                            currSubstring.startsWith("{{cvt", ignoreCase = true)
                         ) {
                             val curr = currSubstring.substringAfter('|')
                             val currSplit = curr.split('|')
@@ -267,28 +214,17 @@ fun String.toWikitextAnnotatedString(
                         } else if (currSubstring.startsWith("{{mono", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
                             withStyle(SpanStyle(fontFamily = FontFamily.Monospace)) {
-                                append(
-                                    curr.toWikitextAnnotatedString(
-                                        colorScheme,
-                                        typography,
-                                        loadPage,
-                                        fontSize
-                                    )
-                                )
+                                append(curr.twas())
                             }
                         } else if (currSubstring.startsWith("{{math", ignoreCase = true) ||
                             currSubstring.startsWith("{{mvar", ignoreCase = true)
                         ) {
-                            val curr = currSubstring.substringAfter('|')
+                            val curr = currSubstring.substringAfter(
+                                '|',
+                                currSubstring.substringAfter("{{").substringBefore("}}")
+                            )
                             withStyle(SpanStyle(fontFamily = FontFamily.Serif)) {
-                                append(
-                                    curr.replace(' ', nbsp).toWikitextAnnotatedString(
-                                        colorScheme,
-                                        typography,
-                                        loadPage,
-                                        fontSize
-                                    )
-                                )
+                                append(curr.replace(' ', nbsp).twas())
                             }
                         } else if (currSubstring.startsWith("{{main", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
@@ -304,12 +240,7 @@ fun String.toWikitextAnnotatedString(
                                                 "#",
                                                 " § "
                                             )
-                                        }]]".toWikitextAnnotatedString(
-                                            colorScheme,
-                                            typography,
-                                            loadPage,
-                                            fontSize
-                                        )
+                                        }]]".twas()
                                     )
                                     if (index == splitList.size - 2 && splitList.size > 1) append(", and ")
                                     else if (index < splitList.size - 1) append(", ")
@@ -325,65 +256,57 @@ fun String.toWikitextAnnotatedString(
                                     append(
                                         "[[${it.substringBefore(MAGIC_SEP)}|${
                                             it.substringAfter((MAGIC_SEP)).replace("#", " § ")
-                                        }]]".toWikitextAnnotatedString(
-                                            colorScheme,
-                                            typography,
-                                            loadPage,
-                                            fontSize
-                                        )
+                                        }]]".twas()
                                     )
                                     if (index == splitList.size - 2 && splitList.size > 1) append(", and ")
                                     else if (index < splitList.size - 1) append(", ")
                                 }
                             }
                         } else if (currSubstring.startsWith("{{distinguish", ignoreCase = true)) {
-                            val curr = currSubstring.substringAfter('|')
-                            val splitList = curr.split('|')
+                            val textSpecified = currSubstring.contains("text=")
+                            val curr =
+                                if (textSpecified) currSubstring.substringAfter("text=")
+                                else currSubstring.substringAfter('|')
+                            val splitList =
+                                if (textSpecified) listOf(curr)
+                                else curr.split('|')
                             withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
                                 append("Not to be confused with ")
-                                splitList.forEachIndexed { index, it ->
+                                if (!textSpecified) splitList.forEachIndexed { index, it ->
                                     append(
                                         "[[${it.substringBefore(MAGIC_SEP)}|${
                                             it.substringAfter(
                                                 MAGIC_SEP
                                             ).replace("#", " § ")
-                                        }]]".toWikitextAnnotatedString(
-                                            colorScheme,
-                                            typography,
-                                            loadPage,
-                                            fontSize
-                                        )
+                                        }]]".twas()
                                     )
                                     if (index == splitList.size - 2 && splitList.size > 1) append(", or ")
                                     else if (index < splitList.size - 1) append(", ")
-                                }
+                                } else append(splitList[0].twas())
                                 append('.')
                             }
-                        } else if (currSubstring.startsWith("{{hatnote group")) {
+                        } else if (currSubstring.startsWith("{{hatnote", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
-                            append(
-                                curr.toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize
-                                )
-                            )
+                            append("''$curr''".twas())
                         } else if (currSubstring.startsWith("{{IPAc-en", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
                             append("/${curr.replace("|", "").replace(' ', nbsp)}/")
-                        } else if (currSubstring.startsWith("{{lang|")) {
-                            val curr = currSubstring.substringAfter('|')
+                        } else if (currSubstring.startsWith("{{langx", ignoreCase = true)) {
+                            val lang = langCodeToName(
+                                currSubstring.substringAfter('|').substringBefore('|').trim()
+                            )
+                            val text = currSubstring.substringAfter('|').substringAfter('|')
+                                .substringBefore('|').trim()
+                            append("[[$lang|$lang]]: ".twas())
                             withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
                                 append(
-                                    curr.substringAfter('|').substringBefore('|')
-                                        .toWikitextAnnotatedString(
-                                            colorScheme,
-                                            typography,
-                                            loadPage,
-                                            fontSize
-                                        )
+                                    text.twas()
                                 )
+                            }
+                        } else if (currSubstring.startsWith("{{lang|", ignoreCase = true)) {
+                            val curr = currSubstring.substringAfter('|')
+                            withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                                append(curr.substringAfter('|').substringBefore('|').twas())
                             }
                         } else if (currSubstring.startsWith("{{IPA", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
@@ -416,19 +339,16 @@ fun String.toWikitextAnnotatedString(
                                     )
                                 )
                             ) {
-                                append('\n')
-                                append(
-                                    curr.substringAfter("text=")
-                                        .substringBefore('=')
-                                        .substringBeforeLast('|')
-                                        .toWikitextAnnotatedString(
-                                            colorScheme,
-                                            typography,
-                                            loadPage,
-                                            fontSize
-                                        )
-                                )
-                                append('\n')
+                                withStyle(SpanStyle(color = colorScheme.onSurfaceVariant)) {
+                                    append('\n')
+                                    append(
+                                        curr.substringAfter("text=")
+                                            .substringBefore('=')
+                                            .substringBeforeLast('|')
+                                            .twas()
+                                    )
+                                    append('\n')
+                                }
                             }
                         } else if (currSubstring.startsWith("{{further", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
@@ -439,25 +359,17 @@ fun String.toWikitextAnnotatedString(
                                     append(" information on $topic")
                                     append(
                                         ": [[${
-                                            curr.substringAfter('|').substringBefore('|').substringBefore('#')
-                                        }]]\n".toWikitextAnnotatedString(
-                                            colorScheme,
-                                            typography,
-                                            loadPage,
-                                            fontSize
-                                        )
+                                            curr.substringAfter('|').substringBefore('|')
+                                                .substringBefore('#')
+                                        }]]\n".twas()
                                     )
                                 } else {
                                     append(" reading")
                                     append(
                                         ": [[${
-                                            curr.substringAfter('|').substringBefore('|').substringBefore('#')
-                                        }]]\n".toWikitextAnnotatedString(
-                                            colorScheme,
-                                            typography,
-                                            loadPage,
-                                            fontSize
-                                        )
+                                            curr.substringAfter('|').substringBefore('|')
+                                                .substringBefore('#')
+                                        }]]\n".twas()
                                     )
                                 }
                             }
@@ -474,37 +386,43 @@ fun String.toWikitextAnnotatedString(
                                 }
                             }
                             append(date.trim('/'))
+                        } else if (currSubstring.startsWith("{{unichar", ignoreCase = true)) {
+                            val curr = currSubstring.substringAfter('|').substringBefore('|')
+                            append("<code>U+$curr</code> ".twas())
+                            try {
+                                append(Character.toString(curr.toInt(16)))
+                            } catch (_: Exception) {
+                            }
+                        } else if (currSubstring.startsWith("{{char", ignoreCase = true)) {
+                            append(currSubstring.substringAfter('|').twas())
                         } else if (currSubstring.startsWith("{{Nihongo", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
-                            append(
-                                curr.toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize
-                                )
-                            )
+                            append(curr.twas())
                         } else if (currSubstring.startsWith("{{flagg", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|').substringAfter('|')
                                 .substringBefore('|')
-                            append(
-                                curr.toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize
-                                )
-                            )
+                            append(curr.twas())
                         } else if (currSubstring.startsWith("{{noflag", ignoreCase = true)) {
                             val curr = currSubstring.substringAfter('|')
-                            append(
-                                curr.toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize
+                            append(curr.twas())
+                        } else if (currSubstring.startsWith(
+                                "{{spaced en dash",
+                                ignoreCase = true
+                            ) ||
+                            currSubstring.startsWith("{{snd", ignoreCase = true)
+                        ) {
+                            append(nbsp)
+                            append(ndash)
+                            append(' ')
+                        } else if (currSubstring.startsWith("{{empty section", ignoreCase = true)) {
+                            withStyle(
+                                SpanStyle(
+                                    fontStyle = FontStyle.Italic,
+                                    color = colorScheme.onSurfaceVariant
                                 )
-                            )
+                            ) {
+                                append("This section is empty. You can help by adding to it on Wikipedia.")
+                            }
                         } else {
                             val curr = input.getOrNull(i + 1 + currSubstring.length + 1)
                             if (curr == '\n') i++
@@ -513,35 +431,33 @@ fun String.toWikitextAnnotatedString(
                     } else append(input[i])
 
                 '&' ->
-                    if (input.substring(i).substringBefore(';') == "&nbsp") {
-                        append(nbsp)
-                        i += 5
+                    if (input.substring(i, min(i + 10, input.length)).contains(';')) {
+                        val curr = input.substring(i, input.indexOf(';', i) + 1)
+                        append(AnnotatedString.fromHtml(curr))
+                        i += curr.length - 1
                     } else append(input[i])
 
                 '*' ->
                     if ((i == 0 || input[i - 1] == '\n') && newLine) {
                         val bulletCount =
                             input.substring(i).substringBefore(' ').count { it == '*' }
-                        val curr =
-                            if (input.getOrNull(i + bulletCount) == ' ') {
-                                input.substring(i + bulletCount + 1).substringBefore('\n')
-                            } else input.substring(i + bulletCount).substringBefore('\n')
+                        val curr = input.substring(i).substringBefore('\n')
                         withStyle(
-                            ParagraphStyle(textIndent = TextIndent(restLine = (12 * bulletCount).sp))
+                            ParagraphStyle(
+                                textIndent = TextIndent(restLine = (12 * bulletCount).sp),
+                                lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
+                                lineHeightStyle = LineHeightStyle(
+                                    alignment = LineHeightStyle.Alignment.Center,
+                                    trim = LineHeightStyle.Trim.None
+                                )
+                            )
                         ) {
                             append("\t\t".repeat(bulletCount - 1))
                             append(bullet)
                             append("\t\t")
-                            append(
-                                curr.toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize
-                                )
-                            )
+                            append(curr.substringAfterLast('*').trim().twas())
                         }
-                        i += bulletCount + curr.length + 1
+                        i += curr.length
                     } else append(input[i])
 
                 '=' ->
@@ -550,41 +466,20 @@ fun String.toWikitextAnnotatedString(
                             if (input.getOrNull(i + 4) == '=') { // h5
                                 val curr = input.substring(i + 5).substringBefore("=====")
                                 withStyle(typography.titleMedium.toSpanStyle()) {
-                                    append(
-                                        curr.trim().toWikitextAnnotatedString(
-                                            colorScheme,
-                                            typography,
-                                            loadPage,
-                                            fontSize
-                                        )
-                                    )
+                                    append(curr.trim().twas())
                                 }
                                 i += 4 + curr.length + 5
                             } else { // h4
                                 val curr = input.substring(i + 4).substringBefore("====")
                                 withStyle(typography.titleLarge.toSpanStyle()) {
-                                    append(
-                                        "${curr.trim()}\n".toWikitextAnnotatedString(
-                                            colorScheme,
-                                            typography,
-                                            loadPage,
-                                            fontSize
-                                        )
-                                    )
+                                    append("${curr.trim()}\n".twas())
                                 }
                                 i += 3 + curr.length + 4
                             }
                         } else { // h3
                             val curr = input.substring(i + 3).substringBefore("===")
                             withStyle(typography.headlineSmall.toSpanStyle()) {
-                                append(
-                                    "${curr.trim()}\n".toWikitextAnnotatedString(
-                                        colorScheme,
-                                        typography,
-                                        loadPage,
-                                        fontSize
-                                    )
-                                )
+                                append("${curr.trim()}\n".twas())
                             }
                             i += 2 + curr.length + 3
                         }
@@ -601,27 +496,13 @@ fun String.toWikitextAnnotatedString(
                             )
                         )
                         withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(
-                                curr.toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize
-                                )
-                            )
+                            append(curr.twas())
                         }
                         i += curr.length + 3
                     } else if (input.getOrNull(i + 1) == '\'') {
                         val curr = input.substring(i + 2).substringBefore("''")
                         withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
-                            append(
-                                curr.toWikitextAnnotatedString(
-                                    colorScheme,
-                                    typography,
-                                    loadPage,
-                                    fontSize
-                                )
-                            )
+                            append(curr.twas())
                         }
                         i += 1 + curr.length + 2
                     } else append(input[i])
@@ -640,17 +521,10 @@ fun String.toWikitextAnnotatedString(
                                     loadPage(curr.substringBefore('|').substringBefore('#'))
                                 }
                             ) {
-                                append(
-                                    curr.substringAfter('|').trim().toWikitextAnnotatedString(
-                                        colorScheme,
-                                        typography,
-                                        loadPage,
-                                        fontSize
-                                    )
-                                )
+                                append(curr.substringAfter('|').trim().twas())
                             }
                             i += 1 + curr.length + 2
-                        } else i += substringMatchingParen('[', ']', i).length
+                        } else i += substringMatchingParen('[', ']', i).length - 1
                     } else append(input[i])
 
                 else -> append(input[i])
