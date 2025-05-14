@@ -114,4 +114,5 @@
     <string name="setAsDefaultDesc">Вы можете установить WikiReader как приложение по умолчанию для открытия ссылок Википедии. Нажмите кнопки ниже чтобы узнать больше или открыть настройки.</string>
     <string name="themeLight">Светлая</string>
     <string name="themeSystemDefault">Системная</string>
+    <string name="fontStyleSerif">Сериф</string>
 </resources>
