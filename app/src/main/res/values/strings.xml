@@ -55,6 +55,10 @@
     <string name="redirectedFrom">Redirected from %1$s</string>
     <string name="releases">Releases</string>
     <string name="releasesDesc">Check out older and newer versions</string>
+    <string name="reset">Reset</string>
+    <string name="resetSettingsDialog">Reset Settings?</string>
+    <string name="resetSettingsDialogDesc">All settings will be restored to default</string>
+    <string name="resetSettingsIconDesc">Reset settings to default</string>
     <string name="savedArticles">Saved articles</string>
     <string name="scrollLeft">Scroll left</string>
     <string name="scrollRight">Scroll right</string>
@@ -86,6 +90,7 @@
     <string name="settingTheme">Theme</string>
     <string name="settingWikipediaLanguage">Wikipedia language</string>
     <string name="settings">Settings</string>
+    <string name="settingsRestored">Default settings restored</string>
     <string name="shareLink">Share link</string>
     <string name="sharePage">Share page</string>
     <string name="snackbarArticleDeleted">Article deleted</string>
@@ -109,9 +114,4 @@
     <string name="wikipedia">Wikipedia</string>
     <string name="wikipediaWebsiteDesc">Visit the Wikipedia website</string>
     <string name="wikipedia_logo">Wikipedia\'s Logo</string>
-    <string name="resetSettingsDialog">Reset Settings?</string>
-    <string name="resetSettingsDialogDesc">All settings will be restored to default</string>
-    <string name="settingsRestored">Default settings restored</string>
-    <string name="reset">Reset</string>
-    <string name="resetSettingsIconDesc">Reset settings to default</string>
 </resources>

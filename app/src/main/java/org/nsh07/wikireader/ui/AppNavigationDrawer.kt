@@ -52,6 +52,7 @@ import androidx.compose.material3.PermanentDrawerSheet
 import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -382,6 +383,11 @@ private fun AppNavigationDrawerSheetContent(
                 when (homeScreenState.status) {
                     WRStatus.FEED_LOADED -> {
                         feedState.sections.forEach { section ->
+                            val selected by remember {
+                                derivedStateOf {
+                                    feedListState.firstVisibleItemIndex == section.first
+                                }
+                            }
                             NavigationDrawerItem(
                                 label = {
                                     Text(
@@ -391,7 +397,7 @@ private fun AppNavigationDrawerSheetContent(
                                         style = typography.labelLarge
                                     )
                                 },
-                                selected = feedListState.firstVisibleItemIndex == section.first,
+                                selected = selected,
                                 onClick = {
                                     coroutineScope.launch {
                                         drawerState.close()
@@ -416,6 +422,12 @@ private fun AppNavigationDrawerSheetContent(
 
                     WRStatus.SUCCESS -> {
                         homeScreenState.sections.forEach { section ->
+                            val selected by remember {
+                                derivedStateOf {
+                                    listState.firstVisibleItemIndex == section.first ||
+                                            listState.firstVisibleItemIndex == section.first + 1
+                                }
+                            }
                             NavigationDrawerItem(
                                 label = {
                                     Text(
@@ -425,7 +437,7 @@ private fun AppNavigationDrawerSheetContent(
                                         style = typography.labelLarge
                                     )
                                 },
-                                selected = listState.firstVisibleItemIndex == section.first || listState.firstVisibleItemIndex == section.first + 1,
+                                selected = selected,
                                 onClick = {
                                     coroutineScope.launch {
                                         drawerState.close()
