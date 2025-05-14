@@ -16,7 +16,7 @@
     <string name="clearSearchField">Очистить поиск</string>
     <string name="collapse_section">Свернуть</string>
     <string name="colorSchemeColor">Цвет</string>
-    <string name="chooseWikipediaLanguage">Выберите язык Википедии</string>
+    <string name="chooseWikipediaLanguage">Выбрать язык Википедии</string>
     <string name="colorSchemeDynamic">Динамическая</string>
     <string name="delete">Удалить</string>
     <string name="deleteAllArticles">Удалить все статьи?</string>
@@ -42,7 +42,7 @@
     <string name="noSavedArticles">Нет сохранённых статей</string>
     <string name="ok">Хорошо</string>
     <string name="openInBrowser">Открыть в браузере</string>
-    <string name="otherProjectsDesc">Посмотрите мои другие проекты на GitHub</string>
+    <string name="otherProjectsDesc">Взгляните на мои другие проекты на GitHub</string>
     <string name="picOfTheDay">Изображение дня</string>
     <string name="redirectedFrom">Перенаправлено с %1$s</string>
     <string name="releases">Выпуски</string>
@@ -58,10 +58,10 @@
     <string name="settingBlackThemeDesc">Использовать тёмную тему с чистым чёрным</string>
     <string name="settingColorScheme">Цветовая схема</string>
     <string name="settingDataSaver">Экономия трафика</string>
-    <string name="settingDataSaverDesc">Отключить изображения и ленту. Изображения страниц все еще можно открыть, нажав на карточку описания.</string>
-    <string name="settingExpandSectionsDesc">Раскрывать все секции по умолчанию</string>
+    <string name="settingDataSaverDesc">Отключить изображения и ленту. Изображения страниц всё еще можно открыть, нажав на карточку описания.</string>
+    <string name="settingExpandSectionsDesc">По умолчанию раскрывать все разделы статьи</string>
     <string name="settingFontSize">Размер шрифта</string>
-    <string name="settingImageBackgroundDesc">Добавлять белый фот к прозрачным изображениям. Фот может помочь улучшить читаемость в тёмной теме.</string>
+    <string name="settingImageBackgroundDesc">Добавлять белый фот к прозрачным изображениям. Фон может помочь улучшить читаемость в тёмной теме.</string>
     <string name="settingImmersiveMode">Режим погружения</string>
     <string name="settingImmersiveModeDesc">Скрыть поисковую строку и плавающие кнопки действий при прокрутке. Включено по умолчанию на маленьких экранах.</string>
     <string name="settingRenderMath">Отрисовывать математические формулы</string>
@@ -91,7 +91,7 @@
     <string name="reset">Сбросить</string>
     <string name="back">Назад</string>
     <string name="deleteSavedArticle">Удалить скачанную статью?</string>
-    <string name="settingImageBackground">Фот изображения</string>
+    <string name="settingImageBackground">Фон изображения</string>
     <string name="settingFontStyle">Стиль шрифта</string>
     <string name="up_arrow">Вернуться в начало</string>
     <string name="home">Главная</string>
