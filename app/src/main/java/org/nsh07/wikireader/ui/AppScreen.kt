@@ -562,7 +562,6 @@ fun AppScreen(
                 SettingsScreen(
                     preferencesState = preferencesState,
                     homeScreenState = homeScreenState,
-                    windowSizeClass = windowSizeClass,
                     languageSearchStr = languageSearchStr,
                     languageSearchQuery = languageSearchQuery,
                     themeMap = themeMap,

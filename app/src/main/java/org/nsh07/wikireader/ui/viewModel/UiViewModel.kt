@@ -134,7 +134,7 @@ class UiViewModel(
                 ?: appPreferencesRepository.saveBooleanPreference("image-background", false)
 
             val immersiveMode = appPreferencesRepository.readBooleanPreference("immersive-mode")
-                ?: appPreferencesRepository.saveBooleanPreference("immersive-mode", false)
+                ?: appPreferencesRepository.saveBooleanPreference("immersive-mode", true)
 
             val renderMath = appPreferencesRepository.readBooleanPreference("render-math")
                 ?: appPreferencesRepository.saveBooleanPreference("render-math", true)

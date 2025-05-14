@@ -2,22 +2,31 @@ package org.nsh07.wikireader.ui.settingsScreen
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
@@ -29,15 +38,14 @@ import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -55,8 +63,6 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.window.core.layout.WindowSizeClass
-import androidx.window.core.layout.WindowWidthSizeClass
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.R.string
@@ -72,7 +78,6 @@ import kotlin.math.round
 fun SettingsScreen(
     preferencesState: PreferencesState,
     homeScreenState: HomeScreenState,
-    windowSizeClass: WindowSizeClass,
     languageSearchStr: String,
     languageSearchQuery: String,
     themeMap: Map<String, Pair<Int, String>>,
@@ -116,12 +121,6 @@ fun SettingsScreen(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val snackBarHostState = remember { SnackbarHostState() }
 
-    val weight = remember {
-        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM)
-            1f
-        else 0f
-    }
-
     val (showThemeDialog, setShowThemeDialog) = remember { mutableStateOf(false) }
     val (showResetSettingsDialog, setShowResetSettingsDialog) = remember { mutableStateOf(false) }
     val (showColorSchemeDialog, setShowColorSchemeDialog) = remember { mutableStateOf(false) }
@@ -133,6 +132,60 @@ fun SettingsScreen(
         animationSpec = if (animateFontSize) motionScheme.defaultSpatialSpec()
         else tween(durationMillis = 0)
     )
+
+    val switchItems = remember(preferencesState) {
+        listOf(
+            SettingsSwitchItem(
+                preferencesState.blackTheme,
+                R.drawable.contrast,
+                string.settingBlackTheme,
+                string.settingBlackThemeDesc,
+                saveBlackTheme
+            ),
+            SettingsSwitchItem(
+                preferencesState.dataSaver,
+                R.drawable.data_saver_on,
+                string.settingDataSaver,
+                string.settingDataSaverDesc,
+                saveDataSaver
+            ),
+            SettingsSwitchItem(
+                preferencesState.expandedSections,
+                R.drawable.expand_all,
+                string.settingExpandSections,
+                string.settingExpandSectionsDesc,
+                saveExpandedSections
+            ),
+            SettingsSwitchItem(
+                preferencesState.imageBackground,
+                R.drawable.texture,
+                string.settingImageBackground,
+                string.settingImageBackgroundDesc,
+                saveImageBackground
+            ),
+            SettingsSwitchItem(
+                preferencesState.immersiveMode,
+                R.drawable.open_in_full,
+                string.settingImmersiveMode,
+                string.settingImmersiveModeDesc,
+                saveImmersiveMode
+            ),
+            SettingsSwitchItem(
+                preferencesState.renderMath,
+                R.drawable.function,
+                string.settingRenderMath,
+                string.settingRenderMathDesc,
+                saveRenderMath
+            ),
+            SettingsSwitchItem(
+                preferencesState.searchHistory,
+                R.drawable.history,
+                string.settingSearchHistory,
+                string.settingSearchHistoryDesc,
+                saveSearchHistory
+            )
+        )
+    }
 
     if (showThemeDialog)
         ThemeDialog(
@@ -243,23 +296,38 @@ fun SettingsScreen(
                     },
                     headlineContent = { Text(stringResource(string.settingFontStyle)) },
                     supportingContent = {
-                        SingleChoiceSegmentedButtonRow {
+                        Row(
+                            horizontalArrangement =
+                                Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+                        ) {
                             fontStyles.forEachIndexed { index, label ->
-                                SegmentedButton(
-                                    shape = SegmentedButtonDefaults.itemShape(
-                                        index = index,
-                                        count = fontStyles.size
-                                    ),
-                                    onClick = {
+                                ToggleButton(
+                                    checked = label == fontStyleMap[fontStyle],
+                                    onCheckedChange = {
                                         saveFontStyle(
                                             reverseFontStyleMap[label] ?: "sans"
                                         )
                                     },
-                                    selected = label == fontStyleMap[fontStyle],
-                                    label = { Text(label) },
-                                    modifier = if (weight != 0f) Modifier.width(160.dp)
-                                    else Modifier.width(256.dp)
-                                )
+                                    modifier = Modifier.weight(1f),
+                                    shapes =
+                                        when (index) {
+                                            0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                                            fontStyles.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                            else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                                        }
+                                ) {
+                                    AnimatedVisibility(
+                                        label == fontStyleMap[fontStyle],
+                                        enter = scaleIn(motionScheme.fastSpatialSpec()) +
+                                                expandHorizontally(motionScheme.fastSpatialSpec()) +
+                                                fadeIn(motionScheme.fastEffectsSpec()),
+                                        exit = scaleOut(motionScheme.fastSpatialSpec()) +
+                                                shrinkHorizontally(motionScheme.fastSpatialSpec()) +
+                                                fadeOut(motionScheme.fastEffectsSpec())
+                                    ) { Icon(Icons.Outlined.Check, contentDescription = null) }
+                                    Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
+                                    Text(label)
+                                }
                             }
                         }
                     }
@@ -294,22 +362,19 @@ fun SettingsScreen(
                     }
                 )
             }
-            item {
+            items(switchItems) { item ->
                 ListItem(
                     leadingContent = {
-                        Icon(
-                            painterResource(R.drawable.contrast),
-                            contentDescription = null
-                        )
+                        Icon(painterResource(item.icon), contentDescription = null)
                     },
-                    headlineContent = { Text(stringResource(string.settingBlackTheme)) },
-                    supportingContent = { Text(stringResource(string.settingBlackThemeDesc)) },
+                    headlineContent = { Text(stringResource(item.label)) },
+                    supportingContent = { Text(stringResource(item.description)) },
                     trailingContent = {
                         Switch(
-                            checked = preferencesState.blackTheme,
-                            onCheckedChange = { saveBlackTheme(it) },
+                            checked = item.checked,
+                            onCheckedChange = { item.onCheckedChange(it) },
                             thumbContent = {
-                                if (preferencesState.blackTheme) {
+                                if (item.checked) {
                                     Icon(
                                         imageVector = Icons.Outlined.Check,
                                         contentDescription = null,
@@ -321,173 +386,6 @@ fun SettingsScreen(
                     }
                 )
             }
-            item {
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painterResource(R.drawable.data_saver_on),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(string.settingDataSaver)) },
-                    supportingContent = { Text(stringResource(string.settingDataSaverDesc)) },
-                    trailingContent = {
-                        Switch(
-                            checked = preferencesState.dataSaver,
-                            onCheckedChange = { saveDataSaver(it) },
-                            thumbContent = {
-                                if (preferencesState.dataSaver) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Check,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize),
-                                    )
-                                }
-                            }
-                        )
-                    }
-                )
-            }
-            item {
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painterResource(R.drawable.expand_all),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(string.settingExpandSections)) },
-                    supportingContent = { Text(stringResource(string.settingExpandSectionsDesc)) },
-                    trailingContent = {
-                        Switch(
-                            checked = preferencesState.expandedSections,
-                            onCheckedChange = { saveExpandedSections(it) },
-                            thumbContent = {
-                                if (preferencesState.expandedSections) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Check,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize),
-                                    )
-                                }
-                            }
-                        )
-                    }
-                )
-            }
-            item {
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painterResource(R.drawable.open_in_full),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(string.settingImmersiveMode)) },
-                    supportingContent = { Text(stringResource(string.settingImmersiveModeDesc)) },
-                    trailingContent = {
-                        Switch(
-                            checked = preferencesState.immersiveMode,
-                            onCheckedChange = { saveImmersiveMode(it) },
-                            thumbContent = {
-                                if (preferencesState.immersiveMode) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Check,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize),
-                                    )
-                                }
-                            }
-                        )
-                    }
-                )
-            }
-            item {
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painterResource(R.drawable.texture),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(string.settingImageBackground)) },
-                    supportingContent = { Text(stringResource(string.settingImageBackgroundDesc)) },
-                    trailingContent = {
-                        Switch(
-                            checked = preferencesState.imageBackground,
-                            onCheckedChange = { saveImageBackground(it) },
-                            thumbContent = {
-                                if (preferencesState.imageBackground) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Check,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize),
-                                    )
-                                }
-                            }
-                        )
-                    }
-                )
-            }
-            item {
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painterResource(R.drawable.function),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(string.settingRenderMath)) },
-                    supportingContent = {
-                        Text(stringResource(string.settingRenderMathDesc))
-                    },
-                    trailingContent = {
-                        Switch(
-                            checked = preferencesState.renderMath,
-                            onCheckedChange = { saveRenderMath(it) },
-                            thumbContent = {
-                                if (preferencesState.renderMath) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Check,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize),
-                                    )
-                                }
-                            }
-                        )
-                    }
-                )
-            }
-            item {
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painterResource(R.drawable.history),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(string.settingSearchHistory)) },
-                    supportingContent = {
-                        Text(stringResource(string.settingSearchHistoryDesc))
-                    },
-                    trailingContent = {
-                        Switch(
-                            checked = preferencesState.searchHistory,
-                            onCheckedChange = { saveSearchHistory(it) },
-                            thumbContent = {
-                                if (preferencesState.searchHistory) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Check,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize),
-                                    )
-                                }
-                            }
-                        )
-                    }
-                )
-            }
-
             item {
                 OutlinedCard(
                     modifier = Modifier.padding(16.dp),
@@ -534,3 +432,11 @@ fun SettingsScreen(
         }
     }
 }
+
+data class SettingsSwitchItem(
+    val checked: Boolean,
+    val icon: Int,
+    val label: Int,
+    val description: Int,
+    val onCheckedChange: (Boolean) -> Unit
+)
