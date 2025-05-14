@@ -78,7 +78,7 @@
     <string name="scrollLeft">Гортати вліво</string>
     <string name="scrollRight">Гортати вправо</string>
     <string name="searchLanguages">Пошук мов…</string>
-    <string name="searchWikipedia">Пошук Вікіпедії…</string>
+    <string name="searchWikipedia">Знайти на Вікіпедії…</string>
     <string name="selectedLabel">Вибрано</string>
     <string name="shareLink">Поділитися посиланням</string>
     <string name="snackbarArticleDeleted">Стаття видалена</string>
@@ -107,8 +107,8 @@
     <string name="imageCounter">Зображення %1$s з %2$s</string>
     <string name="settingImageBackground">Фонове зображення</string>
     <string name="settingImageBackgroundDesc">Додайте білий фон до прозорих зображень. Фон може покращити читабельність у темному режимі.</string>
-    <string name="home">Дім</string>
-    <string name="app">Додаток</string>
+    <string name="home">Головна</string>
+    <string name="app">Застосунок</string>
     <string name="sections">Розділи</string>
     <string name="resetSettingsDialogDesc">Усі налаштування будуть відновлені до заводських</string>
     <string name="settingsRestored">Відновлено налаштування за замовчуванням</string>
