@@ -110,4 +110,9 @@
     <string name="home">الرئيسية</string>
     <string name="sections">الأقسام</string>
     <string name="settingImageBackgroundDesc">أضف خلفية بيضاء إلى الصور الشفافة. يمكن أن تساعد الخلفية في زيادة إمكانية القراءة في الوضع المظلم.</string>
+    <string name="resetSettingsDialog">إعادة ضبط الإعدادات؟</string>
+    <string name="resetSettingsIconDesc">إعادة تعيين الإعدادات إلى الوضع الافتراضي</string>
+    <string name="settingsRestored">تم استعادة الإعدادات الافتراضية</string>
+    <string name="reset">إعادة الضبط</string>
+    <string name="resetSettingsDialogDesc">ستتم استعادة جميع الإعدادات إلى الوضع الافتراضي</string>
 </resources>
