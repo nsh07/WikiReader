@@ -383,9 +383,9 @@ fun AppScreen(
                             scrollToTop = {
                                 scope.launch {
                                     if (homeScreenState.status != WRStatus.FEED_LOADED)
-                                        listState.animateScrollToItem(0)
+                                        listState.scrollToItem(0)
                                     else
-                                        feedListState.animateScrollToItem(0)
+                                        feedListState.scrollToItem(0)
                                 }
                             },
                             performRandomPageSearch = {

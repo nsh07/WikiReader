@@ -1,22 +1,34 @@
 package org.nsh07.wikireader.ui.homeScreen
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonMenu
+import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.MaterialTheme.motionScheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.ToggleFloatingActionButton
+import androidx.compose.material3.ToggleFloatingActionButtonDefaults
+import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
 import androidx.compose.material3.animateFloatingActionButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import org.nsh07.wikireader.R
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -28,49 +40,62 @@ fun AppFab(
     scrollToTop: () -> Unit,
     performRandomPageSearch: () -> Unit
 ) {
-    Column(horizontalAlignment = Alignment.End) {
-        SmallFloatingActionButton(
-            onClick = {
-                if (index > 1) scrollToTop()
-                else performRandomPageSearch()
-            },
-            modifier = Modifier.animateFloatingActionButton(
-                visible,
-                alignment = Alignment.BottomEnd
-            )
-        ) {
-            AnimatedContent(targetState = index > 1, label = "FAB Icon Animation") { isScrolled ->
-                when {
-                    isScrolled -> {
-                        Icon(
-                            painterResource(R.drawable.upward),
-                            contentDescription = stringResource(R.string.scroll_to_top)
-                        )
-                    }
+    var expanded by remember { mutableStateOf(false) }
 
-                    else -> {
-                        Icon(
-                            painterResource(R.drawable.shuffle),
-                            contentDescription = stringResource(R.string.randomArticle)
-                        )
+    BackHandler(expanded) { expanded = false }
+
+    FloatingActionButtonMenu(
+        expanded = expanded,
+        button = {
+            ToggleFloatingActionButton(
+                checked = expanded,
+                containerSize = ToggleFloatingActionButtonDefaults.containerSizeMedium(),
+                containerCornerRadius = ToggleFloatingActionButtonDefaults.containerCornerRadiusMedium(),
+                onCheckedChange = { expanded = !expanded }
+            ) {
+                val imageVector by remember {
+                    derivedStateOf {
+                        if (checkedProgress > 0.5f) Icons.Outlined.Close else Icons.Outlined.Add
                     }
                 }
+                Icon(
+                    painter = rememberVectorPainter(imageVector),
+                    contentDescription = null,
+                    modifier = Modifier.animateIcon({ checkedProgress })
+                )
             }
-        }
-
-        Spacer(Modifier.height(24.dp))
-
-        FloatingActionButton(
-            onClick = focusSearch,
-            modifier = Modifier.animateFloatingActionButton(
-                visible,
-                alignment = Alignment.BottomEnd
-            )
+        },
+        modifier = Modifier.animateFloatingActionButton(visible, Alignment.BottomEnd)
+    ) {
+        FloatingActionButtonMenuItem(
+            onClick = {
+                expanded = false
+                performRandomPageSearch()
+            },
+            text = { Text(stringResource(R.string.randomArticle)) },
+            icon = { Icon(painterResource(R.drawable.shuffle), null) }
+        )
+        AnimatedVisibility(
+            index > 1,
+            enter = expandVertically(motionScheme.fastSpatialSpec()),
+            exit = shrinkVertically(motionScheme.fastSpatialSpec())
         ) {
-            Icon(
-                Icons.Outlined.Search,
-                contentDescription = stringResource(R.string.search)
+            FloatingActionButtonMenuItem(
+                onClick = {
+                    expanded = false
+                    scrollToTop()
+                },
+                text = { Text(stringResource(R.string.scroll_to_top)) },
+                icon = { Icon(painterResource(R.drawable.upward), null) }
             )
         }
+        FloatingActionButtonMenuItem(
+            onClick = {
+                expanded = false
+                focusSearch()
+            },
+            text = { Text(stringResource(R.string.search)) },
+            icon = { Icon(Icons.Outlined.Search, null) }
+        )
     }
 }
