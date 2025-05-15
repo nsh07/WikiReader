@@ -115,4 +115,5 @@
     <string name="resetSettingsIconDesc">Скинути налаштування до заводських</string>
     <string name="resetSettingsDialog">Скинути налаштування?</string>
     <string name="reset">Скинути</string>
+    <string name="image">Зображення</string>
 </resources>
