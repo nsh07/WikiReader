@@ -5,7 +5,7 @@
     <string name="otherProjectsDesc">اطلع على مشاريعي الأخرى على جيثب</string>
     <string name="settingDataSaverDesc">تعطيل الصور والموجز. يمكن فتح صور الصفحة بالنقر على بطاقة الوصف.</string>
     <string name="about">حول</string>
-    <string name="appTagline">اقرأ صفحات ويكيبيديا بدون تشتيت</string>
+    <string name="appTagline">اقرأ صفحات ويكيبيديا دون تشتيت انتباهك</string>
     <string name="articleDeleted">تم حذف المقال</string>
     <string name="articlesSize">%1$s مقالات، %2$s إجمالي</string>
     <string name="author">المؤلف</string>
@@ -21,12 +21,12 @@
     <string name="deleteAllArticles">هل تريد حذف جميع المقالات؟</string>
     <string name="delete">حذف</string>
     <string name="deleteAll">حذف الكل</string>
-    <string name="deleteAllArticlesDesc">سيتم حذف جميع المقالات بشكل دائم من جهازك</string>
+    <string name="deleteAllArticlesDesc">سيتم حذف جميع المقالات نهائيا من جهازك</string>
     <string name="deleteArticle">حذف المقال المُنزّل</string>
     <string name="deleteSavedArticle">هل تريد حذف المقال المحفوظ؟</string>
-    <string name="deleteSavedArticleDesc">سيتم حذف \"%1$s\" بشكل دائم من جهازك</string>
-    <string name="dialogDeleteHistoryItem">سيتم حذف \"%1$s\" بشكل دائم من سجل البحث الخاص بك.</string>
-    <string name="dialogDeleteHistoryItemDesc">سيتم حذف سجل البحث الخاص بك بشكل دائم.</string>
+    <string name="deleteSavedArticleDesc">سيتم حذف \"%1$s\" نهائيًا من جهازك</string>
+    <string name="dialogDeleteHistoryItem">سيتم حذف \"%1$s\" نهائيًا من سجل البحث الخاص بك.</string>
+    <string name="dialogDeleteHistoryItemDesc">سيتم حذف سجل البحث الخاص بك نهائيًا.</string>
     <string name="errorLoadingImage">خطأ في تحميل الصورة</string>
     <string name="dialogDeleteSearchHistory">هل تريد حذف هذا البحث من سجلك؟</string>
     <string name="dialogDeleteSearchHistoryDesc">هل تريد حذف سجل البحث الخاص بك؟</string>
@@ -45,14 +45,14 @@
     <string name="noSavedArticles">لا توجد مقالات محفوظة</string>
     <string name="noSavedArticlesDesc">انقر على زر التنزيل في أعلى المقال للبدء</string>
     <string name="ok">موافق</string>
-    <string name="onThisDay">في هذا اليوم</string>
+    <string name="onThisDay">في مثل هذا اليوم</string>
     <string name="openInBrowser">فتح في المتصفح</string>
     <string name="pageIndicator">الصفحة %1$s من %2$s</string>
     <string name="picOfTheDay">صورة اليوم</string>
     <string name="randomArticle">مقال عشوائي</string>
     <string name="redirectedFrom">تمت إعادة التوجيه من %1$s</string>
     <string name="releases">الإصدارات</string>
-    <string name="releasesDesc">اطلع على الإصدارات الأقدم والأحدث</string>
+    <string name="releasesDesc">اطلع على الإصدارات القديمة والحديثة</string>
     <string name="scrollLeft">التمرير إلى اليسار</string>
     <string name="scrollRight">التمرير إلى اليمين</string>
     <string name="scroll_to_top">التمرير إلى الأعلى</string>
@@ -79,7 +79,7 @@
     <string name="shareLink">مشاركة الرابط</string>
     <string name="sharePage">مشاركة الصفحة</string>
     <string name="snackbarArticleDeleted">تم حذف المقال</string>
-    <string name="snackbarArticleSaved">تم حفظ المقال للقراءة دون اتصال</string>
+    <string name="snackbarArticleSaved">تم حفظ المقال للقراءة دون اتصال بالإنترنت</string>
     <string name="snackbarUnableToDelete">تعذر حذف المقال: %1$s</string>
     <string name="snackbarUnableToSave">تعذر حفظ المقال: %1$s</string>
     <string name="sourceCode">الكود المصدري</string>
@@ -109,10 +109,11 @@
     <string name="app">التطبيق</string>
     <string name="home">الرئيسية</string>
     <string name="sections">الأقسام</string>
-    <string name="settingImageBackgroundDesc">أضف خلفية بيضاء إلى الصور الشفافة. يمكن أن تساعد الخلفية في زيادة إمكانية القراءة في الوضع المظلم.</string>
+    <string name="settingImageBackgroundDesc">أضف خلفية بيضاء إلى الصور الشفافة. يمكن أن تساعد الخلفية في تحسين القراءة في الوضع المظلم.</string>
     <string name="resetSettingsDialog">إعادة ضبط الإعدادات؟</string>
     <string name="resetSettingsIconDesc">إعادة تعيين الإعدادات إلى الوضع الافتراضي</string>
     <string name="settingsRestored">تم استعادة الإعدادات الافتراضية</string>
     <string name="reset">إعادة الضبط</string>
     <string name="resetSettingsDialogDesc">ستتم استعادة جميع الإعدادات إلى الوضع الافتراضي</string>
+    <string name="image">صورة</string>
 </resources>
