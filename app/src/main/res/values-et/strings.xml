@@ -98,8 +98,8 @@
     <string name="sharePage">Jaga lehte</string>
     <string name="snackbarUnableToLoadFeed">Uudisvoo laadimine ei õnnestu: %1$s</string>
     <string name="releasesDesc">Vaata vanemaid ja uuemaid versioone</string>
-    <string name="searchWikipedia">Otsi Vikipeediast…</string>
-    <string name="searchLanguages">Otsi keeli…</string>
+    <string name="searchWikipedia">Otsi Vikipeediast</string>
+    <string name="searchLanguages">Otsi keeli</string>
     <string name="settingDataSaverDesc">Ära kohe laadi pilte ja uudisvoogu. Pilte saad siiski avada asenduskaardi klõpsimisel.</string>
     <string name="settingExpandSectionsDesc">Vaikimisi näita kõiki artikli lõike avatuna</string>
     <string name="settingImmersiveModeDesc">Artikli kerimisel peida otsinguriba ja ujuvad tegevustenupud. Väikeste ekraanidega nutiseadmetes on see eelistus vaikimisi kasutusel.</string>
