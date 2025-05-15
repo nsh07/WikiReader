@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,7 +15,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
@@ -28,7 +25,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -85,7 +81,23 @@ fun SavedArticlesScreen(
         )
 
     Scaffold(
-        topBar = { SavedArticlesTopBar(scrollBehavior = scrollBehavior, onBack = onBack) },
+        topBar = {
+            SavedArticlesTopBar(
+                articlesInfo = stringResource(
+                    R.string.articlesSize,
+                    savedArticlesState.savedArticles.size,
+                    bytesToHumanReadableSize(
+                        savedArticlesState.articlesSize.toDouble()
+                    )
+                ),
+                scrollBehavior = scrollBehavior,
+                onBack = onBack,
+                onDeleteAll = {
+                    toDelete = null
+                    showArticleDeleteDialog = true
+                }
+            )
+        },
         snackbarHost = { SnackbarHost(snackBarHostState) },
         modifier = modifier
             .fillMaxSize()
@@ -97,30 +109,6 @@ fun SavedArticlesScreen(
                 modifier = Modifier
                     .fillMaxHeight()
             ) {
-                item {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            stringResource(
-                                R.string.articlesSize,
-                                savedArticlesState.savedArticles.size,
-                                bytesToHumanReadableSize(
-                                    savedArticlesState.articlesSize.toDouble()
-                                )
-                            ),
-                            style = MaterialTheme.typography.labelLarge,
-                            modifier = Modifier.padding(16.dp)
-                        )
-                        Spacer(Modifier.weight(1f))
-                        TextButton(
-                            shapes = ButtonDefaults.shapes(),
-                            onClick = {
-                                toDelete = null
-                                showArticleDeleteDialog = true
-                            },
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        ) { Text(stringResource(R.string.deleteAll)) }
-                    }
-                }
                 if (savedArticlesState.languageFilters.size > 1)
                     item {
                         FlowRow(

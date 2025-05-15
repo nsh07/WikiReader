@@ -46,7 +46,8 @@ fun FullScreenImageTopBar(
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
     TopAppBar(
-        title = {
+        title = { Text(stringResource(R.string.image)) },
+        subtitle = {
             Text(
                 photoDesc?.label?.get(0) ?: title,
                 maxLines = 1,
@@ -86,6 +87,7 @@ fun FullScreenImageTopBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color(0f, 0f, 0f, 0.5f),
             titleContentColor = Color.White,
+            subtitleContentColor = Color.LightGray,
             navigationIconContentColor = Color.White
         )
     )
@@ -114,7 +116,8 @@ fun FullScreenImageTopBar(
     val typography = typography
 
     TopAppBar(
-        title = {
+        title = { Text(stringResource(R.string.image)) },
+        subtitle = {
             Text(
                 remember(description) {
                     description.toWikitextAnnotatedString(
@@ -161,6 +164,7 @@ fun FullScreenImageTopBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color(0f, 0f, 0f, 0.5f),
             titleContentColor = Color.White,
+            subtitleContentColor = Color.LightGray,
             navigationIconContentColor = Color.White
         )
     )

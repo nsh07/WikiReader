@@ -7,7 +7,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -22,7 +22,7 @@ fun SettingsTopBar(
     onBack: () -> Unit,
     onResetSettings: () -> Unit
 ) {
-    LargeTopAppBar(
+    LargeFlexibleTopAppBar(
         title = { Text(stringResource(R.string.settings)) },
         navigationIcon = {
             IconButton(shapes = IconButtonDefaults.shapes(), onClick = onBack) {
