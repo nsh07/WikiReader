@@ -15,7 +15,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleFloatingActionButton
-import androidx.compose.material3.ToggleFloatingActionButtonDefaults
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
 import androidx.compose.material3.animateFloatingActionButton
 import androidx.compose.runtime.Composable
@@ -42,15 +41,13 @@ fun AppFab(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    BackHandler(expanded) { expanded = false }
+    BackHandler(expanded && visible) { expanded = false }
 
     FloatingActionButtonMenu(
         expanded = expanded,
         button = {
             ToggleFloatingActionButton(
                 checked = expanded,
-                containerSize = ToggleFloatingActionButtonDefaults.containerSizeMedium(),
-                containerCornerRadius = ToggleFloatingActionButtonDefaults.containerCornerRadiusMedium(),
                 onCheckedChange = { expanded = !expanded }
             ) {
                 val imageVector by remember {

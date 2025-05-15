@@ -35,12 +35,12 @@ import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberSearchBarState
@@ -163,8 +163,8 @@ fun AppScreen(
         if (
             windowSizeClass.windowHeightSizeClass == WindowHeightSizeClass.COMPACT ||
             preferencesState.immersiveMode
-        ) SearchBarDefaults.enterAlwaysSearchBarScrollBehavior()
-        else null
+        ) TopAppBarDefaults.enterAlwaysScrollBehavior()
+        else TopAppBarDefaults.pinnedScrollBehavior()
     val textFieldState = viewModel.textFieldState
 
     val imageLoader = remember {
@@ -347,6 +347,12 @@ fun AppScreen(
                             },
                             loadSearchDebounced = viewModel::loadSearchResultsDebounced,
                             loadPage = viewModel::loadPage,
+                            loadRandom = {
+                                viewModel.loadPage(
+                                    title = null,
+                                    random = true
+                                )
+                            },
                             saveLang = viewModel::saveLang,
                             updateLanguageSearchStr = viewModel::updateLanguageSearchStr,
                             onExpandedChange = {
@@ -374,8 +380,10 @@ fun AppScreen(
                     floatingActionButton = {
                         AppFab(
                             index = if (homeScreenState.status != WRStatus.FEED_LOADED) index else feedIndex,
-                            visible = (searchBarScrollBehavior?.scrollOffset
-                                ?: 0f) != searchBarScrollBehavior?.scrollOffsetLimit,
+                            visible = true,
+                            // TODO: Hide FAB on scroll
+//                                (searchBarScrollBehavior?.scrollOffset
+//                                ?: 0f) != searchBarScrollBehavior?.scrollOffsetLimit,
                             focusSearch = {
                                 viewModel.focusSearchBar()
                                 textFieldState.setTextAndPlaceCursorAtEnd(textFieldState.text.toString())
@@ -405,12 +413,9 @@ fun AppScreen(
                             ScaffoldDefaults.contentWindowInsets
                                 .only(WindowInsetsSides.Top + WindowInsetsSides.Bottom + WindowInsetsSides.End)
                         else ScaffoldDefaults.contentWindowInsets,
-                    modifier =
-                        if (searchBarScrollBehavior != null)
-                            Modifier
-                                .fillMaxSize()
-                                .nestedScroll(searchBarScrollBehavior.nestedScrollConnection)
-                        else Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .nestedScroll(searchBarScrollBehavior.nestedScrollConnection)
                 ) { insets ->
                     AppHomeScreen(
                         homeScreenState = homeScreenState,

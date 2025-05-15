@@ -64,8 +64,8 @@
     <string name="scrollRight">Scroll right</string>
     <string name="scroll_to_top">Scroll to top</string>
     <string name="search">Search</string>
-    <string name="searchLanguages">Search languages…</string>
-    <string name="searchWikipedia">Search Wikipedia…</string>
+    <string name="searchLanguages">Search languages</string>
+    <string name="searchWikipedia">Search Wikipedia</string>
     <string name="sections">Sections</string>
     <string name="selectedLabel">Selected</string>
     <string name="setAsDefault">Set as default</string>

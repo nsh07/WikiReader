@@ -24,15 +24,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.FilledTonalIconToggleButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.IconToggleButtonShapes
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
@@ -237,10 +241,15 @@ fun AppHomeScreen(
                                     contentDescription = stringResource(R.string.sharePage)
                                 )
                             }
-                            FilledTonalIconButton(
-                                shapes = IconButtonDefaults.shapes(),
-                                onClick = saveArticle,
-                                enabled = homeScreenState.status == WRStatus.SUCCESS
+                            FilledTonalIconToggleButton(
+                                checked = homeScreenState.savedStatus == SavedStatus.SAVED,
+                                enabled = homeScreenState.status == WRStatus.SUCCESS,
+                                shapes = IconToggleButtonShapes(
+                                    CircleShape,
+                                    RoundedCornerShape(8.dp),
+                                    RoundedCornerShape(16.dp)
+                                ),
+                                onCheckedChange = { saveArticle() },
                             ) {
                                 AnimatedContent(
                                     homeScreenState.savedStatus,
@@ -279,16 +288,16 @@ fun AppHomeScreen(
 //                                contentAlignment = Alignment.Center,
 //                                modifier = Modifier.fillMaxWidth()
 //                            ) {
-                                ImageCard(
-                                    photo = photo,
-                                    photoDesc = photoDesc,
-                                    title = homeScreenState.title,
-                                    imageLoader = imageLoader,
-                                    showPhoto = !preferencesState.dataSaver,
-                                    onClick = onImageClick,
-                                    background = preferencesState.imageBackground,
-                                    modifier = Modifier.padding(bottom = 8.dp)
-                                )
+                            ImageCard(
+                                photo = photo,
+                                photoDesc = photoDesc,
+                                title = homeScreenState.title,
+                                imageLoader = imageLoader,
+                                showPhoto = !preferencesState.dataSaver,
+                                onClick = onImageClick,
+                                background = preferencesState.imageBackground,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
 //                            }
                         }
                     }

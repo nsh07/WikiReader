@@ -5,6 +5,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -36,29 +37,33 @@ import androidx.compose.material3.ExpandedFullScreenSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.SearchBarScrollBehavior
 import androidx.compose.material3.SearchBarState
 import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopSearchBar
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
@@ -69,6 +74,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
@@ -93,7 +99,7 @@ fun AppSearchBar(
     imageLoader: ImageLoader,
     searchListState: LazyListState,
     windowSizeClass: WindowSizeClass,
-    scrollBehavior: SearchBarScrollBehavior?,
+    scrollBehavior: TopAppBarScrollBehavior?,
     languageSearchStr: String,
     languageSearchQuery: String,
     saveLang: (String) -> Unit,
@@ -101,6 +107,7 @@ fun AppSearchBar(
     loadSearch: (String) -> Unit,
     loadSearchDebounced: (String) -> Unit,
     loadPage: (String) -> Unit,
+    loadRandom: () -> Unit,
     onExpandedChange: (Boolean) -> Unit,
     setQuery: (String) -> Unit,
     removeHistoryItem: (String) -> Unit,
@@ -126,52 +133,28 @@ fun AppSearchBar(
                 textFieldState = textFieldState,
                 searchBarState = searchBarState,
                 onSearch = loadSearch,
-                placeholder = { Text(stringResource(R.string.searchWikipedia)) },
-                leadingIcon = {
-                    AnimatedContent(
-                        searchBarState.targetValue == SearchBarValue.Collapsed &&
-                                windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT
-                    ) { currentValue ->
-                        when (currentValue) {
-                            true ->
-                                IconButton(
-                                    shapes = IconButtonDefaults.shapes(),
-                                    onClick = onMenuIconClicked
-                                ) {
-                                    Icon(
-                                        Icons.Outlined.Menu,
-                                        contentDescription = stringResource(R.string.moreOptions)
-                                    )
-                                }
-
-                            else ->
-                                IconButton(
-                                    shapes = IconButtonDefaults.shapes(),
-                                    onClick = { loadSearch(textFieldState.text.toString()) }) {
-                                    Icon(
-                                        Icons.Outlined.Search,
-                                        contentDescription = null
-                                    )
-                                }
-                        }
+                placeholder = {
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.searchWikipedia), style = typography.bodyLarge)
                     }
                 },
-                trailingIcon = {
+                trailingIcon =
                     if (textFieldState.text != "") {
-                        IconButton(
-                            shapes = IconButtonDefaults.shapes(),
-                            onClick = {
-                                setQuery("")
-                                focusRequester.requestFocus()
+                        {
+                            IconButton(
+                                shapes = IconButtonDefaults.shapes(),
+                                onClick = {
+                                    setQuery("")
+                                    focusRequester.requestFocus()
+                                }
+                            ) {
+                                Icon(
+                                    Icons.Outlined.Clear,
+                                    contentDescription = stringResource(R.string.clearSearchField)
+                                )
                             }
-                        ) {
-                            Icon(
-                                Icons.Outlined.Clear,
-                                contentDescription = stringResource(R.string.clearSearchField)
-                            )
                         }
-                    }
-                },
+                    } else null,
                 enabled = searchBarEnabled,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -179,21 +162,93 @@ fun AppSearchBar(
             )
         }
 
-    TopSearchBar(
-        state = searchBarState,
+    val textStyle = LocalTextStyle.current
+    TopAppBar(
+        title = {
+            CompositionLocalProvider(
+                LocalTextStyle provides textStyle
+            ) {
+                BoxWithConstraints {
+                    SearchBar(
+                        state = searchBarState,
+                        inputField = inputField,
+                        modifier = Modifier
+                            .padding(vertical = 4.dp)
+                            .padding(
+                                top = TopAppBarDefaults.windowInsets.asPaddingValues()
+                                    .calculateTopPadding()
+                            )
+                            .width(max(320.dp, this@BoxWithConstraints.maxWidth / 2))
+                    )
+                }
+            }
+        },
+        subtitle = {},
+        navigationIcon = {
+            AnimatedContent(
+                searchBarState.targetValue == SearchBarValue.Collapsed &&
+                        windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT,
+                modifier = Modifier.padding(
+                    top = TopAppBarDefaults.windowInsets.asPaddingValues()
+                        .calculateTopPadding()
+                )
+            ) { currentValue ->
+                when (currentValue) {
+                    true ->
+                        IconButton(
+                            shapes = IconButtonDefaults.shapes(),
+                            onClick = onMenuIconClicked
+                        ) {
+                            Icon(
+                                Icons.Outlined.Menu,
+                                contentDescription = stringResource(R.string.moreOptions)
+                            )
+                        }
+
+                    else ->
+                        IconButton(
+                            shapes = IconButtonDefaults.shapes(),
+                            onClick = {
+                                if (searchBarState.currentValue == SearchBarValue.Expanded)
+                                    loadSearch(textFieldState.text.toString())
+                                else
+                                    focusRequester.requestFocus()
+                            }
+                        ) {
+                            Icon(
+                                Icons.Outlined.Search,
+                                contentDescription = null
+                            )
+                        }
+                }
+            }
+        },
+        actions = {
+            FilledTonalIconButton(
+                shapes = IconButtonDefaults.shapes(),
+                onClick = loadRandom,
+                modifier = Modifier.padding(
+                    top = TopAppBarDefaults.windowInsets.asPaddingValues()
+                        .calculateTopPadding()
+                )
+            ) {
+                Icon(
+                    painterResource(R.drawable.shuffle),
+                    contentDescription = null
+                )
+            }
+        },
         scrollBehavior = scrollBehavior,
-        inputField = inputField,
         windowInsets =
             if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT)
-                SearchBarDefaults.windowInsets
-                    .only(WindowInsetsSides.Top + WindowInsetsSides.Bottom + WindowInsetsSides.End)
-            else SearchBarDefaults.windowInsets,
+                TopAppBarDefaults.windowInsets
+                    .only(WindowInsetsSides.Bottom + WindowInsetsSides.End)
+            else
+                TopAppBarDefaults.windowInsets
+                    .only(WindowInsetsSides.Bottom + WindowInsetsSides.End + WindowInsetsSides.Start),
+        titleHorizontalAlignment = Alignment.CenterHorizontally,
+        colors = TopAppBarDefaults.topAppBarColors(scrolledContainerColor = colorScheme.surface),
         modifier = modifier
-            .fillMaxWidth()
-            .drawBehind {
-                drawRect(color = colorScheme.surface)
-            }
-            .padding(horizontal = 8.dp)
     )
 
     ExpandedFullScreenSearchBar(

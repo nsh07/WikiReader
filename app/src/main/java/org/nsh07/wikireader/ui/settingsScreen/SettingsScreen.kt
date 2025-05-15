@@ -232,7 +232,8 @@ fun SettingsScreen(
             SettingsTopBar(
                 scrollBehavior = scrollBehavior,
                 onBack = onBack,
-                onResetSettings = { setShowResetSettingsDialog(true) })
+                onResetSettings = { setShowResetSettingsDialog(true) }
+            )
         },
         snackbarHost = { SnackbarHost(snackBarHostState) },
         modifier = modifier
