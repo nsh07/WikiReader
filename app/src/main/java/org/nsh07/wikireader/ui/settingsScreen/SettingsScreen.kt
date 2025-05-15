@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -298,7 +300,7 @@ fun SettingsScreen(
                     supportingContent = {
                         Row(
                             horizontalArrangement =
-                                Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+                                Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
                         ) {
                             fontStyles.forEachIndexed { index, label ->
                                 ToggleButton(
@@ -308,7 +310,10 @@ fun SettingsScreen(
                                             reverseFontStyleMap[label] ?: "sans"
                                         )
                                     },
-                                    modifier = Modifier.weight(1f),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(top = 4.dp)
+                                        .height(40.dp),
                                     shapes =
                                         when (index) {
                                             0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
@@ -415,10 +420,14 @@ fun SettingsScreen(
                             modifier = Modifier.align(Alignment.End),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Button(onClick = { context.startActivity(appInfoIntent) }) {
+                            Button(
+                                shapes = ButtonDefaults.shapes(),
+                                onClick = { context.startActivity(appInfoIntent) }
+                            ) {
                                 Text(stringResource(string.settings))
                             }
                             FilledTonalButton(
+                                shapes = ButtonDefaults.shapes(),
                                 onClick = {
                                     uriHandler.openUri("https://gist.github.com/nsh07/ed7571f3e2014b412037626a39d68ecd")
                                 }

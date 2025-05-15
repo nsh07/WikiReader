@@ -12,8 +12,10 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
@@ -34,6 +36,7 @@ import org.nsh07.wikireader.R
 import org.nsh07.wikireader.parser.toWikitextAnnotatedString
 import org.nsh07.wikireader.ui.image.FeedImage
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun Gallery(
     text: String,
@@ -103,6 +106,7 @@ fun Gallery(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(
+                shapes = IconButtonDefaults.shapes(),
                 onClick = {
                     coroutineScope.launch {
                         pagerState.animateScrollToPage(
@@ -125,6 +129,7 @@ fun Gallery(
                 )
             )
             IconButton(
+                shapes = IconButtonDefaults.shapes(),
                 onClick = {
                     coroutineScope.launch {
                         pagerState.animateScrollToPage(

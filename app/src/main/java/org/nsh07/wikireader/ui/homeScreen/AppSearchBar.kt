@@ -31,11 +31,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExpandedFullScreenSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -76,7 +79,10 @@ import org.nsh07.wikireader.ui.settingsScreen.LanguageBottomSheet
 import org.nsh07.wikireader.ui.viewModel.AppSearchBarState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
+    ExperimentalMaterial3ExpressiveApi::class
+)
 @Composable
 fun AppSearchBar(
     appSearchBarState: AppSearchBarState,
@@ -128,7 +134,10 @@ fun AppSearchBar(
                     ) { currentValue ->
                         when (currentValue) {
                             true ->
-                                IconButton(onClick = onMenuIconClicked) {
+                                IconButton(
+                                    shapes = IconButtonDefaults.shapes(),
+                                    onClick = onMenuIconClicked
+                                ) {
                                     Icon(
                                         Icons.Outlined.Menu,
                                         contentDescription = stringResource(R.string.moreOptions)
@@ -136,7 +145,9 @@ fun AppSearchBar(
                                 }
 
                             else ->
-                                IconButton(onClick = { loadSearch(textFieldState.text.toString()) }) {
+                                IconButton(
+                                    shapes = IconButtonDefaults.shapes(),
+                                    onClick = { loadSearch(textFieldState.text.toString()) }) {
                                     Icon(
                                         Icons.Outlined.Search,
                                         contentDescription = null
@@ -148,6 +159,7 @@ fun AppSearchBar(
                 trailingIcon = {
                     if (textFieldState.text != "") {
                         IconButton(
+                            shapes = IconButtonDefaults.shapes(),
                             onClick = {
                                 setQuery("")
                                 focusRequester.requestFocus()
@@ -214,6 +226,7 @@ fun AppSearchBar(
                                     )
                                     Spacer(Modifier.weight(1f))
                                     TextButton(
+                                        shapes = ButtonDefaults.shapes(),
                                         onClick = clearHistory,
                                         enabled = size > 0,
                                         modifier = Modifier.padding(4.dp)
@@ -240,6 +253,7 @@ fun AppSearchBar(
                                     },
                                     trailingContent = {
                                         IconButton(
+                                            shapes = IconButtonDefaults.shapes(),
                                             onClick = { setQuery(currentText) },
                                             modifier = Modifier.wrapContentSize()
                                         ) {
@@ -286,6 +300,7 @@ fun AppSearchBar(
                             item(span = { GridItemSpan(2) }) {
                                 Box(Modifier.padding(bottom = 16.dp)) {
                                     FilledTonalButton(
+                                        shapes = ButtonDefaults.shapes(),
                                         onClick = { setShowLanguageSheet(true) },
                                         modifier = Modifier.padding(
                                             start = 16.dp,
@@ -427,6 +442,7 @@ fun AppSearchBar(
                         LazyColumn(state = searchListState) {
                             item {
                                 FilledTonalButton(
+                                    shapes = ButtonDefaults.shapes(),
                                     onClick = { setShowLanguageSheet(true) },
                                     modifier = Modifier.padding(
                                         start = 16.dp,

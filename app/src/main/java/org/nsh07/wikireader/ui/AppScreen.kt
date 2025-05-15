@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -596,7 +597,7 @@ fun AppScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DeleteHistoryItemDialog(
     item: String,
@@ -632,10 +633,12 @@ fun DeleteHistoryItemDialog(
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(modifier = Modifier.align(Alignment.End)) {
-                    TextButton(onClick = { setShowDeleteDialog(false) }) {
+                    TextButton(
+                        shapes = ButtonDefaults.shapes(),
+                        onClick = { setShowDeleteDialog(false) }) {
                         Text(text = stringResource(string.cancel))
                     }
-                    TextButton(onClick = {
+                    TextButton(shapes = ButtonDefaults.shapes(), onClick = {
                         setShowDeleteDialog(false)
                         removeHistoryItem(item)
                     }) {

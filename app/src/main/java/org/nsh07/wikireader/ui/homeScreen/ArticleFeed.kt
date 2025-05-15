@@ -34,6 +34,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.OutlinedButton
@@ -337,6 +338,7 @@ fun ArticleFeed(
                         ElevatedCard(shape = shapes.extraLarge) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 IconButton(
+                                    shapes = IconButtonDefaults.shapes(),
                                     onClick = {
                                         coroutineScope.launch {
                                             pagerState.animateScrollToPage(
@@ -359,6 +361,7 @@ fun ArticleFeed(
                                     )
                                 )
                                 IconButton(
+                                    shapes = IconButtonDefaults.shapes(),
                                     onClick = {
                                         coroutineScope.launch {
                                             pagerState.animateScrollToPage(
@@ -528,6 +531,7 @@ fun ArticleFeed(
                                         ?.subList(0, min(3, feedState.news[i].links?.size ?: 0))
                                         ?.forEach {
                                             OutlinedButton(
+                                                shapes = ButtonDefaults.shapes(),
                                                 border = BorderStroke(
                                                     width = ButtonDefaults.outlinedButtonBorder().width,
                                                     color = Color.LightGray
@@ -641,6 +645,7 @@ fun ArticleFeed(
                                             )
                                             ?.forEach {
                                                 OutlinedButton(
+                                                    shapes = ButtonDefaults.shapes(),
                                                     border = BorderStroke(
                                                         width = ButtonDefaults.outlinedButtonBorder().width,
                                                         color = Color.LightGray

@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -23,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WRStatus
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DeleteArticleDialog(
     articleFileName: String?,
@@ -61,10 +63,12 @@ fun DeleteArticleDialog(
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(modifier = Modifier.align(Alignment.End)) {
-                    TextButton(onClick = { setShowDeleteDialog(false) }) {
+                    TextButton(
+                        shapes = ButtonDefaults.shapes(),
+                        onClick = { setShowDeleteDialog(false) }) {
                         Text(text = stringResource(R.string.cancel))
                     }
-                    TextButton(onClick = {
+                    TextButton(shapes = ButtonDefaults.shapes(), onClick = {
                         setShowDeleteDialog(false)
                         val status = if (articleFileName != null) deleteArticle(articleFileName)
                         else deleteAll()

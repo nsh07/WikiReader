@@ -12,7 +12,9 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
@@ -29,7 +31,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import org.nsh07.wikireader.R
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ThemeDialog(
     themeMap: Map<String, Pair<Int, String>>,
@@ -88,10 +90,13 @@ fun ThemeDialog(
                 }
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(modifier = Modifier.align(Alignment.End)) {
-                    TextButton(onClick = { setShowThemeDialog(false) }) {
+                    TextButton(
+                        shapes = ButtonDefaults.shapes(),
+                        onClick = { setShowThemeDialog(false) }) {
                         Text(stringResource(R.string.cancel))
                     }
                     TextButton(
+                        shapes = ButtonDefaults.shapes(),
                         onClick = {
                             setShowThemeDialog(false)
                             setTheme(reverseThemeMap[selectedOption.value]!!)

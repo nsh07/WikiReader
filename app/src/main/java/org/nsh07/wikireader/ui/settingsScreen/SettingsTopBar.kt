@@ -3,8 +3,10 @@ package org.nsh07.wikireader.ui.settingsScreen
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -13,7 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import org.nsh07.wikireader.R
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsTopBar(
     scrollBehavior: TopAppBarScrollBehavior,
@@ -23,7 +25,7 @@ fun SettingsTopBar(
     LargeTopAppBar(
         title = { Text(stringResource(R.string.settings)) },
         navigationIcon = {
-            IconButton(onClick = onBack) {
+            IconButton(shapes = IconButtonDefaults.shapes(), onClick = onBack) {
                 Icon(
                     Icons.AutoMirrored.Outlined.ArrowBack,
                     contentDescription = stringResource(R.string.back)
@@ -31,7 +33,7 @@ fun SettingsTopBar(
             }
         },
         actions = {
-            IconButton(onClick = onResetSettings) {
+            IconButton(shapes = IconButtonDefaults.shapes(), onClick = onResetSettings) {
                 Icon(
                     painterResource(R.drawable.reset_settings),
                     contentDescription = stringResource(R.string.resetSettingsIconDesc)

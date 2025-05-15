@@ -16,8 +16,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
@@ -50,6 +52,7 @@ import kotlinx.coroutines.launch
 import org.nsh07.wikireader.parser.parseWikitable
 import kotlin.math.max
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AsyncWikitable(
     text: String,
@@ -87,6 +90,7 @@ fun AsyncWikitable(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
+                shapes = IconButtonDefaults.shapes(),
                 onClick = { expanded = !expanded },
                 modifier = Modifier.padding(8.dp)
             ) {

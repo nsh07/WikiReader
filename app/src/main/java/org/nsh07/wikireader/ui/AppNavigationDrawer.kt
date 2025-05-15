@@ -37,6 +37,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.MaterialTheme.shapes
@@ -178,6 +179,7 @@ fun AppNavigationDrawer(
                                             shrinkHorizontally(animationSpec = motionScheme.defaultSpatialSpec())
                                 ) {
                                     IconButton(
+                                        shapes = IconButtonDefaults.shapes(),
                                         onClick = {
                                             coroutineScope.launch { drawerState.open() }
                                         }
@@ -193,7 +195,9 @@ fun AppNavigationDrawer(
                                             shrinkHorizontally(animationSpec = motionScheme.defaultSpatialSpec())
                                 ) {
                                     Box(Modifier.width(316.dp)) {
-                                        IconButton(onClick = { coroutineScope.launch { drawerState.close() } }) {
+                                        IconButton(
+                                            shapes = IconButtonDefaults.shapes(),
+                                            onClick = { coroutineScope.launch { drawerState.close() } }) {
                                             Icon(Icons.Outlined.Menu, null)
                                         }
                                     }
