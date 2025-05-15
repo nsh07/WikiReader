@@ -77,8 +77,8 @@
     <string name="savedArticles">Збережені статті</string>
     <string name="scrollLeft">Гортати вліво</string>
     <string name="scrollRight">Гортати вправо</string>
-    <string name="searchLanguages">Пошук мов…</string>
-    <string name="searchWikipedia">Знайти на Вікіпедії…</string>
+    <string name="searchLanguages">Пошук мов</string>
+    <string name="searchWikipedia">Знайти на Вікіпедії</string>
     <string name="selectedLabel">Вибрано</string>
     <string name="shareLink">Поділитися посиланням</string>
     <string name="snackbarArticleDeleted">Стаття видалена</string>
