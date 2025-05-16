@@ -77,8 +77,8 @@
     <string name="savedArticles">सहेजे गए लेख</string>
     <string name="scrollLeft">बाईं ओर स्क्रॉल करें</string>
     <string name="scrollRight">दाएँ स्क्रॉल करें</string>
-    <string name="searchLanguages">भाषाएं खोजें…</string>
-    <string name="searchWikipedia">विकिपीडिया पर खोजें…</string>
+    <string name="searchLanguages">भाषाएं खोजें</string>
+    <string name="searchWikipedia">विकिपीडिया पर खोजें</string>
     <string name="selectedLabel">चयनित</string>
     <string name="shareLink">लिंक साझा करें</string>
     <string name="sharePage">लेख साझा करें</string>
@@ -115,4 +115,5 @@
     <string name="reset">रीसेट करें</string>
     <string name="resetSettingsDialog">सेटिंग रीसेट करें?</string>
     <string name="resetSettingsIconDesc">सेटिंग्स को उनके डिफ़ॉल्ट पर रीसेट करें</string>
+    <string name="image">छवि</string>
 </resources>
