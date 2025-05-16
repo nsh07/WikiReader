@@ -30,12 +30,13 @@ fun ParsedBodyText(
     darkTheme: Boolean,
     dataSaver: Boolean,
     onLinkClick: (String) -> Unit,
-    onGalleryImageClick: (String, String) -> Unit
+    onGalleryImageClick: (String, String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val dpi = context.resources.displayMetrics.density
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
         body.forEach {
             if (it.startsWith("[[File:")) {
                 if (!dataSaver) {

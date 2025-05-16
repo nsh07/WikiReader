@@ -14,8 +14,10 @@ import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,6 +40,7 @@ import coil3.ImageLoader
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ExpandableSection(
     title: List<AnnotatedString>,
@@ -105,8 +108,14 @@ fun ExpandableSection(
 
         AnimatedVisibility(
             expanded,
-            enter = expandVertically(expandFrom = Alignment.CenterVertically) + fadeIn(),
-            exit = shrinkVertically(shrinkTowards = Alignment.CenterVertically) + fadeOut()
+            enter = expandVertically(
+                expandFrom = Alignment.CenterVertically,
+                animationSpec = motionScheme.defaultSpatialSpec()
+            ) + fadeIn(motionScheme.defaultEffectsSpec()),
+            exit = shrinkVertically(
+                shrinkTowards = Alignment.CenterVertically,
+                animationSpec = motionScheme.defaultSpatialSpec()
+            ) + fadeOut(motionScheme.defaultEffectsSpec())
         ) {
             ParsedBodyText(
                 body = body,

@@ -3,6 +3,7 @@ package org.nsh07.wikireader.ui.homeScreen
 import android.content.Intent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -41,6 +42,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -281,13 +283,11 @@ fun AppHomeScreen(
                             text = homeScreenState.title,
                             style = MaterialTheme.typography.displayMedium,
                             fontFamily = FontFamily.Serif,
-                            modifier = Modifier.padding(16.dp)
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .animateContentSize(motionScheme.defaultSpatialSpec())
                         )
                         if (photoDesc != null) {
-//                            Box(
-//                                contentAlignment = Alignment.Center,
-//                                modifier = Modifier.fillMaxWidth()
-//                            ) {
                             ImageCard(
                                 photo = photo,
                                 photoDesc = photoDesc,
@@ -298,7 +298,6 @@ fun AppHomeScreen(
                                 background = preferencesState.imageBackground,
                                 modifier = Modifier.padding(bottom = 8.dp)
                             )
-//                            }
                         }
                     }
                     item { // Main description
