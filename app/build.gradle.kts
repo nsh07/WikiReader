@@ -20,6 +20,9 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        androidResources {
+            generateLocaleConfig = true
+        }
     }
 
     buildTypes {
