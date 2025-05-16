@@ -1,17 +1,35 @@
 package org.nsh07.wikireader.ui
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.motionScheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.ModalWideNavigationRail
 import androidx.compose.material3.Text
 import androidx.compose.material3.WideNavigationRail
+import androidx.compose.material3.WideNavigationRailDefaults
 import androidx.compose.material3.WideNavigationRailItem
 import androidx.compose.material3.WideNavigationRailState
 import androidx.compose.material3.WideNavigationRailValue
@@ -25,6 +43,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -34,6 +54,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R.drawable
 import org.nsh07.wikireader.R.string
+import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.ui.viewModel.FeedSection
 import org.nsh07.wikireader.ui.viewModel.FeedState
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
@@ -92,10 +113,11 @@ fun AppNavigationDrawer(
 
     val compactScreen =
         remember { windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT }
-    val mediumScreen =
-        remember { windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM }
     val expandedScreen =
         remember { windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED }
+
+
+    val boxWidth = remember { 360.dp }
 
     LaunchedEffect(expandedScreen) {
         scope.launch {
@@ -104,102 +126,84 @@ fun AppNavigationDrawer(
         }
     }
 
-    Row {
-        if (compactScreen || mediumScreen) {
-            ModalWideNavigationRail(
-                state = state,
-                hideOnCollapse = compactScreen,
-                header = if (mediumScreen) {
-                    {
+    Row(modifier = modifier) {
+        AnimatedVisibility(
+            backStackEntry?.destination?.hasRoute(FullScreenImage::class) != true,
+            enter = expandHorizontally(animationSpec = motionScheme.defaultSpatialSpec()),
+            exit = shrinkHorizontally(animationSpec = motionScheme.defaultSpatialSpec())
+        ) {
+            if (compactScreen) {
+                ModalWideNavigationRail(
+                    state = state,
+                    hideOnCollapse = true
+                ) {
+                    AppNavigationRailContent(
+                        backStackEntry = backStackEntry,
+                        items = items,
+                        state = state,
+                        scope = scope,
+                        expandedScreen = expandedScreen,
+                        feedState = feedState,
+                        feedListState = feedListState,
+                        homeScreenState = homeScreenState,
+                        listState = listState,
+                        boxWidth = boxWidth
+                    )
+                }
+            } else {
+                WideNavigationRail(
+                    state = state,
+                    header = {
                         val expanded = state.targetValue == WideNavigationRailValue.Expanded
                         val rotation by animateFloatAsState(
                             if (expanded) 0f else -180f
                         )
-                        IconButton(
-                            modifier = Modifier.padding(start = 24.dp),
-                            onClick = {
-                                scope.launch {
-                                    if (expanded)
-                                        state.collapse()
-                                    else state.expand()
-                                }
-                            }
-                        ) {
-                            Crossfade(
-                                expanded,
-                                modifier = Modifier.graphicsLayer {
-                                    rotationZ = rotation
+                        Box(Modifier.fillMaxWidth()) {
+                            IconButton(
+                                modifier = Modifier.padding(start = 24.dp),
+                                onClick = {
+                                    scope.launch {
+                                        if (expanded)
+                                            state.collapse()
+                                        else state.expand()
+                                    }
                                 }
                             ) {
-                                when (it) {
-                                    true -> Icon(
-                                        painterResource(drawable.menu_open),
-                                        "Collapse rail"
-                                    )
+                                Crossfade(
+                                    expanded,
+                                    modifier = Modifier.graphicsLayer {
+                                        rotationZ = rotation
+                                    }
+                                ) {
+                                    when (it) {
+                                        true -> Icon(
+                                            painterResource(drawable.menu_open),
+                                            "Collapse rail",
+                                        )
 
-                                    else -> {
-                                        Icon(painterResource(drawable.menu), "Expand rail")
+                                        else -> Icon(
+                                            painterResource(drawable.menu),
+                                            "Expand rail"
+                                        )
                                     }
                                 }
                             }
                         }
                     }
-                } else null
-            ) {
-                AppNavigationRailContent(
-                    backStackEntry = backStackEntry,
-                    items = items,
-                    state = state,
-                    scope = scope,
-                    expandedScreen = expandedScreen
-                )
-            }
-        } else {
-            WideNavigationRail(
-                state = state,
-                header = {
-                    val expanded = state.targetValue == WideNavigationRailValue.Expanded
-                    val rotation by animateFloatAsState(
-                        if (expanded) 0f else -180f
+                ) {
+                    AppNavigationRailContent(
+                        backStackEntry = backStackEntry,
+                        items = items,
+                        state = state,
+                        scope = scope,
+                        expandedScreen = expandedScreen,
+                        feedState = feedState,
+                        feedListState = feedListState,
+                        homeScreenState = homeScreenState,
+                        listState = listState,
+                        boxWidth = boxWidth
                     )
-                    IconButton(
-                        modifier = Modifier.padding(start = 24.dp),
-                        onClick = {
-                            scope.launch {
-                                if (expanded)
-                                    state.collapse()
-                                else state.expand()
-                            }
-                        }
-                    ) {
-                        Crossfade(
-                            expanded,
-                            modifier = Modifier.graphicsLayer {
-                                rotationZ = rotation
-                            }
-                        ) {
-                            when (it) {
-                                true -> Icon(
-                                    painterResource(drawable.menu_open),
-                                    "Collapse rail",
-                                )
-
-                                else -> Icon(
-                                    painterResource(drawable.menu),
-                                    "Expand rail"
-                                )
-                            }
-                        }
-                    }
                 }
-            ) {
-                AppNavigationRailContent(
-                    backStackEntry = backStackEntry,
-                    items = items,
-                    state = state,
-                    scope = scope,
-                    expandedScreen = expandedScreen
-                )
             }
         }
         content()
@@ -210,32 +214,124 @@ fun AppNavigationDrawer(
 @Composable
 private fun AppNavigationRailContent(
     state: WideNavigationRailState,
+    feedState: FeedState,
+    feedListState: LazyListState,
+    homeScreenState: HomeScreenState,
+    listState: LazyListState,
     scope: CoroutineScope,
     backStackEntry: NavBackStackEntry?,
     expandedScreen: Boolean,
+    boxWidth: Dp,
     items: List<Item>
 ) {
-    items.forEach { item ->
-        val selected = backStackEntry?.destination?.hasRoute(item.route) == true
-        WideNavigationRailItem(
-            selected = selected,
-            onClick = {
-                scope.launch {
-                    if (!expandedScreen) state.collapse()
-                    item.onClick()
-                }
-            },
-            icon = {
-                Crossfade(selected) {
-                    when (it) {
-                        true -> Icon(item.filledIcon, null)
-                        else -> Icon(item.outlinedIcon, null)
+    val expanded = state.targetValue == WideNavigationRailValue.Expanded
+    val itemSpacing by animateDpAsState(
+        if (!expanded) 16.dp else 0.dp,
+        animationSpec = motionScheme.defaultSpatialSpec()
+    )
+    Column(
+        verticalArrangement = Arrangement.spacedBy(itemSpacing),
+        modifier = Modifier.verticalScroll(
+            rememberScrollState()
+        )
+    ) {
+        items.forEach { item ->
+            val selected = backStackEntry?.destination?.hasRoute(item.route) == true
+            WideNavigationRailItem(
+                selected = selected,
+                onClick = {
+                    scope.launch {
+                        if (!expandedScreen) state.collapse()
+                        item.onClick()
+                    }
+                },
+                icon = {
+                    Crossfade(selected) {
+                        when (it) {
+                            true -> Icon(item.filledIcon, null)
+                            else -> Icon(item.outlinedIcon, null)
+                        }
+                    }
+                },
+                label = { Text(stringResource(item.labelId)) },
+                railExpanded = expanded
+            )
+        }
+        if (expanded) {
+            Text(
+                stringResource(string.sections),
+                style = typography.titleSmall,
+                modifier = Modifier
+                    .padding(start = 36.dp, top = 12.dp, bottom = 8.dp)
+            )
+            when (homeScreenState.status) {
+                WRStatus.FEED_LOADED -> {
+                    feedState.sections.forEach { section ->
+                        WideNavigationRailItem(
+                            railExpanded = true,
+                            label = {
+                                Text(
+                                    feedSectionName(section.second),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    style = typography.labelLarge,
+                                    modifier = Modifier.widthIn(max = boxWidth - 96.dp)
+                                )
+                            },
+                            selected = feedListState.firstVisibleItemIndex == section.first,
+                            onClick = {
+                                scope.launch {
+                                    if (!expandedScreen) state.collapse()
+                                    feedListState.scrollToItem(section.first)
+                                }
+                            },
+                            icon = {
+                                Icon(
+                                    Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                                    contentDescription = null
+                                )
+                            }
+                        )
                     }
                 }
-            },
-            label = { Text(stringResource(item.labelId)) },
-            railExpanded = state.targetValue == WideNavigationRailValue.Expanded,
-//            modifier = Modifier.fillMaxWidth()
+
+                WRStatus.SUCCESS -> {
+                    homeScreenState.sections.forEach { section ->
+                        WideNavigationRailItem(
+                            railExpanded = true,
+                            label = {
+                                Text(
+                                    section.second,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    style = typography.labelLarge,
+                                    modifier = Modifier.widthIn(max = boxWidth - 96.dp)
+                                )
+                            },
+                            selected = listState.firstVisibleItemIndex == section.first || listState.firstVisibleItemIndex == section.first + 1,
+                            onClick = {
+                                scope.launch {
+                                    if (!expandedScreen) state.collapse()
+                                    listState.scrollToItem(section.first)
+                                }
+                            },
+                            icon = {
+                                Icon(
+                                    Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                                    contentDescription = null
+                                )
+                            }
+                        )
+                    }
+                }
+
+                else -> null
+            }
+        }
+        Spacer(
+            Modifier.height(
+                WideNavigationRailDefaults.windowInsets.asPaddingValues().calculateBottomPadding()
+            )
         )
     }
 }
