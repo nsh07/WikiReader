@@ -50,8 +50,8 @@
     <string name="scrollLeft">Проведите влево</string>
     <string name="scrollRight">Проведите вправо</string>
     <string name="scroll_to_top">Прокрутить в начало</string>
-    <string name="searchLanguages">Найти языки…</string>
-    <string name="searchWikipedia">Искать в Википедии…</string>
+    <string name="searchLanguages">Найти языки</string>
+    <string name="searchWikipedia">Искать в Википедии</string>
     <string name="sections">Разделы</string>
     <string name="setAsDefault">Установить по умолчанию</string>
     <string name="settingBlackTheme">Тёмная тема</string>
