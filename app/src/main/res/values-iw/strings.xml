@@ -61,7 +61,7 @@
     <string name="savedArticles">מאמרים שנשמרו</string>
     <string name="scrollLeft">גלול שמאלה</string>
     <string name="search">חיפוש</string>
-    <string name="searchWikipedia">חפש בוויקיפדיה…</string>
+    <string name="searchWikipedia">חפש בוויקיפדיה</string>
     <string name="sections">קטעים</string>
     <string name="selectedLabel">נבחר</string>
     <string name="setAsDefault">הגדר כברירת מחדל</string>
@@ -109,7 +109,7 @@
     <string name="onThisDay">ביום הזה</string>
     <string name="settingRenderMathDesc">דורש כמויות קטנות של נתונים נוספים. כבה כדי לשפר את הביצועים על חשבון הקריאות.</string>
     <string name="scrollRight">גלול ימינה</string>
-    <string name="searchLanguages">חיפוש שפות…</string>
+    <string name="searchLanguages">חיפוש שפות</string>
     <string name="supportWikipedia">תמוך בוויקיפדיה</string>
     <string name="scroll_to_top">גלול למעלה</string>
     <string name="settingFontStyle">עיצוב גופן</string>
