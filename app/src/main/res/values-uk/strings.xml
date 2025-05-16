@@ -116,4 +116,5 @@
     <string name="resetSettingsDialog">Скинути налаштування?</string>
     <string name="reset">Скинути</string>
     <string name="image">Зображення</string>
+    <string name="saved">Збережено</string>
 </resources>
