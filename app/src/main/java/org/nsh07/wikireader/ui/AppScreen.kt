@@ -27,7 +27,6 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
@@ -42,8 +41,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberSearchBarState
+import androidx.compose.material3.rememberWideNavigationRailState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -115,7 +114,7 @@ fun AppScreen(
     val searchListState by viewModel.searchListState.collectAsState()
     val searchBarState = rememberSearchBarState()
     val feedListState = rememberLazyListState()
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val railState = rememberWideNavigationRailState()
     val languageSearchStr by viewModel.languageSearchStr.collectAsState()
     val languageSearchQuery by viewModel.languageSearchQuery.collectAsState("")
     val motionScheme = motionScheme
@@ -191,7 +190,7 @@ fun AppScreen(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
     AppNavigationDrawer(
-        drawerState = drawerState,
+        state = railState,
         feedState = feedState,
         homeScreenState = homeScreenState,
         listState = listState,
@@ -372,7 +371,7 @@ fun AppScreen(
                             },
                             onMenuIconClicked = {
                                 scope.launch {
-                                    drawerState.open()
+                                    railState.expand()
                                 }
                             }
                         )

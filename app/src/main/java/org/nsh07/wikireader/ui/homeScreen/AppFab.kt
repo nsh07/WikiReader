@@ -28,6 +28,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
 import org.nsh07.wikireader.R
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -70,7 +74,8 @@ fun AppFab(
                 performRandomPageSearch()
             },
             text = { Text(stringResource(R.string.randomArticle)) },
-            icon = { Icon(painterResource(R.drawable.shuffle), null) }
+            icon = { Icon(painterResource(R.drawable.shuffle), null) },
+            modifier = Modifier.semantics { isTraversalGroup = true },
         )
         AnimatedVisibility(
             index > 1,
@@ -83,7 +88,8 @@ fun AppFab(
                     scrollToTop()
                 },
                 text = { Text(stringResource(R.string.scroll_to_top)) },
-                icon = { Icon(painterResource(R.drawable.upward), null) }
+                icon = { Icon(painterResource(R.drawable.upward), null) },
+                modifier = Modifier.semantics { isTraversalGroup = true },
             )
         }
         FloatingActionButtonMenuItem(
@@ -92,7 +98,20 @@ fun AppFab(
                 focusSearch()
             },
             text = { Text(stringResource(R.string.search)) },
-            icon = { Icon(Icons.Outlined.Search, null) }
+            icon = { Icon(Icons.Outlined.Search, null) },
+            modifier = Modifier.semantics {
+                isTraversalGroup = true
+                customActions =
+                    listOf(
+                        CustomAccessibilityAction(
+                            label = "Close menu",
+                            action = {
+                                expanded = false
+                                true
+                            }
+                        )
+                    )
+            },
         )
     }
 }

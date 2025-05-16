@@ -190,7 +190,9 @@ fun AppSearchBar(
                         windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT,
                 modifier = Modifier.padding(
                     top = TopAppBarDefaults.windowInsets.asPaddingValues()
-                        .calculateTopPadding()
+                        .calculateTopPadding(),
+                    start = 4.dp,
+                    end = 4.dp
                 )
             ) { currentValue ->
                 when (currentValue) {
@@ -229,7 +231,9 @@ fun AppSearchBar(
                 onClick = loadRandom,
                 modifier = Modifier.padding(
                     top = TopAppBarDefaults.windowInsets.asPaddingValues()
-                        .calculateTopPadding()
+                        .calculateTopPadding(),
+                    start = 4.dp,
+                    end = 4.dp
                 )
             ) {
                 Icon(

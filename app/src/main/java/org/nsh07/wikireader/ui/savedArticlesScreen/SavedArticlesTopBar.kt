@@ -2,7 +2,6 @@ package org.nsh07.wikireader.ui.savedArticlesScreen
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -12,6 +11,7 @@ import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import org.nsh07.wikireader.R
 
@@ -37,7 +37,7 @@ fun SavedArticlesTopBar(
         actions = {
             IconButton(shapes = IconButtonDefaults.shapes(), onClick = onDeleteAll) {
                 Icon(
-                    Icons.Outlined.Delete,
+                    painterResource(R.drawable.delete),
                     contentDescription = stringResource(R.string.deleteAll)
                 )
             }
