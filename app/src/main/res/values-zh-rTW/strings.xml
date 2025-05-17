@@ -116,4 +116,5 @@
     <string name="themeLight">淺色</string>
     <string name="themeSystemDefault">系統預設</string>
     <string name="snackbarArticleDeleted">條目已刪除</string>
+    <string name="saved">已儲存</string>
 </resources>
