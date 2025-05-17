@@ -116,4 +116,5 @@
     <string name="reset">إعادة الضبط</string>
     <string name="resetSettingsDialogDesc">ستتم استعادة جميع الإعدادات إلى الوضع الافتراضي</string>
     <string name="image">صورة</string>
+    <string name="saved">حفظ</string>
 </resources>
