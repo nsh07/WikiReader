@@ -116,4 +116,5 @@
     <string name="resetSettingsDialog">सेटिंग रीसेट करें?</string>
     <string name="resetSettingsIconDesc">सेटिंग्स को उनके डिफ़ॉल्ट पर रीसेट करें</string>
     <string name="image">छवि</string>
+    <string name="saved">सहेजे गए</string>
 </resources>
