@@ -117,4 +117,6 @@
     <string name="resetSettingsDialog">Kas lähtestame seadistused?</string>
     <string name="image">Pilt</string>
     <string name="saved">Salvestatud</string>
+    <string name="settingFeed">Sisuvoog</string>
+    <string name="settingFeedDesc">Rakenduse käivitamisel näita populaarsete artiklite, uudiste ja muid sisuvooge</string>
 </resources>
