@@ -20,6 +20,7 @@ import org.nsh07.wikireader.R
 fun SavedArticlesTopBar(
     articlesInfo: String,
     scrollBehavior: TopAppBarScrollBehavior,
+    deleteEnabled: Boolean,
     onBack: () -> Unit,
     onDeleteAll: () -> Unit
 ) {
@@ -27,7 +28,10 @@ fun SavedArticlesTopBar(
         title = { Text(stringResource(R.string.savedArticles)) },
         subtitle = { Text(articlesInfo) },
         navigationIcon = {
-            IconButton(shapes = IconButtonDefaults.shapes(), onClick = onBack) {
+            IconButton(
+                shapes = IconButtonDefaults.shapes(),
+                onClick = onBack
+            ) {
                 Icon(
                     Icons.AutoMirrored.Outlined.ArrowBack,
                     contentDescription = stringResource(R.string.back)
@@ -35,7 +39,11 @@ fun SavedArticlesTopBar(
             }
         },
         actions = {
-            IconButton(shapes = IconButtonDefaults.shapes(), onClick = onDeleteAll) {
+            IconButton(
+                enabled = deleteEnabled,
+                shapes = IconButtonDefaults.shapes(),
+                onClick = onDeleteAll
+            ) {
                 Icon(
                     painterResource(R.drawable.delete),
                     contentDescription = stringResource(R.string.deleteAll)

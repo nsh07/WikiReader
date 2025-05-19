@@ -1,5 +1,11 @@
 package org.nsh07.wikireader.ui.savedArticlesScreen
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -8,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -39,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -96,6 +104,7 @@ fun SavedArticlesScreen(
                     )
                 ),
                 scrollBehavior = scrollBehavior,
+                deleteEnabled = savedArticlesState.savedArticles.isNotEmpty(),
                 onBack = onBack,
                 onDeleteAll = {
                     toDelete = null
@@ -179,17 +188,39 @@ fun SavedArticlesScreen(
             }
         else
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                val transition = rememberInfiniteTransition(
+                    label = "Cookie rotate"
+                )
+                val angle by transition.animateFloat(
+                    initialValue = 0f,
+                    targetValue = 360f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(durationMillis = 10000, easing = LinearEasing),
+                        repeatMode = RepeatMode.Restart
+                    ),
+                    label = "Cookie animation"
+                )
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        painterResource(R.drawable.save),
-                        contentDescription = null,
-                        tint = colorScheme.outline,
-                        modifier = Modifier
-                            .clip(MaterialShapes.Cookie12Sided.toShape())
-                            .background(colorScheme.primaryContainer)
-                            .padding(32.dp)
-                            .size(100.dp)
-                    )
+                    Box(contentAlignment = Alignment.Center) {
+                        Spacer(
+                            Modifier
+                                .graphicsLayer {
+                                    rotationZ = angle
+                                }
+                                .clip(MaterialShapes.Cookie12Sided.toShape())
+                                .background(colorScheme.primaryContainer)
+                                .padding(32.dp)
+                                .size(100.dp)
+                        )
+                        Icon(
+                            painterResource(R.drawable.save),
+                            contentDescription = null,
+                            tint = colorScheme.onPrimaryContainer,
+                            modifier = Modifier
+                                .padding(32.dp)
+                                .size(100.dp)
+                        )
+                    }
                     Text(
                         stringResource(R.string.noSavedArticles),
                         textAlign = TextAlign.Center,

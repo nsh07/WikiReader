@@ -11,8 +11,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,6 +36,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.MaterialTheme.shapes
@@ -49,6 +52,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -58,6 +62,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -402,12 +407,21 @@ fun SettingsScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(
-                            Icons.Outlined.Info,
-                            tint = colorScheme.secondary,
-                            contentDescription = stringResource(string.information),
-                            modifier = Modifier.size(24.dp)
-                        )
+                        Box(contentAlignment = Alignment.Center) {
+                            Spacer(
+                                Modifier
+                                    .clip(MaterialShapes.Cookie12Sided.toShape())
+                                    .background(colorScheme.secondaryContainer)
+                                    .padding(8.dp)
+                                    .size(24.dp)
+                            )
+                            Icon(
+                                Icons.Outlined.Info,
+                                tint = colorScheme.onSecondaryContainer,
+                                contentDescription = stringResource(string.information),
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
                         Text(
                             stringResource(string.setAsDefault),
                             style = typography.headlineSmall
