@@ -117,4 +117,6 @@
     <string name="themeLight">Claro</string>
     <string name="image">Imagem</string>
     <string name="saved">Salvo</string>
+    <string name="settingFeed">Feed</string>
+    <string name="settingFeedDesc">Exibir um feed de artigos em alta, notícias e mais na inicialização do app</string>
 </resources>
