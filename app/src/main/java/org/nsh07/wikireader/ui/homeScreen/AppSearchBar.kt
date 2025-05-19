@@ -31,7 +31,6 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
-import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExpandedFullScreenSearchBar
@@ -211,7 +210,7 @@ fun AppSearchBar(
                             onClick = onMenuIconClicked
                         ) {
                             Icon(
-                                Icons.Outlined.Menu,
+                                painterResource(R.drawable.menu),
                                 contentDescription = stringResource(R.string.moreOptions)
                             )
                         }

@@ -581,6 +581,7 @@ fun AppScreen(
                     saveFontSize = viewModel::saveFontSize,
                     saveBlackTheme = viewModel::saveBlackTheme,
                     saveDataSaver = viewModel::saveDataSaver,
+                    saveFeedEnabled = viewModel::saveFeedEnabled,
                     saveExpandedSections = viewModel::saveExpandedSections,
                     saveImageBackground = viewModel::saveImageBackground,
                     saveImmersiveMode = viewModel::saveImmersiveMode,

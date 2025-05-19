@@ -36,6 +36,7 @@
     <string name="fontStyleSerif">Serif</string>
     <string name="history">History</string>
     <string name="home">Home</string>
+    <string name="image">Image</string>
     <string name="imageCounter">Image %1$s of %2$s</string>
     <string name="inArticleMatches">In-article matches</string>
     <string name="inTheNews">In the news</string>
@@ -59,6 +60,7 @@
     <string name="resetSettingsDialog">Reset Settings?</string>
     <string name="resetSettingsDialogDesc">All settings will be restored to default</string>
     <string name="resetSettingsIconDesc">Reset settings to default</string>
+    <string name="saved">Saved</string>
     <string name="savedArticles">Saved articles</string>
     <string name="scrollLeft">Scroll left</string>
     <string name="scrollRight">Scroll right</string>
@@ -77,6 +79,8 @@
     <string name="settingDataSaverDesc">Disable images and feed. Page images can still be opened by clicking the description card.</string>
     <string name="settingExpandSections">Expand sections</string>
     <string name="settingExpandSectionsDesc">Expand all sections by default</string>
+    <string name="settingFeed">Feed</string>
+    <string name="settingFeedDesc">Show a feed of trending articles, news and more on app startup</string>
     <string name="settingFontSize">Font size</string>
     <string name="settingFontStyle">Font style</string>
     <string name="settingImageBackground">Image background</string>
@@ -114,6 +118,4 @@
     <string name="wikipedia">Wikipedia</string>
     <string name="wikipediaWebsiteDesc">Visit the Wikipedia website</string>
     <string name="wikipedia_logo">Wikipedia\'s Logo</string>
-    <string name="image">Image</string>
-    <string name="saved">Saved</string>
 </resources>

@@ -350,7 +350,7 @@ fun AppHomeScreen(
                     }
                 }
             }
-        } else if ((homeScreenState.status == WRStatus.UNINITIALIZED) && !preferencesState.dataSaver) {
+        } else if ((homeScreenState.status == WRStatus.UNINITIALIZED) && !preferencesState.dataSaver && preferencesState.feedEnabled) {
             AnimatedShimmer {
                 FeedLoader(brush = it, insets = insets)
             }
@@ -380,13 +380,7 @@ fun AppHomeScreen(
             visible = homeScreenState.isLoading,
             enter = expandVertically(expandFrom = Alignment.Top),
             exit = shrinkVertically(shrinkTowards = Alignment.Top),
-            modifier = Modifier
-                .padding(
-                    top = (max(
-                        systemBars,
-                        insets.calculateTopPadding()
-                    ))
-                )
+            modifier = Modifier.padding(top = (max(systemBars, insets.calculateTopPadding())))
         ) {
             if (homeScreenState.loadingProgress == null)
                 LinearProgressIndicator(

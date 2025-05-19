@@ -52,6 +52,7 @@ data class PreferencesState(
     val fontSize: Int = 16,
     val blackTheme: Boolean = false,
     val dataSaver: Boolean = false,
+    val feedEnabled: Boolean = true,
     val expandedSections: Boolean = false,
     val imageBackground: Boolean = false,
     val immersiveMode: Boolean = true,

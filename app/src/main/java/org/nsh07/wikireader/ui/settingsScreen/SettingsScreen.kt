@@ -36,6 +36,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.motionScheme
@@ -99,6 +100,7 @@ fun SettingsScreen(
     saveFontSize: (Int) -> Unit,
     saveBlackTheme: (Boolean) -> Unit,
     saveDataSaver: (Boolean) -> Unit,
+    saveFeedEnabled: (Boolean) -> Unit,
     saveExpandedSections: (Boolean) -> Unit,
     saveImageBackground: (Boolean) -> Unit,
     saveImmersiveMode: (Boolean) -> Unit,
@@ -139,6 +141,8 @@ fun SettingsScreen(
         animationSpec = if (animateFontSize) motionScheme.defaultSpatialSpec()
         else tween(durationMillis = 0)
     )
+    val listColors = ListItemDefaults.colors()
+    val disabledAlpha = 0.5f
 
     val switchItems = remember(preferencesState) {
         listOf(
@@ -155,6 +159,14 @@ fun SettingsScreen(
                 string.settingDataSaver,
                 string.settingDataSaverDesc,
                 saveDataSaver
+            ),
+            SettingsSwitchItem(
+                preferencesState.feedEnabled,
+                R.drawable.feed,
+                string.settingFeed,
+                string.settingFeedDesc,
+                saveFeedEnabled,
+                enabled = !preferencesState.dataSaver
             ),
             SettingsSwitchItem(
                 preferencesState.expandedSections,
@@ -392,9 +404,21 @@ fun SettingsScreen(
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
                                     )
                                 }
-                            }
+                            },
+                            enabled = item.enabled
                         )
-                    }
+                    },
+                    colors =
+                        if (item.enabled)
+                            listColors
+                        else
+                            ListItemDefaults.colors(
+                                headlineColor = listColors.headlineColor.copy(disabledAlpha),
+                                leadingIconColor = listColors.leadingIconColor.copy(disabledAlpha),
+                                overlineColor = listColors.overlineColor.copy(disabledAlpha),
+                                supportingColor = listColors.supportingTextColor.copy(disabledAlpha),
+                                trailingIconColor = listColors.trailingIconColor.copy(disabledAlpha),
+                            )
                 )
             }
             item {
@@ -462,5 +486,6 @@ data class SettingsSwitchItem(
     val icon: Int,
     val label: Int,
     val description: Int,
-    val onCheckedChange: (Boolean) -> Unit
+    val onCheckedChange: (Boolean) -> Unit,
+    val enabled: Boolean = true
 )

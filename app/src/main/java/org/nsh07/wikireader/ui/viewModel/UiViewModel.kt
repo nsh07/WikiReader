@@ -126,6 +126,9 @@ class UiViewModel(
             val dataSaver = appPreferencesRepository.readBooleanPreference("data-saver")
                 ?: appPreferencesRepository.saveBooleanPreference("data-saver", false)
 
+            val feedEnabled = appPreferencesRepository.readBooleanPreference("feed-enabled")
+                ?: appPreferencesRepository.saveBooleanPreference("feed-enabled", true)
+
             val expandedSections =
                 appPreferencesRepository.readBooleanPreference("expanded-sections")
                     ?: appPreferencesRepository.saveBooleanPreference("expanded-sections", false)
@@ -147,6 +150,7 @@ class UiViewModel(
                     blackTheme = blackTheme,
                     colorScheme = colorScheme,
                     dataSaver = dataSaver,
+                    feedEnabled = feedEnabled,
                     expandedSections = expandedSections,
                     fontSize = fontSize,
                     fontStyle = fontStyle,
@@ -561,7 +565,7 @@ class UiViewModel(
      */
     fun loadFeed(fromBack: Boolean = false) {
         viewModelScope.launch(loaderJob) {
-            if (!preferencesState.value.dataSaver) {
+            if (!preferencesState.value.dataSaver && preferencesState.value.feedEnabled) {
                 _homeScreenState.update { currentState ->
                     currentState.copy(isLoading = true, loadingProgress = null)
                 }
@@ -1244,6 +1248,15 @@ class UiViewModel(
             appPreferencesRepository.saveBooleanPreference("data-saver", dataSaver)
             _preferencesState.update { currentState ->
                 currentState.copy(dataSaver = dataSaver)
+            }
+        }
+    }
+
+    fun saveFeedEnabled(feedEnabled: Boolean) {
+        viewModelScope.launch {
+            appPreferencesRepository.saveBooleanPreference("feed-enabled", feedEnabled)
+            _preferencesState.update { currentState ->
+                currentState.copy(feedEnabled = feedEnabled)
             }
         }
     }

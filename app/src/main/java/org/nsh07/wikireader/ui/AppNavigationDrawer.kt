@@ -258,7 +258,7 @@ private fun AppNavigationRailContent(
                 railExpanded = expanded
             )
         }
-        if (expanded) {
+        if (expanded && backStackEntry?.destination?.hasRoute(Home::class) == true) {
             Text(
                 stringResource(string.sections),
                 style = typography.titleSmall,
