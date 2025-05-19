@@ -68,7 +68,7 @@ fun FullScreenImageTopBar(
                     shapes = IconButtonDefaults.shapes(),
                     onClick = { context.startActivity(shareIntent) }) {
                     Icon(
-                        painterResource(R.drawable.share),
+                        painterResource(R.drawable.share_filled),
                         tint = Color.White,
                         contentDescription = stringResource(R.string.shareLink)
                     )
@@ -77,7 +77,7 @@ fun FullScreenImageTopBar(
                     shapes = IconButtonDefaults.shapes(),
                     onClick = { uriHandler.openUri(link) }) {
                     Icon(
-                        painterResource(R.drawable.open_link),
+                        painterResource(R.drawable.open_in_browser),
                         tint = Color.White,
                         contentDescription = stringResource(R.string.openInBrowser)
                     )
@@ -145,7 +145,7 @@ fun FullScreenImageTopBar(
                     shapes = IconButtonDefaults.shapes(),
                     onClick = { context.startActivity(shareIntent) }) {
                     Icon(
-                        painterResource(R.drawable.share),
+                        painterResource(R.drawable.share_filled),
                         tint = Color.White,
                         contentDescription = stringResource(R.string.shareLink)
                     )
@@ -154,7 +154,7 @@ fun FullScreenImageTopBar(
                     shapes = IconButtonDefaults.shapes(),
                     onClick = { uriHandler.openUri(link) }) {
                     Icon(
-                        painterResource(R.drawable.open_link),
+                        painterResource(R.drawable.open_in_browser),
                         tint = Color.White,
                         contentDescription = stringResource(R.string.openInBrowser)
                     )

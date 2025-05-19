@@ -17,7 +17,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -108,14 +107,8 @@ fun ExpandableSection(
 
         AnimatedVisibility(
             expanded,
-            enter = expandVertically(
-                expandFrom = Alignment.CenterVertically,
-                animationSpec = motionScheme.defaultSpatialSpec()
-            ) + fadeIn(motionScheme.defaultEffectsSpec()),
-            exit = shrinkVertically(
-                shrinkTowards = Alignment.CenterVertically,
-                animationSpec = motionScheme.defaultSpatialSpec()
-            ) + fadeOut(motionScheme.defaultEffectsSpec())
+            enter = expandVertically(expandFrom = Alignment.CenterVertically) + fadeIn(),
+            exit = shrinkVertically(shrinkTowards = Alignment.CenterVertically) + fadeOut()
         ) {
             ParsedBodyText(
                 body = body,
