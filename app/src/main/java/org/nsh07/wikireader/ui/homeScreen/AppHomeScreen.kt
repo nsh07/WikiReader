@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -61,6 +62,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.window.core.layout.WindowSizeClass
@@ -218,11 +220,16 @@ fun AppHomeScreen(
                             FilledTonalButton(
                                 shapes = ButtonDefaults.shapes(),
                                 onClick = { setShowArticleLanguageSheet(true) },
-                                enabled = homeScreenState.langs?.isEmpty() == false
+                                enabled = homeScreenState.langs?.isEmpty() == false,
+                                modifier = Modifier.widthIn(max = 200.dp)
                             ) {
                                 Icon(painterResource(R.drawable.translate), null)
                                 Spacer(Modifier.width(8.dp))
-                                Text(langCodeToName(preferencesState.lang))
+                                Text(
+                                    langCodeToName(preferencesState.lang),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             }
                             Spacer(Modifier.weight(1f))
                             FilledTonalIconButton(
@@ -235,8 +242,7 @@ fun AppHomeScreen(
                                         context.startActivity(shareIntent)
                                     }
                                 },
-                                enabled = homeScreenState.status == WRStatus.SUCCESS,
-                                modifier = Modifier.padding(end = 8.dp)
+                                enabled = homeScreenState.status == WRStatus.SUCCESS
                             ) {
                                 Icon(
                                     painterResource(R.drawable.share),
@@ -251,7 +257,7 @@ fun AppHomeScreen(
                                     RoundedCornerShape(8.dp),
                                     RoundedCornerShape(16.dp)
                                 ),
-                                onCheckedChange = { saveArticle() },
+                                onCheckedChange = { saveArticle() }
                             ) {
                                 AnimatedContent(
                                     homeScreenState.savedStatus,
