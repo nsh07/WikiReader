@@ -135,6 +135,7 @@ fun AppNavigationDrawer(
             if (compactScreen) {
                 ModalWideNavigationRail(
                     state = state,
+                    header = { Box(Modifier.fillMaxWidth()) {} }, // Disgusting hack to make the rail occupy the full width of the screen
                     hideOnCollapse = true
                 ) {
                     AppNavigationRailContent(

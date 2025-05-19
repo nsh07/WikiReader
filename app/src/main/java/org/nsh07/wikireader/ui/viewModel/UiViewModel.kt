@@ -260,7 +260,7 @@ class UiViewModel(
     fun loadSearchResultsDebounced(query: String) {
         searchDebounceJob?.cancel()
         searchDebounceJob = viewModelScope.launch {
-            delay(500)
+            delay(250)
             loadSearchResults(query)
         }
     }

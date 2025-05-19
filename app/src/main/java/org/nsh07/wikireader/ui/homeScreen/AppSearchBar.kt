@@ -1,6 +1,7 @@
 package org.nsh07.wikireader.ui.homeScreen
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -45,6 +46,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.SearchBar
@@ -59,6 +61,7 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -134,8 +137,14 @@ fun AppSearchBar(
                 searchBarState = searchBarState,
                 onSearch = loadSearch,
                 placeholder = {
-                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
+                    val weight by animateFloatAsState(
+                        if (searchBarState.targetValue == SearchBarValue.Expanded) 0f else 1f,
+                        animationSpec = motionScheme.defaultSpatialSpec()
+                    )
+                    Row {
+                        if (weight > 0f) Spacer(Modifier.weight(weight))
                         Text(stringResource(R.string.searchWikipedia), style = typography.bodyLarge)
+                        Spacer(Modifier.weight(1f))
                     }
                 },
                 trailingIcon =
