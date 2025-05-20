@@ -191,8 +191,9 @@ fun AppScreen(
 
     AppNavigationDrawer(
         state = railState,
-        feedState = feedState,
-        homeScreenState = homeScreenState,
+        feedSections = feedState.sections,
+        homeScreenSections = homeScreenState.sections,
+        homeScreenStatus = homeScreenState.status,
         listState = listState,
         feedListState = feedListState,
         windowSizeClass = windowSizeClass,

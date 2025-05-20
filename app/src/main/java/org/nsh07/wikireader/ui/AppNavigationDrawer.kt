@@ -56,8 +56,6 @@ import org.nsh07.wikireader.R.drawable
 import org.nsh07.wikireader.R.string
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.ui.viewModel.FeedSection
-import org.nsh07.wikireader.ui.viewModel.FeedState
-import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 import kotlin.reflect.KClass
 
 
@@ -65,8 +63,9 @@ import kotlin.reflect.KClass
 @Composable
 fun AppNavigationDrawer(
     state: WideNavigationRailState,
-    feedState: FeedState,
-    homeScreenState: HomeScreenState,
+    feedSections: List<Pair<Int, FeedSection>>,
+    homeScreenStatus: WRStatus,
+    homeScreenSections: List<Pair<Int, String>>,
     listState: LazyListState,
     feedListState: LazyListState,
     windowSizeClass: WindowSizeClass,
@@ -139,14 +138,15 @@ fun AppNavigationDrawer(
                     hideOnCollapse = true
                 ) {
                     AppNavigationRailContent(
+                        feedSections = feedSections,
+                        homeScreenStatus = homeScreenStatus,
+                        homeScreenSections = homeScreenSections,
                         backStackEntry = backStackEntry,
                         items = items,
                         state = state,
                         scope = scope,
                         expandedScreen = expandedScreen,
-                        feedState = feedState,
                         feedListState = feedListState,
-                        homeScreenState = homeScreenState,
                         listState = listState,
                         boxWidth = boxWidth
                     )
@@ -193,14 +193,15 @@ fun AppNavigationDrawer(
                     }
                 ) {
                     AppNavigationRailContent(
+                        feedSections = feedSections,
+                        homeScreenStatus = homeScreenStatus,
+                        homeScreenSections = homeScreenSections,
                         backStackEntry = backStackEntry,
                         items = items,
                         state = state,
                         scope = scope,
                         expandedScreen = expandedScreen,
-                        feedState = feedState,
                         feedListState = feedListState,
-                        homeScreenState = homeScreenState,
                         listState = listState,
                         boxWidth = boxWidth
                     )
@@ -215,9 +216,10 @@ fun AppNavigationDrawer(
 @Composable
 private fun AppNavigationRailContent(
     state: WideNavigationRailState,
-    feedState: FeedState,
+    feedSections: List<Pair<Int, FeedSection>>,
     feedListState: LazyListState,
-    homeScreenState: HomeScreenState,
+    homeScreenStatus: WRStatus,
+    homeScreenSections: List<Pair<Int, String>>,
     listState: LazyListState,
     scope: CoroutineScope,
     backStackEntry: NavBackStackEntry?,
@@ -265,9 +267,9 @@ private fun AppNavigationRailContent(
                 modifier = Modifier
                     .padding(start = 36.dp, top = 12.dp, bottom = 8.dp)
             )
-            when (homeScreenState.status) {
+            when (homeScreenStatus) {
                 WRStatus.FEED_LOADED -> {
-                    feedState.sections.forEach { section ->
+                    feedSections.forEach { section ->
                         WideNavigationRailItem(
                             railExpanded = true,
                             label = {
@@ -297,7 +299,7 @@ private fun AppNavigationRailContent(
                 }
 
                 WRStatus.SUCCESS -> {
-                    homeScreenState.sections.forEach { section ->
+                    homeScreenSections.forEach { section ->
                         WideNavigationRailItem(
                             railExpanded = true,
                             label = {
