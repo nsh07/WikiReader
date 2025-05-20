@@ -263,9 +263,10 @@ fun String.toWikitextAnnotatedString(
                                 }
                             }
                         } else if (currSubstring.startsWith("{{distinguish", ignoreCase = true)) {
-                            val textSpecified = currSubstring.contains("text=")
+                            val textSpecified =
+                                currSubstring.contains("text=") || currSubstring.contains("text =")
                             val curr =
-                                if (textSpecified) currSubstring.substringAfter("text=")
+                                if (textSpecified) currSubstring.substringAfter('=').trim()
                                 else currSubstring.substringAfter('|')
                             val splitList =
                                 if (textSpecified) listOf(curr)
