@@ -117,4 +117,6 @@
     <string name="resetSettingsIconDesc">सेटिंग्स को उनके डिफ़ॉल्ट पर रीसेट करें</string>
     <string name="image">छवि</string>
     <string name="saved">सहेजे गए</string>
+    <string name="settingFeed">फ़ीड</string>
+    <string name="settingFeedDesc">ऐप खुलने पर ट्रेंडिंग लेख, समाचार और अधिक की फ़ीड दिखाएं</string>
 </resources>
