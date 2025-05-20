@@ -9,10 +9,14 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import org.nsh07.wikireader.data.isRtl
 import org.nsh07.wikireader.data.toColor
 import org.nsh07.wikireader.ui.AppScreen
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
@@ -52,11 +56,17 @@ class MainActivity : ComponentActivity() {
                     cs = colorScheme,
                     tg = typography
                 )
-                AppScreen(
-                    viewModel = viewModel,
-                    preferencesState = preferencesState,
-                    modifier = Modifier.fillMaxSize()
-                )
+                CompositionLocalProvider(
+                    LocalLayoutDirection provides
+                            if (isRtl(preferencesState.lang)) LayoutDirection.Rtl
+                            else LayoutDirection.Ltr
+                ) {
+                    AppScreen(
+                        viewModel = viewModel,
+                        preferencesState = preferencesState,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
         }
     }

@@ -335,6 +335,18 @@ object LanguageData {
         "zh-yue",
         "zu"
     )
+    val rtlLangCodes = listOf(
+        "ar",
+        "arc",
+        "ary",
+        "arz",
+        "ckb",
+        "dv",
+        "fa",
+        "he",
+        "ku",
+        "ur"
+    )
     val langNames = listOf(
         "Abkhaz",
         "Acehnese",

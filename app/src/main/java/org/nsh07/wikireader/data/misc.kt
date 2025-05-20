@@ -103,3 +103,13 @@ fun langCodeToWikiName(langCode: String): String {
         langCode
     }
 }
+
+/**
+ * Checks whether a Wikipedia language code corresponds to an RTL language.
+ *
+ * @param langCode The language code to check
+ * @return True if the language is RTL, false otherwise
+ */
+fun isRtl(langCode: String): Boolean {
+    return langCode in LanguageData.rtlLangCodes
+}
