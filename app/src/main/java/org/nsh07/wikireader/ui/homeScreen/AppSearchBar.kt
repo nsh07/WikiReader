@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
@@ -26,7 +27,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material.icons.Icons
@@ -81,9 +82,14 @@ import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.data.WikiPrefixSearchResult
+import org.nsh07.wikireader.data.WikiSearchResult
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.settingsScreen.LanguageBottomSheet
+import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.bottomListItemShape
+import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.middleListItemShape
+import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.topListItemShape
 import org.nsh07.wikireader.ui.viewModel.AppSearchBarState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
 
@@ -122,6 +128,8 @@ fun AppSearchBar(
     val colorScheme = colorScheme
     val history = appSearchBarState.history.toList()
     val size = history.size
+
+    val listColors = ListItemDefaults.colors(containerColor = colorScheme.surfaceContainer)
 
     val (showLanguageSheet, setShowLanguageSheet) = remember { mutableStateOf(false) }
 
@@ -283,20 +291,21 @@ fun AppSearchBar(
             when (it) {
                 true ->
                     if (preferencesState.searchHistory) {
-                        LazyColumn(Modifier.weight(4f)) {
+                        LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                             item {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 24.dp)
+                                ) {
                                     Text(
                                         stringResource(R.string.history),
-                                        style = typography.labelLarge,
-                                        modifier = Modifier.padding(16.dp)
+                                        style = typography.labelLarge
                                     )
                                     Spacer(Modifier.weight(1f))
                                     TextButton(
                                         shapes = ButtonDefaults.shapes(),
                                         onClick = clearHistory,
-                                        enabled = size > 0,
-                                        modifier = Modifier.padding(4.dp)
+                                        enabled = size > 0
                                     ) {
                                         Text(stringResource(R.string.clear))
                                     }
@@ -330,9 +339,15 @@ fun AppSearchBar(
                                             )
                                         }
                                     },
-                                    colors = ListItemDefaults
-                                        .colors(containerColor = SearchBarDefaults.colors().containerColor),
+                                    colors = listColors,
                                     modifier = Modifier
+                                        .padding(horizontal = 16.dp)
+                                        .clip(
+                                            if (size == 1) shapes.large
+                                            else if (it == 0) topListItemShape
+                                            else if (it == size - 1) bottomListItemShape
+                                            else middleListItemShape
+                                        )
                                         .combinedClickable(
                                             onClick = {
                                                 loadSearch(currentText)
@@ -506,7 +521,10 @@ fun AppSearchBar(
                             }
                         }
                     } else {
-                        LazyColumn(state = searchListState) {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                            state = searchListState
+                        ) {
                             item {
                                 FilledTonalButton(
                                     shapes = ButtonDefaults.shapes(),
@@ -525,13 +543,17 @@ fun AppSearchBar(
                             item {
                                 Text(
                                     text = stringResource(R.string.titleMatches),
-                                    modifier = Modifier.padding(16.dp),
+                                    modifier = Modifier.padding(
+                                        horizontal = 24.dp,
+                                        vertical = 16.dp
+                                    ),
                                     style = typography.labelLarge
                                 )
                             }
-                            items(
+                            itemsIndexed(
                                 appSearchBarState.prefixSearchResults ?: emptyList(),
-                                key = { "${it.title}-prefix" }) {
+                                key = { index: Int, it: WikiPrefixSearchResult -> "${it.title}-prefix" }
+                            ) { index: Int, it: WikiPrefixSearchResult ->
                                 ListItem(
                                     headlineContent = {
                                         Text(
@@ -565,10 +587,15 @@ fun AppSearchBar(
                                             )
                                         else null
                                     },
-                                    colors = ListItemDefaults
-                                        .colors(containerColor = SearchBarDefaults.colors().containerColor),
+                                    colors = listColors,
                                     modifier = Modifier
-                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp)
+                                        .clip(
+                                            if (appSearchBarState.prefixSearchResults?.size == 1) shapes.large
+                                            else if (index == 0) topListItemShape
+                                            else if (index == appSearchBarState.prefixSearchResults?.lastIndex) bottomListItemShape
+                                            else middleListItemShape
+                                        )
                                         .clickable(
                                             onClick = {
                                                 onExpandedChange(false)
@@ -581,13 +608,17 @@ fun AppSearchBar(
                             item {
                                 Text(
                                     text = stringResource(R.string.inArticleMatches),
-                                    modifier = Modifier.padding(16.dp),
+                                    modifier = Modifier.padding(
+                                        horizontal = 24.dp,
+                                        vertical = 16.dp
+                                    ),
                                     style = typography.labelLarge
                                 )
                             }
-                            items(
+                            itemsIndexed(
                                 appSearchBarState.searchResults ?: emptyList(),
-                                key = { "${it.title}-search" }) {
+                                key = { index: Int, it: WikiSearchResult -> "${it.title}-search" }
+                            ) { index: Int, it: WikiSearchResult ->
                                 ListItem(
                                     overlineContent = if (it.redirectTitle != null) {
                                         {
@@ -635,10 +666,15 @@ fun AppSearchBar(
                                             )
                                         else null
                                     },
-                                    colors = ListItemDefaults
-                                        .colors(containerColor = SearchBarDefaults.colors().containerColor),
+                                    colors = listColors,
                                     modifier = Modifier
-                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp)
+                                        .clip(
+                                            if (appSearchBarState.searchResults?.size == 1) shapes.large
+                                            else if (index == 0) topListItemShape
+                                            else if (index == appSearchBarState.searchResults?.lastIndex) bottomListItemShape
+                                            else middleListItemShape
+                                        )
                                         .clickable(
                                             onClick = {
                                                 onExpandedChange(false)

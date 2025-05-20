@@ -20,7 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,9 +28,11 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -58,6 +60,9 @@ import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.bytesToHumanReadableSize
 import org.nsh07.wikireader.data.langCodeToWikiName
+import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.bottomListItemShape
+import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.middleListItemShape
+import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.topListItemShape
 import org.nsh07.wikireader.ui.viewModel.SavedArticlesState
 
 @OptIn(
@@ -83,6 +88,8 @@ fun SavedArticlesScreen(
         savedArticlesState.languageFilters.filter { it.selected }.map { it.langCode }
     if (selectedLangs.isEmpty()) selectedLangs =
         savedArticlesState.languageFilters.map { it.langCode }
+
+    val listColors = ListItemDefaults.colors(containerColor = colorScheme.surfaceContainer)
 
     if (showArticleDeleteDialog)
         DeleteArticleDialog(
@@ -119,12 +126,13 @@ fun SavedArticlesScreen(
     ) { insets ->
         if (savedArticlesState.savedArticles.isNotEmpty())
             LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(2.dp),
                 contentPadding = insets,
                 modifier = Modifier
                     .fillMaxHeight()
             ) {
-                if (savedArticlesState.languageFilters.size > 1)
-                    item {
+                item {
+                    if (savedArticlesState.languageFilters.size > 1)
                         FlowRow(
                             Modifier.padding(horizontal = 16.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -147,14 +155,17 @@ fun SavedArticlesScreen(
                                 )
                             }
                         }
-                    }
-                items(savedArticlesState.savedArticles.filter {
-                    selectedLangs.contains(
-                        it.substringAfterLast(
-                            '.'
+                }
+                itemsIndexed(
+                    savedArticlesState.savedArticles.filter {
+                        selectedLangs.contains(
+                            it.substringAfterLast(
+                                '.'
+                            )
                         )
-                    )
-                }, key = { it }) {
+                    },
+                    key = { index: Int, it: String -> it }
+                ) { index: Int, it: String ->
                     ListItem(
                         headlineContent = {
                             Text(
@@ -174,7 +185,15 @@ fun SavedArticlesScreen(
                                 )
                             })
                         },
+                        colors = listColors,
                         modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .clip(
+                                if (savedArticlesState.savedArticles.size == 1) shapes.large
+                                else if (index == 0) topListItemShape
+                                else if (index == savedArticlesState.savedArticles.lastIndex) bottomListItemShape
+                                else middleListItemShape
+                            )
                             .combinedClickable(
                                 onClick = { openSavedArticle(it) },
                                 onLongClick = {
