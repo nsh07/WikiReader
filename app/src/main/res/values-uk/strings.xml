@@ -117,4 +117,6 @@
     <string name="reset">Скинути</string>
     <string name="image">Зображення</string>
     <string name="saved">Збережено</string>
+    <string name="settingFeed">Годувати</string>
+    <string name="settingFeedDesc">Показувати стрічку популярних статей, новин та іншого про запуск додатків</string>
 </resources>
