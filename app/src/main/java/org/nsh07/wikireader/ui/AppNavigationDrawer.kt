@@ -277,7 +277,6 @@ private fun AppNavigationRailContent(
                                     feedSectionName(section.second),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
-                                    style = typography.labelLarge,
                                     modifier = Modifier.widthIn(max = boxWidth - 96.dp)
                                 )
                             },
@@ -307,7 +306,6 @@ private fun AppNavigationRailContent(
                                     section.second,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
-                                    style = typography.labelLarge,
                                     modifier = Modifier.widthIn(max = boxWidth - 96.dp)
                                 )
                             },
