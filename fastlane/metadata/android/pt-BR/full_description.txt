@@ -1,4 +1,4 @@
-<p>Um app Android leve para ler artigos da Wikipedia livre de distrações. Suporte para modo claro, escuro, cores dinâmicas Material You e +300 idiomas da Wikipédia, com uma interface simples e customizável</p>
+<p>Um app Android leve para ler artigos da Wikipédia livre de distrações. Suporte para modo claro, escuro, cores dinâmicas Material You e +300 idiomas da Wikipédia, com uma interface simples e customizável</p>
 
 <p>Funcionalidades</p>
 <ul>
