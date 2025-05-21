@@ -115,4 +115,8 @@
     <string name="settingFontStyle">עיצוב גופן</string>
     <string name="settingTheme">עיצוב</string>
     <string name="themeDark">כהה</string>
+    <string name="image">תמונות</string>
+    <string name="saved">נשמר</string>
+    <string name="settingFeedDesc">הצגת פיד של מאמרים, חדשות ועוד פופולריים בנושא הפעלת אפליקציות</string>
+    <string name="settingFeed">פיד</string>
 </resources>
