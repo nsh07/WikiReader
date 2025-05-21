@@ -117,4 +117,6 @@
     <string name="themeSystemDefault">系統預設</string>
     <string name="snackbarArticleDeleted">條目已刪除</string>
     <string name="saved">已儲存</string>
+    <string name="settingFeed">動態消息</string>
+    <string name="settingFeedDesc">在應用程式啟動時顯示熱門文章、新聞及更多的動態消息</string>
 </resources>
