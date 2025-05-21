@@ -1,0 +1,12 @@
+New features:
+- Overhauled UI based on Material 3 Expressive
+- Some new settings options
+- App language can now be changed from system settings in Android 13+
+
+Improvements:
+- App UI now follow the directionality of the Wikipedia language instead of system language
+
+Translations:
+App is now translated in Arabic, Chinese (Simplified Han), Chinese (Traditional Han), Estonian, Hebrew, Hindi, Brazilian Portuguese, Russian and Ukrainian
+
+...and some bug fixes
