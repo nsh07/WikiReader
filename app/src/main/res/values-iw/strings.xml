@@ -68,7 +68,7 @@
     <string name="settingBlackTheme">עיצוב שחור</string>
     <string name="settingBlackThemeDesc">השתמש בעיצוב שחור כהה לחלוטין</string>
     <string name="settingColorScheme">ערכת צבעים</string>
-    <string name="settingDataSaver">שומר נתונים</string>
+    <string name="settingDataSaver">חיסכון נתונים</string>
     <string name="settingDataSaverDesc">השבת תמונות ופיד. עדיין ניתן לפתוח תמונות של הדף על ידי לחיצה על כרטיס התיאור.</string>
     <string name="settingExpandSections">הרחב קטע</string>
     <string name="settingExpandSectionsDesc">הרחב את כל הקטעים כברירת מחדל</string>
@@ -106,7 +106,7 @@
     <string name="openInBrowser">פתח בדפדפן</string>
     <string name="wikipedia_logo">הלוגו של ויקיפדיה</string>
     <string name="imageCounter">תמונה %1$s מתוך %2$s</string>
-    <string name="onThisDay">ביום הזה</string>
+    <string name="onThisDay">היום</string>
     <string name="settingRenderMathDesc">דורש כמויות קטנות של נתונים נוספים. כבה כדי לשפר את הביצועים על חשבון הקריאות.</string>
     <string name="scrollRight">גלול ימינה</string>
     <string name="searchLanguages">חיפוש שפות</string>
