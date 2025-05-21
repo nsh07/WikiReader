@@ -24,6 +24,7 @@ import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.ModalWideNavigationRail
@@ -31,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.WideNavigationRail
 import androidx.compose.material3.WideNavigationRailDefaults
 import androidx.compose.material3.WideNavigationRailItem
+import androidx.compose.material3.WideNavigationRailItemDefaults
 import androidx.compose.material3.WideNavigationRailState
 import androidx.compose.material3.WideNavigationRailValue
 import androidx.compose.runtime.Composable
@@ -232,6 +234,13 @@ private fun AppNavigationRailContent(
         if (!expanded) 16.dp else 0.dp,
         animationSpec = motionScheme.defaultSpatialSpec()
     )
+
+    val sectionColors = WideNavigationRailItemDefaults.colors(
+        selectedIconColor = colorScheme.onTertiaryContainer,
+        selectedTextColor = colorScheme.tertiary,
+        selectedIndicatorColor = colorScheme.tertiaryContainer
+    )
+
     Column(
         verticalArrangement = Arrangement.spacedBy(itemSpacing),
         modifier = Modifier.verticalScroll(
@@ -292,7 +301,8 @@ private fun AppNavigationRailContent(
                                     Icons.AutoMirrored.Outlined.KeyboardArrowRight,
                                     contentDescription = null
                                 )
-                            }
+                            },
+                            colors = sectionColors
                         )
                     }
                 }
@@ -321,7 +331,8 @@ private fun AppNavigationRailContent(
                                     Icons.AutoMirrored.Outlined.KeyboardArrowRight,
                                     contentDescription = null
                                 )
-                            }
+                            },
+                            colors = sectionColors
                         )
                     }
                 }
