@@ -380,10 +380,9 @@ fun AppScreen(
                     floatingActionButton = {
                         AppFab(
                             index = if (homeScreenState.status != WRStatus.FEED_LOADED) index else feedIndex,
-                            visible = true,
-                            // TODO: Hide FAB on scroll
-//                                (searchBarScrollBehavior?.scrollOffset
-//                                ?: 0f) != searchBarScrollBehavior?.scrollOffsetLimit,
+                            visible =
+                                searchBarScrollBehavior.state.heightOffset !=
+                                        searchBarScrollBehavior.state.heightOffsetLimit,
                             focusSearch = {
                                 viewModel.focusSearchBar()
                                 textFieldState.setTextAndPlaceCursorAtEnd(textFieldState.text.toString())

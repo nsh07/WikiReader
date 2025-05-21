@@ -94,7 +94,8 @@ import org.nsh07.wikireader.ui.viewModel.AppSearchBarState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
 
 @OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalFoundationApi::class,
     ExperimentalMaterial3ExpressiveApi::class
 )
 @Composable
