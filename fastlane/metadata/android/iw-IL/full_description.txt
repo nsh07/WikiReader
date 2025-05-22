@@ -1,19 +1,19 @@
-<p>אפליקציית אנדרואיד קלת משקל לקריאה ערכים בוויקיפדיה ללא הסחות דעת. תומך במצב בהיר, מצב כהה, צבעים דינמיים של Material You ויותר מ-300 שפות בוויקיפדיה, עם ממשק פשוט הניתן להתאמה אישית.</p>
+<p>אפליקציית אנדרואיד קלה לקריאת מאמרי ויקיפדיה ללא הסחות דעת. תומכת במצב בהיר, מצב כהה, צבעים דינמיים של Material You ו-300+ שפות ויקיפדיה, עם ממשק פשוט הניתן להתאמה אישית</p>
 
-<p>Features</p>
+<p>תכונות</p>
 <ul>
-    <li><b>Fast loading:</b> The article text is loaded before anything else, so you can get to reading, quick</li>
-    <li><b>Feed:</b> Read the article of the day, find trending articles and get up to speed on the news with the Wikipedia Feed</li>
-    <li><b>Article image:</b> View an image of the topic from its Wikipedia page. Click on it to enlarge it and view in full-screen</li>
-    <li><b>Random article:</b> Feeling lucky? Click the random article button to read a random article</li>
-    <li><b>Choose your language: Choose from over 300 languages on Wikipedia</b></li>
-    <li><b>Save articles:</b> Download articles to your device for offline reading</li>
-    <li><b>One-handed use:</b> Use the floating action buttons at the bottom for a complete one-handed experience</li>
-    <li><b>Lightweight:</b> The app starts instantly, and works smoothly</li>
-    <li><b>Material Design 3:</b> Designed according to the latest Material Design 3 guidelines</li>
-    <li><b>Smooth animations:</b> Smooth and fluent animations</li>
-    <li><b>Customizable colors:</b> Choose from light/dark themes and customize the Material 3 color palette</li>
-    <li><b>Customizable font size:</b> Choose your own comfortable font size</li>
-    <li><b>Data saver:</b> Save your limited data plan by loading text only</li>
-    <li><b>Math expressions:</b> View properly rendered mathematical expressions for easily reading mathematical articles</li>
+    <li><b>טעינה מהירה:</b> טקסט המאמר נטען לפני כל דבר אחר, כך שתוכל להתחיל לקרוא במהירות</li>
+    <li><b>פיד:</b> קרא את מאמר היום, מצא מאמרים פופולריים והתעדכן בחדשות עם פיד ויקיפדיה</li>
+    <li><b>תמונת מאמר:</b> הצג תמונה של הנושא מדף הוויקיפדיה שלו. לחץ עליה כדי להגדיל אותה ולהציג במסך מלא</li>
+    <li><b>מאמר אקראי:</b> מרגיש בר מזל? לחץ על כפתור המאמר האקראי כדי לקרוא מאמר אקראי</li>
+    <li><b>בחר את השפה שלך:</b> בחר מתוך למעלה מ-300 שפות בוויקיפדיה</li>
+    <li><b>שמור מאמרים:</b> הורד מאמרים למכשיר שלך לקריאה במצב לא מקוון</li>
+    <li><b>שימוש ביד אחת:</b> השתמש בלחצני הפעולה הצפים בתחתית לחוויה מלאה ביד אחת</li>
+    <li><b>קל משקל:</b> האפליקציה נטענת מיד, ועובדת בצורה חלקה</li>
+    <li><b>Material Design 3:</b> עוצב על פי ההנחיות העדכניות ביותר של Material Design 3</li>
+    <li><b>אנימציות חלקות:</b> אנימציות חלקות וזורמות</li>
+    <li><b>צבעים הניתנים להתאמה אישית:</b> בחר מבין ערכות נושא בהירות/כהות והתאם אישית את לוח הצבעים של Material 3</li>
+    <li><b>גודל גופן הניתן להתאמה אישית:</b> בחר את גודל הגופן הנוח לך</li>
+    <li><b>שומר נתונים:</b> חסוך את תוכנית הנתונים המוגבלת שלך על ידי טעינת טקסט בלבד</li>
+    <li><b>ביטויים מתמטיים:</b> הצג ביטויים מתמטיים מעוצבים כראוי לקריאה קלה של מאמרים מתמטיים</li>
 </ul>
