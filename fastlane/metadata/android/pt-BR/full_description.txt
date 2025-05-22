@@ -3,10 +3,10 @@
 <p>Funcionalidades</p>
 <ul>
     <li><b>Carregamento rápido:</b> O texto do artigo é carregado antes de qualquer coisa, para que você possa começar a ler imediatamente</li>
-    <li><b>Feed:</b> Leia o artigo do dia, encontre artigos em alta e se atualize com as notícias com o Feed da Wikipedia</li>
+    <li><b>Feed:</b> Leia o artigo do dia, encontre artigos em alta e se atualize com as notícias com o Feed da Wikipédia</li>
     <li><b>Imagem do artigo:</b> Visualize uma imagem do tópico de sua página da Wikipédia. Pressione para aumentar e visualizar em tela cheia</li>
     <li><b>Artigo aleatório:</b> Sentindo-se sortudo? Pressione o botão de artigo aleatório para ler um artigo aleatório</li>
-    <li><b>Selecione seu idioma: Selecione entre mais de 300 idiomas da Wikipedia</b></li>
+    <li><b>Selecione seu idioma: Selecione entre mais de 300 idiomas da Wikipédia</b></li>
     <li><b>Salve artigos:</b> Faça o download de artigos para seu dispositivo para uma leitura offline</li>
     <li><b>Uso com apenas uma mão:</b> Utilize os botões flutuantes de ação na parte inferior para uma experiência completa com uma mão</li>
     <li><b>Leve:</b> O app inicia instantaneamente e funciona com fluidez</li>
