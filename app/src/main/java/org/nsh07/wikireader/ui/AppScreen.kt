@@ -70,8 +70,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
-import androidx.window.core.layout.WindowHeightSizeClass
-import androidx.window.core.layout.WindowWidthSizeClass
+import androidx.window.core.layout.WindowSizeClass
 import coil3.ImageLoader
 import coil3.gif.AnimatedImageDecoder
 import coil3.gif.GifDecoder
@@ -160,7 +159,7 @@ fun AppScreen(
 
     val searchBarScrollBehavior =
         if (
-            windowSizeClass.windowHeightSizeClass == WindowHeightSizeClass.COMPACT ||
+            !windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND) ||
             preferencesState.immersiveMode
         ) TopAppBarDefaults.enterAlwaysScrollBehavior()
         else TopAppBarDefaults.pinnedScrollBehavior()
@@ -236,11 +235,13 @@ fun AppScreen(
         },
         modifier = modifier.background(MaterialTheme.colorScheme.surface)
     ) {
+        val compactWindow =
+            !windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
         NavHost(
             navController = navController,
             startDestination = Home(),
             enterTransition = {
-                if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT)
+                if (compactWindow)
                     slideInHorizontally(
                         initialOffsetX = { it / 4 },
                         animationSpec = motionScheme.defaultSpatialSpec()
@@ -253,7 +254,7 @@ fun AppScreen(
                             )
             },
             exitTransition = {
-                if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT)
+                if (compactWindow)
                     slideOutHorizontally(
                         targetOffsetX = { -it / 4 },
                         animationSpec = motionScheme.fastSpatialSpec()
@@ -262,7 +263,7 @@ fun AppScreen(
                     fadeOut(animationSpec = tween(90))
             },
             popEnterTransition = {
-                if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT)
+                if (compactWindow)
                     slideInHorizontally(
                         initialOffsetX = { -it / 4 },
                         animationSpec = motionScheme.defaultSpatialSpec()
@@ -275,7 +276,7 @@ fun AppScreen(
                             )
             },
             popExitTransition = {
-                if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT)
+                if (compactWindow)
                     slideOutHorizontally(
                         targetOffsetX = { it / 4 },
                         animationSpec = motionScheme.fastSpatialSpec()
@@ -408,7 +409,7 @@ fun AppScreen(
                     },
                     snackbarHost = { SnackbarHost(snackBarHostState) },
                     contentWindowInsets =
-                        if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT)
+                        if (!compactWindow)
                             ScaffoldDefaults.contentWindowInsets
                                 .only(WindowInsetsSides.Top + WindowInsetsSides.Bottom + WindowInsetsSides.End)
                         else ScaffoldDefaults.contentWindowInsets,

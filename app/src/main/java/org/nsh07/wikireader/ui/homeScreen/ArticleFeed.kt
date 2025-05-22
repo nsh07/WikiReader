@@ -65,7 +65,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.text.parseAsHtml
 import androidx.window.core.layout.WindowSizeClass
-import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -98,7 +97,8 @@ fun ArticleFeed(
     val configuration = LocalConfiguration.current
     var isRefreshing by remember { mutableStateOf(false) }
     val pullToRefreshState = rememberPullToRefreshState()
-    val wide = remember { windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED }
+    val expanded =
+        remember { windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND) }
     val df = remember {
         CompactDecimalFormat.getInstance(
             configuration.getLocales().get(0),
@@ -160,7 +160,7 @@ fun ArticleFeed(
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
-                        if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.EXPANDED) {
+                        if (!expanded) {
                             FeedImage(
                                 source = feedState.tfa.originalImage?.source,
                                 description = feedState.tfa.titles?.normalized,
@@ -397,7 +397,7 @@ fun ArticleFeed(
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
-                        if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.EXPANDED) {
+                        if (!expanded) {
                             FeedImage(
                                 source = feedState.image.image?.source,
                                 description = feedState.image.description?.text,
@@ -471,7 +471,7 @@ fun ArticleFeed(
                     HorizontalMultiBrowseCarousel(
                         state = carouselState,
                         itemSpacing = 8.dp,
-                        modifier = if (!wide)
+                        modifier = if (!expanded)
                             Modifier
                                 .padding(16.dp)
                                 .aspectRatio(1f)
@@ -571,7 +571,7 @@ fun ArticleFeed(
                         state = carouselState,
                         itemSpacing = 8.dp,
                         modifier =
-                            if (!wide)
+                            if (!expanded)
                                 Modifier
                                     .padding(horizontal = 16.dp, vertical = 8.dp)
                                     .aspectRatio(0.94f)
