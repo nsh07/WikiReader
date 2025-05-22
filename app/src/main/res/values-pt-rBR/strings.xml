@@ -5,7 +5,7 @@
     <string name="searchWikipedia">Pesquisar na Wikipédia</string>
     <string name="resetSettingsIconDesc">Redefinir as configurações para o padrão</string>
     <string name="deleteAllArticles">Deletar todos os artigos?</string>
-    <string name="fontStyleSerif">Com serifas</string>
+    <string name="fontStyleSerif">Com serifa</string>
     <string name="randomArticle">Artigo aleatório</string>
     <string name="about">Sobre</string>
     <string name="deleteAll">Deletar todos</string>
@@ -43,7 +43,7 @@
     <string name="errorLoadingImage">Erro ao carregar imagem</string>
     <string name="expand_section">Expandir seção</string>
     <string name="featuredArticle">Artigo em destaque</string>
-    <string name="fontStyleSansSerif">Sem serifas</string>
+    <string name="fontStyleSansSerif">Sem serifa</string>
     <string name="home">Início</string>
     <string name="imageCounter">Imagem %1$s de %2$s</string>
     <string name="inArticleMatches">Correspondências no artigo</string>
