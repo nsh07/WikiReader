@@ -31,13 +31,13 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
@@ -70,6 +70,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.image.FeedImage
+import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.bottomListItemShape
+import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.middleListItemShape
+import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.topListItemShape
 import org.nsh07.wikireader.ui.viewModel.FeedState
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -144,14 +147,14 @@ fun ArticleFeed(
                 item {
                     Text(
                         stringResource(R.string.featuredArticle),
-                        style = MaterialTheme.typography.headlineMedium,
+                        style = typography.headlineMedium,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .padding(top = 16.dp)
                     )
                     Text(
                         text = remember { LocalDate.now().format(dtf) },
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = typography.bodyMedium,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                     ElevatedCard(
@@ -172,7 +175,7 @@ fun ArticleFeed(
                             )
                             Text(
                                 feedState.tfa.titles?.normalized ?: "",
-                                style = MaterialTheme.typography.headlineMedium,
+                                style = typography.headlineMedium,
                                 fontFamily = FontFamily.Serif,
                                 modifier = Modifier
                                     .padding(horizontal = 16.dp)
@@ -180,8 +183,8 @@ fun ArticleFeed(
                             )
                             Text(
                                 feedState.tfa.description ?: "",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = typography.bodyMedium,
+                                color = colorScheme.onSurfaceVariant,
                                 modifier = Modifier
                                     .padding(horizontal = 16.dp, vertical = 4.dp)
                             )
@@ -208,7 +211,7 @@ fun ArticleFeed(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         feedState.tfa.titles?.normalized ?: "",
-                                        style = MaterialTheme.typography.headlineMedium,
+                                        style = typography.headlineMedium,
                                         fontFamily = FontFamily.Serif,
                                         modifier = Modifier
                                             .padding(horizontal = 16.dp)
@@ -216,8 +219,8 @@ fun ArticleFeed(
                                     )
                                     Text(
                                         feedState.tfa.description ?: "",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        style = typography.bodyMedium,
+                                        color = colorScheme.onSurfaceVariant,
                                         modifier = Modifier
                                             .padding(horizontal = 16.dp, vertical = 4.dp)
                                     )
@@ -239,14 +242,14 @@ fun ArticleFeed(
                 item {
                     Text(
                         stringResource(R.string.trendingArticles),
-                        style = MaterialTheme.typography.titleLarge,
+                        style = typography.titleLarge,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .padding(top = 32.dp)
                     )
                     Text(
                         stringResource(R.string.topArticlesOTD),
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = typography.bodyMedium,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                     )
@@ -258,7 +261,8 @@ fun ArticleFeed(
                             .fillMaxWidth()
                             .animateContentSize(motionScheme.defaultSpatialSpec())
                     ) {
-                        ElevatedCard(
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp)
@@ -267,6 +271,12 @@ fun ArticleFeed(
                                 key(i) {
                                     Row(
                                         modifier = Modifier
+                                            .clip(
+                                                if (i == it * 5) topListItemShape
+                                                else if (i == it * 5 + 4) bottomListItemShape
+                                                else middleListItemShape
+                                            )
+                                            .background(colorScheme.surfaceContainer)
                                             .clickable(
                                                 onClick = {
                                                     loadPage(
@@ -284,7 +294,7 @@ fun ArticleFeed(
                                             Text(
                                                 feedState.mostReadArticles[i].titles?.normalized
                                                     ?: "",
-                                                style = MaterialTheme.typography.titleMedium,
+                                                style = typography.titleMedium,
                                                 modifier = Modifier.padding(top = 16.dp)
                                             )
                                             Text(
@@ -312,8 +322,8 @@ fun ArticleFeed(
                                                 )
                                                 Text(
                                                     df.format(feedState.mostReadArticles[i].views),
-                                                    style = MaterialTheme.typography.titleSmall,
-                                                    color = MaterialTheme.colorScheme.primary
+                                                    style = typography.titleSmall,
+                                                    color = colorScheme.primary
                                                 )
                                             }
                                         }
@@ -330,53 +340,55 @@ fun ArticleFeed(
                                                     .size(80.dp, 80.dp)
                                             )
                                     }
-                                    if (i != it * 5 + 4) HorizontalDivider()
                                 }
                             }
                         }
                     }
                     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        ElevatedCard(shape = shapes.extraLarge) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                IconButton(
-                                    shapes = IconButtonDefaults.shapes(),
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            pagerState.animateScrollToPage(
-                                                pagerState.currentPage - 1
-                                            )
-                                        }
-                                    },
-                                    enabled = pagerState.currentPage != 0
-                                ) {
-                                    Icon(
-                                        Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
-                                        contentDescription = stringResource(R.string.scrollLeft)
-                                    )
-                                }
-                                Text(
-                                    stringResource(
-                                        R.string.pageIndicator,
-                                        pagerState.currentPage + 1,
-                                        pagerState.pageCount
-                                    )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .clip(shapes.large)
+                                .background(colorScheme.surfaceContainer)
+                        ) {
+                            IconButton(
+                                shapes = IconButtonDefaults.shapes(),
+                                onClick = {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(
+                                            pagerState.currentPage - 1
+                                        )
+                                    }
+                                },
+                                enabled = pagerState.currentPage != 0
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
+                                    contentDescription = stringResource(R.string.scrollLeft)
                                 )
-                                IconButton(
-                                    shapes = IconButtonDefaults.shapes(),
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            pagerState.animateScrollToPage(
-                                                pagerState.currentPage + 1
-                                            )
-                                        }
-                                    },
-                                    enabled = pagerState.currentPage != pagerState.pageCount - 1
-                                ) {
-                                    Icon(
-                                        Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-                                        contentDescription = stringResource(R.string.scrollRight)
-                                    )
-                                }
+                            }
+                            Text(
+                                stringResource(
+                                    R.string.pageIndicator,
+                                    pagerState.currentPage + 1,
+                                    pagerState.pageCount
+                                )
+                            )
+                            IconButton(
+                                shapes = IconButtonDefaults.shapes(),
+                                onClick = {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(
+                                            pagerState.currentPage + 1
+                                        )
+                                    }
+                                },
+                                enabled = pagerState.currentPage != pagerState.pageCount - 1
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                                    contentDescription = stringResource(R.string.scrollRight)
+                                )
                             }
                         }
                     }
@@ -386,7 +398,7 @@ fun ArticleFeed(
                 item {
                     Text(
                         stringResource(R.string.picOfTheDay),
-                        style = MaterialTheme.typography.titleLarge,
+                        style = typography.titleLarge,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .padding(top = 32.dp)
@@ -417,7 +429,7 @@ fun ArticleFeed(
                                 (feedState.image.artist?.name
                                     ?: feedState.image.artist?.text)?.substringBefore('\n') +
                                         " (" + feedState.image.credit?.text?.substringBefore(';') + ")",
-                                style = MaterialTheme.typography.bodyMedium,
+                                style = typography.bodyMedium,
                                 modifier = Modifier
                                     .padding(horizontal = 16.dp)
                                     .padding(top = 8.dp, bottom = 16.dp)
@@ -447,7 +459,7 @@ fun ArticleFeed(
                                                 " (" + feedState.image.credit?.text?.substringBefore(
                                             ';'
                                         ) + ")",
-                                        style = MaterialTheme.typography.bodyMedium,
+                                        style = typography.bodyMedium,
                                         modifier = Modifier
                                             .padding(horizontal = 16.dp)
                                             .padding(top = 8.dp, bottom = 16.dp)
@@ -463,7 +475,7 @@ fun ArticleFeed(
                     val carouselState = rememberCarouselState(0) { feedState.news.size }
                     Text(
                         stringResource(R.string.inTheNews),
-                        style = MaterialTheme.typography.titleLarge,
+                        style = typography.titleLarge,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .padding(top = 32.dp)
@@ -562,7 +574,7 @@ fun ArticleFeed(
                     val carouselState = rememberCarouselState(0) { feedState.onThisDay.size }
                     Text(
                         stringResource(R.string.onThisDay),
-                        style = MaterialTheme.typography.titleLarge,
+                        style = typography.titleLarge,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .padding(top = 32.dp)
@@ -588,8 +600,8 @@ fun ArticleFeed(
                                 } else {
                                     feedState.onThisDay[i].year?.absoluteValue.toString() + " BC"
                                 },
-                                style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.primary,
+                                style = typography.titleLarge,
+                                color = colorScheme.primary,
                                 modifier = Modifier.padding(bottom = 16.dp)
                             )
                             Box {
