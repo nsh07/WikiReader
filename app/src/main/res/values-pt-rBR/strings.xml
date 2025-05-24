@@ -78,8 +78,8 @@
     <string name="wikipedia_logo">Logo da Wikipédia</string>
     <string name="resetSettingsDialog">Redefinir configurações?</string>
     <string name="resetSettingsDialogDesc">Todas as configurações serão redefinidas para o padrão</string>
-    <string name="settingBlackThemeDesc">Use um tema preto escuro</string>
-    <string name="settingSearchHistoryDesc">Salve o histórico de pesquisas. As pesquisas já realizadas não serão afetadas por esta opção.</string>
+    <string name="settingBlackThemeDesc">Usar um tema preto escuro</string>
+    <string name="settingSearchHistoryDesc">Salvar o histórico de pesquisas. As pesquisas já realizadas não serão afetadas por esta opção.</string>
     <string name="settingTheme">Tema</string>
     <string name="settingWikipediaLanguage">Idioma da Wikipédia</string>
     <string name="app">App</string>
@@ -102,8 +102,8 @@
     <string name="openInBrowser">Abrir no navegador</string>
     <string name="picOfTheDay">Imagem do dia</string>
     <string name="deleteArticle">Deletar artigo baixado</string>
-    <string name="settingImageBackgroundDesc">Adiciona um fundo branco em imagens transparentes. O fundo pode melhorar a legibilidade no modo escuro.</string>
-    <string name="settingImmersiveModeDesc">Oculta a barra de pesquisas e os botões de ação flutuantes enquanto rola. Habilitado por padrão em telas pequenas.</string>
+    <string name="settingImageBackgroundDesc">Adicionar um fundo branco em imagens transparentes. O fundo pode melhorar a legibilidade no modo escuro.</string>
+    <string name="settingImmersiveModeDesc">Ocultar a barra de pesquisas e os botões de ação flutuantes enquanto rola. Habilitado por padrão em telas pequenas.</string>
     <string name="noSavedArticlesDesc">Pressione o botão de download no topo de um artigo para começar</string>
     <string name="settingDataSaverDesc">Desabilitar imagens e o feed. As imagens de um artigo ainda podem ser abertas ao pressionar o card de descrição.</string>
     <string name="settingFontStyle">Estilo da fonte</string>
@@ -118,5 +118,5 @@
     <string name="image">Imagem</string>
     <string name="saved">Salvos</string>
     <string name="settingFeed">Feed</string>
-    <string name="settingFeedDesc">Exibir um feed de artigos em alta, notícias e mais na inicialização do app</string>
+    <string name="settingFeedDesc">Exibir um feed de artigos em alta, notícias e mais na tela inicial do app</string>
 </resources>
