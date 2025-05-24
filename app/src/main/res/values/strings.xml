@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="about">About</string>
     <string name="app">App</string>
@@ -57,7 +58,7 @@
     <string name="releases">Releases</string>
     <string name="releasesDesc">Check out older and newer versions</string>
     <string name="reset">Reset</string>
-    <string name="resetSettingsDialog">Reset Settings?</string>
+    <string name="resetSettingsDialog">Reset settings?</string>
     <string name="resetSettingsDialogDesc">All settings will be restored to default</string>
     <string name="resetSettingsIconDesc">Reset settings to default</string>
     <string name="saved">Saved</string>
