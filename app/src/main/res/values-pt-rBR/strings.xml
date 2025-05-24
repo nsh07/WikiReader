@@ -76,7 +76,7 @@
     <string name="up_arrow">Ir para o topo</string>
     <string name="wikipediaWebsiteDesc">Visitar o website da Wikipédia</string>
     <string name="wikipedia_logo">Logo da Wikipédia</string>
-    <string name="resetSettingsDialog">Redefinir configurações?</string>
+    <string name="resetSettingsDialog">Redefinir as configurações?</string>
     <string name="resetSettingsDialogDesc">Todas as configurações serão redefinidas para o padrão</string>
     <string name="settingBlackThemeDesc">Usar um tema preto escuro</string>
     <string name="settingSearchHistoryDesc">Salvar o histórico de pesquisas. As pesquisas já realizadas não serão afetadas por esta opção.</string>
