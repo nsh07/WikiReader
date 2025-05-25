@@ -63,7 +63,7 @@
     <string name="reset">Réinitialiser</string>
     <string name="resetSettingsDialog">Réinitialiser les paramètres ?</string>
     <string name="resetSettingsDialogDesc">Tous les paramètres seront restaurés par défaut</string>
-    <string name="resetSettingsIconDesc">Réinitialiser les paramètres par défaut</string>
+    <string name="resetSettingsIconDesc">Rétablir les paramètres par défaut</string>
     <string name="savedArticles">Articles sauvegardés</string>
     <string name="saved">Sauvegardé</string>
     <string name="scrollLeft">Faire défiler vers la gauche</string>
@@ -103,7 +103,7 @@
     <string name="sourceCode">Code source</string>
     <string name="supportWikipedia">Supporter Wikipédia</string>
     <string name="themeDark">Sombre</string>
-    <string name="themeSystemDefault">Système par défaut</string>
+    <string name="themeSystemDefault">Valeur par défaut du système</string>
     <string name="titleMatches">Correspondance des titres</string>
     <string name="topArticlesOTD">Meilleurs articles du jour</string>
     <string name="translate">Traduire</string>
@@ -111,4 +111,12 @@
     <string name="noSavedArticlesDesc">Cliquez sur le bouton de téléchargement en haut d\'un article pour commencer</string>
     <string name="donateToWikipedia">Donner ou contribuer à WIkipédia</string>
     <string name="fontStyleSansSerif">Sans-serif</string>
+    <string name="translateDesc">Aidez à traduire WikiReader dans votre langue</string>
+    <string name="trendingArticles">Articles tendance</string>
+    <string name="unableToDeleteArticle">Impossible de supprimer l\'article : %1$s</string>
+    <string name="up_arrow">Aller en haut</string>
+    <string name="version">Version</string>
+    <string name="wikipedia">Wikipédia</string>
+    <string name="wikipediaWebsiteDesc">Visitez le site web de Wikipédia</string>
+    <string name="wikipedia_logo">Logo de Wikipédia</string>
 </resources>
