@@ -1,2 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="chooseTheme">Téma választása</string>
+    <string name="delete">Törlés</string>
+    <string name="dialogDeleteHistoryItemDesc">A keresési előzménye örökre törlődni fog.</string>
+    <string name="dialogDeleteSearchHistoryDesc">Törli a keresési előzményeit?</string>
+    <string name="deleteAllArticlesDesc">Minden cikk örökre törlődni fog az eszközéről</string>
+    <string name="cancel">Mégse</string>
+    <string name="about">Névjegy</string>
+    <string name="app_name">WikiReader</string>
+    <string name="app">Applikáció</string>
+    <string name="articleDeleted">Cikk törölve</string>
+    <string name="back">Vissza</string>
+    <string name="author">Szerző</string>
+    <string name="chooseColorScheme">Színtéma választása</string>
+    <string name="clear">Törlés</string>
+    <string name="clearSearchField">Keresési mező törlése</string>
+    <string name="deleteAll">Összes törlése</string>
+    <string name="deleteAllArticles">Törli az összes cikket?</string>
+    <string name="deleteSavedArticle">Törli a mentett cikket?</string>
+    <string name="downloadArticle">Cikk letöltése</string>
+    <string name="dialogDeleteSearchHistory">Törli ezt a keresést az előzményekből?</string>
+    <string name="donateToWikipedia">Adományozzon vagy járuljon hozzá a Wikipédiához</string>
+    <string name="errorLoadingImage">Hiba a kép betöltésekor</string>
+    <string name="featuredArticle">Kiemelt cikk</string>
+    <string name="fontStyleSansSerif">Sans-serif</string>
+    <string name="history">Előzmények</string>
+    <string name="expand_section">Fejezet kinyitása</string>
+    <string name="home">Főoldal</string>
+    <string name="inTheNews">A hírekben</string>
+    <string name="information">Információk</string>
+    <string name="inArticleMatches">Cikken belüli találat</string>
+    <string name="noSavedArticlesDesc">A kezdéshez kattintson a letöltés gombra egy cikk tetején</string>
+    <string name="onThisDay">Ezen a napon</string>
+    <string name="openInBrowser">Megnyitás böngészőben</string>
+    <string name="pageIndicator">%1$s/%2$s. oldal</string>
+    <string name="picOfTheDay">A nap képe</string>
+    <string name="randomArticle">Véletlenszerű cikk</string>
+    <string name="redirectedFrom">Átirányítva innen: %1$s</string>
+    <string name="releases">Megjelenések</string>
+    <string name="colorSchemeColor">Szín</string>
+    <string name="deleteSavedArticleDesc">\"%1$s\" örökre törlődni fog az eszközéről</string>
+    <string name="chooseWikipediaLanguage">Válassza ki a Wikipédia nyelvét</string>
+    <string name="colorSchemeDynamic">Dinamikus</string>
+    <string name="collapse_section">Fejezet becsukása</string>
+    <string name="dialogDeleteHistoryItem">\"%1$s\" örökre törlődni fog a keresési előzményéből.</string>
+    <string name="appTagline">Olvasson Wikipédia-cikkeket zavartalanul</string>
+    <string name="noSavedArticles">Nicsenek mentett cikkek</string>
+    <string name="deleteArticle">Letöltött cikk törlése</string>
+    <string name="articlesSize">%1$s cikk, összesen %2$s</string>
+    <string name="fontStyleSerif">Serif</string>
+    <string name="moreOptions">További beállítások</string>
+    <string name="image">Kép</string>
+    <string name="license">Licenc</string>
+    <string name="ok">OK</string>
+</resources>
