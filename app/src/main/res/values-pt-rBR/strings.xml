@@ -103,7 +103,7 @@
     <string name="picOfTheDay">Imagem do dia</string>
     <string name="deleteArticle">Deletar artigo baixado</string>
     <string name="settingImageBackgroundDesc">Adicionar um fundo branco em imagens transparentes. O fundo pode melhorar a legibilidade no modo escuro.</string>
-    <string name="settingImmersiveModeDesc">Ocultar a barra de pesquisas e os botões de ação flutuantes enquanto rola. Habilitado por padrão em telas pequenas.</string>
+    <string name="settingImmersiveModeDesc">Ocultar a barra de pesquisas e os botões de ação flutuantes durante a rolagem. Habilitado por padrão em telas pequenas.</string>
     <string name="noSavedArticlesDesc">Pressione o botão de download no topo de um artigo para começar</string>
     <string name="settingDataSaverDesc">Desabilitar imagens e o feed. As imagens de um artigo ainda podem ser abertas ao pressionar o card de descrição.</string>
     <string name="settingFontStyle">Estilo da fonte</string>
