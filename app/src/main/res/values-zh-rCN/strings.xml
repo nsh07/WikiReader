@@ -119,4 +119,6 @@
     <string name="settingImageBackgroundDesc">为透明图片加上白色的背景. 此项功能旨在启用深色模式时显著提高透明图片的可读性.</string>
     <string name="settingRenderMathDesc">会少量增加流量消耗. 关闭此项功能可以提升性能，但是会牺牲可读性.</string>
     <string name="settingDataSaver">省流量模式</string>
+    <string name="donate">捐赠</string>
+    <string name="supportMyWork">支持我</string>
 </resources>
