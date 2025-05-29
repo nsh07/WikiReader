@@ -28,7 +28,6 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -60,6 +59,7 @@ import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.bytesToHumanReadableSize
 import org.nsh07.wikireader.data.langCodeToWikiName
+import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
 import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.middleListItemShape
 import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.topListItemShape
@@ -88,8 +88,6 @@ fun SavedArticlesScreen(
         savedArticlesState.languageFilters.filter { it.selected }.map { it.langCode }
     if (selectedLangs.isEmpty()) selectedLangs =
         savedArticlesState.languageFilters.map { it.langCode }
-
-    val listColors = ListItemDefaults.colors(containerColor = colorScheme.surfaceContainer)
 
     if (showArticleDeleteDialog)
         DeleteArticleDialog(
@@ -130,6 +128,7 @@ fun SavedArticlesScreen(
                 contentPadding = insets,
                 modifier = Modifier
                     .fillMaxHeight()
+                    .background(topBarColors.containerColor)
             ) {
                 item {
                     if (savedArticlesState.languageFilters.size > 1)
@@ -185,7 +184,6 @@ fun SavedArticlesScreen(
                                 )
                             })
                         },
-                        colors = listColors,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .clip(
@@ -206,7 +204,12 @@ fun SavedArticlesScreen(
                 }
             }
         else
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(topBarColors.containerColor),
+                contentAlignment = Alignment.Center
+            ) {
                 val transition = rememberInfiniteTransition(
                     label = "Cookie rotate"
                 )

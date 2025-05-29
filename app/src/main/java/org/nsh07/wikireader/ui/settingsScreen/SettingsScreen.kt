@@ -78,6 +78,7 @@ import org.nsh07.wikireader.R.string
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.toColor
+import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
 import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.middleListItemShape
 import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.topListItemShape
@@ -148,15 +149,16 @@ fun SettingsScreen(
     )
 
     val disabledAlpha = 0.5f
-    val listColors = ListItemDefaults.colors(containerColor = colorScheme.surfaceContainer)
+
+    val listItemColors = ListItemDefaults.colors()
     val disabledListColors =
         ListItemDefaults.colors(
             containerColor = colorScheme.surfaceContainerLow,
-            headlineColor = listColors.headlineColor.copy(disabledAlpha),
-            leadingIconColor = listColors.leadingIconColor.copy(disabledAlpha),
-            overlineColor = listColors.overlineColor.copy(disabledAlpha),
-            supportingColor = listColors.supportingTextColor.copy(disabledAlpha),
-            trailingIconColor = listColors.trailingIconColor.copy(disabledAlpha),
+            headlineColor = listItemColors.headlineColor.copy(disabledAlpha),
+            leadingIconColor = listItemColors.leadingIconColor.copy(disabledAlpha),
+            overlineColor = listItemColors.overlineColor.copy(disabledAlpha),
+            supportingColor = listItemColors.supportingTextColor.copy(disabledAlpha),
+            trailingIconColor = listItemColors.trailingIconColor.copy(disabledAlpha),
         )
 
     val switchItems = remember(preferencesState) {
@@ -274,7 +276,8 @@ fun SettingsScreen(
     ) { insets ->
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(2.dp),
-            contentPadding = insets
+            contentPadding = insets,
+            modifier = Modifier.background(topBarColors.containerColor)
         ) {
             item { Spacer(Modifier.height(8.dp)) }
             item {
@@ -291,7 +294,6 @@ fun SettingsScreen(
                         if (color == Color.White) Text(stringResource(string.colorSchemeDynamic))
                         else Text(stringResource(string.colorSchemeColor))
                     },
-                    colors = listColors,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .clip(topListItemShape)
@@ -308,7 +310,6 @@ fun SettingsScreen(
                     },
                     headlineContent = { Text(stringResource(string.settingTheme)) },
                     supportingContent = { Text(themeMap[theme]!!.second) },
-                    colors = listColors,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .clip(middleListItemShape)
@@ -338,13 +339,12 @@ fun SettingsScreen(
                             enabled = switchItems[0].enabled
                         )
                     },
-                    colors = listColors,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .clip(bottomListItemShape)
                 )
             }
-            item { Spacer(Modifier.height(8.dp)) }
+            item { Spacer(Modifier.height(12.dp)) }
             item {
                 ListItem(
                     leadingContent = {
@@ -355,7 +355,6 @@ fun SettingsScreen(
                     },
                     headlineContent = { Text(stringResource(string.settingWikipediaLanguage)) },
                     supportingContent = { Text(langCodeToName(preferencesState.lang)) },
-                    colors = listColors,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .clip(topListItemShape)
@@ -394,8 +393,7 @@ fun SettingsScreen(
                                             0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
                                             fontStyles.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
                                             else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
-                                        },
-                                    colors = ToggleButtonDefaults.toggleButtonColors(containerColor = colorScheme.surface)
+                                        }
                                 ) {
                                     AnimatedVisibility(
                                         label == fontStyleMap[fontStyle],
@@ -412,7 +410,6 @@ fun SettingsScreen(
                             }
                         }
                     },
-                    colors = listColors,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .clip(middleListItemShape)
@@ -445,13 +442,12 @@ fun SettingsScreen(
                             )
                         }
                     },
-                    colors = listColors,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .clip(bottomListItemShape)
                 )
             }
-            item { Spacer(Modifier.height(8.dp)) }
+            item { Spacer(Modifier.height(12.dp)) }
             itemsIndexed(switchItems.drop(1)) { index, item ->
                 ListItem(
                     leadingContent = {
@@ -477,7 +473,7 @@ fun SettingsScreen(
                     },
                     colors =
                         if (item.enabled)
-                            listColors
+                            listItemColors
                         else
                             disabledListColors,
                     modifier = Modifier

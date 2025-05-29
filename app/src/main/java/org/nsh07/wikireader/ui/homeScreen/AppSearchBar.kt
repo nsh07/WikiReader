@@ -131,8 +131,6 @@ fun AppSearchBar(
     val compactWindow =
         !windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
 
-    val listColors = ListItemDefaults.colors(containerColor = colorScheme.surfaceContainer)
-
     val (showLanguageSheet, setShowLanguageSheet) = remember { mutableStateOf(false) }
 
     LaunchedEffect(textFieldState.text) {
@@ -341,7 +339,6 @@ fun AppSearchBar(
                                             )
                                         }
                                     },
-                                    colors = listColors,
                                     modifier = Modifier
                                         .padding(horizontal = 16.dp)
                                         .clip(
@@ -589,7 +586,6 @@ fun AppSearchBar(
                                             )
                                         else null
                                     },
-                                    colors = listColors,
                                     modifier = Modifier
                                         .padding(horizontal = 16.dp)
                                         .clip(
@@ -668,7 +664,6 @@ fun AppSearchBar(
                                             )
                                         else null
                                     },
-                                    colors = listColors,
                                     modifier = Modifier
                                         .padding(horizontal = 16.dp)
                                         .clip(
