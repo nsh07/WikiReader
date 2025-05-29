@@ -63,6 +63,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.text.parseAsHtml
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -207,12 +208,16 @@ fun AppScreen(
             }
         },
         onHomeClick = {
-            navController.navigate(Home()) {
-                popUpTo(navController.graph.findStartDestination().id) {
-                    saveState = true
+            if (navBackStackEntry?.destination?.hasRoute(Home::class) == true) {
+                viewModel.loadFeed(true)
+            } else {
+                navController.navigate(Home()) {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
                 }
-                launchSingleTop = true
-                restoreState = true
             }
         },
         onSavedArticlesClick = {
