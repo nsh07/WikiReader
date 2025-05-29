@@ -119,4 +119,6 @@
     <string name="saved">已儲存</string>
     <string name="settingFeed">動態消息</string>
     <string name="settingFeedDesc">在應用程式啟動時顯示熱門文章、新聞及更多的動態消息</string>
+    <string name="donate">捐赠</string>
+    <string name="supportMyWork">支持我</string>
 </resources>
