@@ -69,9 +69,9 @@
     <string name="scrollLeft">Faire défiler vers la gauche</string>
     <string name="scrollRight">Faire défiler vers la droite</string>
     <string name="scroll_to_top">Faire défiler vers le haut</string>
-    <string name="search">Chercher</string>
-    <string name="searchLanguages">Chercher des langues</string>
-    <string name="searchWikipedia">Chercher dans Wikipédia</string>
+    <string name="search">Rechercher</string>
+    <string name="searchLanguages">Rechercher des langues</string>
+    <string name="searchWikipedia">Rechercher sur Wikipedia</string>
     <string name="sections">Sections</string>
     <string name="settingBlackTheme">Thème sombre</string>
     <string name="settingBlackThemeDesc">Utiliser un thème noir pur</string>
