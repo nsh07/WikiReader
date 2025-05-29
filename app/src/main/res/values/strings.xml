@@ -28,6 +28,7 @@
     <string name="dialogDeleteHistoryItemDesc">Your search history will be permanently deleted.</string>
     <string name="dialogDeleteSearchHistory">Delete this search from your history?</string>
     <string name="dialogDeleteSearchHistoryDesc">Delete your search history?</string>
+    <string name="donate">Donate</string>
     <string name="donateToWikipedia">Donate or contribute to Wikipedia</string>
     <string name="downloadArticle">Download article</string>
     <string name="errorLoadingImage">Error loading image</string>
@@ -104,6 +105,7 @@
     <string name="snackbarUnableToLoadFeed">Unable to load feed: %1$s</string>
     <string name="snackbarUnableToSave">Unable to save article: %1$s</string>
     <string name="sourceCode">Source code</string>
+    <string name="supportMyWork">Support my work</string>
     <string name="supportWikipedia">Support Wikipedia</string>
     <string name="themeDark">Dark</string>
     <string name="themeLight">Light</string>

@@ -374,6 +374,14 @@ fun String.toWikitextAnnotatedString(
                                     )
                                 }
                             }
+                        } else if (currSubstring.startsWith("{{sfrac")) {
+                            val curr = currSubstring.substringAfter('|')
+                            val splitList = curr.split('|')
+                            when (splitList.size) {
+                                3 -> append("${splitList[0]}<sup>${splitList[1]}</sup>/<sub>${splitList[2]}</sub>".twas())
+                                2 -> append("<sup>${splitList[0]}</sup>/<sub>${splitList[1]}</sub>".twas())
+                                1 -> append("<sup>1</sup>/<sub>${splitList[0]}</sub>".twas())
+                            }
                         } else if (currSubstring.startsWith("{{as of", ignoreCase = true)) {
                             // TODO: Complete this
                             val curr = currSubstring.substringAfter("{{")
@@ -423,6 +431,11 @@ fun String.toWikitextAnnotatedString(
                                 )
                             ) {
                                 append("This section is empty. You can help by adding to it on Wikipedia.")
+                            }
+                        } else if (currSubstring.startsWith("{{\"|")) {
+                            val curr = currSubstring.substringAfter('|')
+                            withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                                append(curr.twas())
                             }
                         } else {
                             val curr = input.getOrNull(i + 1 + currSubstring.length + 1)

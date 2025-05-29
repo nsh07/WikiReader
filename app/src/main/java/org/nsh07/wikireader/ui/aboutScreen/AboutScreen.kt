@@ -199,7 +199,6 @@ fun AboutScreen(
                         supportingContent = { Text(stringResource(R.string.otherProjectsDesc)) },
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
-                            .height(72.dp)
                             .clip(topListItemShape)
                             .clickable(
                                 onClick = {
@@ -211,10 +210,10 @@ fun AboutScreen(
                         leadingContent = {
                             Icon(painterResource(R.drawable.heart), null)
                         },
-                        headlineContent = { Text("Donate") },
+                        headlineContent = { Text(stringResource(R.string.donate)) },
+                        supportingContent = { Text(stringResource(R.string.supportMyWork)) },
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
-                            .height(72.dp)
                             .clip(bottomListItemShape)
                             .clickable(
                                 onClick = {
