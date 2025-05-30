@@ -119,4 +119,6 @@
     <string name="saved">Salvos</string>
     <string name="settingFeed">Feed</string>
     <string name="settingFeedDesc">Exibir um feed de artigos em alta, notícias e mais na tela inicial do app</string>
+    <string name="donate">Doar</string>
+    <string name="supportMyWork">Apoie meu trabalho</string>
 </resources>
