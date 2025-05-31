@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 
 val Purple80 = Color(0xFFD0BCFF)
@@ -17,6 +18,7 @@ val Pink40 = Color(0xFF7D5260)
 
 object CustomTopBarColors {
     var black = false
+
     @OptIn(ExperimentalMaterial3Api::class)
     val topBarColors: TopAppBarColors
         @Composable get() {
@@ -24,5 +26,17 @@ object CustomTopBarColors {
                 containerColor = colorScheme.surfaceContainer,
                 scrolledContainerColor = colorScheme.surfaceContainer
             ) else TopAppBarDefaults.topAppBarColors()
+        }
+}
+
+object ColorConstants {
+    val colorMatrixInvert: FloatArray
+        @Composable get() = remember {
+            floatArrayOf(
+                -1f, 0f, 0f, 0f, 255f, // Red
+                0f, -1f, 0f, 0f, 255f, // Green
+                0f, 0f, -1f, 0f, 255f, // Blue
+                0f, 0f, 0f, 1f, 0f   // Alpha
+            )
         }
 }

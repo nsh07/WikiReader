@@ -15,7 +15,8 @@ fun parseWikitable(
     val rows = mutableListOf<MutableList<AnnotatedString>>()
     var caption = AnnotatedString("")
     val lines = table.lines().map { it.trim() }.filter { it.isNotEmpty() }
-    val styling = "class=|align=|scope=|style=|rowspan=|colspan=|width=|nowrap|data-sort".toRegex()
+    val styling =
+        "class=|align=|scope=|style=|rowspan=|colspan=|width=|[^{]nowrap|data-sort".toRegex()
 
     var currentRow = mutableListOf<AnnotatedString>()
     val rowSpan = mutableMapOf<Int, Int>()

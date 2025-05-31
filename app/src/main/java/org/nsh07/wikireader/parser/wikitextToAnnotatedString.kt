@@ -39,6 +39,7 @@ fun String.toWikitextAnnotatedString(
     newLine: Boolean = true,
     inIndentCode: Boolean = false
 ): AnnotatedString {
+    val hrChar = '─'
     val input = this
     var i = 0
     var number = 1 // Count for numbered lists
@@ -88,6 +89,13 @@ fun String.toWikitextAnnotatedString(
                         }
 
                         currSubstring.startsWith("<br", ignoreCase = true) -> {
+                            append('\n')
+                            i += currSubstring.substringBefore('>').length
+                        }
+
+                        currSubstring.startsWith("<hr", ignoreCase = true) -> {
+                            append('\n')
+                            repeat(5) { append(hrChar) }
                             append('\n')
                             i += currSubstring.substringBefore('>').length
                         }
@@ -153,6 +161,12 @@ fun String.toWikitextAnnotatedString(
                                     fontSize = (fontSize - 2).sp
                                 )
                             ) { append(curr.twasNoNewline()) }
+                            i += 5 + curr.length + 5
+                        }
+
+                        currSubstring.startsWith("<var>") -> {
+                            val curr = currSubstring.substringBefore("</var>").substringAfter('>')
+                            append("''$curr''".twasNoNewline())
                             i += 5 + curr.length + 5
                         }
 
@@ -262,11 +276,9 @@ fun String.toWikitextAnnotatedString(
                             currSubstring.startsWith("{{math", ignoreCase = true) ||
                                     currSubstring.startsWith("{{mvar", ignoreCase = true)
                                 -> {
-                                val curr = currSubstring.substringAfter(
-                                    '|',
-                                    currSubstring.substringAfter("{{").substringBefore("}}")
-                                )
+                                val curr = currSubstring.substringAfter('|').removePrefix("1=")
                                 withStyle(SpanStyle(fontFamily = FontFamily.Serif)) {
+                                    append(curr.replace(' ', nbsp).twas())
                                     append(curr.replace(' ', nbsp).twas())
                                 }
                             }
@@ -274,6 +286,20 @@ fun String.toWikitextAnnotatedString(
                             currSubstring.startsWith("{{val", ignoreCase = true) -> {
                                 val curr = currSubstring.substringAfter('|').substringBefore('|')
                                 append(curr.twas())
+                            }
+
+                            currSubstring.startsWith("{{var", ignoreCase = true) -> {
+                                val curr = currSubstring.substringAfter('|')
+                                append("''$curr''".twas())
+                            }
+
+                            arrayOf("{{small", "{{smaller", "{{petit", "{{hw-small", "{{sma").any {
+                                currSubstring.startsWith(it, ignoreCase = true)
+                            } -> {
+                                val curr = currSubstring.substringAfter('|')
+                                withStyle(SpanStyle(fontSize = (fontSize - 2).sp)) {
+                                    append(curr.twas())
+                                }
                             }
 
                             currSubstring.startsWith("{{main", ignoreCase = true) -> {

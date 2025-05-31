@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.Hyphens
@@ -34,7 +35,7 @@ fun ParsedBodyText(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val dpi = context.resources.displayMetrics.density
+    val dpi = LocalDensity.current.density
 
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
         body.forEach {
