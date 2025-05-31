@@ -41,6 +41,7 @@ fun String.toWikitextAnnotatedString(
 ): AnnotatedString {
     val input = this
     var i = 0
+    var number = 1 // Count for numbered lists
 
     val twas: String.() -> AnnotatedString = {
         this.toWikitextAnnotatedString(colorScheme, typography, loadPage, fontSize)
@@ -52,6 +53,7 @@ fun String.toWikitextAnnotatedString(
 
     return buildAnnotatedString {
         while (i < input.length) {
+            if (input[i] != '#') number = 1
             when (input[i]) {
                 ' ' ->
                     if ((getOrNull(i - 1) == '\n' || i == 0) && !inIndentCode) {
@@ -565,7 +567,7 @@ fun String.toWikitextAnnotatedString(
                     } else append(input[i])
 
                 '*' ->
-                    if ((i == 0 || input[i - 1] == '\n') && newLine) {
+                    if ((i == 0 || input.getOrNull(i - 1) == '\n') && newLine) {
                         val bulletCount =
                             input.substring(i).substringBefore(' ').count { it == '*' }
                         val curr = input.substring(i).substringBefore('\n')
@@ -585,6 +587,30 @@ fun String.toWikitextAnnotatedString(
                             append(curr.substringAfterLast('*').trim().twas())
                         }
                         i += curr.length
+                    } else append(input[i])
+
+                '#' ->
+                    if ((i == 0 || input.getOrNull(i - 1) == '\n') && newLine) {
+                        val bulletCount =
+                            input.substring(i).substringBefore(' ').count { it == '#' }
+                        val curr = input.substring(i).substringBefore('\n')
+                        withStyle(
+                            ParagraphStyle(
+                                textIndent = TextIndent(restLine = (27 * bulletCount).sp),
+                                lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
+                                lineHeightStyle = LineHeightStyle(
+                                    alignment = LineHeightStyle.Alignment.Center,
+                                    trim = LineHeightStyle.Trim.None
+                                )
+                            )
+                        ) {
+                            append("\t\t".repeat(bulletCount - 1))
+                            append("$number.")
+                            append("\t\t")
+                            append(curr.substringAfterLast('#').trim().twas())
+                        }
+                        i += curr.length
+                        number++
                     } else append(input[i])
 
                 '=' ->
