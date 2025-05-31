@@ -119,4 +119,5 @@
     <string name="snackbarArticleDeleted">Artikel gelöscht</string>
     <string name="sourceCode">Quellcode</string>
     <string name="supportWikipedia">Wikipedia unterstützen</string>
+    <string name="donate">Spenden</string>
 </resources>
