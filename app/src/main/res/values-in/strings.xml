@@ -7,7 +7,7 @@
     <string name="app_name">WikiReader</string>
     <string name="articleDeleted">Artikel dihapus</string>
     <string name="articlesSize">%1$s artikel, %2$s total</string>
-    <string name="author">Penulis</string>
+    <string name="author">Penggubah</string>
     <string name="back">Kembali</string>
     <string name="cancel">Batalkan</string>
     <string name="chooseColorScheme">Pilih skema warna</string>
@@ -101,4 +101,24 @@
     <string name="settingImageBackgroundDesc">Tambahkan latar belakang putih ke gambar transparan. Latar belakang tersebut bisa membantu menaikkan tingkat keterbacaan dalam mode gelap.</string>
     <string name="settingsRestored">Setelan asali dipulihkan</string>
     <string name="snackbarArticleSaved">Artikel disimpan untuk dibaca secara luring</string>
+    <string name="snackbarUnableToDelete">Tidak dapat menghapus artikel: %1$s</string>
+    <string name="snackbarUnableToSave">Tidak dapat menyimpan artikel: %1$s</string>
+    <string name="sourceCode">Kode sumber</string>
+    <string name="supportMyWork">Dukung hasil kerja saya</string>
+    <string name="supportWikipedia">Dukung Wikipedia</string>
+    <string name="themeDark">Gelap</string>
+    <string name="themeLight">Terang</string>
+    <string name="themeSystemDefault">Asali sistem</string>
+    <string name="titleMatches">Judul cocok</string>
+    <string name="topArticlesOTD">Artikel teratas hari ini</string>
+    <string name="translate">Terjemahkan</string>
+    <string name="translateDesc">Bantu terjemahkan WikiReader ke dalam bahasa Anda</string>
+    <string name="trendingArticles">Artikel yang sedang tren</string>
+    <string name="unableToDeleteArticle">Tidak dapat menghapus artikel: %1$s</string>
+    <string name="up_arrow">Ke atas</string>
+    <string name="version">Versi</string>
+    <string name="wikipedia">Wikipedia</string>
+    <string name="wikipediaWebsiteDesc">Kunjungi situs web Wikipedia</string>
+    <string name="wikipedia_logo">Logo Wikipedia</string>
+    <string name="snackbarUnableToLoadFeed">Tidak dapat memuat umpan: %1$s</string>
 </resources>
