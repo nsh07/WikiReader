@@ -145,7 +145,7 @@ fun AppHomeScreen(
     if (s > 1) s -= 2
     else s = 0
 
-    val sendIntent: Intent = remember(homeScreenState.title, homeScreenState.currentLang) {
+    val sendIntent: Intent = remember(homeScreenState.title, preferencesState.lang) {
         Intent()
             .apply {
                 action = Intent.ACTION_SEND
@@ -158,7 +158,7 @@ fun AppHomeScreen(
                 type = "text/plain"
             }
     }
-    val shareIntent = remember(homeScreenState.title, homeScreenState.currentLang) {
+    val shareIntent = remember(homeScreenState.title, preferencesState.lang) {
         Intent.createChooser(sendIntent, null)
     }
 
@@ -236,7 +236,7 @@ fun AppHomeScreen(
                                 shapes = IconButtonDefaults.shapes(),
                                 onClick = remember(
                                     homeScreenState.title,
-                                    homeScreenState.currentLang
+                                    preferencesState.lang
                                 ) {
                                     {
                                         context.startActivity(shareIntent)

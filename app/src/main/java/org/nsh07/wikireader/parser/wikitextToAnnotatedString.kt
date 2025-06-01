@@ -346,6 +346,20 @@ fun String.toWikitextAnnotatedString(
                                 }
                             }
 
+                            currSubstring.startsWith("{{date", ignoreCase = true) -> {
+                                val curr = currSubstring.substringAfter('|')
+                                val splitList = curr.split('|')
+                                if (splitList.size < 3) {
+                                    append(splitList[0])
+                                } else {
+                                    append(splitList[0])
+                                    append(' ')
+                                    append(splitList[1])
+                                    append(' ')
+                                    append(splitList[2])
+                                }
+                            }
+
                             currSubstring.startsWith("{{distinguish", ignoreCase = true) -> {
                                 val textSpecified =
                                     currSubstring.contains("text=") || currSubstring.contains("text =")
