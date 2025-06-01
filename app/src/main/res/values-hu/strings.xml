@@ -2,13 +2,13 @@
 <resources>
     <string name="chooseTheme">Téma választása</string>
     <string name="delete">Törlés</string>
-    <string name="dialogDeleteHistoryItemDesc">A keresési előzménye örökre törlődni fog.</string>
+    <string name="dialogDeleteHistoryItemDesc">A keresési előzménye véglegesen törlődni fog.</string>
     <string name="dialogDeleteSearchHistoryDesc">Törli a keresési előzményeit?</string>
     <string name="deleteAllArticlesDesc">Minden cikk örökre törlődni fog az eszközéről</string>
     <string name="cancel">Mégse</string>
     <string name="about">Névjegy</string>
     <string name="app_name">WikiReader</string>
-    <string name="app">Applikáció</string>
+    <string name="app">Alkalmazás</string>
     <string name="articleDeleted">Cikk törölve</string>
     <string name="back">Vissza</string>
     <string name="author">Szerző</string>
@@ -39,11 +39,11 @@
     <string name="redirectedFrom">Átirányítva innen: %1$s</string>
     <string name="releases">Megjelenések</string>
     <string name="colorSchemeColor">Szín</string>
-    <string name="deleteSavedArticleDesc">\"%1$s\" örökre törlődni fog az eszközéről</string>
+    <string name="deleteSavedArticleDesc">\"%1$s\" véglegesen törlődni fog az eszközéről</string>
     <string name="chooseWikipediaLanguage">Válassza ki a Wikipédia nyelvét</string>
     <string name="colorSchemeDynamic">Dinamikus</string>
     <string name="collapse_section">Fejezet becsukása</string>
-    <string name="dialogDeleteHistoryItem">\"%1$s\" örökre törlődni fog a keresési előzményéből.</string>
+    <string name="dialogDeleteHistoryItem">\"%1$s\" véglegesen törlődni fog a keresési előzményéből.</string>
     <string name="appTagline">Olvasson Wikipédia-cikkeket zavartalanul</string>
     <string name="noSavedArticles">Nincsenek mentett cikkek</string>
     <string name="deleteArticle">Letöltött cikk törlése</string>
