@@ -25,7 +25,7 @@
     <string name="featuredArticle">Kiemelt cikk</string>
     <string name="fontStyleSansSerif">Sans-serif</string>
     <string name="history">Előzmények</string>
-    <string name="expand_section">Fejezet kinyitása</string>
+    <string name="expand_section">Szakasz kinyitása</string>
     <string name="home">Főoldal</string>
     <string name="inTheNews">A hírekben</string>
     <string name="information">Információk</string>
@@ -42,7 +42,7 @@
     <string name="deleteSavedArticleDesc">\"%1$s\" véglegesen törlődni fog az eszközéről</string>
     <string name="chooseWikipediaLanguage">Válassza ki a Wikipédia nyelvét</string>
     <string name="colorSchemeDynamic">Dinamikus</string>
-    <string name="collapse_section">Fejezet becsukása</string>
+    <string name="collapse_section">Szakasz összecsukása</string>
     <string name="dialogDeleteHistoryItem">\"%1$s\" véglegesen törlődni fog a keresési előzményéből.</string>
     <string name="appTagline">Olvasson Wikipédia-cikkeket zavartalanul</string>
     <string name="noSavedArticles">Nincsenek mentett cikkek</string>
@@ -91,7 +91,7 @@
     <string name="settingFontStyle">Betűstílus</string>
     <string name="settingImageBackground">Képháttér</string>
     <string name="settingRenderMath">Matematikai kifejezések renderelése</string>
-    <string name="settingRenderMathDesc">Kicsivel több adatot igényel. Kikapcsolható teljesítmény növeléshez az olvashatóság kárára.</string>
+    <string name="settingRenderMathDesc">Kicsivel több adatot igényel. Kikapcsolható a teljesítmény növeléshez az olvashatóság kárára.</string>
     <string name="settingSearchHistory">Keresési előzmények</string>
     <string name="settingSearchHistoryDesc">Keresési előzmények mentése. A már meglévő előzményeket ez nem érinti.</string>
     <string name="settingsRestored">Alapértelmezett beállítások visszaállítva</string>
