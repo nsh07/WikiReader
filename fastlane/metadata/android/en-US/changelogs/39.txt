@@ -1,0 +1,13 @@
+New features:
+- New colors for lists
+- Reorganised settings menu
+- Numbered lists are now supported
+
+Bug fixes:
+- Fixed some bugs in tables
+- Fixed missing fractions on some pages
+- Fixed missing quoted text on some pages
+
+Translations:
+Contributors on Weblate helped add support for these languages in this update:
+Spanish, French, German, Hungarian, Turkish
