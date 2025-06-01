@@ -1,0 +1,35 @@
+<p>Eine schlanke Android-App zum ablenkungsfreien Lesen von Wikipedia-Artikeln. Unterstützt Hell- und Dunkelmodus, dynamische Material You-Farben und über 300 Wikipedia-Sprachen mit einer anpassbaren, einfachen Benutzeroberfläche.</p>
+
+<p>Funktionen</p>
+
+<ul>
+
+<li><b>Schnelles Laden:</b> Der Artikeltext wird vor allen anderen geladen, sodass Sie schnell mit dem Lesen beginnen können.</li>
+
+<li><b>Feed:</b> Lesen Sie den Artikel des Tages, finden Sie Trendartikel und bleiben Sie mit dem Wikipedia-Feed auf dem Laufenden.</li>
+
+<li><b>Artikelbild:</b> Sehen Sie sich ein Bild des Themas von der Wikipedia-Seite an. Klicken Sie darauf, um es zu vergrößern und im Vollbildmodus anzuzeigen.</li>
+
+<li><b>Zufälliger Artikel:</b> Glück gehabt?  Klicken Sie auf die Schaltfläche „Zufälliger Artikel“, um einen zufälligen Artikel zu lesen.</li>
+
+<li><b>Sprache auswählen: Wählen Sie aus über 300 Sprachen auf Wikipedia.</b></li>
+
+<li><b>Artikel speichern:</b> Laden Sie Artikel zum Offline-Lesen auf Ihr Gerät herunter.</li>
+
+<li><b>Einhandbedienung:</b> Nutzen Sie die schwebenden Aktionsschaltflächen unten für eine vollständige Einhandbedienung.</li>
+
+<li><b>Leichtgewichtig:</b> Die App startet sofort und funktioniert reibungslos.</li>
+
+<li><b>Material Design 3:</b> Entwickelt nach den neuesten Material Design 3-Richtlinien.</li>
+
+<li><b>Flüssige Animationen:</b> Flüssige und flüssige Animationen.</li>
+
+<li><b>Anpassbare Farben:</b> Wählen Sie zwischen hellen und dunklen Designs und passen Sie die Material 3-Farbpalette an.</li>
+
+<li><b>Anpassbare Schriftgröße:</b> Wählen Sie Ihre gewünschte Schriftgröße.</li>
+
+ <li><b>Datensparfunktion:</b> Sparen Sie Ihr begrenztes Datenvolumen, indem Sie nur Text laden.</li>
+
+<li><b>Mathematische Ausdrücke:</b> Zeigen Sie korrekt dargestellte mathematische Ausdrücke an, um mathematische Artikel leichter lesen zu können.</li>
+
+</ul>

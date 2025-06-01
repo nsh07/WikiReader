@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
@@ -16,6 +15,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.size.Size
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.ui.theme.ColorConstants.colorMatrixInvert
 
 @Composable
 fun EquationImage(
@@ -25,15 +25,6 @@ fun EquationImage(
     fontSize: Int,
     darkTheme: Boolean
 ) {
-    val colorMatrixInvert = remember {
-        floatArrayOf(
-            -1f, 0f, 0f, 0f, 255f, // Red
-            0f, -1f, 0f, 0f, 255f, // Green
-            0f, 0f, -1f, 0f, 255f, // Blue
-            0f, 0f, 0f, 1f, 0f   // Alpha
-        )
-    }
-
     Box(modifier = Modifier.horizontalScroll(rememberScrollState())) {
         AsyncImage(
             model = ImageRequest.Builder(context)

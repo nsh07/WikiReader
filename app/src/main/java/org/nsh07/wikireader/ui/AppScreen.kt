@@ -63,6 +63,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.text.parseAsHtml
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -70,8 +71,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
-import androidx.window.core.layout.WindowHeightSizeClass
-import androidx.window.core.layout.WindowWidthSizeClass
+import androidx.window.core.layout.WindowSizeClass
 import coil3.ImageLoader
 import coil3.gif.AnimatedImageDecoder
 import coil3.gif.GifDecoder
@@ -160,7 +160,7 @@ fun AppScreen(
 
     val searchBarScrollBehavior =
         if (
-            windowSizeClass.windowHeightSizeClass == WindowHeightSizeClass.COMPACT ||
+            !windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND) ||
             preferencesState.immersiveMode
         ) TopAppBarDefaults.enterAlwaysScrollBehavior()
         else TopAppBarDefaults.pinnedScrollBehavior()
@@ -208,12 +208,16 @@ fun AppScreen(
             }
         },
         onHomeClick = {
-            navController.navigate(Home()) {
-                popUpTo(navController.graph.findStartDestination().id) {
-                    saveState = true
+            if (navBackStackEntry?.destination?.hasRoute(Home::class) == true) {
+                viewModel.loadFeed(true)
+            } else {
+                navController.navigate(Home()) {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
                 }
-                launchSingleTop = true
-                restoreState = true
             }
         },
         onSavedArticlesClick = {
@@ -236,11 +240,13 @@ fun AppScreen(
         },
         modifier = modifier.background(MaterialTheme.colorScheme.surface)
     ) {
+        val compactWindow =
+            !windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
         NavHost(
             navController = navController,
             startDestination = Home(),
             enterTransition = {
-                if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT)
+                if (compactWindow)
                     slideInHorizontally(
                         initialOffsetX = { it / 4 },
                         animationSpec = motionScheme.defaultSpatialSpec()
@@ -253,7 +259,7 @@ fun AppScreen(
                             )
             },
             exitTransition = {
-                if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT)
+                if (compactWindow)
                     slideOutHorizontally(
                         targetOffsetX = { -it / 4 },
                         animationSpec = motionScheme.fastSpatialSpec()
@@ -262,7 +268,7 @@ fun AppScreen(
                     fadeOut(animationSpec = tween(90))
             },
             popEnterTransition = {
-                if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT)
+                if (compactWindow)
                     slideInHorizontally(
                         initialOffsetX = { -it / 4 },
                         animationSpec = motionScheme.defaultSpatialSpec()
@@ -275,7 +281,7 @@ fun AppScreen(
                             )
             },
             popExitTransition = {
-                if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT)
+                if (compactWindow)
                     slideOutHorizontally(
                         targetOffsetX = { it / 4 },
                         animationSpec = motionScheme.fastSpatialSpec()
@@ -408,7 +414,7 @@ fun AppScreen(
                     },
                     snackbarHost = { SnackbarHost(snackBarHostState) },
                     contentWindowInsets =
-                        if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT)
+                        if (!compactWindow)
                             ScaffoldDefaults.contentWindowInsets
                                 .only(WindowInsetsSides.Top + WindowInsetsSides.Bottom + WindowInsetsSides.End)
                         else ScaffoldDefaults.contentWindowInsets,

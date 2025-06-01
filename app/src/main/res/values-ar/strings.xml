@@ -117,4 +117,6 @@
     <string name="resetSettingsDialogDesc">ستتم استعادة جميع الإعدادات إلى الوضع الافتراضي</string>
     <string name="image">صورة</string>
     <string name="saved">حفظ</string>
+    <string name="settingFeedDesc">عرض موجز بالمقالات الشائعة والأخبار والمزيد عند بدء تشغيل التطبيق</string>
+    <string name="settingFeed">الموجز</string>
 </resources>
