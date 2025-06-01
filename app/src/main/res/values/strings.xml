@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="about">About</string>
     <string name="app">App</string>
@@ -27,6 +28,7 @@
     <string name="dialogDeleteHistoryItemDesc">Your search history will be permanently deleted.</string>
     <string name="dialogDeleteSearchHistory">Delete this search from your history?</string>
     <string name="dialogDeleteSearchHistoryDesc">Delete your search history?</string>
+    <string name="donate">Donate</string>
     <string name="donateToWikipedia">Donate or contribute to Wikipedia</string>
     <string name="downloadArticle">Download article</string>
     <string name="errorLoadingImage">Error loading image</string>
@@ -57,7 +59,7 @@
     <string name="releases">Releases</string>
     <string name="releasesDesc">Check out older and newer versions</string>
     <string name="reset">Reset</string>
-    <string name="resetSettingsDialog">Reset Settings?</string>
+    <string name="resetSettingsDialog">Reset settings?</string>
     <string name="resetSettingsDialogDesc">All settings will be restored to default</string>
     <string name="resetSettingsIconDesc">Reset settings to default</string>
     <string name="saved">Saved</string>
@@ -103,6 +105,7 @@
     <string name="snackbarUnableToLoadFeed">Unable to load feed: %1$s</string>
     <string name="snackbarUnableToSave">Unable to save article: %1$s</string>
     <string name="sourceCode">Source code</string>
+    <string name="supportMyWork">Support my work</string>
     <string name="supportWikipedia">Support Wikipedia</string>
     <string name="themeDark">Dark</string>
     <string name="themeLight">Light</string>

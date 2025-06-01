@@ -79,7 +79,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.window.core.layout.WindowSizeClass
-import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.ImageLoader
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WikiPrefixSearchResult
@@ -129,8 +128,8 @@ fun AppSearchBar(
     val colorScheme = colorScheme
     val history = appSearchBarState.history.toList()
     val size = history.size
-
-    val listColors = ListItemDefaults.colors(containerColor = colorScheme.surfaceContainer)
+    val compactWindow =
+        !windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
 
     val (showLanguageSheet, setShowLanguageSheet) = remember { mutableStateOf(false) }
 
@@ -204,7 +203,7 @@ fun AppSearchBar(
         navigationIcon = {
             AnimatedContent(
                 searchBarState.targetValue == SearchBarValue.Collapsed &&
-                        windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT,
+                        compactWindow,
                 modifier = Modifier.padding(
                     top = TopAppBarDefaults.windowInsets.asPaddingValues()
                         .calculateTopPadding(),
@@ -261,7 +260,7 @@ fun AppSearchBar(
         },
         scrollBehavior = scrollBehavior,
         windowInsets =
-            if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT)
+            if (!compactWindow)
                 TopAppBarDefaults.windowInsets
                     .only(WindowInsetsSides.Bottom + WindowInsetsSides.End)
             else
@@ -340,7 +339,6 @@ fun AppSearchBar(
                                             )
                                         }
                                     },
-                                    colors = listColors,
                                     modifier = Modifier
                                         .padding(horizontal = 16.dp)
                                         .clip(
@@ -378,7 +376,7 @@ fun AppSearchBar(
                     }
 
                 else ->
-                    if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT) {
+                    if (!compactWindow) {
                         LazyVerticalGrid(columns = GridCells.Fixed(2)) {
                             item(span = { GridItemSpan(2) }) {
                                 Box(Modifier.padding(bottom = 16.dp)) {
@@ -588,7 +586,6 @@ fun AppSearchBar(
                                             )
                                         else null
                                     },
-                                    colors = listColors,
                                     modifier = Modifier
                                         .padding(horizontal = 16.dp)
                                         .clip(
@@ -667,7 +664,6 @@ fun AppSearchBar(
                                             )
                                         else null
                                     },
-                                    colors = listColors,
                                     modifier = Modifier
                                         .padding(horizontal = 16.dp)
                                         .clip(

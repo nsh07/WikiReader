@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import coil3.ImageLoader
 import org.nsh07.wikireader.parser.toWikitextAnnotatedString
 import org.nsh07.wikireader.ui.image.FeedImage
+import org.nsh07.wikireader.ui.theme.ColorConstants.colorMatrixInvert
 
 @Composable
 fun ImageWithCaption(
@@ -29,17 +30,9 @@ fun ImageWithCaption(
     background: Boolean,
     imageLoader: ImageLoader,
     onLinkClick: (String) -> Unit,
-    onClick: (String, String) -> Unit
+    onClick: (String, String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val colorMatrixInvert = remember {
-        floatArrayOf(
-            -1f, 0f, 0f, 0f, 255f, // Red
-            0f, -1f, 0f, 0f, 255f, // Green
-            0f, 0f, -1f, 0f, 255f, // Blue
-            0f, 0f, 0f, 1f, 0f   // Alpha
-        )
-    }
-
     val uriLow = remember(text) {
         "https://commons.wikimedia.org/wiki/Special:FilePath/${
             text.substringAfter(':').substringBefore('|').substringBefore("]]")
@@ -62,7 +55,7 @@ fun ImageWithCaption(
             ColorFilter.colorMatrix(ColorMatrix(colorMatrixInvert))
         else null,
         background = background,
-        modifier = Modifier
+        modifier = modifier
             .padding(horizontal = 16.dp)
             .padding(top = 8.dp)
             .clip(shapes.large)

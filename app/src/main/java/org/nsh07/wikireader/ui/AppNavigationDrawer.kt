@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.window.core.layout.WindowSizeClass
-import androidx.window.core.layout.WindowWidthSizeClass
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R.drawable
@@ -113,10 +112,9 @@ fun AppNavigationDrawer(
     )
 
     val compactScreen =
-        remember { windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT }
+        remember { !windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) }
     val expandedScreen =
-        remember { windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED }
-
+        remember { windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND) }
 
     val boxWidth = remember { 360.dp }
 

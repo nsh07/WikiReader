@@ -6,11 +6,14 @@ package org.nsh07.wikireader.parser
  * @param wikitext Source Wikitext to clean up
  */
 fun cleanUpWikitext(wikitext: String): String {
-    var bodyText = wikitext
+    return wikitext
         .replace(
             "<ref[^/]*?>.+?</ref>|<ref.*?/>".toRegex(RegexOption.DOT_MATCHES_ALL),
             ""
         )
-    bodyText = bodyText.replace("<var>|</var>".toRegex(), "''")
-    return bodyText
+        .replace(
+            "\\{\\{nobility table header.*?\\}\\}"
+                .toRegex(setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)),
+            "{| class=\"wikitable\"\n"
+        )
 }

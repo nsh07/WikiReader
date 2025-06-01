@@ -1,0 +1,19 @@
+<p>Une application Android légère pour lire des articles Wikipédia sans distraction. Prend en charge le mode clair et sombre, les couleurs dynamiques Material You et 300+ langues Wikipédia, avec une interface simple et personnalisable</p>
+
+<p>Fonctionnalités</p>
+<ul>
+    <li><b>Chargement rapide :</b> Le texte de l'article est chargé avant toute autre chose, vous pouvez donc rapidement passer à la lecture</li>
+    <li><b>Feed :</b> Lisez l'article de la journée, trouvez des articles tendances et accédez à l'actualité avec le flux Wikipedia</li>
+    <li><b>Image de l'article :</b> Consultez une image du sujet depuis sa page Wikipédia. Cliquez dessus pour l'agrandir et l'afficher en plein écran</li>
+    <li><b>Article aléatoire :</b> Vous vous sentez chanceux ? Cliquez sur le bouton d'article aléatoire pour lire un article aléatoire</li>
+    <li><b>Choisissez votre langue : Choisissez parmi plus de 300 langues sur Wikipédia</b></li>
+    <li><b>Enregistrer les articles :</b> Télécharger les articles sur votre appareil pour le lire hors-ligne</li>
+    <li><b>Utilisation à une main :</b> Utilisez les boutons d'action flottants en bas pour une expérience complète à une main</li>
+    <li><b>Léger :</b> L'application démarre instantanément et fonctionne sans-problème</li>
+    <li><b>Material Design 3:</b> Conçu selon les dernières directives de Material Design 3</li>
+    <li><b>Animations fluides :</b> Animations douces et fluides</li>
+    <li><b>Couleurs personnalisables :</b> Choisissez parmi les thèmes clair/sombre et personnalisez la palette de couleurs Material 3</li>
+    <li><b>Taille de police personnalisable :</b> Choisissez votre propre taille de police confortable</li>
+    <li><b>Économiseur de données :</b> Sauvez vos données de forfait limité en ne chargeant que le texte</li>
+    <li><b>Expressions mathématiques :</b> Afficher les expressions mathématiques correctement pour lire facilement des articles mathématiques</li>
+</ul>

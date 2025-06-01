@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -40,6 +41,7 @@ fun SettingsTopBar(
                 )
             }
         },
+        colors = topBarColors,
         scrollBehavior = scrollBehavior
     )
 }

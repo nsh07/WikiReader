@@ -17,9 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -44,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.nsh07.wikireader.BuildConfig
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
 import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.middleListItemShape
 import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.topListItemShape
@@ -59,19 +58,20 @@ fun AboutScreen(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val isAlpha = remember { BuildConfig.VERSION_NAME.contains('a') }
 
-    val listColors = ListItemDefaults.colors(containerColor = colorScheme.surfaceContainer)
-
     Scaffold(
-        topBar = { AboutTopAppBar(scrollBehavior = scrollBehavior, onBack = onBack) },
+        topBar = {
+            AboutTopAppBar(scrollBehavior = scrollBehavior, onBack = onBack)
+        },
         modifier = modifier
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { insets ->
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(2.dp),
-            contentPadding = insets
+            contentPadding = insets,
+            modifier = Modifier.background(topBarColors.containerColor)
         ) {
-            item { Spacer(Modifier.height(24.dp)) }
+            item { Spacer(Modifier.height(8.dp)) }
             item {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -79,7 +79,7 @@ fun AboutScreen(
                         .padding(horizontal = 16.dp)
                         .clip(topListItemShape)
                         .fillMaxWidth()
-                        .background(colorScheme.surfaceContainer)
+                        .background(colorScheme.surface)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(painterResource(R.drawable.ic_launcher_foreground), null)
@@ -110,7 +110,6 @@ fun AboutScreen(
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     ListItem(
-                        colors = listColors,
                         leadingContent = {
                             Icon(Icons.Outlined.Info, null)
                         },
@@ -121,7 +120,6 @@ fun AboutScreen(
                             .clip(middleListItemShape)
                     )
                     ListItem(
-                        colors = listColors,
                         leadingContent = {
                             Icon(painterResource(R.drawable.code), null)
                         },
@@ -137,7 +135,6 @@ fun AboutScreen(
                             )
                     )
                     ListItem(
-                        colors = listColors,
                         leadingContent = {
                             Icon(painterResource(R.drawable.gavel), null)
                         },
@@ -153,7 +150,6 @@ fun AboutScreen(
                             )
                     )
                     ListItem(
-                        colors = listColors,
                         leadingContent = {
                             Icon(painterResource(R.drawable.update), null)
                         },
@@ -169,7 +165,6 @@ fun AboutScreen(
                             )
                     )
                     ListItem(
-                        colors = listColors,
                         leadingContent = {
                             Icon(painterResource(R.drawable.translate), null)
                         },
@@ -189,13 +184,54 @@ fun AboutScreen(
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
+                        stringResource(R.string.author),
+                        style = typography.labelLarge,
+                        color = colorScheme.primary,
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
+                    )
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                painterResource(R.drawable.github), null
+                            )
+                        },
+                        headlineContent = { Text("Nishant Mishra") },
+                        supportingContent = { Text(stringResource(R.string.otherProjectsDesc)) },
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .clip(topListItemShape)
+                            .clickable(
+                                onClick = {
+                                    uriHandler.openUri("https://github.com/nsh07")
+                                }
+                            )
+                    )
+                    ListItem(
+                        leadingContent = {
+                            Icon(painterResource(R.drawable.heart), null)
+                        },
+                        headlineContent = { Text(stringResource(R.string.donate)) },
+                        supportingContent = { Text(stringResource(R.string.supportMyWork)) },
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .clip(bottomListItemShape)
+                            .clickable(
+                                onClick = {
+                                    uriHandler.openUri("https://github.com/sponsors/nsh07")
+                                }
+                            )
+                    )
+                }
+            }
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
                         stringResource(R.string.wikipedia),
                         style = typography.labelLarge,
                         color = colorScheme.primary,
                         modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
                     )
                     ListItem(
-                        colors = listColors,
                         leadingContent = {
                             Icon(
                                 painterResource(R.drawable.wikipedia_s_w), null
@@ -213,7 +249,6 @@ fun AboutScreen(
                             )
                     )
                     ListItem(
-                        colors = listColors,
                         leadingContent = {
                             Icon(
                                 painterResource(R.drawable.wikimedia_logo_black), null
@@ -232,34 +267,7 @@ fun AboutScreen(
                     )
                 }
             }
-            item {
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(
-                        stringResource(R.string.author),
-                        style = typography.labelLarge,
-                        color = colorScheme.primary,
-                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
-                    )
-                    ListItem(
-                        colors = listColors,
-                        leadingContent = {
-                            Icon(
-                                painterResource(R.drawable.github), null
-                            )
-                        },
-                        headlineContent = { Text("Nishant Mishra") },
-                        supportingContent = { Text(stringResource(R.string.otherProjectsDesc)) },
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .clip(shapes.large)
-                            .clickable(
-                                onClick = {
-                                    uriHandler.openUri("https://github.com/nsh07")
-                                }
-                            )
-                    )
-                }
-            }
+            item { Spacer(Modifier.height(16.dp)) }
         }
     }
 }

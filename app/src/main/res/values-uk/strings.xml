@@ -119,4 +119,6 @@
     <string name="saved">Збережено</string>
     <string name="settingFeed">Годувати</string>
     <string name="settingFeedDesc">Показувати стрічку популярних статей, новин та іншого про запуск додатків</string>
+    <string name="donate">Пожертвувати</string>
+    <string name="supportMyWork">Підтримайте мою роботу</string>
 </resources>

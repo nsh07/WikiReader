@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Info
@@ -70,6 +70,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
@@ -77,6 +78,11 @@ import org.nsh07.wikireader.R.string
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.toColor
+import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
+import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.bottomListItemShape
+import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.middleListItemShape
+import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.topListItemShape
+import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
 import kotlin.math.round
@@ -141,8 +147,19 @@ fun SettingsScreen(
         animationSpec = if (animateFontSize) motionScheme.defaultSpatialSpec()
         else tween(durationMillis = 0)
     )
-    val listColors = ListItemDefaults.colors()
+
     val disabledAlpha = 0.5f
+
+    val listItemColors = ListItemDefaults.colors()
+    val disabledListColors =
+        ListItemDefaults.colors(
+            containerColor = colorScheme.surfaceContainerLow,
+            headlineColor = listItemColors.headlineColor.copy(disabledAlpha),
+            leadingIconColor = listItemColors.leadingIconColor.copy(disabledAlpha),
+            overlineColor = listItemColors.overlineColor.copy(disabledAlpha),
+            supportingColor = listItemColors.supportingTextColor.copy(disabledAlpha),
+            trailingIconColor = listItemColors.trailingIconColor.copy(disabledAlpha),
+        )
 
     val switchItems = remember(preferencesState) {
         listOf(
@@ -258,8 +275,11 @@ fun SettingsScreen(
             .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { insets ->
         LazyColumn(
-            contentPadding = insets
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            contentPadding = insets,
+            modifier = Modifier.background(topBarColors.containerColor)
         ) {
+            item { Spacer(Modifier.height(8.dp)) }
             item {
                 ListItem(
                     leadingContent = {
@@ -275,6 +295,8 @@ fun SettingsScreen(
                         else Text(stringResource(string.colorSchemeColor))
                     },
                     modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .clip(topListItemShape)
                         .clickable(onClick = { setShowColorSchemeDialog(true) })
                 )
             }
@@ -289,9 +311,40 @@ fun SettingsScreen(
                     headlineContent = { Text(stringResource(string.settingTheme)) },
                     supportingContent = { Text(themeMap[theme]!!.second) },
                     modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .clip(middleListItemShape)
                         .clickable(onClick = { setShowThemeDialog(true) })
                 )
             }
+            item {
+                ListItem(
+                    leadingContent = {
+                        Icon(painterResource(switchItems[0].icon), contentDescription = null)
+                    },
+                    headlineContent = { Text(stringResource(switchItems[0].label)) },
+                    supportingContent = { Text(stringResource(switchItems[0].description)) },
+                    trailingContent = {
+                        Switch(
+                            checked = switchItems[0].checked,
+                            onCheckedChange = { switchItems[0].onCheckedChange(it) },
+                            thumbContent = {
+                                if (switchItems[0].checked) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                    )
+                                }
+                            },
+                            enabled = switchItems[0].enabled
+                        )
+                    },
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .clip(bottomListItemShape)
+                )
+            }
+            item { Spacer(Modifier.height(12.dp)) }
             item {
                 ListItem(
                     leadingContent = {
@@ -303,6 +356,8 @@ fun SettingsScreen(
                     headlineContent = { Text(stringResource(string.settingWikipediaLanguage)) },
                     supportingContent = { Text(langCodeToName(preferencesState.lang)) },
                     modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .clip(topListItemShape)
                         .clickable(onClick = { setShowLanguageSheet(true) })
                 )
             }
@@ -318,7 +373,8 @@ fun SettingsScreen(
                     supportingContent = {
                         Row(
                             horizontalArrangement =
-                                Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
+                                Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+                            modifier = Modifier.padding(vertical = 4.dp)
                         ) {
                             fontStyles.forEachIndexed { index, label ->
                                 ToggleButton(
@@ -353,7 +409,10 @@ fun SettingsScreen(
                                 }
                             }
                         }
-                    }
+                    },
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .clip(middleListItemShape)
                 )
             }
             item {
@@ -382,10 +441,14 @@ fun SettingsScreen(
                                 }
                             )
                         }
-                    }
+                    },
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .clip(bottomListItemShape)
                 )
             }
-            items(switchItems) { item ->
+            item { Spacer(Modifier.height(12.dp)) }
+            itemsIndexed(switchItems.drop(1)) { index, item ->
                 ListItem(
                     leadingContent = {
                         Icon(painterResource(item.icon), contentDescription = null)
@@ -410,21 +473,22 @@ fun SettingsScreen(
                     },
                     colors =
                         if (item.enabled)
-                            listColors
+                            listItemColors
                         else
-                            ListItemDefaults.colors(
-                                headlineColor = listColors.headlineColor.copy(disabledAlpha),
-                                leadingIconColor = listColors.leadingIconColor.copy(disabledAlpha),
-                                overlineColor = listColors.overlineColor.copy(disabledAlpha),
-                                supportingColor = listColors.supportingTextColor.copy(disabledAlpha),
-                                trailingIconColor = listColors.trailingIconColor.copy(disabledAlpha),
-                            )
+                            disabledListColors,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .clip(
+                            if (index == 0) topListItemShape
+                            else if (index == switchItems.lastIndex - 1) bottomListItemShape
+                            else middleListItemShape
+                        )
                 )
             }
             item {
                 OutlinedCard(
-                    modifier = Modifier.padding(16.dp),
-                    shape = shapes.extraLarge
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    shape = shapes.large
                 ) {
                     Column(
                         modifier = Modifier.padding(20.dp),
@@ -478,6 +542,78 @@ fun SettingsScreen(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun SettingsPreview() {
+    val context = LocalContext.current
+    val themeMap: Map<String, Pair<Int, String>> = remember {
+        mapOf(
+            "auto" to Pair(
+                R.drawable.brightness_auto,
+                context.getString(string.themeSystemDefault)
+            ),
+            "light" to Pair(R.drawable.light_mode, context.getString(string.themeLight)),
+            "dark" to Pair(R.drawable.dark_mode, context.getString(string.themeDark))
+        )
+    }
+    val reverseThemeMap: Map<String, String> = remember {
+        mapOf(
+            context.getString(string.themeSystemDefault) to "auto",
+            context.getString(string.themeLight) to "light",
+            context.getString(string.themeDark) to "dark"
+        )
+    }
+    val fontStyleMap: Map<String, String> = remember {
+        mapOf(
+            "sans" to context.getString(string.fontStyleSansSerif),
+            "serif" to context.getString(string.fontStyleSerif)
+        )
+    }
+    val reverseFontStyleMap: Map<String, String> = remember {
+        mapOf(
+            context.getString(string.fontStyleSansSerif) to "sans",
+            context.getString(string.fontStyleSerif) to "serif"
+        )
+    }
+    val fontStyles = remember {
+        listOf(
+            context.getString(string.fontStyleSansSerif),
+            context.getString(string.fontStyleSerif)
+        )
+    }
+    WikiReaderTheme {
+        SettingsScreen(
+            preferencesState = PreferencesState(),
+            homeScreenState = HomeScreenState(),
+            languageSearchStr = "",
+            languageSearchQuery = "",
+            themeMap = themeMap,
+            reverseThemeMap = reverseThemeMap,
+            fontStyles = fontStyles,
+            fontStyleMap = fontStyleMap,
+            reverseFontStyleMap = reverseFontStyleMap,
+            saveTheme = {},
+            saveColorScheme = {},
+            saveLang = {},
+            saveFontStyle = {},
+            saveFontSize = {},
+            saveBlackTheme = {},
+            saveDataSaver = {},
+            saveFeedEnabled = {},
+            saveExpandedSections = {},
+            saveImageBackground = {},
+            saveImmersiveMode = {},
+            saveRenderMath = {},
+            saveSearchHistory = {},
+            updateLanguageSearchStr = {},
+            loadFeed = {},
+            reloadPage = {},
+            onBack = {},
+            onResetSettings = {}
+        )
     }
 }
 

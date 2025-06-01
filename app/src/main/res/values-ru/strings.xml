@@ -116,4 +116,5 @@
     <string name="themeSystemDefault">Системная</string>
     <string name="fontStyleSerif">Сериф</string>
     <string name="image">Изображение</string>
+    <string name="saved">сохранён</string>
 </resources>

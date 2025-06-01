@@ -119,4 +119,6 @@
     <string name="saved">सहेजे गए</string>
     <string name="settingFeed">फ़ीड</string>
     <string name="settingFeedDesc">ऐप खुलने पर ट्रेंडिंग लेख, समाचार और अधिक की फ़ीड दिखाएं</string>
+    <string name="donate">दान करें</string>
+    <string name="supportMyWork">मेरे काम में मेरी सहायता करें</string>
 </resources>
