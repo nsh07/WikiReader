@@ -95,7 +95,6 @@ class UiViewModel(
     private var fromLink: Boolean = false
 
     var isReady = false
-    var isAnimDurationComplete = false
 
     private var sections = 0
     private var currentSection = 0
@@ -172,13 +171,6 @@ class UiViewModel(
             interceptor.setHost("$lang.wikipedia.org")
             isReady = true
             loadFeed()
-        }
-    }
-
-    fun startAnimDuration() {
-        viewModelScope.launch {
-            delay(600)
-            isAnimDurationComplete = true
         }
     }
 

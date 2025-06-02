@@ -14,6 +14,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import org.nsh07.wikireader.data.isRtl
@@ -28,10 +30,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.startAnimDuration()
-        installSplashScreen().setKeepOnScreenCondition {
-            !viewModel.isReady || !viewModel.isAnimDurationComplete
-        }
+        installSplashScreen().setKeepOnScreenCondition { !viewModel.isReady }
         viewModel.setFilesDir(filesDir.path)
         viewModel.migrateArticles()
         enableEdgeToEdge()
@@ -64,10 +63,13 @@ class MainActivity : ComponentActivity() {
                     AppScreen(
                         viewModel = viewModel,
                         preferencesState = preferencesState,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .semantics { testTagsAsResourceId = true }
                     )
                 }
             }
         }
+        reportFullyDrawn()
     }
 }

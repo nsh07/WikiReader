@@ -29,9 +29,12 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.traversalIndex
 import org.nsh07.wikireader.R
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -61,12 +64,21 @@ fun AppFab(
                 }
                 Icon(
                     painter = rememberVectorPainter(imageVector),
-                    contentDescription = null,
+                    contentDescription = "Floating action button icon",
                     modifier = Modifier.animateIcon({ checkedProgress })
                 )
             }
         },
-        modifier = Modifier.animateFloatingActionButton(visible, Alignment.BottomEnd)
+        modifier = Modifier
+            .semantics {
+                traversalIndex = -1f
+                stateDescription = if (expanded) "Expanded" else "Collapsed"
+                contentDescription = "Toggle menu"
+            }
+            .animateFloatingActionButton(
+                visible = visible || expanded,
+                alignment = Alignment.BottomEnd
+            )
     ) {
         FloatingActionButtonMenuItem(
             onClick = {
