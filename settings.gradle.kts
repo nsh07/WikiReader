@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "WikiReader"
 include(":app")
+include(":baselineprofile")
