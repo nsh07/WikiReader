@@ -48,7 +48,7 @@
     <string name="releases">Versiones</string>
     <string name="releasesDesc">Consulta versiones anteriores y posteriores</string>
     <string name="reset">Restablecer</string>
-    <string name="resetSettingsDialog">¿Restablecer configuracion?</string>
+    <string name="resetSettingsDialog">¿Restablecer configuración?</string>
     <string name="resetSettingsDialogDesc">Todas las configuraciones se restaurarán a los valores predeterminados</string>
     <string name="resetSettingsIconDesc">Restablecer ajustes por defecto</string>
     <string name="saved">Guardado</string>
@@ -119,4 +119,6 @@
     <string name="snackbarUnableToSave">No se pudo guardar el artículo: %1$s</string>
     <string name="themeSystemDefault">Predeterminado del sistema</string>
     <string name="unableToDeleteArticle">No se pudo eliminar el artículo: %1$s</string>
+    <string name="donate">Donar</string>
+    <string name="supportMyWork">Apoya mi trabajo</string>
 </resources>
