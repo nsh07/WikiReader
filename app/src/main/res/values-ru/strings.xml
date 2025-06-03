@@ -117,4 +117,8 @@
     <string name="fontStyleSerif">Сериф</string>
     <string name="image">Изображение</string>
     <string name="saved">сохранён</string>
+    <string name="donate">Поддержать</string>
+    <string name="settingFeed">Лента</string>
+    <string name="settingFeedDesc">Показывает ленту актуальных статей, новостей и многого другого при запуске приложения</string>
+    <string name="supportMyWork">Поддержать мою работу</string>
 </resources>
