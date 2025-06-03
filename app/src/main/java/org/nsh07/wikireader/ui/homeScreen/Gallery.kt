@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
@@ -55,7 +56,7 @@ fun Gallery(
         verticalAlignment = Alignment.Top,
         modifier = Modifier
             .fillMaxWidth()
-            .animateContentSize()
+            .animateContentSize(motionScheme.defaultSpatialSpec())
     ) {
         val uriLow = remember(text) {
             "https://commons.wikimedia.org/wiki/Special:FilePath/${

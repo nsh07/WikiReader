@@ -432,7 +432,6 @@ fun AppScreen(
                         languageSearchStr = languageSearchStr,
                         languageSearchQuery = languageSearchQuery,
                         showLanguageSheet = showArticleLanguageSheet,
-                        onFontSizeChange = viewModel::saveFontSize,
                         onImageClick = {
                             if (homeScreenState.photo != null || homeScreenState.status == WRStatus.FEED_LOADED)
                                 navController.navigate(FullScreenImage())

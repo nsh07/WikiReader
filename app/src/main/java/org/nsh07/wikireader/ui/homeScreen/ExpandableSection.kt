@@ -1,7 +1,7 @@
 package org.nsh07.wikireader.ui.homeScreen
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -11,12 +11,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
-import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -57,6 +58,10 @@ fun ExpandableSection(
     onGalleryImageClick: (String, String) -> Unit
 ) {
     var expanded by rememberSaveable { mutableStateOf(expanded) }
+    val arrowRotation by animateFloatAsState(
+        if (expanded) 180f else 0f,
+        animationSpec = motionScheme.defaultSpatialSpec()
+    )
 
     Card(
         colors = CardDefaults.cardColors(
@@ -71,21 +76,15 @@ fun ExpandableSection(
                 .clip(MaterialTheme.shapes.large)
                 .clickable(onClick = { expanded = !expanded })
         ) {
-            AnimatedContent(expanded) { expanded ->
-                when (expanded) {
-                    true -> Icon(
-                        Icons.Outlined.KeyboardArrowUp,
-                        contentDescription = stringResource(R.string.collapse_section),
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-
-                    else -> Icon(
-                        Icons.Outlined.KeyboardArrowDown,
-                        contentDescription = stringResource(R.string.expand_section),
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                }
-            }
+            Icon(
+                Icons.Outlined.KeyboardArrowDown,
+                contentDescription = stringResource(R.string.collapse_section),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .graphicsLayer {
+                        rotationZ = arrowRotation
+                    }
+            )
 
             Text(
                 text = remember {
@@ -95,7 +94,7 @@ fun ExpandableSection(
                     }
                     out.replace("<.+>".toRegex(), "")
                 },
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineMediumEmphasized,
                 fontFamily = FontFamily.Serif,
                 fontSize = (28 * (fontSize / 16.0)).toInt().sp,
                 lineHeight = (36 * (fontSize / 16.0)).toInt().sp,

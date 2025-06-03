@@ -7,8 +7,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.gestures.rememberTransformableState
-import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -79,7 +77,6 @@ import org.nsh07.wikireader.ui.theme.isDark
 import org.nsh07.wikireader.ui.viewModel.FeedState
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
-import kotlin.math.round
 
 /**
  * The app home screen composable.
@@ -111,7 +108,6 @@ fun AppHomeScreen(
     languageSearchStr: String,
     languageSearchQuery: String,
     showLanguageSheet: Boolean,
-    onFontSizeChange: (Int) -> Unit,
     onImageClick: () -> Unit,
     onGalleryImageClick: (String, String) -> Unit,
     onLinkClick: (String) -> Unit,
@@ -135,9 +131,6 @@ fun AppHomeScreen(
     }
 
     val pullToRefreshState = rememberPullToRefreshState()
-    val transformableState = rememberTransformableState { zoomChange, _, _ ->
-        onFontSizeChange(round(fontSize * zoomChange).toInt().coerceIn(10, 22))
-    }
 
     var isRefreshing by remember { mutableStateOf(false) }
 
@@ -213,7 +206,6 @@ fun AppHomeScreen(
                     contentPadding = insets,
                     modifier = Modifier
                         .fillMaxSize()
-                        .transformable(transformableState)
                 ) {
                     item { // Top buttons
                         Row(modifier = Modifier.padding(16.dp)) {
@@ -287,7 +279,7 @@ fun AppHomeScreen(
                     item { // Title + Image/description
                         Text(
                             text = homeScreenState.title,
-                            style = MaterialTheme.typography.displayMedium,
+                            style = MaterialTheme.typography.displayMediumEmphasized,
                             fontFamily = FontFamily.Serif,
                             modifier = Modifier
                                 .padding(16.dp)
