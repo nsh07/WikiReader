@@ -457,10 +457,10 @@ fun SettingsScreen(
                     supportingContent = { Text(stringResource(item.description)) },
                     trailingContent = {
                         Switch(
-                            checked = item.checked,
+                            checked = item.checked && item.enabled,
                             onCheckedChange = { item.onCheckedChange(it) },
                             thumbContent = {
-                                if (item.checked) {
+                                if (item.checked && item.enabled) {
                                     Icon(
                                         imageVector = Icons.Outlined.Check,
                                         contentDescription = null,

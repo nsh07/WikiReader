@@ -67,6 +67,7 @@ class UiViewModel(
 
     private val _articleListState = MutableStateFlow(LazyListState(0, 0))
     val articleListState: StateFlow<LazyListState> = _articleListState.asStateFlow()
+
     private val _searchListState = MutableStateFlow(LazyListState(0, 0))
     val searchListState: StateFlow<LazyListState> = _searchListState.asStateFlow()
 
