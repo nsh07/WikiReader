@@ -14,5 +14,5 @@
     <li><b>Személyre szabható színek:</b> Válasszon világos/sötét témát, és szabja személyre a Material 3 színpalettáját</li>
     <li><b>Személyre szabható betűméret:</b> Válassza ki az Önnek megfelelő betűméretet</li>
     <li><b>Adatforgalom-csökkentő:</b> Spórolja meg korlátozott adatforgalmát azzal, hogy csak a szöveget tölti be</li>
-    <li><b>Matematikai kifejezések:</b> Helyesen legenerált matematikai kifejezéseket láthat a matematikai szócikkek könnyű olvashatóságáért</li>
+    <li><b>Matematikai kifejezések:</b> Helyesen renderelt matematikai kifejezéseket láthat a matematikai szócikkek könnyű olvashatóságáért</li>
 </ul>
