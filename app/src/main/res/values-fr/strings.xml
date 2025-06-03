@@ -119,4 +119,6 @@
     <string name="wikipedia">Wikipédia</string>
     <string name="wikipediaWebsiteDesc">Visitez le site web de Wikipédia</string>
     <string name="wikipedia_logo">Logo de Wikipédia</string>
+    <string name="donate">Donner</string>
+    <string name="supportMyWork">Soutenez mon travail</string>
 </resources>
