@@ -5,20 +5,24 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
 
 /**
  * Composable for displaying a Wikipedia image with its associated text
@@ -47,8 +51,10 @@ fun ImageCard(
     val labelBottomPadding =
         if (photoDesc.description == null) 16.dp
         else 8.dp
-    ElevatedCard(
+    Card(
         onClick = onClick,
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainer),
+        shape = cardShape,
         modifier = modifier
             .padding(horizontal = 16.dp)
             .widthIn(max = 512.dp)
@@ -66,7 +72,9 @@ fun ImageCard(
                     contentScale = ContentScale.Crop,
                     imageLoader = imageLoader,
                     background = background,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(cardShape)
                 )
             }
                 Text(

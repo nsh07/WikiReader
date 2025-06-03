@@ -43,9 +43,9 @@ import androidx.compose.ui.unit.dp
 import org.nsh07.wikireader.BuildConfig
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
-import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.bottomListItemShape
-import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.middleListItemShape
-import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.topListItemShape
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)

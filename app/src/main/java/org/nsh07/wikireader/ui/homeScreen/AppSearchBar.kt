@@ -86,9 +86,9 @@ import org.nsh07.wikireader.data.WikiSearchResult
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.settingsScreen.LanguageBottomSheet
-import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.bottomListItemShape
-import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.middleListItemShape
-import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.topListItemShape
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
 import org.nsh07.wikireader.ui.viewModel.AppSearchBarState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
 

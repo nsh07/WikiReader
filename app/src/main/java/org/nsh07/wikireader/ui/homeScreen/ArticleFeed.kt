@@ -28,7 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -71,9 +71,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.image.FeedImage
-import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.bottomListItemShape
-import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.middleListItemShape
-import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.topListItemShape
+import org.nsh07.wikireader.ui.theme.CustomTopBarColors.cardColors
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
 import org.nsh07.wikireader.ui.viewModel.FeedState
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -160,8 +162,10 @@ fun ArticleFeed(
                         style = typography.bodyMedium,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
-                    ElevatedCard(
+                    Card(
                         onClick = { loadPage(feedState.tfa.titles?.canonical ?: "") },
+                        shape = cardShape,
+                        colors = cardColors,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)
@@ -174,7 +178,8 @@ fun ArticleFeed(
                                 height = feedState.tfa.originalImage?.height ?: 1,
                                 imageLoader = imageLoader,
                                 background = imageBackground,
-                                loadingIndicator = false
+                                loadingIndicator = false,
+                                modifier = Modifier.clip(cardShape)
                             )
                             Text(
                                 feedState.tfa.titles?.normalized ?: "",
@@ -406,8 +411,10 @@ fun ArticleFeed(
                             .padding(horizontal = 16.dp)
                             .padding(top = 32.dp)
                     )
-                    ElevatedCard(
+                    Card(
                         onClick = onImageClick,
+                        shape = cardShape,
+                        colors = cardColors,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)
@@ -420,7 +427,8 @@ fun ArticleFeed(
                                 height = feedState.image.image?.height ?: 1,
                                 imageLoader = imageLoader,
                                 background = imageBackground,
-                                loadingIndicator = false
+                                loadingIndicator = false,
+                                modifier = Modifier.clip(cardShape)
                             )
                             Text(
                                 feedState.image.description?.text?.parseAsHtml().toString(),

@@ -60,9 +60,9 @@ import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.bytesToHumanReadableSize
 import org.nsh07.wikireader.data.langCodeToWikiName
 import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
-import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.bottomListItemShape
-import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.middleListItemShape
-import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.topListItemShape
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
 import org.nsh07.wikireader.ui.viewModel.SavedArticlesState
 
 @OptIn(

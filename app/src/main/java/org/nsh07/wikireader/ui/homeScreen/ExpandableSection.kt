@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.ImageLoader
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -68,6 +69,7 @@ fun ExpandableSection(
             containerColor = MaterialTheme.colorScheme.background,
             contentColor = MaterialTheme.colorScheme.onBackground
         ),
+        shape = cardShape,
         modifier = modifier
     ) {
         Row(
