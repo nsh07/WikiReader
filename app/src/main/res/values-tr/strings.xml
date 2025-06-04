@@ -116,7 +116,9 @@
     <string name="chooseColorScheme">Renk şemasını seçin</string>
     <string name="about">Hakkında</string>
     <string name="delete">Sil</string>
-    <string name="appTagline">Vikipedi sayfalarını dikkat dağıtıcı unsurlardan uzak bir şekilde okuyun</string>
+    <string name="appTagline">Vikipedi sayfalarını dikkatiniz dağılmadan okuyun</string>
     <string name="dialogDeleteSearchHistory">Bu aramayı geçmişinizden silinsin mi?</string>
     <string name="settingRenderMathDesc">Küçük miktarda ek veri gerektirir. Okunabilirlik pahasına performansı iyileştirmek için kapatın.</string>
+    <string name="donate">Bağış</string>
+    <string name="supportMyWork">Çalışmalarımı destekleyin</string>
 </resources>
