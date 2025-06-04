@@ -7,7 +7,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
 import org.junit.Rule
 import org.junit.Test
@@ -46,19 +45,14 @@ class BaselineProfileGenerator {
             device.pressBack()
             device.pressBack()
 
-            val fab = device.findObject(By.desc("Floating action button icon"))
-            fab.click()
-            device.waitForIdle()
-            fab.click()
-
-            navigateTo("Saved", device.findObject(By.desc("More options")), device)
-            navigateTo("Settings", device.findObject(By.desc("More options")), device)
-            navigateTo("About", device.findObject(By.desc("More options")), device)
+            navigateTo("Saved", device)
+            navigateTo("Settings", device)
+            navigateTo("About", device)
         }
     }
 
-    fun navigateTo(text: String, menuButton: UiObject2, device: UiDevice) {
-        menuButton.click()
+    fun navigateTo(text: String, device: UiDevice) {
+        device.findObject(By.desc("More options")).click()
         Thread.sleep(1000)
 
         device.findObject(By.text(text)).click()

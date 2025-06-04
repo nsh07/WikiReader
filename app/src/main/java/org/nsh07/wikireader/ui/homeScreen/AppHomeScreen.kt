@@ -358,7 +358,7 @@ fun AppHomeScreen(
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .offset(y = -(insets.calculateBottomPadding() + 16.dp))
+                .offset(y = -(insets.calculateBottomPadding()))
         ) {
             IconButton(
                 onClick = { setShowArticleLanguageSheet(true) },
