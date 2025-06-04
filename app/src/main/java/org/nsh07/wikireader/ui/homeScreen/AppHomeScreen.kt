@@ -99,7 +99,7 @@ fun AppHomeScreen(
     listState: LazyListState,
     preferencesState: PreferencesState,
     feedState: FeedState,
-    floatingToolbarScrollBehaviour: FloatingToolbarScrollBehavior,
+    floatingToolbarScrollBehaviour: FloatingToolbarScrollBehavior?,
     feedListState: LazyListState,
     imageLoader: ImageLoader,
     languageSearchStr: String,
@@ -358,6 +358,7 @@ fun AppHomeScreen(
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
+                .padding(horizontal = 16.dp)
                 .offset(y = -(insets.calculateBottomPadding()))
         ) {
             IconButton(
@@ -370,51 +371,51 @@ fun AppHomeScreen(
                 Icon(painterResource(R.drawable.translate), null)
             }
 
-            if (homeScreenState.status == WRStatus.SUCCESS) {
-                IconButton(
-                    onClick = remember(
-                        homeScreenState.title,
-                        preferencesState.lang
-                    ) {
-                        { context.startActivity(shareIntent) }
-                    }
+            IconButton(
+                enabled = homeScreenState.status == WRStatus.SUCCESS,
+                onClick = remember(
+                    homeScreenState.title,
+                    preferencesState.lang
                 ) {
-                    Icon(
-                        painterResource(R.drawable.share),
-                        contentDescription = stringResource(R.string.sharePage)
-                    )
+                    { context.startActivity(shareIntent) }
                 }
+            ) {
+                Icon(
+                    painterResource(R.drawable.share),
+                    contentDescription = stringResource(R.string.sharePage)
+                )
             }
-            if (homeScreenState.status == WRStatus.SUCCESS) {
-                FilledTonalIconToggleButton(
-                    checked = homeScreenState.savedStatus == SavedStatus.SAVED,
-                    colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
-                        containerColor = colorScheme.primaryContainer,
-                        contentColor = colorScheme.onPrimaryContainer,
-                        checkedContainerColor = colorScheme.surfaceContainer,
-                        checkedContentColor = colorScheme.onSurface
-                    ),
-                    onCheckedChange = { saveArticle() }
-                ) {
-                    AnimatedContent(
-                        homeScreenState.savedStatus,
-                        label = "saveAnimation"
-                    ) { saved ->
-                        when (saved) {
-                            SavedStatus.SAVED ->
-                                Icon(
-                                    painterResource(R.drawable.download_done),
-                                    contentDescription = stringResource(R.string.deleteArticle)
-                                )
 
-                            SavedStatus.SAVING -> LoadingIndicator()
+            FilledTonalIconToggleButton(
+                checked = homeScreenState.savedStatus == SavedStatus.SAVED,
+                enabled = homeScreenState.status == WRStatus.SUCCESS,
+                colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
+                    containerColor = colorScheme.primaryContainer,
+                    contentColor = colorScheme.onPrimaryContainer,
+                    checkedContainerColor = colorScheme.surfaceContainer,
+                    checkedContentColor = colorScheme.onSurface,
+                    disabledContainerColor = colorScheme.primaryContainer
+                ),
+                onCheckedChange = { saveArticle() }
+            ) {
+                AnimatedContent(
+                    homeScreenState.savedStatus,
+                    label = "saveAnimation"
+                ) { saved ->
+                    when (saved) {
+                        SavedStatus.SAVED ->
+                            Icon(
+                                painterResource(R.drawable.download_done),
+                                contentDescription = stringResource(R.string.deleteArticle)
+                            )
 
-                            else ->
-                                Icon(
-                                    painterResource(R.drawable.download),
-                                    contentDescription = stringResource(R.string.downloadArticle)
-                                )
-                        }
+                        SavedStatus.SAVING -> LoadingIndicator()
+
+                        else ->
+                            Icon(
+                                painterResource(R.drawable.download),
+                                contentDescription = stringResource(R.string.downloadArticle)
+                            )
                     }
                 }
             }

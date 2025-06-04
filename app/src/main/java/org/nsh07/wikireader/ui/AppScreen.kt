@@ -166,11 +166,15 @@ fun AppScreen(
             preferencesState.immersiveMode
         ) TopAppBarDefaults.enterAlwaysScrollBehavior()
         else TopAppBarDefaults.pinnedScrollBehavior()
-    val floatingToolbarScrollBehaviour = FloatingToolbarDefaults
-        .exitAlwaysScrollBehavior(
+    val floatingToolbarScrollBehaviour =
+        if (
+            !windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND) ||
+            preferencesState.immersiveMode
+        ) FloatingToolbarDefaults.exitAlwaysScrollBehavior(
             exitDirection = FloatingToolbarExitDirection.Bottom,
             snapAnimationSpec = motionScheme.defaultSpatialSpec()
         )
+        else null
     val textFieldState = viewModel.textFieldState
 
     val imageLoader = remember {
@@ -396,10 +400,15 @@ fun AppScreen(
                             ScaffoldDefaults.contentWindowInsets
                                 .only(WindowInsetsSides.Top + WindowInsetsSides.Bottom + WindowInsetsSides.End)
                         else ScaffoldDefaults.contentWindowInsets,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .nestedScroll(searchBarScrollBehavior.nestedScrollConnection)
-                        .nestedScroll(floatingToolbarScrollBehaviour)
+                    modifier = if (floatingToolbarScrollBehaviour != null)
+                        Modifier
+                            .fillMaxSize()
+                            .nestedScroll(searchBarScrollBehavior.nestedScrollConnection)
+                            .nestedScroll(floatingToolbarScrollBehaviour)
+                    else
+                        Modifier
+                            .fillMaxSize()
+                            .nestedScroll(searchBarScrollBehavior.nestedScrollConnection)
                 ) { insets ->
                     AppHomeScreen(
                         homeScreenState = homeScreenState,
