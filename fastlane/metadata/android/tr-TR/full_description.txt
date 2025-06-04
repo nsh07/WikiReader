@@ -1,0 +1,19 @@
+<p>Vikipedi makalelerini dikkatiniz dağılmadan okumak için hafif bir Android uygulaması. Açık mod, koyu mod, Material You dinamik renkleri ve özelleştirilebilir basit bir arayüz ile 300'den fazla Vikipedi dilini destekler</p>
+
+<p>Özellikler</p>
+<ul>
+    <li><b>Hızlı yükleme:</b> Makale metni her şeyden önce yüklenir, böylece hızlıca okumaya başlayabilirsiniz</li>
+    <li><b>Akış:</b> Günün makalesini okuyun, popüler makaleleri keşfedin ve Vikipedi Akışı ile gündemi takip edin/li>
+    <li><b>Makale görseli:</b> Konunun Vikipedi sayfasından bir görselini görüntüleyin. Üzerine tıklayarak büyütebilir ve tam ekran olarak görüntüleyebilirsiniz</li>
+    <li><b>Rastgele makale:</b> Şansınızı denemek mi istiyorsunuz? Rastgele makale butonuna tıklayın ve rastgele bir makale okuyun</li>
+    <li><b>Dilinizi seçin:</b> Vikipedi’deki 300’den fazla dil arasından seçiminizi yapın</b></li>
+    <li><b>Makaleleri kaydedin:</b> Makaleleri çevrimdışı okumak için cihazınıza indirin</li>
+    <li><b>Tek elle kullanım:</b> Tamamen tek elle kullanım deneyimi için alttaki yüzen işlem düğmelerini kullanın</li>
+    <li><b>Hafif:</b> Uygulama anında başlar ve sorunsuz çalışır</li>
+    <li><b>Material Design 3:</b> En son Material Design 3 yönergelerine göre tasarlanmıştır</li>
+    <li><b>Akıcı animasyonlar:</b> Yumuşak ve akıcı animasyonlar</li>
+    <li><b>Özelleştirilebilir renkler:</b> Açık/koyu temalar arasından seçim yapın ve Material 3 renk paletini özelleştirin</li>
+    <li><b>Özelleştirilebilir yazı tipi boyutu:</b> Size en uygun yazı boyutunu seçin</li>
+    <li><b>Veri tasarrufu:</b> Yalnızca metni yükleyerek sınırlı veri kullanımınızı koruyun</li>
+    <li><b>Matematiksel ifadeler:</b> Matematiksel makaleleri kolayca okuyabilmeniz için düzgün şekilde render edilen ifadeleri görüntüleyin</li>
+</ul>
