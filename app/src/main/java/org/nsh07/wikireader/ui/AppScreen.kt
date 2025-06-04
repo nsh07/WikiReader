@@ -29,6 +29,8 @@ import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingToolbarDefaults
+import androidx.compose.material3.FloatingToolbarExitDirection
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.MaterialTheme.typography
@@ -57,6 +59,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key.Companion.Home
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -86,7 +89,6 @@ import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
 import org.nsh07.wikireader.ui.aboutScreen.AboutScreen
-import org.nsh07.wikireader.ui.homeScreen.AppFab
 import org.nsh07.wikireader.ui.homeScreen.AppHomeScreen
 import org.nsh07.wikireader.ui.homeScreen.AppSearchBar
 import org.nsh07.wikireader.ui.image.FullScreenImage
@@ -164,6 +166,11 @@ fun AppScreen(
             preferencesState.immersiveMode
         ) TopAppBarDefaults.enterAlwaysScrollBehavior()
         else TopAppBarDefaults.pinnedScrollBehavior()
+    val floatingToolbarScrollBehaviour = FloatingToolbarDefaults
+        .exitAlwaysScrollBehavior(
+            exitDirection = FloatingToolbarExitDirection.Bottom,
+            snapAnimationSpec = motionScheme.defaultSpatialSpec()
+        )
     val textFieldState = viewModel.textFieldState
 
     val imageLoader = remember {
@@ -383,35 +390,6 @@ fun AppScreen(
                             }
                         )
                     },
-                    floatingActionButton = {
-                        AppFab(
-                            index = if (homeScreenState.status != WRStatus.FEED_LOADED) index else feedIndex,
-                            visible =
-                                searchBarScrollBehavior.state.heightOffset !=
-                                        searchBarScrollBehavior.state.heightOffsetLimit,
-                            focusSearch = {
-                                viewModel.focusSearchBar()
-                                textFieldState.setTextAndPlaceCursorAtEnd(textFieldState.text.toString())
-                            },
-                            scrollToTop = {
-                                scope.launch {
-                                    if (homeScreenState.status != WRStatus.FEED_LOADED)
-                                        listState.scrollToItem(0)
-                                    else
-                                        feedListState.scrollToItem(0)
-                                }
-                            },
-                            performRandomPageSearch = {
-                                scope.launch {
-                                    searchBarState.animateToCollapsed()
-                                }
-                                viewModel.loadPage(
-                                    title = null,
-                                    random = true
-                                )
-                            }
-                        )
-                    },
                     snackbarHost = { SnackbarHost(snackBarHostState) },
                     contentWindowInsets =
                         if (!compactWindow)
@@ -421,12 +399,14 @@ fun AppScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .nestedScroll(searchBarScrollBehavior.nestedScrollConnection)
+                        .nestedScroll(floatingToolbarScrollBehaviour)
                 ) { insets ->
                     AppHomeScreen(
                         homeScreenState = homeScreenState,
                         listState = listState,
                         preferencesState = preferencesState,
                         feedState = feedState,
+                        floatingToolbarScrollBehaviour = floatingToolbarScrollBehaviour,
                         feedListState = feedListState,
                         imageLoader = imageLoader,
                         languageSearchStr = languageSearchStr,
@@ -445,6 +425,7 @@ fun AppScreen(
                         setLang = viewModel::saveLang,
                         setSearchStr = viewModel::updateLanguageSearchStr,
                         setShowArticleLanguageSheet = { showArticleLanguageSheet = it },
+                        enableScrollButton = if (homeScreenState.status != WRStatus.FEED_LOADED) index >= 1 else feedIndex >= 1,
                         saveArticle = {
                             scope.launch {
                                 if (homeScreenState.savedStatus == SavedStatus.NOT_SAVED) {
@@ -491,6 +472,24 @@ fun AppScreen(
                                                 homeScreenState.status.name
                                             )
                                         )
+                            }
+                        },
+                        onSearchButtonClick = {
+                            viewModel.focusSearchBar()
+                            textFieldState.setTextAndPlaceCursorAtEnd(textFieldState.text.toString())
+                        },
+                        loadRandom = {
+                            viewModel.loadPage(
+                                title = null,
+                                random = true
+                            )
+                        },
+                        scrollToTop = {
+                            scope.launch {
+                                if (homeScreenState.status != WRStatus.FEED_LOADED)
+                                    listState.scrollToItem(0)
+                                else
+                                    feedListState.scrollToItem(0)
                             }
                         },
                         insets = insets,

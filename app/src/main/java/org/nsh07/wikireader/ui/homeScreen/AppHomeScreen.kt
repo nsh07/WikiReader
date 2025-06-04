@@ -9,37 +9,31 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ButtonGroup
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FilledTonalIconToggleButton
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.FloatingToolbarDefaults
+import androidx.compose.material3.FloatingToolbarScrollBehavior
+import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.IconToggleButtonShapes
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
@@ -63,7 +57,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.window.core.layout.WindowSizeClass
@@ -72,8 +65,8 @@ import kotlinx.coroutines.delay
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.WRStatus
-import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.ui.image.ImageCard
+import org.nsh07.wikireader.ui.settingsScreen.LanguageBottomSheet
 import org.nsh07.wikireader.ui.shimmer.AnimatedShimmer
 import org.nsh07.wikireader.ui.shimmer.FeedLoader
 import org.nsh07.wikireader.ui.theme.isDark
@@ -106,11 +99,13 @@ fun AppHomeScreen(
     listState: LazyListState,
     preferencesState: PreferencesState,
     feedState: FeedState,
+    floatingToolbarScrollBehaviour: FloatingToolbarScrollBehavior,
     feedListState: LazyListState,
     imageLoader: ImageLoader,
     languageSearchStr: String,
     languageSearchQuery: String,
     showLanguageSheet: Boolean,
+    enableScrollButton: Boolean,
     onImageClick: () -> Unit,
     onGalleryImageClick: (String, String) -> Unit,
     onLinkClick: (String) -> Unit,
@@ -121,6 +116,9 @@ fun AppHomeScreen(
     setShowArticleLanguageSheet: (Boolean) -> Unit,
     saveArticle: () -> Unit,
     showFeedErrorSnackBar: () -> Unit,
+    onSearchButtonClick: () -> Unit,
+    loadRandom: () -> Unit,
+    scrollToTop: () -> Unit,
     insets: PaddingValues,
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier
@@ -164,7 +162,7 @@ fun AppHomeScreen(
     val lang = preferencesState.lang
     val pageId = homeScreenState.pageId
 
-    if (showLanguageSheet)
+    if (showLanguageSheet && homeScreenState.status == WRStatus.SUCCESS)
         ArticleLanguageBottomSheet(
             langs = homeScreenState.langs ?: emptyList(),
             searchStr = languageSearchStr,
@@ -172,6 +170,25 @@ fun AppHomeScreen(
             setShowSheet = setShowArticleLanguageSheet,
             setLang = setLang,
             loadPage = onLinkClick,
+            setSearchStr = setSearchStr
+        )
+    else if (showLanguageSheet)
+        LanguageBottomSheet(
+            lang = preferencesState.lang,
+            searchStr = languageSearchStr,
+            searchQuery = languageSearchQuery,
+            setShowSheet = setShowArticleLanguageSheet,
+            setLang = {
+                setLang(it)
+                if (homeScreenState.status in listOf(
+                        WRStatus.FEED_LOADED,
+                        WRStatus.FEED_NETWORK_ERROR
+                    )
+                )
+                    refreshFeed()
+                else
+                    refreshSearch()
+            },
             setSearchStr = setSearchStr
         )
 
@@ -210,149 +227,6 @@ fun AppHomeScreen(
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
-                    item { // Top buttons
-                        Row(modifier = Modifier.padding(16.dp)) {
-                            FilledTonalButton(
-                                shapes = ButtonDefaults.shapes(),
-                                onClick = { setShowArticleLanguageSheet(true) },
-                                enabled = homeScreenState.langs?.isEmpty() == false
-                            ) {
-                                Spacer(Modifier.width(8.dp))
-                                Icon(painterResource(R.drawable.translate), null)
-                                Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-                                Text(
-                                    langCodeToName(preferencesState.lang),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier.animateContentSize(motionScheme.defaultSpatialSpec())
-                                )
-                                Spacer(Modifier.width(8.dp))
-                            }
-                            Spacer(Modifier.weight(1f))
-                            ButtonGroup(
-                                overflowIndicator = { menuState ->
-                                    FilledTonalIconButton(
-                                        shapes = IconButtonDefaults.shapes(),
-                                        onClick = {
-                                            if (menuState.isExpanded) {
-                                                menuState.dismiss()
-                                            } else {
-                                                menuState.show()
-                                            }
-                                        }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.MoreVert,
-                                            contentDescription = "Localized description"
-                                        )
-                                    }
-                                }
-                            ) {
-                                customItem(
-                                    buttonGroupContent = {
-                                        FilledTonalIconButton(
-                                            shapes = IconButtonDefaults.shapes(),
-                                            onClick = remember(
-                                                homeScreenState.title,
-                                                preferencesState.lang
-                                            ) {
-                                                { context.startActivity(shareIntent) }
-                                            },
-                                            enabled = homeScreenState.status == WRStatus.SUCCESS
-                                        ) {
-                                            Icon(
-                                                painterResource(R.drawable.share),
-                                                contentDescription = stringResource(R.string.sharePage)
-                                            )
-                                        }
-                                    },
-                                    menuContent = { menuState ->
-                                        DropdownMenuItem(
-                                            text = { Text(stringResource(R.string.sharePage)) },
-                                            leadingIcon = {
-                                                Icon(
-                                                    painterResource(R.drawable.share),
-                                                    null
-                                                )
-                                            },
-                                            enabled = homeScreenState.status == WRStatus.SUCCESS,
-                                            onClick = remember(
-                                                homeScreenState.title,
-                                                preferencesState.lang
-                                            ) {
-                                                {
-                                                    context.startActivity(shareIntent)
-                                                    menuState.dismiss()
-                                                }
-                                            }
-                                        )
-                                    }
-                                )
-
-                                customItem(
-                                    buttonGroupContent = {
-                                        FilledTonalIconToggleButton(
-                                            checked = homeScreenState.savedStatus == SavedStatus.SAVED,
-                                            enabled = homeScreenState.status == WRStatus.SUCCESS,
-                                            shapes = IconToggleButtonShapes(
-                                                CircleShape,
-                                                RoundedCornerShape(8.dp),
-                                                RoundedCornerShape(16.dp)
-                                            ),
-                                            onCheckedChange = { saveArticle() }
-                                        ) {
-                                            AnimatedContent(
-                                                homeScreenState.savedStatus,
-                                                label = "saveAnimation"
-                                            ) { saved ->
-                                                when (saved) {
-                                                    SavedStatus.SAVED ->
-                                                        Icon(
-                                                            painterResource(R.drawable.download_done),
-                                                            contentDescription = stringResource(R.string.deleteArticle)
-                                                        )
-
-                                                    SavedStatus.SAVING -> LoadingIndicator()
-
-                                                    else ->
-                                                        Icon(
-                                                            painterResource(R.drawable.download),
-                                                            contentDescription = stringResource(R.string.downloadArticle)
-                                                        )
-                                                }
-                                            }
-                                        }
-                                    },
-                                    menuContent = { menuState ->
-                                        DropdownMenuItem(
-                                            enabled = homeScreenState.status == WRStatus.SUCCESS,
-                                            text = { Text(stringResource(R.string.downloadArticle)) },
-                                            leadingIcon = {
-                                                when (homeScreenState.savedStatus) {
-                                                    SavedStatus.SAVED ->
-                                                        Icon(
-                                                            painterResource(R.drawable.download_done),
-                                                            contentDescription = stringResource(R.string.deleteArticle)
-                                                        )
-
-                                                    else ->
-                                                        Icon(
-                                                            painterResource(R.drawable.download),
-                                                            contentDescription = stringResource(R.string.downloadArticle)
-                                                        )
-                                                }
-                                            },
-                                            onClick = {
-                                                saveArticle()
-                                                menuState.dismiss()
-                                            }
-                                        )
-                                    }
-                                )
-                            }
-                        }
-                        HorizontalDivider()
-                    }
                     item { // Title + Image/description
                         Text(
                             text = homeScreenState.title,
@@ -467,6 +341,98 @@ fun AppHomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 4.dp)
+                )
+            }
+        }
+
+        HorizontalFloatingToolbar(
+            expanded = true,
+            scrollBehavior = floatingToolbarScrollBehaviour,
+            colors = FloatingToolbarDefaults.vibrantFloatingToolbarColors(),
+            floatingActionButton = {
+                FloatingToolbarDefaults.VibrantFloatingActionButton(
+                    onClick = onSearchButtonClick
+                ) {
+                    Icon(Icons.Outlined.Search, stringResource(R.string.search))
+                }
+            },
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .offset(y = -(insets.calculateBottomPadding() + 16.dp))
+        ) {
+            IconButton(
+                onClick = { setShowArticleLanguageSheet(true) },
+                enabled = homeScreenState.status in listOf(
+                    WRStatus.FEED_LOADED,
+                    WRStatus.FEED_NETWORK_ERROR
+                ) || homeScreenState.langs?.isEmpty() == false
+            ) {
+                Icon(painterResource(R.drawable.translate), null)
+            }
+
+            if (homeScreenState.status == WRStatus.SUCCESS) {
+                IconButton(
+                    onClick = remember(
+                        homeScreenState.title,
+                        preferencesState.lang
+                    ) {
+                        { context.startActivity(shareIntent) }
+                    }
+                ) {
+                    Icon(
+                        painterResource(R.drawable.share),
+                        contentDescription = stringResource(R.string.sharePage)
+                    )
+                }
+            }
+            if (homeScreenState.status == WRStatus.SUCCESS) {
+                FilledTonalIconToggleButton(
+                    checked = homeScreenState.savedStatus == SavedStatus.SAVED,
+                    colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
+                        containerColor = colorScheme.primaryContainer,
+                        contentColor = colorScheme.onPrimaryContainer,
+                        checkedContainerColor = colorScheme.surfaceContainer,
+                        checkedContentColor = colorScheme.onSurface
+                    ),
+                    onCheckedChange = { saveArticle() }
+                ) {
+                    AnimatedContent(
+                        homeScreenState.savedStatus,
+                        label = "saveAnimation"
+                    ) { saved ->
+                        when (saved) {
+                            SavedStatus.SAVED ->
+                                Icon(
+                                    painterResource(R.drawable.download_done),
+                                    contentDescription = stringResource(R.string.deleteArticle)
+                                )
+
+                            SavedStatus.SAVING -> LoadingIndicator()
+
+                            else ->
+                                Icon(
+                                    painterResource(R.drawable.download),
+                                    contentDescription = stringResource(R.string.downloadArticle)
+                                )
+                        }
+                    }
+                }
+            }
+
+            IconButton(
+                onClick = scrollToTop,
+                enabled = enableScrollButton
+            ) {
+                Icon(
+                    painterResource(R.drawable.upward),
+                    contentDescription = null
+                )
+            }
+
+            IconButton(onClick = loadRandom) {
+                Icon(
+                    painterResource(R.drawable.shuffle),
+                    contentDescription = null
                 )
             }
         }

@@ -1,6 +1,7 @@
 package org.nsh07.wikireader.ui.homeScreen
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -8,6 +9,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -61,10 +63,13 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusRequester
@@ -144,14 +149,12 @@ fun AppSearchBar(
                 searchBarState = searchBarState,
                 onSearch = loadSearch,
                 placeholder = {
-                    val weight by animateFloatAsState(
-                        if (searchBarState.targetValue == SearchBarValue.Expanded) 0f else 1f,
+                    val alignment by animateHorizontalAlignmentAsState(
+                        if (searchBarState.targetValue == SearchBarValue.Expanded) -1f else 0f,
                         animationSpec = motionScheme.defaultSpatialSpec()
                     )
-                    Row {
-                        if (weight > 0f) Spacer(Modifier.weight(weight))
+                    Column(Modifier.fillMaxWidth(), horizontalAlignment = alignment) {
                         Text(stringResource(R.string.searchWikipedia), style = typography.bodyLarge)
-                        Spacer(Modifier.weight(1f))
                     }
                 },
                 trailingIcon =
@@ -694,4 +697,13 @@ fun AppSearchBar(
             }
         }
     }
+}
+
+@Composable
+private fun animateHorizontalAlignmentAsState(
+    targetBiasValue: Float,
+    animationSpec: AnimationSpec<Float>
+): State<BiasAlignment.Horizontal> {
+    val bias by animateFloatAsState(targetBiasValue, animationSpec)
+    return remember { derivedStateOf { BiasAlignment.Horizontal(bias) } }
 }
