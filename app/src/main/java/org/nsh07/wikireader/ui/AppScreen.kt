@@ -439,13 +439,7 @@ fun AppScreen(
                             scope.launch {
                                 if (homeScreenState.savedStatus == SavedStatus.NOT_SAVED) {
                                     val status = viewModel.saveArticle()
-                                    if (status == WRStatus.SUCCESS)
-                                        snackBarHostState.showSnackbar(
-                                            context.getString(
-                                                string.snackbarArticleSaved
-                                            )
-                                        )
-                                    else
+                                    if (status != WRStatus.SUCCESS)
                                         snackBarHostState.showSnackbar(
                                             context.getString(
                                                 string.snackbarUnableToSave,
@@ -455,13 +449,7 @@ fun AppScreen(
                                     delay(150L)
                                 } else if (homeScreenState.savedStatus == SavedStatus.SAVED) {
                                     val status = viewModel.deleteArticle()
-                                    if (status == WRStatus.SUCCESS)
-                                        snackBarHostState.showSnackbar(
-                                            context.getString(
-                                                string.snackbarArticleDeleted
-                                            )
-                                        )
-                                    else
+                                    if (status != WRStatus.SUCCESS)
                                         snackBarHostState.showSnackbar(
                                             context.getString(
                                                 string.snackbarUnableToDelete,

@@ -74,6 +74,7 @@
     <string name="selectedLabel">Selected</string>
     <string name="setAsDefault">Set as default</string>
     <string name="setAsDefaultDesc">You can set WikiReader as your default app for opening Wikipedia links. Click on the buttons below to know more or open settings.</string>
+    <string name="settingAppLanguage">App language</string>
     <string name="settingBlackTheme">Black theme</string>
     <string name="settingBlackThemeDesc">Use a pure black dark theme</string>
     <string name="settingColorScheme">Color scheme</string>

@@ -1,7 +1,9 @@
 package org.nsh07.wikireader.ui.settingsScreen
 
+import android.app.LocaleManager
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -130,6 +132,14 @@ fun SettingsScreen(
         }
     }
 
+    val currentLocales =
+        if (Build.VERSION.SDK_INT >= 33) {
+            context
+                .getSystemService(LocaleManager::class.java)
+                .applicationLocales
+        } else null
+    val currentLocalesSize = currentLocales?.size() ?: 0
+
     val theme = preferencesState.theme
     val fontStyle = preferencesState.fontStyle
     val color = preferencesState.colorScheme.toColor()
@@ -141,6 +151,8 @@ fun SettingsScreen(
     val (showResetSettingsDialog, setShowResetSettingsDialog) = remember { mutableStateOf(false) }
     val (showColorSchemeDialog, setShowColorSchemeDialog) = remember { mutableStateOf(false) }
     val (showLanguageSheet, setShowLanguageSheet) = remember { mutableStateOf(false) }
+    val (showAppLocaleSheet, setShowAppLocaleSheet) = remember { mutableStateOf(false) }
+
     var animateFontSize by remember { mutableStateOf(true) }
     var fontSizeFloat by remember(preferencesState.fontSize) { mutableFloatStateOf(preferencesState.fontSize.toFloat()) }
     val fontSizeAnimated by animateFloatAsState(
@@ -261,6 +273,13 @@ fun SettingsScreen(
             },
             setSearchStr = updateLanguageSearchStr
         )
+    if (showAppLocaleSheet && currentLocales != null)
+        AppLocaleBottomSheet(
+            searchStr = languageSearchStr,
+            currentLocales = currentLocales,
+            setSearchStr = updateLanguageSearchStr,
+            setShowSheet = setShowAppLocaleSheet
+        )
 
     Scaffold(
         topBar = {
@@ -362,6 +381,28 @@ fun SettingsScreen(
                         .clickable(onClick = { setShowLanguageSheet(true) })
                 )
             }
+            if (currentLocales != null)
+                item {
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                painterResource(R.drawable.language),
+                                contentDescription = null
+                            )
+                        },
+                        headlineContent = { Text(stringResource(string.settingAppLanguage)) },
+                        supportingContent = {
+                            Text(
+                                if (currentLocalesSize > 0) currentLocales.get(0).displayName
+                                else stringResource(string.themeSystemDefault)
+                            )
+                        },
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .clip(middleListItemShape)
+                            .clickable(onClick = { setShowAppLocaleSheet(true) })
+                    )
+                }
             item {
                 ListItem(
                     leadingContent = {
