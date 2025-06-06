@@ -80,7 +80,9 @@ fun ExpandableSection(
         ) {
             Icon(
                 Icons.Outlined.KeyboardArrowDown,
-                contentDescription = stringResource(R.string.collapse_section),
+                contentDescription =
+                    if (expanded) stringResource(R.string.collapse_section)
+                    else stringResource(R.string.expand_section),
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .graphicsLayer {

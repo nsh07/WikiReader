@@ -122,4 +122,5 @@
     <string name="wikipedia">Wikipedia</string>
     <string name="wikipediaWebsiteDesc">Visit the Wikipedia website</string>
     <string name="wikipedia_logo">Wikipedia\'s Logo</string>
+    <string name="chooseAppLanguage">Choose app language</string>
 </resources>

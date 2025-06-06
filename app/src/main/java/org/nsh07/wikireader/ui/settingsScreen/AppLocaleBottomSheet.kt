@@ -83,7 +83,7 @@ fun AppLocaleBottomSheet(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Choose app language",
+                text = stringResource(R.string.chooseAppLanguage),
                 style = MaterialTheme.typography.labelLarge
             )
             LanguageSearchBar(
