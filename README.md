@@ -23,6 +23,7 @@
   <img src="https://img.shields.io/github/license/nsh07/wikireader?logo=gnu&color=blue&labelColor=1a1a1a">
 </a>
 <img src="https://img.shields.io/badge/API-26+-blue?logo=android&labelColor=1a1a1a">
+<br/><br/>
 
 A lightweight Android app for reading Wikipedia articles distraction-free
 
@@ -91,10 +92,7 @@ You can contribute to this project even if you are not a developer by helping in
 translating this project into languages you know.
 
 <a href="https://hosted.weblate.org/engage/wikireader/">
-<img src="https://hosted.weblate.org/widget/wikireader/open-graph.png" alt="Translation status" width="400" />
-</a>
-<a href="https://hosted.weblate.org/engage/wikireader/">
-<img src="https://hosted.weblate.org/widget/wikireader/multi-auto.svg" alt="Translation statistics" />
+<img src="https://hosted.weblate.org/widget/wikireader/horizontal-auto.svg" alt="Translation status" />
 </a>
 
 ## Download
