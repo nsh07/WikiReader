@@ -68,7 +68,8 @@ fun ImageWithCaption(
             colorScheme = colorScheme,
             fontSize = fontSize - 2,
             loadPage = onLinkClick,
-            typography = typography
+            typography = typography,
+            showRef = {}
         ),
         fontSize = (fontSize - 2).sp,
         lineHeight = (24 * ((fontSize - 2) / 16.0)).toInt().sp,

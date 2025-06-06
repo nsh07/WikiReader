@@ -102,7 +102,7 @@ translating this project into languages you know.
   week late. To get faster updates, you can download WikiReader from
   the [IzzyOnDroid repository](https://apt.izzysoft.de/fdroid/)
 - **Obtainium** (recommended): You can add this GitHub repository
-  on [Obtainium](https://obtainium.imranr.dev/) to get direct updates from my GitHub releases. This
+  on [Obtainium](https://obtainium.imranr.dev/) to get updates directly from GitHub releases. This
   is the fastest way to install and update WikiReader.
 - **GitHub releases**: Alternatively, you can manually download and install APKs from
   the [Releases](https://github.com/nsh07/WikiReader/releases/latest) section of this repo (This

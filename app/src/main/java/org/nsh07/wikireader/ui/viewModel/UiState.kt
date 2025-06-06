@@ -29,6 +29,7 @@ data class AppSearchBarState(
 @Immutable
 data class HomeScreenState(
     val title: String = "",
+    val ref: String = "",
     val extract: List<List<AnnotatedString>> = emptyList(),
     val sections: List<Pair<Int, String>> = emptyList(),
     val photo: WikiPhoto? = null,
@@ -39,6 +40,7 @@ data class HomeScreenState(
     val status: WRStatus = WRStatus.UNINITIALIZED,
     val savedStatus: SavedStatus = SavedStatus.NOT_SAVED,
     val isLoading: Boolean = false,
+    val showRef: Boolean = false,
     val loadingProgress: Float? = null,
     val backStackSize: Int = 0
 )

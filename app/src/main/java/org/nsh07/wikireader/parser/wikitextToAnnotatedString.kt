@@ -1,5 +1,6 @@
 package org.nsh07.wikireader.parser
 
+import android.util.Log
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.AnnotatedString
@@ -21,6 +22,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import com.github.tomtung.latex2unicode.LaTeX2Unicode
 import org.nsh07.wikireader.data.langCodeToName
+import org.nsh07.wikireader.parser.ReferenceData.refCount
+import org.nsh07.wikireader.parser.ReferenceData.refList
+import org.nsh07.wikireader.parser.ReferenceData.refListCount
 import kotlin.math.min
 import kotlin.text.Typography.bullet
 import kotlin.text.Typography.nbsp
@@ -37,19 +41,47 @@ fun String.toWikitextAnnotatedString(
     loadPage: (String) -> Unit,
     fontSize: Int,
     newLine: Boolean = true,
-    inIndentCode: Boolean = false
+    inIndentCode: Boolean = false,
+    showRef: (String) -> Unit,
 ): AnnotatedString {
     val hrChar = '─'
     val input = this
     var i = 0
     var number = 1 // Count for numbered lists
 
+    while (i < input.length) {
+        if (this[i] == '<') {
+            val open = this.substringMatchingParen('<', '>', i)
+            if (open.startsWith("<ref name") && !open.endsWith("/>")) {
+                val refWt = this.substring(i).substringBefore("</ref>").substringAfter('>')
+                val refName = open.substringAfter("name=").removeSuffix(">").trim('"')
+                refList[refName] = refWt
+            }
+        }
+        i++
+    }
+
+    i = 0
+
     val twas: String.() -> AnnotatedString = {
-        this.toWikitextAnnotatedString(colorScheme, typography, loadPage, fontSize)
+        this.toWikitextAnnotatedString(
+            colorScheme,
+            typography,
+            loadPage,
+            fontSize,
+            showRef = showRef
+        )
     }
 
     val twasNoNewline: String.() -> AnnotatedString = {
-        this.toWikitextAnnotatedString(colorScheme, typography, loadPage, fontSize, newLine = false)
+        this.toWikitextAnnotatedString(
+            colorScheme,
+            typography,
+            loadPage,
+            fontSize,
+            newLine = false,
+            showRef = showRef
+        )
     }
 
     return buildAnnotatedString {
@@ -71,7 +103,8 @@ fun String.toWikitextAnnotatedString(
                                     typography,
                                     loadPage,
                                     fontSize,
-                                    inIndentCode = true
+                                    inIndentCode = true,
+                                    showRef = showRef
                                 )
                             )
                         }
@@ -86,6 +119,73 @@ fun String.toWikitextAnnotatedString(
                                 currSubstring.substringBefore("</nowiki>").substringAfter('>')
                             append(curr)
                             i += 8 + curr.length + 8
+                        }
+
+                        currSubstring.startsWith("<ref", ignoreCase = true) -> {
+                            // Handle references
+                            // When a reference footnote is clicked, the showRef lambda is called
+                            val open = currSubstring.substringMatchingParen('<', '>')
+                            val refName = open
+                                .substringAfter("name=")
+                                .removeSuffix(">")
+                                .trim(' ', '"', '/')
+                            if (open.getOrNull(4) == '>') {
+                                // Style 1: Plain reference without named references
+                                val curr =
+                                    currSubstring.substringBefore("</ref>").substringAfter('>')
+                                withLink(
+                                    LinkAnnotation.Url(
+                                        "",
+                                        TextLinkStyles(
+                                            SpanStyle(color = colorScheme.primary)
+                                        )
+                                    ) {
+                                        showRef(curr)
+                                    }
+                                ) {
+                                    append("<sup>$refCount </sup>".twas())
+                                    refCount++
+                                }
+                                i += 5 + curr.length + 5
+                            } else if (open.endsWith("/>")) {
+                                // Style 2: reference that refers to a named reference
+                                val refWt = refList[refName] ?: ""
+                                if (refListCount[refWt] == null) {
+                                    refListCount[refWt] = refCount
+                                    refCount++
+                                }
+                                Log.d("WikiText", "Named reference: $refWt, ${refListCount[refWt]}")
+                                withLink(
+                                    LinkAnnotation.Url(
+                                        "",
+                                        TextLinkStyles(
+                                            SpanStyle(color = colorScheme.primary)
+                                        )
+                                    ) {
+                                        showRef(refWt)
+                                    }
+                                ) { append("<sup>${refListCount[refWt]} </sup>".twas()) }
+                                i += open.length - 1
+                            } else {
+                                // Style 3: Names reference definition
+                                val refWt = refList[refName] ?: ""
+                                if (refListCount[refWt] == null) {
+                                    refListCount[refWt] = refCount
+                                    refCount++
+                                }
+                                Log.d("WikiText", "Named reference: $refWt, ${refListCount[refWt]}")
+                                withLink(
+                                    LinkAnnotation.Url(
+                                        "",
+                                        TextLinkStyles(
+                                            SpanStyle(color = colorScheme.primary)
+                                        )
+                                    ) {
+                                        showRef(refWt)
+                                    }
+                                ) { append("<sup>${refListCount[refWt]} </sup>".twas()) }
+                                i += currSubstring.substringBefore("</ref>").length + 5
+                            }
                         }
 
                         currSubstring.startsWith("<br", ignoreCase = true) -> {
@@ -158,7 +258,7 @@ fun String.toWikitextAnnotatedString(
                             withStyle(
                                 SpanStyle(
                                     baselineShift = BaselineShift.Subscript,
-                                    fontSize = (fontSize - 2).sp
+                                    fontSize = (fontSize - 4).sp
                                 )
                             ) { append(curr.twasNoNewline()) }
                             i += 5 + curr.length + 5
@@ -175,7 +275,7 @@ fun String.toWikitextAnnotatedString(
                             withStyle(
                                 SpanStyle(
                                     baselineShift = BaselineShift.Superscript,
-                                    fontSize = (fontSize - 2).sp
+                                    fontSize = (fontSize - 4).sp
                                 )
                             ) { append(curr.twasNoNewline()) }
                             i += 5 + curr.length + 5
@@ -249,6 +349,11 @@ fun String.toWikitextAnnotatedString(
 
                             currSubstring.startsWith("{{TableTBA", ignoreCase = true) -> {
                                 append("<small>TBA</small>".twas())
+                            }
+
+                            currSubstring.startsWith("{{efn", ignoreCase = true) -> {
+                                val curr = currSubstring.substringAfter('|')
+                                curr.twas()
                             }
 
                             currSubstring.startsWith("{{convert", ignoreCase = true) ||
@@ -745,4 +850,10 @@ fun String.substringMatchingParen(
 
     return if (i < length) this.substring(startIndex, i + 1)
     else this
+}
+
+object ReferenceData {
+    var refCount = 1
+    val refList = mutableMapOf<String, String>()
+    val refListCount = mutableMapOf<String, Int>()
 }

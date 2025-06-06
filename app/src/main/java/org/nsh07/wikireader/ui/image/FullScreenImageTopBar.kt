@@ -124,7 +124,8 @@ fun FullScreenImageTopBar(
                         colorScheme = colorScheme,
                         typography = typography,
                         loadPage = {},
-                        fontSize = 1
+                        fontSize = 1,
+                        showRef = {}
                     ).toString()
                 },
                 maxLines = 1,

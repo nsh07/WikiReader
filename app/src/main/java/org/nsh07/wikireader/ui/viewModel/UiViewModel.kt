@@ -39,6 +39,9 @@ import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.parseSections
 import org.nsh07.wikireader.network.HostSelectionInterceptor
 import org.nsh07.wikireader.network.NetworkException
+import org.nsh07.wikireader.parser.ReferenceData.refCount
+import org.nsh07.wikireader.parser.ReferenceData.refList
+import org.nsh07.wikireader.parser.ReferenceData.refListCount
 import org.nsh07.wikireader.parser.cleanUpWikitext
 import org.nsh07.wikireader.parser.substringMatchingParen
 import org.nsh07.wikireader.parser.toWikitextAnnotatedString
@@ -469,6 +472,10 @@ class UiViewModel(
                             )
                         }
                     }
+
+                    refCount = 1
+                    refList.clear()
+                    refListCount.clear()
 
                     _homeScreenState.update { currentState ->
                         currentState.copy(isLoading = false)
@@ -959,6 +966,10 @@ class UiViewModel(
                     }
                 }
 
+                refCount = 1
+                refList.clear()
+                refListCount.clear()
+
                 _homeScreenState.update { currentState ->
                     currentState.copy(
                         isLoading = false
@@ -1015,7 +1026,10 @@ class UiViewModel(
                                 colorScheme = colorScheme,
                                 typography = typography,
                                 loadPage = ::loadPage,
-                                fontSize = preferencesState.value.fontSize
+                                fontSize = preferencesState.value.fontSize,
+                                showRef = {
+
+                                }
                             )
                         )
                         out.add(AnnotatedString(currSubstring))
@@ -1028,7 +1042,8 @@ class UiViewModel(
                                 colorScheme = colorScheme,
                                 typography = typography,
                                 loadPage = ::loadPage,
-                                fontSize = preferencesState.value.fontSize
+                                fontSize = preferencesState.value.fontSize,
+                                showRef = ::updateRef
                             )
                         )
                         out.add(AnnotatedString(currSubstring))
@@ -1049,7 +1064,8 @@ class UiViewModel(
                                     colorScheme = colorScheme,
                                     typography = typography,
                                     loadPage = ::loadPage,
-                                    fontSize = preferencesState.value.fontSize
+                                    fontSize = preferencesState.value.fontSize,
+                                    showRef = ::updateRef
                                 )
                             )
                             out.add(
@@ -1085,7 +1101,8 @@ class UiViewModel(
                                 colorScheme = colorScheme,
                                 typography = typography,
                                 loadPage = ::loadPage,
-                                fontSize = preferencesState.value.fontSize
+                                fontSize = preferencesState.value.fontSize,
+                                showRef = ::updateRef
                             )
                         )
                         out.add(AnnotatedString(currSubstring))
@@ -1099,7 +1116,8 @@ class UiViewModel(
                                 colorScheme = colorScheme,
                                 typography = typography,
                                 loadPage = ::loadPage,
-                                fontSize = preferencesState.value.fontSize
+                                fontSize = preferencesState.value.fontSize,
+                                showRef = ::updateRef
                             )
                         )
                         out.add(AnnotatedString(currSubstringNestedTable))
@@ -1114,11 +1132,29 @@ class UiViewModel(
                     colorScheme = colorScheme,
                     typography = typography,
                     loadPage = { loadPage(it) },
-                    fontSize = preferencesState.value.fontSize
+                    fontSize = preferencesState.value.fontSize,
+                    showRef = ::updateRef
                 )
             )
             out.toList()
         }
+
+    fun updateRef(ref: String) {
+        _homeScreenState.update { currentState ->
+            currentState.copy(
+                ref = ref,
+                showRef = true
+            )
+        }
+    }
+
+    fun hideRef() {
+        _homeScreenState.update { currentState ->
+            currentState.copy(
+                showRef = false
+            )
+        }
+    }
 
     fun focusSearchBar() {
         appSearchBarState.value.focusRequester.requestFocus()
