@@ -436,7 +436,10 @@ fun AppHomeScreen(
                     WRStatus.FEED_NETWORK_ERROR
                 ) || homeScreenState.langs?.isEmpty() == false
             ) {
-                Icon(painterResource(R.drawable.translate), null)
+                Icon(
+                    painterResource(R.drawable.translate),
+                    stringResource(R.string.chooseWikipediaLanguage)
+                )
             }
 
             IconButton(

@@ -5,7 +5,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import org.junit.Rule
@@ -33,16 +32,13 @@ class BaselineProfileGenerator {
             startActivityAndWait()
             device.wait(Until.hasObject(By.text("Featured article")), 5000)
 
-            val feedList = device.findObject(By.res("HomeScreen:feed"))
-            feedList.setGestureMargin(device.displayWidth / 5)
-
-            feedList.fling(Direction.DOWN)
-            device.waitForIdle()
-            feedList.fling(Direction.UP)
-
             device.findObject(By.text("Search Wikipedia")).click()
             Thread.sleep(1000)
             device.pressBack()
+            device.pressBack()
+
+            device.findObject(By.descContains("language")).click()
+            Thread.sleep(1000)
             device.pressBack()
 
             navigateTo("Saved", device)

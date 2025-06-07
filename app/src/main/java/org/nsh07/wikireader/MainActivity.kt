@@ -14,8 +14,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import org.nsh07.wikireader.data.isRtl
@@ -63,9 +61,7 @@ class MainActivity : ComponentActivity() {
                     AppScreen(
                         viewModel = viewModel,
                         preferencesState = preferencesState,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .semantics { testTagsAsResourceId = true }
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
             }
