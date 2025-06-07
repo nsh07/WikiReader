@@ -49,20 +49,6 @@ fun String.toWikitextAnnotatedString(
     var i = 0
     var number = 1 // Count for numbered lists
 
-    while (i < input.length) {
-        if (this[i] == '<') {
-            val open = this.substringMatchingParen('<', '>', i)
-            if (open.startsWith("<ref name") && !open.endsWith("/>")) {
-                val refWt = this.substring(i).substringBefore("</ref>").substringAfter('>')
-                val refName = open.substringAfter("name=").removeSuffix(">").trim('"')
-                refList[refName] = refWt
-            }
-        }
-        i++
-    }
-
-    i = 0
-
     val twas: String.() -> AnnotatedString = {
         this.toWikitextAnnotatedString(
             colorScheme,
@@ -850,6 +836,23 @@ fun String.substringMatchingParen(
 
     return if (i < length) this.substring(startIndex, i + 1)
     else this
+}
+
+fun String.buildRefList() {
+    var i = 0
+    while (i < this.length) {
+        if (this[i] == '<') {
+            if (this.substring(i, min(i + 10, this.length)).startsWith("<ref name")) {
+                val open = this.substringMatchingParen('<', '>', i)
+                if (!open.endsWith("/>")) {
+                    val refWt = this.substring(i).substringBefore("</ref>").substringAfter('>')
+                    val refName = open.substringAfter("name=").removeSuffix(">").trim('"')
+                    refList[refName] = refWt
+                }
+            }
+        }
+        i++
+    }
 }
 
 object ReferenceData {

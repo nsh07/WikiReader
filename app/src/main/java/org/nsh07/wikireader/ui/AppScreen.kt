@@ -489,6 +489,7 @@ fun AppScreen(
                                     feedListState.scrollToItem(0)
                             }
                         },
+                        hideRef = viewModel::hideRef,
                         insets = insets,
                         windowSizeClass = windowSizeClass,
                         modifier = Modifier.fillMaxSize()

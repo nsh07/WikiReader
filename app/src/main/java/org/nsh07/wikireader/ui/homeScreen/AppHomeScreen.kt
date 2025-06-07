@@ -1,5 +1,6 @@
 package org.nsh07.wikireader.ui.homeScreen
 
+import android.content.ClipData
 import android.content.Intent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -7,8 +8,11 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -39,6 +43,8 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.motionScheme
+import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -49,9 +55,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -62,6 +72,7 @@ import androidx.compose.ui.unit.max
 import androidx.window.core.layout.WindowSizeClass
 import coil3.ImageLoader
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.WRStatus
@@ -119,10 +130,14 @@ fun AppHomeScreen(
     onSearchButtonClick: () -> Unit,
     loadRandom: () -> Unit,
     scrollToTop: () -> Unit,
+    hideRef: () -> Unit,
     insets: PaddingValues,
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier
 ) {
+    val clipboard = LocalClipboard.current
+    val scope = rememberCoroutineScope()
+
     val photo = homeScreenState.photo
     val photoDesc = homeScreenState.photoDesc
     val fontSize = preferencesState.fontSize
@@ -191,6 +206,59 @@ fun AppHomeScreen(
             },
             setSearchStr = setSearchStr
         )
+
+    if (homeScreenState.showRef) // Reference bottom sheet
+        ModalBottomSheet(
+            onDismissRequest = hideRef,
+        ) {
+            SelectionContainer {
+                Column(Modifier.padding(start = 24.dp, end = 24.dp, bottom = 24.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    ) {
+                        Text(
+                            text = "Reference",
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        Spacer(Modifier.weight(1f))
+                        IconButton(
+                            onClick = {
+                                scope.launch {
+                                    clipboard.setClipEntry(
+                                        ClipEntry(
+                                            ClipData.newPlainText(
+                                                homeScreenState.ref,
+                                                homeScreenState.ref
+                                            )
+                                        )
+                                    )
+                                }
+                            },
+                            shapes = IconButtonDefaults.shapes()
+                        ) {
+                            Icon(
+                                painterResource(R.drawable.copy),
+                                contentDescription = "Copy reference text"
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    Box(
+                        modifier = Modifier
+                            .clip(shapes.large)
+                            .background(colorScheme.surface)
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            homeScreenState.ref, Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth()
+                        )
+                    }
+                }
+            }
+        }
 
     Box(modifier = modifier) { // The container for all the composables in the home screen
         if (homeScreenState.status != WRStatus.UNINITIALIZED &&

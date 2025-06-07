@@ -29,7 +29,7 @@ data class AppSearchBarState(
 @Immutable
 data class HomeScreenState(
     val title: String = "",
-    val ref: String = "",
+    val ref: AnnotatedString = AnnotatedString(""),
     val extract: List<List<AnnotatedString>> = emptyList(),
     val sections: List<Pair<Int, String>> = emptyList(),
     val photo: WikiPhoto? = null,

@@ -42,6 +42,7 @@ import org.nsh07.wikireader.network.NetworkException
 import org.nsh07.wikireader.parser.ReferenceData.refCount
 import org.nsh07.wikireader.parser.ReferenceData.refList
 import org.nsh07.wikireader.parser.ReferenceData.refListCount
+import org.nsh07.wikireader.parser.buildRefList
 import org.nsh07.wikireader.parser.cleanUpWikitext
 import org.nsh07.wikireader.parser.substringMatchingParen
 import org.nsh07.wikireader.parser.toWikitextAnnotatedString
@@ -437,6 +438,8 @@ class UiViewModel(
                     val articleSections = mutableListOf<Pair<Int, String>>()
                     val parsedExtract = mutableListOf<List<AnnotatedString>>()
 
+                    extractText.buildRefList() // Build refList for article
+
                     _homeScreenState.update { currentState ->
                         currentState.copy(
                             title = apiResponse?.title ?: "Error",
@@ -473,6 +476,7 @@ class UiViewModel(
                         }
                     }
 
+                    // Reset refList
                     refCount = 1
                     refList.clear()
                     refListCount.clear()
@@ -907,7 +911,8 @@ class UiViewModel(
                 val apiResponse =
                     Json.decodeFromString<WikiApiPageData>(apiFile.readText()).query?.pages?.get(0)
 
-                val extract: List<String> = parseSections(contentFile.readText())
+                val extractText = contentFile.readText()
+                val extract: List<String> = parseSections(extractText)
 
                 sections = extract.size
                 var sectionIndex = 3
@@ -929,6 +934,8 @@ class UiViewModel(
                         lang = apiFileName.substringAfterLast('.')
                     )
                 }
+
+                extractText.buildRefList()
 
                 _homeScreenState.update { currentState ->
                     currentState.copy(
@@ -1142,7 +1149,16 @@ class UiViewModel(
     fun updateRef(ref: String) {
         _homeScreenState.update { currentState ->
             currentState.copy(
-                ref = ref,
+                ref = ref.toWikitextAnnotatedString(
+                    colorScheme = colorScheme,
+                    typography = typography,
+                    loadPage = {
+                        loadPage(it)
+                        hideRef()
+                    },
+                    fontSize = preferencesState.value.fontSize,
+                    showRef = {}
+                ),
                 showRef = true
             )
         }
