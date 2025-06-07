@@ -12,11 +12,11 @@
     <string name="articlesSize">%1$s статей, %2$s всего</string>
     <string name="author">Автор</string>
     <string name="chooseColorScheme">Выбрать цветовую схему</string>
-    <string name="chooseTheme">Выбрать тему</string>
+    <string name="chooseTheme">Выберите тему</string>
     <string name="clearSearchField">Очистить поиск</string>
     <string name="collapse_section">Свернуть</string>
     <string name="colorSchemeColor">Цвет</string>
-    <string name="chooseWikipediaLanguage">Выбрать язык Википедии</string>
+    <string name="chooseWikipediaLanguage">Выберите язык Википедии</string>
     <string name="colorSchemeDynamic">Динамическая</string>
     <string name="delete">Удалить</string>
     <string name="deleteAllArticles">Удалить все статьи?</string>
@@ -121,4 +121,6 @@
     <string name="settingFeed">Лента</string>
     <string name="settingFeedDesc">Показывает ленту актуальных статей, новостей и многого другого при запуске приложения</string>
     <string name="supportMyWork">Поддержать мою работу</string>
+    <string name="settingAppLanguage">Язык приложения</string>
+    <string name="chooseAppLanguage">Выберите язык приложения</string>
 </resources>

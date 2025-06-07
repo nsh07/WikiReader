@@ -121,4 +121,6 @@
     <string name="settingFeedDesc">Rakenduse käivitamisel näita populaarsete artiklite, uudiste ja muid sisuvooge</string>
     <string name="donate">Toeta meid rahaliselt</string>
     <string name="supportMyWork">Toeta minu tööd</string>
+    <string name="settingAppLanguage">Rakenduse keel</string>
+    <string name="chooseAppLanguage">Vali rakenduse keel</string>
 </resources>

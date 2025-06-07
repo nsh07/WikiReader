@@ -121,4 +121,6 @@
     <string name="settingFeedDesc">Exibir um feed de artigos em alta, notícias e mais na tela inicial do app</string>
     <string name="donate">Doar</string>
     <string name="supportMyWork">Apoie o meu trabalho</string>
+    <string name="settingAppLanguage">Idioma do app</string>
+    <string name="chooseAppLanguage">Escolher o idioma do app</string>
 </resources>
