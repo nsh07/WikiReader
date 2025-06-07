@@ -1146,7 +1146,7 @@ class UiViewModel(
             out.toList()
         }
 
-    fun updateRef(ref: String) {
+    private fun updateRef(ref: String) {
         _homeScreenState.update { currentState ->
             currentState.copy(
                 ref = ref.toWikitextAnnotatedString(
@@ -1157,7 +1157,7 @@ class UiViewModel(
                         hideRef()
                     },
                     fontSize = preferencesState.value.fontSize,
-                    showRef = {}
+                    showRef = ::updateRef
                 ),
                 showRef = true
             )
