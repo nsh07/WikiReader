@@ -45,11 +45,15 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.LoadingIndicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -418,10 +422,16 @@ fun AppHomeScreen(
             scrollBehavior = floatingToolbarScrollBehaviour,
             colors = FloatingToolbarDefaults.vibrantFloatingToolbarColors(),
             floatingActionButton = {
-                FloatingToolbarDefaults.VibrantFloatingActionButton(
-                    onClick = onSearchButtonClick
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    tooltip = { PlainTooltip { Text(stringResource(R.string.search)) } },
+                    state = rememberTooltipState()
                 ) {
-                    Icon(Icons.Outlined.Search, stringResource(R.string.search))
+                    FloatingToolbarDefaults.VibrantFloatingActionButton(
+                        onClick = onSearchButtonClick
+                    ) {
+                        Icon(Icons.Outlined.Search, stringResource(R.string.search))
+                    }
                 }
             },
             modifier = Modifier
@@ -429,83 +439,122 @@ fun AppHomeScreen(
                 .padding(horizontal = 16.dp)
                 .offset(y = -(insets.calculateBottomPadding()))
         ) {
-            IconButton(
-                onClick = { setShowArticleLanguageSheet(true) },
-                enabled = homeScreenState.status in listOf(
-                    WRStatus.FEED_LOADED,
-                    WRStatus.FEED_NETWORK_ERROR
-                ) || homeScreenState.langs?.isEmpty() == false
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                tooltip = { PlainTooltip { Text(stringResource(R.string.chooseWikipediaLanguage)) } },
+                state = rememberTooltipState()
             ) {
-                Icon(
-                    painterResource(R.drawable.translate),
-                    stringResource(R.string.chooseWikipediaLanguage)
-                )
-            }
-
-            IconButton(
-                enabled = homeScreenState.status == WRStatus.SUCCESS,
-                onClick = remember(
-                    homeScreenState.title,
-                    preferencesState.lang
+                IconButton(
+                    onClick = { setShowArticleLanguageSheet(true) },
+                    enabled = homeScreenState.status in listOf(
+                        WRStatus.FEED_LOADED,
+                        WRStatus.FEED_NETWORK_ERROR
+                    ) || homeScreenState.langs?.isEmpty() == false
                 ) {
-                    { context.startActivity(shareIntent) }
+                    Icon(
+                        painterResource(R.drawable.translate),
+                        stringResource(R.string.chooseWikipediaLanguage)
+                    )
                 }
-            ) {
-                Icon(
-                    painterResource(R.drawable.share),
-                    contentDescription = stringResource(R.string.sharePage)
-                )
             }
 
-            FilledTonalIconToggleButton(
-                checked = homeScreenState.savedStatus == SavedStatus.SAVED,
-                enabled = homeScreenState.status == WRStatus.SUCCESS,
-                colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
-                    containerColor = colorScheme.primaryContainer,
-                    contentColor = colorScheme.onPrimaryContainer,
-                    checkedContainerColor = colorScheme.surfaceContainer,
-                    checkedContentColor = colorScheme.onSurface,
-                    disabledContainerColor = colorScheme.primaryContainer
-                ),
-                onCheckedChange = { saveArticle() }
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                tooltip = { PlainTooltip { Text(stringResource(R.string.sharePage)) } },
+                state = rememberTooltipState()
             ) {
-                AnimatedContent(
-                    homeScreenState.savedStatus,
-                    label = "saveAnimation"
-                ) { saved ->
-                    when (saved) {
-                        SavedStatus.SAVED ->
-                            Icon(
-                                painterResource(R.drawable.download_done),
-                                contentDescription = stringResource(R.string.deleteArticle)
-                            )
+                IconButton(
+                    enabled = homeScreenState.status == WRStatus.SUCCESS,
+                    onClick = remember(
+                        homeScreenState.title,
+                        preferencesState.lang
+                    ) {
+                        { context.startActivity(shareIntent) }
+                    }
+                ) {
+                    Icon(
+                        painterResource(R.drawable.share),
+                        contentDescription = stringResource(R.string.sharePage)
+                    )
+                }
+            }
 
-                        SavedStatus.SAVING -> LoadingIndicator()
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                tooltip = {
+                    PlainTooltip {
+                        Text(
+                            when (homeScreenState.savedStatus) {
+                                SavedStatus.SAVED -> stringResource(R.string.deleteArticle)
+                                else -> stringResource(R.string.downloadArticle)
+                            }
+                        )
+                    }
+                },
+                state = rememberTooltipState()
+            ) {
+                FilledTonalIconToggleButton(
+                    checked = homeScreenState.savedStatus == SavedStatus.SAVED,
+                    enabled = homeScreenState.status == WRStatus.SUCCESS,
+                    colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
+                        containerColor = colorScheme.primaryContainer,
+                        contentColor = colorScheme.onPrimaryContainer,
+                        checkedContainerColor = colorScheme.surfaceContainer,
+                        checkedContentColor = colorScheme.onSurface,
+                        disabledContainerColor = colorScheme.primaryContainer
+                    ),
+                    onCheckedChange = { saveArticle() }
+                ) {
+                    AnimatedContent(
+                        homeScreenState.savedStatus,
+                        label = "saveAnimation"
+                    ) { saved ->
+                        when (saved) {
+                            SavedStatus.SAVED ->
+                                Icon(
+                                    painterResource(R.drawable.download_done),
+                                    contentDescription = stringResource(R.string.deleteArticle)
+                                )
 
-                        else ->
-                            Icon(
-                                painterResource(R.drawable.download),
-                                contentDescription = stringResource(R.string.downloadArticle)
-                            )
+                            SavedStatus.SAVING -> LoadingIndicator()
+
+                            else ->
+                                Icon(
+                                    painterResource(R.drawable.download),
+                                    contentDescription = stringResource(R.string.downloadArticle)
+                                )
+                        }
                     }
                 }
             }
 
-            IconButton(
-                onClick = scrollToTop,
-                enabled = enableScrollButton
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                tooltip = { PlainTooltip { Text(stringResource(R.string.scroll_to_top)) } },
+                state = rememberTooltipState()
             ) {
-                Icon(
-                    painterResource(R.drawable.upward),
-                    contentDescription = null
-                )
+                IconButton(
+                    onClick = scrollToTop,
+                    enabled = enableScrollButton
+                ) {
+                    Icon(
+                        painterResource(R.drawable.upward),
+                        contentDescription = stringResource(R.string.scroll_to_top)
+                    )
+                }
             }
 
-            IconButton(onClick = loadRandom) {
-                Icon(
-                    painterResource(R.drawable.shuffle),
-                    contentDescription = null
-                )
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                tooltip = { PlainTooltip { Text(stringResource(R.string.randomArticle)) } },
+                state = rememberTooltipState()
+            ) {
+                IconButton(onClick = loadRandom) {
+                    Icon(
+                        painterResource(R.drawable.shuffle),
+                        contentDescription = stringResource(R.string.randomArticle)
+                    )
+                }
             }
         }
     }
