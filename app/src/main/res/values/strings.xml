@@ -47,7 +47,7 @@
     <string name="license">License</string>
     <string name="moreOptions">More options</string>
     <string name="noSavedArticles">No saved articles</string>
-    <string name="noSavedArticlesDesc">Click on the download button at the top of an article to get started</string>
+    <string name="noSavedArticlesDesc">Click on the download button in the toolbar at the bottom while viewing an article to get started</string>
     <string name="ok">OK</string>
     <string name="onThisDay">On this day</string>
     <string name="openInBrowser">Open in browser</string>
