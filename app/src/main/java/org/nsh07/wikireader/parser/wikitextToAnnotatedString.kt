@@ -620,6 +620,11 @@ fun String.toWikitextAnnotatedString(
                                 }
                             }
 
+                            currSubstring.startsWith("{{dfn", true) -> {
+                                val curr = currSubstring.substringAfter('|')
+                                append("'''$curr'''".twas())
+                            }
+
                             currSubstring.startsWith("{{distinguish", ignoreCase = true) -> {
                                 val textSpecified =
                                     currSubstring.contains("text=") || currSubstring.contains("text =")
@@ -863,6 +868,21 @@ fun String.toWikitextAnnotatedString(
                                     i,
                                     ignoreCase = true
                                 ) - templateLength + 15
+                            }
+
+                            currSubstring.startsWith(
+                                "{{lahirmati",
+                                true
+                            ) -> { // Indonesian template for date of birth and death
+                                val curr =
+                                    currSubstring.substringAfter('|').substringAfter('|').split('|')
+                                if (curr.size <= 3) {
+                                    append("lahir " + curr.joinToString("/").twas())
+                                } else append(
+                                    "${
+                                        curr.subList(0, min(curr.size, 3)).joinToString("/").twas()
+                                    } $ndash ${curr.subList(3, curr.size).joinToString("/")}"
+                                )
                             }
 
                             else -> {
