@@ -33,6 +33,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalIconToggleButton
 import androidx.compose.material3.FloatingToolbarDefaults
+import androidx.compose.material3.FloatingToolbarDefaults.vibrantFloatingToolbarColors
 import androidx.compose.material3.FloatingToolbarScrollBehavior
 import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
@@ -497,11 +498,12 @@ fun AppHomeScreen(
                     checked = homeScreenState.savedStatus == SavedStatus.SAVED,
                     enabled = homeScreenState.status == WRStatus.SUCCESS,
                     colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
-                        containerColor = colorScheme.primaryContainer,
-                        contentColor = colorScheme.onPrimaryContainer,
+                        containerColor = vibrantFloatingToolbarColors().toolbarContainerColor,
+                        contentColor = vibrantFloatingToolbarColors().toolbarContentColor,
                         checkedContainerColor = colorScheme.surfaceContainer,
                         checkedContentColor = colorScheme.onSurface,
-                        disabledContainerColor = colorScheme.primaryContainer
+                        disabledContainerColor = vibrantFloatingToolbarColors().toolbarContainerColor,
+                        disabledContentColor = colorScheme.onPrimaryContainer.copy(alpha = 0.38f)
                     ),
                     onCheckedChange = { saveArticle() }
                 ) {

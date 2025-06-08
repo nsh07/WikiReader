@@ -85,7 +85,7 @@ fun FullScreenImageTopBar(
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color(0f, 0f, 0f, 0.5f),
+            containerColor = Color.Transparent,
             titleContentColor = Color.White,
             subtitleContentColor = Color.LightGray,
             navigationIconContentColor = Color.White
@@ -163,7 +163,7 @@ fun FullScreenImageTopBar(
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color(0f, 0f, 0f, 0.5f),
+            containerColor = Color.Transparent,
             titleContentColor = Color.White,
             subtitleContentColor = Color.LightGray,
             navigationIconContentColor = Color.White

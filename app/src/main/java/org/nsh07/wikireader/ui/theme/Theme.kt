@@ -79,7 +79,9 @@ fun WikiReaderTheme(
     )
 
     MaterialExpressiveTheme(
-        colorScheme = dynamicColorScheme,
+        colorScheme =
+            if (seedColor == Color.White && !(blackTheme && darkTheme)) colorScheme
+            else dynamicColorScheme,
         typography = Typography,
         content = content
     )

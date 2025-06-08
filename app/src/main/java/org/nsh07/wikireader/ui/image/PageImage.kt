@@ -12,21 +12,14 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import coil3.ImageLoader
 import coil3.compose.AsyncImagePainter
-import coil3.compose.rememberAsyncImagePainter
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPhotoDesc
@@ -36,23 +29,12 @@ import org.nsh07.wikireader.data.WikiPhotoDesc
 fun PageImage(
     photo: WikiPhoto,
     photoDesc: WikiPhotoDesc,
-    imageLoader: ImageLoader,
+    painter: AsyncImagePainter,
+    painterState: AsyncImagePainter.State,
     background: Boolean,
     contentScale: ContentScale,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    val painter = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(context)
-            .data(photo.source)
-            .crossfade(true)
-            .build(),
-        imageLoader = imageLoader,
-        contentScale = contentScale,
-    )
-
-    val painterState by painter.state.collectAsState()
-
     if (painterState is AsyncImagePainter.State.Success) {
         Image(
             painter = painter,
@@ -97,25 +79,13 @@ fun PageImage(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PageImage(
-    uri: String,
     description: String,
     background: Boolean,
-    imageLoader: ImageLoader,
+    painter: AsyncImagePainter,
+    painterState: AsyncImagePainter.State,
     contentScale: ContentScale,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    val painter = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(context)
-            .data(uri)
-            .crossfade(true)
-            .build(),
-        imageLoader = imageLoader,
-        contentScale = contentScale,
-    )
-
-    val painterState by painter.state.collectAsState()
-
     if (painterState is AsyncImagePainter.State.Success) {
         Image(
             painter = painter,
