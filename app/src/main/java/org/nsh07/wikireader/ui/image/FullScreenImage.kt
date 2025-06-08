@@ -45,6 +45,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -146,7 +147,7 @@ fun FullScreenImage(
         var size by remember { mutableStateOf(IntSize.Zero) }
         val borderRadius by animateDpAsState(
             if (showTopBar) 16.dp else 0.dp,
-            animationSpec = motionScheme.defaultEffectsSpec()
+            animationSpec = motionScheme.defaultSpatialSpec()
         )
 
         // Zoom/Offset logic. Also prevents image from going out of bounds
@@ -224,8 +225,8 @@ fun FullScreenImage(
                                 )
                             }
                             .fillMaxSize()
-                            .padding(borderRadius)
-                            .clip(RoundedCornerShape(borderRadius))
+                            .padding(borderRadius.coerceAtLeast(0.dp))
+                            .clip(RoundedCornerShape(borderRadius.coerceAtLeast(0.dp)))
                     )
                 }
             }
@@ -319,7 +320,7 @@ fun FullScreenImage(
         var size by remember { mutableStateOf(IntSize.Zero) }
         val borderRadius by animateDpAsState(
             if (showTopBar) 16.dp else 0.dp,
-            animationSpec = motionScheme.defaultEffectsSpec()
+            animationSpec = motionScheme.defaultSpatialSpec()
         )
 
         // Zoom/Offset logic. Also prevents image from going out of bounds
@@ -387,8 +388,8 @@ fun FullScreenImage(
                                 }
                             )
                         }
-                        .padding(borderRadius)
-                        .clip(RoundedCornerShape(borderRadius))
+                        .padding(borderRadius.coerceAtLeast(0.dp))
+                        .clip(RoundedCornerShape(borderRadius.coerceAtLeast(0.dp)))
                 )
             }
         }
