@@ -64,7 +64,7 @@
     <string name="moreOptions">Більше параметрів</string>
     <string name="noSavedArticles">Немає збережених статтей</string>
     <string name="ok">Гаразд</string>
-    <string name="noSavedArticlesDesc">Натисніть на кнопку завантаження вгорі статті, щоби розпочати</string>
+    <string name="noSavedArticlesDesc">Натисніть кнопку завантаження на панелі інструментів внизу під час перегляду статті, щоб розпочати</string>
     <string name="onThisDay">У цей день</string>
     <string name="openInBrowser">Відкрити в браузері</string>
     <string name="otherProjectsDesc">Подивіться інші мої проєкти на GitHub</string>
