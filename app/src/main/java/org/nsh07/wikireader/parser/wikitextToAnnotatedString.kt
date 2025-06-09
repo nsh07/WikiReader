@@ -1026,7 +1026,7 @@ fun String.toWikitextAnnotatedString(
                         ) {
                             append(
                                 (linkText.substringAfter(' ').removeSuffix("]")
-                                    .trim() + "\uD83D\uDD17").twas()
+                                    .trim() + "\uD83D\uDD17")
                             )
                         }
                         i += linkText.length - 1
