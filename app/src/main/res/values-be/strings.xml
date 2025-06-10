@@ -68,7 +68,7 @@
     <string name="settingColorScheme">Каляровая гама</string>
     <string name="settingDataSaver">Эканомія дадзеных</string>
     <string name="license">Ліцэнзія</string>
-    <string name="noSavedArticlesDesc">Націсніце на кнопку загрузкі ўверсе артыкула, каб пачаць</string>
+    <string name="noSavedArticlesDesc">Націсніце на кнопку загрузкі на панэлі інструментаў унізе падчас прагляду артыкула, каб пачаць</string>
     <string name="onThisDay">У гэты дзень</string>
     <string name="information">Інфармацыя</string>
     <string name="randomArticle">Выпадковы артыкул</string>
@@ -121,4 +121,6 @@
     <string name="up_arrow">Перайсці ўверх</string>
     <string name="translate">Перакласці</string>
     <string name="unableToDeleteArticle">Немагчыма выдаліць артыкул: %1$s</string>
+    <string name="settingAppLanguage">Мова прыкладання</string>
+    <string name="chooseAppLanguage">Выберыце мову праграмы</string>
 </resources>

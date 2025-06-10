@@ -101,10 +101,10 @@
     <string name="dialogDeleteHistoryItem">\"%1$s\" será permanentemente deletado do seu histórico de pesquisas.</string>
     <string name="openInBrowser">Abrir no navegador</string>
     <string name="picOfTheDay">Imagem do dia</string>
-    <string name="deleteArticle">Deletar artigo baixado</string>
+    <string name="deleteArticle">Deletar artigo</string>
     <string name="settingImageBackgroundDesc">Adicionar um fundo branco em imagens transparentes. O fundo pode melhorar a legibilidade no modo escuro.</string>
     <string name="settingImmersiveModeDesc">Ocultar a barra de pesquisas e os botões de ação flutuantes durante a rolagem. Habilitado por padrão em telas pequenas.</string>
-    <string name="noSavedArticlesDesc">Toque no botão de download na barra de ferramentas na parte inferior ao visualizar um artigo para começar</string>
+    <string name="noSavedArticlesDesc">Toque no botão de download na barra de ferramentas inferior enquanto estiver lendo um artigo para começar</string>
     <string name="settingDataSaverDesc">Desabilitar imagens e o feed. As imagens de um artigo ainda podem ser abertas ao tocar no card de descrição.</string>
     <string name="settingFontStyle">Estilo da fonte</string>
     <string name="settings">Configurações</string>

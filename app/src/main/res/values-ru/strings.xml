@@ -97,7 +97,7 @@
     <string name="home">Главная</string>
     <string name="information">Информация</string>
     <string name="inTheNews">В новостях</string>
-    <string name="noSavedArticlesDesc">Нажмите на кнопку загрузки в начале статьи, чтобы начать</string>
+    <string name="noSavedArticlesDesc">Нажмите кнопку загрузки на панели инструментов внизу во время просмотра статьи, чтобы начать.</string>
     <string name="settingRenderMathDesc">Потребляет небольшое количество дополнительных данных. Отключите, чтобы повысить производительность ценой снижения читабельности.</string>
     <string name="settingExpandSections">Раскрыть разделы</string>
     <string name="version">Версия</string>

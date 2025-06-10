@@ -63,7 +63,7 @@
     <string name="license">लाइसेंस</string>
     <string name="moreOptions">अधिक विकल्प</string>
     <string name="noSavedArticles">कोई सहेजा गया लेख नहीं</string>
-    <string name="noSavedArticlesDesc">आरंभ करने के लिए किसी लेख के शीर्ष पर स्थित डाउनलोड बटन पर क्लिक करें</string>
+    <string name="noSavedArticlesDesc">आरंभ करने के लिए किसी लेख को देखते समय नीचे टूलबार में डाउनलोड बटन पर क्लिक करें</string>
     <string name="ok">ठीक</string>
     <string name="onThisDay">इस दिन</string>
     <string name="openInBrowser">ब्राउज़र में खोलें</string>

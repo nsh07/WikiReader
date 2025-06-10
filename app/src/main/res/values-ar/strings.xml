@@ -43,7 +43,7 @@
     <string name="instructions">التعليمات</string>
     <string name="license">الترخيص</string>
     <string name="noSavedArticles">لا توجد مقالات محفوظة</string>
-    <string name="noSavedArticlesDesc">انقر على زر التنزيل في أعلى المقال للبدء</string>
+    <string name="noSavedArticlesDesc">انقر على زر التنزيل في شريط الأدوات في الأسفل أثناء عرض مقال ما للبدء في التنزيل</string>
     <string name="ok">موافق</string>
     <string name="onThisDay">في مثل هذا اليوم</string>
     <string name="openInBrowser">فتح في المتصفح</string>
@@ -119,4 +119,8 @@
     <string name="saved">حفظ</string>
     <string name="settingFeedDesc">عرض موجز بالمقالات الشائعة والأخبار والمزيد عند بدء تشغيل التطبيق</string>
     <string name="settingFeed">الموجز</string>
+    <string name="donate">تبرع</string>
+    <string name="settingAppLanguage">لغة التطبيق</string>
+    <string name="supportMyWork">ادعم عملي</string>
+    <string name="chooseAppLanguage">اختر لغة التطبيق</string>
 </resources>

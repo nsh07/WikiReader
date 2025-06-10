@@ -93,7 +93,7 @@
     <string name="wikipediaWebsiteDesc">Відвідати сайт Вікіпедії</string>
     <string name="deleteAllArticles">Видалити всі статті?</string>
     <string name="deleteAllArticlesDesc">Усі статті будуть назавжди видалені з вашого пристрою</string>
-    <string name="deleteArticle">Видалити завантажену статтю</string>
+    <string name="deleteArticle">Видалити статтю</string>
     <string name="author">Автор</string>
     <string name="inTheNews">У новинах</string>
     <string name="titleMatches">Збіги по назві</string>
