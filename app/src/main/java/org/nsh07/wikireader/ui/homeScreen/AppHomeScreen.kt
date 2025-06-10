@@ -56,6 +56,7 @@ import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.LoadingIndicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -277,6 +278,14 @@ fun AppHomeScreen(
         rememberPagerState { feedState.mostReadArticles.size / 5 }
     else null
 
+    val newsCarouselState = if (feedState.news != null)
+        rememberCarouselState(0) { feedState.news.size }
+    else null
+
+    val otdCarouselState = if (feedState.onThisDay != null)
+        rememberCarouselState(0) { feedState.onThisDay.size }
+    else null
+
     SharedTransitionLayout {
         val condition1 = homeScreenState.status != WRStatus.UNINITIALIZED &&
                 homeScreenState.status != WRStatus.FEED_LOADED &&
@@ -386,8 +395,10 @@ fun AppHomeScreen(
                                         darkTheme = colorScheme.isDark(),
                                         dataSaver = preferencesState.dataSaver,
                                         background = preferencesState.imageBackground,
+                                        checkFirstImage = true,
                                         onLinkClick = onLinkClick,
-                                        onGalleryImageClick = onGalleryImageClick
+                                        onGalleryImageClick = onGalleryImageClick,
+                                        pageImageUri = homeScreenState.photo?.source
                                     )
                                 }
                         }
@@ -452,6 +463,8 @@ fun AppHomeScreen(
                 ArticleFeed(
                     feedState = feedState,
                     pagerState = pagerState,
+                    newsCarouselState = newsCarouselState,
+                    otdCarouselState = otdCarouselState,
                     imageLoader = imageLoader,
                     insets = insets,
                     loadPage = onLinkClick,

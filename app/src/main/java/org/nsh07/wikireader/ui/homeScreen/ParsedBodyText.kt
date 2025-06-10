@@ -32,7 +32,9 @@ fun ParsedBodyText(
     dataSaver: Boolean,
     onLinkClick: (String) -> Unit,
     onGalleryImageClick: (String, String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    checkFirstImage: Boolean = false,
+    pageImageUri: String? = null
 ) {
     val context = LocalContext.current
     val dpi = LocalDensity.current.density
@@ -48,7 +50,9 @@ fun ParsedBodyText(
                         onLinkClick = onLinkClick,
                         onClick = onGalleryImageClick,
                         darkTheme = darkTheme,
-                        background = background
+                        background = background,
+                        checkFirstImage = checkFirstImage,
+                        pageImageUri = pageImageUri
                     )
                 }
             } else if (it.startsWith("<gallery")) {

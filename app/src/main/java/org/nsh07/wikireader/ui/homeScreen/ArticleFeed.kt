@@ -43,8 +43,8 @@ import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.carousel.CarouselState
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
-import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.LoadingIndicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -93,6 +93,8 @@ import kotlin.math.min
 fun SharedTransitionScope.ArticleFeed(
     feedState: FeedState,
     pagerState: PagerState?,
+    newsCarouselState: CarouselState?,
+    otdCarouselState: CarouselState?,
     imageLoader: ImageLoader,
     insets: PaddingValues,
     listState: LazyListState,
@@ -530,7 +532,6 @@ fun SharedTransitionScope.ArticleFeed(
             }
             if (feedState.news != null) {
                 item {
-                    val carouselState = rememberCarouselState(0) { feedState.news.size }
                     Text(
                         stringResource(R.string.inTheNews),
                         style = typography.titleLarge,
@@ -539,7 +540,7 @@ fun SharedTransitionScope.ArticleFeed(
                             .padding(top = 32.dp)
                     )
                     HorizontalMultiBrowseCarousel(
-                        state = carouselState,
+                        state = newsCarouselState!!,
                         itemSpacing = 8.dp,
                         modifier = if (!expanded)
                             Modifier
@@ -636,7 +637,6 @@ fun SharedTransitionScope.ArticleFeed(
             }
             if (feedState.onThisDay != null) {
                 item {
-                    val carouselState = rememberCarouselState(0) { feedState.onThisDay.size }
                     Text(
                         stringResource(R.string.onThisDay),
                         style = typography.titleLarge,
@@ -645,7 +645,7 @@ fun SharedTransitionScope.ArticleFeed(
                             .padding(top = 32.dp)
                     )
                     HorizontalMultiBrowseCarousel(
-                        state = carouselState,
+                        state = otdCarouselState!!,
                         itemSpacing = 8.dp,
                         modifier =
                             if (!expanded)
