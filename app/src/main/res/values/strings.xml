@@ -21,7 +21,7 @@
     <string name="deleteAll">Delete all</string>
     <string name="deleteAllArticles">Delete all articles?</string>
     <string name="deleteAllArticlesDesc">All articles will be permanently deleted from your device</string>
-    <string name="deleteArticle">Delete downloaded article</string>
+    <string name="deleteArticle">Delete article</string>
     <string name="deleteSavedArticle">Delete saved article?</string>
     <string name="deleteSavedArticleDesc">\"%1$s\" will be permanently deleted from your device</string>
     <string name="dialogDeleteHistoryItem">\"%1$s\" will be permanently deleted from your search history.</string>

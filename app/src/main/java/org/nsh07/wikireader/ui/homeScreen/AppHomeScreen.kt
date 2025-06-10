@@ -442,7 +442,7 @@ fun AppHomeScreen(
         ) {
             TooltipBox(
                 positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
-                tooltip = { PlainTooltip { Text(stringResource(R.string.chooseWikipediaLanguage)) } },
+                tooltip = { PlainTooltip { Text(stringResource(R.string.settingWikipediaLanguage)) } },
                 state = rememberTooltipState()
             ) {
                 IconButton(
@@ -454,7 +454,7 @@ fun AppHomeScreen(
                 ) {
                     Icon(
                         painterResource(R.drawable.translate),
-                        stringResource(R.string.chooseWikipediaLanguage)
+                        stringResource(R.string.settingWikipediaLanguage)
                     )
                 }
             }
