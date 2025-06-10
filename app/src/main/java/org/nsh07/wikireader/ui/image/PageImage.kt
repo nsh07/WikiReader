@@ -22,13 +22,12 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImagePainter
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WikiPhoto
-import org.nsh07.wikireader.data.WikiPhotoDesc
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PageImage(
     photo: WikiPhoto,
-    photoDesc: WikiPhotoDesc,
+    photoDesc: String,
     painter: AsyncImagePainter,
     painterState: AsyncImagePainter.State,
     background: Boolean,
@@ -38,7 +37,7 @@ fun PageImage(
     if (painterState is AsyncImagePainter.State.Success) {
         Image(
             painter = painter,
-            contentDescription = photoDesc.description?.get(0) ?: "",
+            contentDescription = photoDesc,
             contentScale = contentScale,
             modifier = modifier
                 .aspectRatio(photo.width.toFloat() / photo.height.toFloat())

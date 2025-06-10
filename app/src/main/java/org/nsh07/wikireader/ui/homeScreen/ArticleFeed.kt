@@ -1,6 +1,9 @@
 package org.nsh07.wikireader.ui.homeScreen
 
 import android.icu.text.CompactDecimalFormat
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -23,7 +26,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
@@ -84,15 +87,17 @@ import kotlin.math.min
 
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
-    ExperimentalMaterial3ExpressiveApi::class
+    ExperimentalMaterial3ExpressiveApi::class, ExperimentalSharedTransitionApi::class
 )
 @Composable
-fun ArticleFeed(
+fun SharedTransitionScope.ArticleFeed(
     feedState: FeedState,
+    pagerState: PagerState?,
     imageLoader: ImageLoader,
     insets: PaddingValues,
     listState: LazyListState,
     windowSizeClass: WindowSizeClass,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     imageBackground: Boolean,
     loadPage: (String) -> Unit,
     refreshFeed: () -> Unit,
@@ -176,13 +181,27 @@ fun ArticleFeed(
                                 imageLoader = imageLoader,
                                 background = imageBackground,
                                 loadingIndicator = false,
-                                modifier = Modifier.clip(cardShape)
+                                modifier = Modifier
+                                    .sharedBounds(
+                                        sharedContentState = rememberSharedContentState(
+                                            feedState.tfa.originalImage?.source ?: "imgsrc"
+                                        ),
+                                        animatedVisibilityScope = animatedVisibilityScope
+                                    )
+                                    .clip(cardShape)
                             )
                             Text(
                                 feedState.tfa.titles?.normalized ?: "",
                                 style = typography.headlineMedium,
                                 fontFamily = FontFamily.Serif,
                                 modifier = Modifier
+                                    .sharedBounds(
+                                        sharedContentState = rememberSharedContentState(
+                                            feedState.tfa.titles?.normalized ?: "title"
+                                        ),
+                                        animatedVisibilityScope = animatedVisibilityScope,
+                                        zIndexInOverlay = 1f
+                                    )
                                     .padding(horizontal = 16.dp)
                                     .padding(top = 16.dp)
                             )
@@ -191,6 +210,13 @@ fun ArticleFeed(
                                 style = typography.bodyMedium,
                                 color = colorScheme.onSurfaceVariant,
                                 modifier = Modifier
+                                    .sharedBounds(
+                                        sharedContentState = rememberSharedContentState(
+                                            feedState.tfa.description ?: "desc"
+                                        ),
+                                        animatedVisibilityScope = animatedVisibilityScope,
+                                        zIndexInOverlay = 1f
+                                    )
                                     .padding(horizontal = 16.dp, vertical = 4.dp)
                             )
                             Text(
@@ -258,9 +284,9 @@ fun ArticleFeed(
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                     )
-                    val pagerState = rememberPagerState { feedState.mostReadArticles.size / 5 }
+
                     HorizontalPager(
-                        state = pagerState,
+                        state = pagerState!!, // PagerState is not null when mostReadArticles is not null
                         verticalAlignment = Alignment.Top,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -300,13 +326,30 @@ fun ArticleFeed(
                                                 feedState.mostReadArticles[i].titles?.normalized
                                                     ?: "",
                                                 style = typography.titleMedium,
-                                                modifier = Modifier.padding(top = 16.dp)
+                                                modifier = Modifier
+                                                    .sharedBounds(
+                                                        sharedContentState = rememberSharedContentState(
+                                                            feedState.mostReadArticles[i].titles?.normalized
+                                                                ?: "title"
+                                                        ),
+                                                        animatedVisibilityScope = animatedVisibilityScope,
+                                                        zIndexInOverlay = 1f
+                                                    )
+                                                    .padding(top = 16.dp)
                                             )
                                             Text(
                                                 feedState.mostReadArticles[i].description
                                                     ?: "",
                                                 maxLines = 2,
-                                                overflow = TextOverflow.Ellipsis
+                                                overflow = TextOverflow.Ellipsis,
+                                                modifier = Modifier.sharedBounds(
+                                                    sharedContentState = rememberSharedContentState(
+                                                        feedState.mostReadArticles[i].description
+                                                            ?: "desc"
+                                                    ),
+                                                    animatedVisibilityScope = animatedVisibilityScope,
+                                                    zIndexInOverlay = 1f
+                                                )
                                             )
                                             Row(
                                                 verticalAlignment = Alignment.CenterVertically,
@@ -340,6 +383,13 @@ fun ArticleFeed(
                                                 loadingIndicator = true,
                                                 background = imageBackground,
                                                 modifier = Modifier
+                                                    .sharedBounds(
+                                                        sharedContentState = rememberSharedContentState(
+                                                            feedState.mostReadArticles[i].originalImage?.source
+                                                                ?: "imgsrc"
+                                                        ),
+                                                        animatedVisibilityScope = animatedVisibilityScope
+                                                    )
                                                     .padding(16.dp)
                                                     .clip(shapes.large)
                                                     .size(80.dp, 80.dp)
@@ -567,7 +617,14 @@ fun ArticleFeed(
                                                     it.titles?.normalized ?: "",
                                                     maxLines = 1,
                                                     overflow = TextOverflow.Ellipsis,
-                                                    color = Color.White
+                                                    color = Color.White,
+                                                    modifier = Modifier.sharedBounds(
+                                                        sharedContentState = rememberSharedContentState(
+                                                            it.titles?.normalized ?: "title"
+                                                        ),
+                                                        animatedVisibilityScope = animatedVisibilityScope,
+                                                        zIndexInOverlay = 1f
+                                                    )
                                                 )
                                             }
                                         }
@@ -681,7 +738,14 @@ fun ArticleFeed(
                                                         it.titles?.normalized ?: "",
                                                         maxLines = 1,
                                                         overflow = TextOverflow.Ellipsis,
-                                                        color = Color.White
+                                                        color = Color.White,
+                                                        modifier = Modifier.sharedBounds(
+                                                            sharedContentState = rememberSharedContentState(
+                                                                it.titles?.normalized ?: "title"
+                                                            ),
+                                                            animatedVisibilityScope = animatedVisibilityScope,
+                                                            zIndexInOverlay = 1f
+                                                        )
                                                     )
                                                 }
                                             }

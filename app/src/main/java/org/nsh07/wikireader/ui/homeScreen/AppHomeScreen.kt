@@ -4,9 +4,13 @@ import android.content.ClipData
 import android.content.Intent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -26,6 +30,7 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
@@ -108,7 +113,10 @@ import org.nsh07.wikireader.ui.viewModel.PreferencesState
  * @param modifier Self explanatory
  */
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class,
+    ExperimentalSharedTransitionApi::class
+)
 @Composable
 fun AppHomeScreen(
     homeScreenState: HomeScreenState,
@@ -265,297 +273,362 @@ fun AppHomeScreen(
             }
         }
 
-    Box(modifier = modifier) { // The container for all the composables in the home screen
-        if (homeScreenState.status != WRStatus.UNINITIALIZED &&
-            homeScreenState.status != WRStatus.FEED_LOADED &&
-            homeScreenState.status != WRStatus.FEED_NETWORK_ERROR
-        ) {
-            LaunchedEffect(isRefreshing) {
-                delay(3000)
-                isRefreshing = false
-            } // hide refresh indicator after a delay
-            PullToRefreshBox(
-                isRefreshing = isRefreshing,
-                state = pullToRefreshState,
-                onRefresh = {
-                    if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR)
-                        refreshFeed()
-                    else
-                        refreshSearch()
-                    isRefreshing = true
-                },
-                indicator = {
-                    LoadingIndicator(
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(top = insets.calculateTopPadding()),
-                        isRefreshing = isRefreshing,
-                        state = pullToRefreshState
-                    )
-                }
+    val pagerState = if (feedState.mostReadArticles != null)
+        rememberPagerState { feedState.mostReadArticles.size / 5 }
+    else null
+
+    SharedTransitionLayout {
+        val condition1 = homeScreenState.status != WRStatus.UNINITIALIZED &&
+                homeScreenState.status != WRStatus.FEED_LOADED &&
+                homeScreenState.status != WRStatus.FEED_NETWORK_ERROR
+        val condition2 =
+            (homeScreenState.status == WRStatus.UNINITIALIZED) && !preferencesState.dataSaver && preferencesState.feedEnabled
+        val condition3 =
+            homeScreenState.status == WRStatus.FEED_NETWORK_ERROR || homeScreenState.status == WRStatus.UNINITIALIZED
+
+        Box(modifier = modifier) { // The container for all the composables in the home screen
+            AnimatedVisibility(
+                condition1,
+                enter = fadeIn(),
+                exit = fadeOut()
             ) {
-                LazyColumn( // The article
-                    state = listState,
-                    contentPadding = insets,
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) {
-                    item { // Title + Image/description
-                        Text(
-                            text = homeScreenState.title,
-                            style = MaterialTheme.typography.displayMediumEmphasized,
-                            fontFamily = FontFamily.Serif,
+                LaunchedEffect(isRefreshing) {
+                    delay(3000)
+                    isRefreshing = false
+                } // hide refresh indicator after a delay
+                PullToRefreshBox(
+                    isRefreshing = isRefreshing,
+                    state = pullToRefreshState,
+                    onRefresh = {
+                        if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR)
+                            refreshFeed()
+                        else
+                            refreshSearch()
+                        isRefreshing = true
+                    },
+                    indicator = {
+                        LoadingIndicator(
                             modifier = Modifier
-                                .padding(16.dp)
-                                .animateContentSize(motionScheme.defaultSpatialSpec())
+                                .align(Alignment.TopCenter)
+                                .padding(top = insets.calculateTopPadding()),
+                            isRefreshing = isRefreshing,
+                            state = pullToRefreshState
                         )
-                        if (photoDesc != null) {
-                            ImageCard(
-                                photo = photo,
-                                photoDesc = photoDesc,
-                                title = homeScreenState.title,
-                                imageLoader = imageLoader,
-                                showPhoto = !preferencesState.dataSaver,
-                                onClick = onImageClick,
-                                background = preferencesState.imageBackground,
-                                modifier = Modifier.padding(bottom = 8.dp)
+                    }
+                ) {
+                    LazyColumn( // The article
+                        state = listState,
+                        contentPadding = insets,
+                        modifier = Modifier
+                            .fillMaxSize()
+                    ) {
+                        item { // Title + Image/description
+                            Text(
+                                text = homeScreenState.title,
+                                style = MaterialTheme.typography.displaySmallEmphasized,
+                                fontFamily = FontFamily.Serif,
+                                modifier = Modifier
+                                    .sharedBounds(
+                                        sharedContentState = rememberSharedContentState(
+                                            homeScreenState.title
+                                        ),
+                                        animatedVisibilityScope = this@AnimatedVisibility,
+                                        zIndexInOverlay = 1f
+                                    )
+                                    .padding(start = 16.dp, end = 16.dp, top = 16.dp)
+                                    .animateContentSize(motionScheme.defaultSpatialSpec())
                             )
+                            if (photoDesc != null) {
+                                Text(
+                                    text = photoDesc,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = colorScheme.onSurfaceVariant,
+                                    fontFamily = FontFamily.Serif,
+                                    modifier = Modifier
+                                        .sharedBounds(
+                                            sharedContentState = rememberSharedContentState(
+                                                photoDesc
+                                            ),
+                                            animatedVisibilityScope = this@AnimatedVisibility,
+                                            zIndexInOverlay = 1f
+                                        )
+                                        .padding(
+                                            start = 16.dp,
+                                            end = 16.dp,
+                                            top = 4.dp,
+                                            bottom = 16.dp
+                                        )
+                                        .fillMaxWidth()
+                                )
+                            }
+                            if (photoDesc != null) {
+                                ImageCard(
+                                    photo = photo,
+                                    title = homeScreenState.title,
+                                    imageLoader = imageLoader,
+                                    animatedVisibilityScope = this@AnimatedVisibility,
+                                    showPhoto = !preferencesState.dataSaver,
+                                    onClick = onImageClick,
+                                    background = preferencesState.imageBackground,
+                                    modifier = Modifier.padding(bottom = 8.dp)
+                                )
+                            }
+                        }
+                        item { // Main description
+                            if (homeScreenState.extract.isNotEmpty())
+                                SelectionContainer {
+                                    ParsedBodyText(
+                                        body = homeScreenState.extract[0],
+                                        fontSize = fontSize,
+                                        fontFamily = fontFamily,
+                                        renderMath = preferencesState.renderMath,
+                                        imageLoader = imageLoader,
+                                        darkTheme = colorScheme.isDark(),
+                                        dataSaver = preferencesState.dataSaver,
+                                        background = preferencesState.imageBackground,
+                                        onLinkClick = onLinkClick,
+                                        onGalleryImageClick = onGalleryImageClick
+                                    )
+                                }
+                        }
+                        itemsIndexed(
+                            homeScreenState.extract,
+                            key = { i, it -> "$pageId.$lang#$i" }
+                        ) { i: Int, it: List<AnnotatedString> ->// Expandable sections logic
+                            if (i % 2 == 1)
+                                SelectionContainer {
+                                    ExpandableSection(
+                                        title = homeScreenState.extract[i],
+                                        body = homeScreenState.extract.getOrElse(i + 1) { emptyList() },
+                                        fontSize = fontSize,
+                                        fontFamily = fontFamily,
+                                        imageLoader = imageLoader,
+                                        expanded = preferencesState.expandedSections,
+                                        darkTheme = colorScheme.isDark(),
+                                        dataSaver = preferencesState.dataSaver,
+                                        renderMath = preferencesState.renderMath,
+                                        imageBackground = preferencesState.imageBackground,
+                                        onLinkClick = onLinkClick,
+                                        onGalleryImageClick = onGalleryImageClick
+                                    )
+                                }
+                        }
+                        item {
+                            Spacer(Modifier.height(156.dp))
                         }
                     }
-                    item { // Main description
-                        if (homeScreenState.extract.isNotEmpty())
-                            SelectionContainer {
-                                ParsedBodyText(
-                                    body = homeScreenState.extract[0],
-                                    fontSize = fontSize,
-                                    fontFamily = fontFamily,
-                                    renderMath = preferencesState.renderMath,
-                                    imageLoader = imageLoader,
-                                    darkTheme = colorScheme.isDark(),
-                                    dataSaver = preferencesState.dataSaver,
-                                    background = preferencesState.imageBackground,
-                                    onLinkClick = onLinkClick,
-                                    onGalleryImageClick = onGalleryImageClick
-                                )
-                            }
-                    }
-                    itemsIndexed(
-                        homeScreenState.extract,
-                        key = { i, it -> "$pageId.$lang#$i" }
-                    ) { i: Int, it: List<AnnotatedString> ->// Expandable sections logic
-                        if (i % 2 == 1)
-                            SelectionContainer {
-                                ExpandableSection(
-                                    title = homeScreenState.extract[i],
-                                    body = homeScreenState.extract.getOrElse(i + 1) { emptyList() },
-                                    fontSize = fontSize,
-                                    fontFamily = fontFamily,
-                                    imageLoader = imageLoader,
-                                    expanded = preferencesState.expandedSections,
-                                    darkTheme = colorScheme.isDark(),
-                                    dataSaver = preferencesState.dataSaver,
-                                    renderMath = preferencesState.renderMath,
-                                    imageBackground = preferencesState.imageBackground,
-                                    onLinkClick = onLinkClick,
-                                    onGalleryImageClick = onGalleryImageClick
-                                )
-                            }
-                    }
-                    item {
-                        Spacer(Modifier.height(156.dp))
-                    }
                 }
             }
-        } else if ((homeScreenState.status == WRStatus.UNINITIALIZED) && !preferencesState.dataSaver && preferencesState.feedEnabled) {
-            AnimatedShimmer {
-                FeedLoader(brush = it, insets = insets)
+
+            AnimatedVisibility(
+                !condition1 && condition2,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                AnimatedShimmer {
+                    FeedLoader(brush = it, insets = insets)
+                }
             }
-        } else if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR || homeScreenState.status == WRStatus.UNINITIALIZED) {
-            Icon(
-                painterResource(R.drawable.ic_launcher_monochrome),
-                contentDescription = null,
+
+            AnimatedVisibility(
+                !condition1 && !condition2 && condition3,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Icon(
+                    painterResource(R.drawable.ic_launcher_monochrome),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(400.dp)
+                        .align(Alignment.Center)
+                )
+            }
+
+            AnimatedVisibility(
+                !condition1 && !condition2 && !condition3,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                ArticleFeed(
+                    feedState = feedState,
+                    pagerState = pagerState,
+                    imageLoader = imageLoader,
+                    insets = insets,
+                    loadPage = onLinkClick,
+                    refreshFeed = refreshFeed,
+                    onImageClick = onImageClick,
+                    listState = feedListState,
+                    windowSizeClass = windowSizeClass,
+                    animatedVisibilityScope = this@AnimatedVisibility,
+                    imageBackground = preferencesState.imageBackground
+                )
+            }
+
+            AnimatedVisibility( // The linear progress bar that shows up when the article is loading
+                visible = homeScreenState.isLoading,
+                enter = expandVertically(expandFrom = Alignment.Top),
+                exit = shrinkVertically(shrinkTowards = Alignment.Top),
+                modifier = Modifier.padding(top = (max(systemBars, insets.calculateTopPadding())))
+            ) {
+                if (homeScreenState.loadingProgress == null)
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 4.dp)
+                    )
+                else {
+                    val animatedProgress by animateFloatAsState(
+                        targetValue = homeScreenState.loadingProgress,
+                        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+                    )
+                    LinearProgressIndicator(
+                        { animatedProgress },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 4.dp)
+                    )
+                }
+            }
+
+            HorizontalFloatingToolbar(
+                expanded = true,
+                scrollBehavior = floatingToolbarScrollBehaviour,
+                colors = FloatingToolbarDefaults.vibrantFloatingToolbarColors(),
+                floatingActionButton = {
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text(stringResource(R.string.search)) } },
+                        state = rememberTooltipState()
+                    ) {
+                        FloatingToolbarDefaults.VibrantFloatingActionButton(
+                            onClick = onSearchButtonClick
+                        ) {
+                            Icon(Icons.Outlined.Search, stringResource(R.string.search))
+                        }
+                    }
+                },
                 modifier = Modifier
-                    .size(400.dp)
-                    .align(Alignment.Center)
-            )
-        } else {
-            ArticleFeed(
-                feedState = feedState,
-                imageLoader = imageLoader,
-                insets = insets,
-                loadPage = onLinkClick,
-                refreshFeed = refreshFeed,
-                onImageClick = onImageClick,
-                listState = feedListState,
-                windowSizeClass = windowSizeClass,
-                imageBackground = preferencesState.imageBackground
-            )
-        }
-
-        AnimatedVisibility( // The linear progress bar that shows up when the article is loading
-            visible = homeScreenState.isLoading,
-            enter = expandVertically(expandFrom = Alignment.Top),
-            exit = shrinkVertically(shrinkTowards = Alignment.Top),
-            modifier = Modifier.padding(top = (max(systemBars, insets.calculateTopPadding())))
-        ) {
-            if (homeScreenState.loadingProgress == null)
-                LinearProgressIndicator(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 4.dp)
-                )
-            else {
-                val animatedProgress by animateFloatAsState(
-                    targetValue = homeScreenState.loadingProgress,
-                    animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
-                )
-                LinearProgressIndicator(
-                    { animatedProgress },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 4.dp)
-                )
-            }
-        }
-
-        HorizontalFloatingToolbar(
-            expanded = true,
-            scrollBehavior = floatingToolbarScrollBehaviour,
-            colors = FloatingToolbarDefaults.vibrantFloatingToolbarColors(),
-            floatingActionButton = {
+                    .align(Alignment.BottomCenter)
+                    .padding(horizontal = 16.dp)
+                    .offset(y = -(insets.calculateBottomPadding()))
+            ) {
                 TooltipBox(
                     positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
-                    tooltip = { PlainTooltip { Text(stringResource(R.string.search)) } },
+                    tooltip = { PlainTooltip { Text(stringResource(R.string.settingWikipediaLanguage)) } },
                     state = rememberTooltipState()
                 ) {
-                    FloatingToolbarDefaults.VibrantFloatingActionButton(
-                        onClick = onSearchButtonClick
+                    IconButton(
+                        onClick = { setShowArticleLanguageSheet(true) },
+                        enabled = homeScreenState.status in listOf(
+                            WRStatus.FEED_LOADED,
+                            WRStatus.FEED_NETWORK_ERROR
+                        ) || homeScreenState.langs?.isEmpty() == false
                     ) {
-                        Icon(Icons.Outlined.Search, stringResource(R.string.search))
-                    }
-                }
-            },
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(horizontal = 16.dp)
-                .offset(y = -(insets.calculateBottomPadding()))
-        ) {
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
-                tooltip = { PlainTooltip { Text(stringResource(R.string.settingWikipediaLanguage)) } },
-                state = rememberTooltipState()
-            ) {
-                IconButton(
-                    onClick = { setShowArticleLanguageSheet(true) },
-                    enabled = homeScreenState.status in listOf(
-                        WRStatus.FEED_LOADED,
-                        WRStatus.FEED_NETWORK_ERROR
-                    ) || homeScreenState.langs?.isEmpty() == false
-                ) {
-                    Icon(
-                        painterResource(R.drawable.translate),
-                        stringResource(R.string.settingWikipediaLanguage)
-                    )
-                }
-            }
-
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
-                tooltip = { PlainTooltip { Text(stringResource(R.string.sharePage)) } },
-                state = rememberTooltipState()
-            ) {
-                IconButton(
-                    enabled = homeScreenState.status == WRStatus.SUCCESS,
-                    onClick = remember(
-                        homeScreenState.title,
-                        preferencesState.lang
-                    ) {
-                        { context.startActivity(shareIntent) }
-                    }
-                ) {
-                    Icon(
-                        painterResource(R.drawable.share),
-                        contentDescription = stringResource(R.string.sharePage)
-                    )
-                }
-            }
-
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
-                tooltip = {
-                    PlainTooltip {
-                        Text(
-                            when (homeScreenState.savedStatus) {
-                                SavedStatus.SAVED -> stringResource(R.string.deleteArticle)
-                                else -> stringResource(R.string.downloadArticle)
-                            }
+                        Icon(
+                            painterResource(R.drawable.translate),
+                            stringResource(R.string.settingWikipediaLanguage)
                         )
                     }
-                },
-                state = rememberTooltipState()
-            ) {
-                FilledTonalIconToggleButton(
-                    checked = homeScreenState.savedStatus == SavedStatus.SAVED,
-                    enabled = homeScreenState.status == WRStatus.SUCCESS,
-                    colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
-                        containerColor = vibrantFloatingToolbarColors().toolbarContainerColor,
-                        contentColor = vibrantFloatingToolbarColors().toolbarContentColor,
-                        checkedContainerColor = colorScheme.surfaceContainer,
-                        checkedContentColor = colorScheme.onSurface,
-                        disabledContainerColor = vibrantFloatingToolbarColors().toolbarContainerColor,
-                        disabledContentColor = colorScheme.onPrimaryContainer.copy(alpha = 0.38f)
-                    ),
-                    onCheckedChange = { saveArticle() }
+                }
+
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    tooltip = { PlainTooltip { Text(stringResource(R.string.sharePage)) } },
+                    state = rememberTooltipState()
                 ) {
-                    AnimatedContent(
-                        homeScreenState.savedStatus,
-                        label = "saveAnimation"
-                    ) { saved ->
-                        when (saved) {
-                            SavedStatus.SAVED ->
-                                Icon(
-                                    painterResource(R.drawable.download_done),
-                                    contentDescription = stringResource(R.string.deleteArticle)
-                                )
+                    IconButton(
+                        enabled = homeScreenState.status == WRStatus.SUCCESS,
+                        onClick = remember(
+                            homeScreenState.title,
+                            preferencesState.lang
+                        ) {
+                            { context.startActivity(shareIntent) }
+                        }
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.share),
+                            contentDescription = stringResource(R.string.sharePage)
+                        )
+                    }
+                }
 
-                            SavedStatus.SAVING -> LoadingIndicator()
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    tooltip = {
+                        PlainTooltip {
+                            Text(
+                                when (homeScreenState.savedStatus) {
+                                    SavedStatus.SAVED -> stringResource(R.string.deleteArticle)
+                                    else -> stringResource(R.string.downloadArticle)
+                                }
+                            )
+                        }
+                    },
+                    state = rememberTooltipState()
+                ) {
+                    FilledTonalIconToggleButton(
+                        checked = homeScreenState.savedStatus == SavedStatus.SAVED,
+                        enabled = homeScreenState.status == WRStatus.SUCCESS,
+                        colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
+                            containerColor = vibrantFloatingToolbarColors().toolbarContainerColor,
+                            contentColor = vibrantFloatingToolbarColors().toolbarContentColor,
+                            checkedContainerColor = colorScheme.surfaceContainer,
+                            checkedContentColor = colorScheme.onSurface,
+                            disabledContainerColor = vibrantFloatingToolbarColors().toolbarContainerColor,
+                            disabledContentColor = colorScheme.onPrimaryContainer.copy(alpha = 0.38f)
+                        ),
+                        onCheckedChange = { saveArticle() }
+                    ) {
+                        AnimatedContent(
+                            homeScreenState.savedStatus,
+                            label = "saveAnimation"
+                        ) { saved ->
+                            when (saved) {
+                                SavedStatus.SAVED ->
+                                    Icon(
+                                        painterResource(R.drawable.download_done),
+                                        contentDescription = stringResource(R.string.deleteArticle)
+                                    )
 
-                            else ->
-                                Icon(
-                                    painterResource(R.drawable.download),
-                                    contentDescription = stringResource(R.string.downloadArticle)
-                                )
+                                SavedStatus.SAVING -> LoadingIndicator()
+
+                                else ->
+                                    Icon(
+                                        painterResource(R.drawable.download),
+                                        contentDescription = stringResource(R.string.downloadArticle)
+                                    )
+                            }
                         }
                     }
                 }
-            }
 
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
-                tooltip = { PlainTooltip { Text(stringResource(R.string.scroll_to_top)) } },
-                state = rememberTooltipState()
-            ) {
-                IconButton(
-                    onClick = scrollToTop,
-                    enabled = enableScrollButton
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    tooltip = { PlainTooltip { Text(stringResource(R.string.scroll_to_top)) } },
+                    state = rememberTooltipState()
                 ) {
-                    Icon(
-                        painterResource(R.drawable.upward),
-                        contentDescription = stringResource(R.string.scroll_to_top)
-                    )
+                    IconButton(
+                        onClick = scrollToTop,
+                        enabled = enableScrollButton
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.upward),
+                            contentDescription = stringResource(R.string.scroll_to_top)
+                        )
+                    }
                 }
-            }
 
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
-                tooltip = { PlainTooltip { Text(stringResource(R.string.randomArticle)) } },
-                state = rememberTooltipState()
-            ) {
-                IconButton(onClick = loadRandom) {
-                    Icon(
-                        painterResource(R.drawable.shuffle),
-                        contentDescription = stringResource(R.string.randomArticle)
-                    )
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    tooltip = { PlainTooltip { Text(stringResource(R.string.randomArticle)) } },
+                    state = rememberTooltipState()
+                ) {
+                    IconButton(onClick = loadRandom) {
+                        Icon(
+                            painterResource(R.drawable.shuffle),
+                            contentDescription = stringResource(R.string.randomArticle)
+                        )
+                    }
                 }
             }
         }

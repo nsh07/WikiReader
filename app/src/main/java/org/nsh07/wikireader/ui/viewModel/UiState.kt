@@ -13,7 +13,6 @@ import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiLang
 import org.nsh07.wikireader.data.WikiPhoto
-import org.nsh07.wikireader.data.WikiPhotoDesc
 import org.nsh07.wikireader.data.WikiPrefixSearchResult
 import org.nsh07.wikireader.data.WikiSearchResult
 import org.nsh07.wikireader.ui.savedArticlesScreen.LanguageFilterOption
@@ -33,7 +32,7 @@ data class HomeScreenState(
     val extract: List<List<AnnotatedString>> = emptyList(),
     val sections: List<Pair<Int, String>> = emptyList(),
     val photo: WikiPhoto? = null,
-    val photoDesc: WikiPhotoDesc? = null,
+    val photoDesc: String? = null,
     val langs: List<WikiLang>? = null,
     val currentLang: String? = null,
     val pageId: Int? = null,

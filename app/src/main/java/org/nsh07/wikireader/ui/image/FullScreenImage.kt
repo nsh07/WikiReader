@@ -57,14 +57,13 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.data.WikiPhoto
-import org.nsh07.wikireader.data.WikiPhotoDesc
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun FullScreenImage(
     photo: WikiPhoto?,
-    photoDesc: WikiPhotoDesc?,
+    photoDesc: String?,
     title: String,
     background: Boolean,
     imageLoader: ImageLoader,
@@ -132,8 +131,7 @@ fun FullScreenImage(
                 exit = slideOutVertically(motionScheme.defaultSpatialSpec()) { -it }
             ) {
                 FullScreenImageTopBar(
-                    photoDesc = photoDesc,
-                    title = title,
+                    description = title,
                     link = link,
                     onBack = onBack
                 )

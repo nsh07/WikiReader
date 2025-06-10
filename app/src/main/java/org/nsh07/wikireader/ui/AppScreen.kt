@@ -86,7 +86,6 @@ import org.nsh07.wikireader.R.string
 import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiPhoto
-import org.nsh07.wikireader.data.WikiPhotoDesc
 import org.nsh07.wikireader.ui.aboutScreen.AboutScreen
 import org.nsh07.wikireader.ui.homeScreen.AppHomeScreen
 import org.nsh07.wikireader.ui.homeScreen.AppSearchBar
@@ -521,12 +520,8 @@ fun AppScreen(
                                 width = feedState.image?.image?.width ?: 1,
                                 height = feedState.image?.image?.height ?: 1
                             ),
-                            photoDesc = WikiPhotoDesc(
-                                label = listOf(
-                                    feedState.image?.description?.text?.parseAsHtml().toString()
-                                ),
-                                description = null
-                            ),
+                            photoDesc = feedState.image?.description?.text?.parseAsHtml()
+                                .toString(),
                             title = feedState.image?.title ?: "",
                             imageLoader = imageLoader,
                             link = feedState.image?.filePage,
