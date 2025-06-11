@@ -415,10 +415,10 @@ fun String.toWikitextAnnotatedString(
                                                 params["year"]
                                             ).joinToString()
                                         })".takeIf { it.trim('(', ')').isNotBlank() },
-                                        if (params["url"] == null) "\"$title\"".takeIf {
-                                            it.trim('"').isNotBlank()
+                                        if (params["url"] == null) title.takeIf {
+                                            it?.trim('"')?.isNotBlank() == true
                                         }
-                                        else "[${params["url"]} \"$title\"]".takeIf {
+                                        else "[${params["url"]} $title]".takeIf {
                                             it.trim('"').isNotBlank()
                                         },
                                         params["website"],
@@ -473,10 +473,10 @@ fun String.toWikitextAnnotatedString(
                                                 params["year"]
                                             ).joinToString()
                                         })",
-                                        if (params["url"] == null) "\"$title\"".takeIf {
-                                            it.trim('"').isNotBlank()
+                                        if (params["url"] == null) title.takeIf {
+                                            it?.trim('"')?.isNotBlank() == true
                                         }
-                                        else "[${params["url"]} \"$title\"]".takeIf {
+                                        else "[${params["url"]} $title]".takeIf {
                                             it.trim('"').isNotBlank()
                                         },
                                         "''${params["journal"]}''".takeIf { params["journal"] != null },
@@ -1067,7 +1067,7 @@ fun String.buildRefList() {
                 val open = this.substringMatchingParen('<', '>', i)
                 if (!open.endsWith("/>")) {
                     val refWt = this.substring(i).substringBefore("</ref>").substringAfter('>')
-                    val refName = open.substringAfter("name=").removeSuffix(">").trim('"')
+                    val refName = open.substringAfter("name=").removeSuffix(">").trim('"', ' ')
                     refList[refName] = refWt
                 }
             }
