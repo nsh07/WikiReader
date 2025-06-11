@@ -1,0 +1,11 @@
+New features:
+- All page controls are now present in a horizontal toolbar
+- New settings option to choose app language (Android 13+)
+- Citation support (Experimental, please report any bugs)
+- Redesigned full screen image view with a blurred background
+- New animations when opening pages from the feed
+
+Improvements:
+- News/History Carousels in feed now restore their position
+- Added support for more templates
+- Drastically improved app performance and smoothness
