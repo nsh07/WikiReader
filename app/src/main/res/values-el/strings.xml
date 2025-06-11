@@ -1,2 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="cancel">Ακύρωση</string>
+    <string name="app">Εφαρμογή</string>
+    <string name="app_name">WikiReader</string>
+    <string name="articlesSize">%1$s άρθρα %2$s συνολικά</string>
+    <string name="author">Συντάκτης</string>
+    <string name="chooseColorScheme">Επέλεξε σύστημα χρωμάτων</string>
+    <string name="articleDeleted">Το άρθρο διαγράφηκε</string>
+    <string name="back">Πίσω</string>
+    <string name="about">Σχετικά</string>
+    <string name="appTagline">Διάβασε τις σελίδες της Βικιπαίδειας χωρίς περισπασμούς</string>
+</resources>
