@@ -239,7 +239,14 @@ fun SharedTransitionScope.ArticleFeed(
                                     imageLoader = imageLoader,
                                     background = imageBackground,
                                     loadingIndicator = false,
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier
+                                        .sharedBounds(
+                                            sharedContentState = rememberSharedContentState(
+                                                feedState.tfa.originalImage?.source ?: "imgsrc"
+                                            ),
+                                            animatedVisibilityScope = animatedVisibilityScope
+                                        )
+                                        .weight(1f)
                                 )
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
@@ -247,6 +254,13 @@ fun SharedTransitionScope.ArticleFeed(
                                         style = typography.headlineMedium,
                                         fontFamily = FontFamily.Serif,
                                         modifier = Modifier
+                                            .sharedBounds(
+                                                sharedContentState = rememberSharedContentState(
+                                                    feedState.tfa.titles?.normalized ?: "title"
+                                                ),
+                                                animatedVisibilityScope = animatedVisibilityScope,
+                                                zIndexInOverlay = 1f
+                                            )
                                             .padding(horizontal = 16.dp)
                                             .padding(top = 16.dp)
                                     )
@@ -255,6 +269,13 @@ fun SharedTransitionScope.ArticleFeed(
                                         style = typography.bodyMedium,
                                         color = colorScheme.onSurfaceVariant,
                                         modifier = Modifier
+                                            .sharedBounds(
+                                                sharedContentState = rememberSharedContentState(
+                                                    feedState.tfa.description ?: "desc"
+                                                ),
+                                                animatedVisibilityScope = animatedVisibilityScope,
+                                                zIndexInOverlay = 1f
+                                            )
                                             .padding(horizontal = 16.dp, vertical = 4.dp)
                                     )
                                     Text(
@@ -470,10 +491,10 @@ fun SharedTransitionScope.ArticleFeed(
                     ) {
                         if (!expanded) {
                             FeedImage(
-                                source = feedState.image.image?.source,
+                                source = feedState.image.thumbnail?.source,
                                 description = feedState.image.description?.text,
-                                width = feedState.image.image?.width ?: 1,
-                                height = feedState.image.image?.height ?: 1,
+                                width = feedState.image.thumbnail?.width ?: 1,
+                                height = feedState.image.thumbnail?.height ?: 1,
                                 imageLoader = imageLoader,
                                 background = imageBackground,
                                 loadingIndicator = false,

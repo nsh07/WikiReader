@@ -516,9 +516,9 @@ fun AppScreen(
                     } else {
                         FullScreenImage(
                             photo = WikiPhoto(
-                                source = feedState.image?.image?.source ?: "",
-                                width = feedState.image?.image?.width ?: 1,
-                                height = feedState.image?.image?.height ?: 1
+                                source = feedState.image?.thumbnail?.source ?: "",
+                                width = feedState.image?.thumbnail?.width ?: 1,
+                                height = feedState.image?.thumbnail?.height ?: 1
                             ),
                             photoDesc = feedState.image?.description?.text?.parseAsHtml()
                                 .toString(),

@@ -181,7 +181,7 @@ fun FullScreenImage(
                         modifier = Modifier
                             .fillMaxSize()
                             .blur(32.dp)
-                            .alpha(0.5f)
+                            .alpha(0.3f)
                     )
                 }
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
@@ -352,7 +352,7 @@ fun FullScreenImage(
                     modifier = Modifier
                         .fillMaxSize()
                         .blur(32.dp)
-                        .alpha(0.5f)
+                        .alpha(0.3f)
                 )
             }
             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
