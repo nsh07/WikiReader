@@ -19,7 +19,7 @@
     <string name="settingExpandSections">Розгорнути розділи</string>
     <string name="settingExpandSectionsDesc">По стандарту розгорнути всі розділи</string>
     <string name="settingFontSize">Розмір шрифту</string>
-    <string name="settingRenderMath">Відображати математичні вирази</string>
+    <string name="settingRenderMath">Показувати математичні вирази</string>
     <string name="settingRenderMathDesc">Потребує невеликої кількості додаткових даних. Вимкніть, щоби підвищити продуктивність за рахунок читабельності.</string>
     <string name="settingSearchHistory">Історія пошуку</string>
     <string name="settingTheme">Тема</string>
@@ -64,7 +64,7 @@
     <string name="moreOptions">Більше параметрів</string>
     <string name="noSavedArticles">Немає збережених статтей</string>
     <string name="ok">Гаразд</string>
-    <string name="noSavedArticlesDesc">Натисніть на кнопку завантаження вгорі статті, щоби розпочати</string>
+    <string name="noSavedArticlesDesc">Натисніть кнопку завантаження на панелі інструментів внизу під час перегляду статті, щоб розпочати</string>
     <string name="onThisDay">У цей день</string>
     <string name="openInBrowser">Відкрити в браузері</string>
     <string name="otherProjectsDesc">Подивіться інші мої проєкти на GitHub</string>
@@ -93,7 +93,7 @@
     <string name="wikipediaWebsiteDesc">Відвідати сайт Вікіпедії</string>
     <string name="deleteAllArticles">Видалити всі статті?</string>
     <string name="deleteAllArticlesDesc">Усі статті будуть назавжди видалені з вашого пристрою</string>
-    <string name="deleteArticle">Видалити завантажену статтю</string>
+    <string name="deleteArticle">Видалити статтю</string>
     <string name="author">Автор</string>
     <string name="inTheNews">У новинах</string>
     <string name="titleMatches">Збіги по назві</string>
@@ -117,8 +117,10 @@
     <string name="reset">Скинути</string>
     <string name="image">Зображення</string>
     <string name="saved">Збережено</string>
-    <string name="settingFeed">Годувати</string>
-    <string name="settingFeedDesc">Показувати стрічку популярних статей, новин та іншого про запуск додатків</string>
+    <string name="settingFeed">Стрічка</string>
+    <string name="settingFeedDesc">Показувати стрічку популярних статей, новин та іншого про запуск застосунків</string>
     <string name="donate">Пожертвувати</string>
     <string name="supportMyWork">Підтримайте мою роботу</string>
+    <string name="settingAppLanguage">Мова програми</string>
+    <string name="chooseAppLanguage">Виберіть мову програми</string>
 </resources>

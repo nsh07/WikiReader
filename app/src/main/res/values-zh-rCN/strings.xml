@@ -121,4 +121,6 @@
     <string name="settingDataSaver">省流量模式</string>
     <string name="donate">捐赠</string>
     <string name="supportMyWork">支持我</string>
+    <string name="settingAppLanguage">应用语言</string>
+    <string name="chooseAppLanguage">选择应用语言</string>
 </resources>

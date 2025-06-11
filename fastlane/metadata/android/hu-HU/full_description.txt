@@ -1,0 +1,18 @@
+<p>Egy alacsony erőforrásigényű Android applikáció Wikipédia-oldalak zavartalan olvasásához. Támogat világos és sötét témát, Material You dinamikus színeket és több mint 300 Wikipédia nyelvet, mindezt egy személyre szabható, egyszerű felülettel</p>
+<p>Funkciók</p>
+<ul>
+    <li><b>Gyors betöltés:</b> A szócikkek szövege minden más előtt betöltődik, így gyorsan elkezdhet olvasni</li>
+    <li><b>Hírfolyam:</b> Olvassa el a nap szócikkét, találjon felkapott szócikkeket, és zárkózzon fel a hírekből a Wikipédia Hírfolyammal</li>
+    <li><b>A szócikk képe:</b> Tekintsen meg egy képet a témáról annak Wikipédia-oldaláról. Koppintson a képre a nagyításához, és a teljes képernyőben való megtekintéshez</li>
+    <li><b>Véletlenszerű szócikk:</b> Szerencsésnek érzi magát? Nyomja meg a véletlenszerű szócikk gombot, hogy elolvasson egy véletlenszerű szócikket</li>
+    <li><b>Válassza ki a nyelvét:</b> Válogasson több mint 300 nyelv közül a Wikipédián</li>
+    <li><b>Mentsen szócikkeket:</b> Töltsön le szócikkeket eszközére az offline olvasáshoz</li>
+    <li><b>Egykezes használat:</b> Használja az alul található lebegő gombokat a funkciók egykezes eléréséhez</li>
+    <li><b>Alacsony erőforrásigényű:</b> Az applikáció azonnal elindul, és gördülékenyen fut</li>
+    <li><b>Material Design 3:</b> A legújabb Material Design 3 irányelvei szerint tervezve</li>
+    <li><b>Gördülékeny animációk:</b> Sima és gördülékeny animációk</li>
+    <li><b>Személyre szabható színek:</b> Válasszon világos/sötét témát, és szabja személyre a Material 3 színpalettáját</li>
+    <li><b>Személyre szabható betűméret:</b> Válassza ki az Önnek megfelelő betűméretet</li>
+    <li><b>Adatforgalom-csökkentő:</b> Spórolja meg korlátozott adatforgalmát azzal, hogy csak a szöveget tölti be</li>
+    <li><b>Matematikai kifejezések:</b> Helyesen renderelt matematikai kifejezéseket láthat a matematikai szócikkek könnyű olvashatóságáért</li>
+</ul>

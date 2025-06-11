@@ -28,10 +28,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.startAnimDuration()
-        installSplashScreen().setKeepOnScreenCondition {
-            !viewModel.isReady || !viewModel.isAnimDurationComplete
-        }
+        installSplashScreen().setKeepOnScreenCondition { !viewModel.isReady }
         viewModel.setFilesDir(filesDir.path)
         viewModel.migrateArticles()
         enableEdgeToEdge()
@@ -69,5 +66,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        reportFullyDrawn()
     }
 }

@@ -39,6 +39,10 @@ import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.parseSections
 import org.nsh07.wikireader.network.HostSelectionInterceptor
 import org.nsh07.wikireader.network.NetworkException
+import org.nsh07.wikireader.parser.ReferenceData.refCount
+import org.nsh07.wikireader.parser.ReferenceData.refList
+import org.nsh07.wikireader.parser.ReferenceData.refListCount
+import org.nsh07.wikireader.parser.buildRefList
 import org.nsh07.wikireader.parser.cleanUpWikitext
 import org.nsh07.wikireader.parser.substringMatchingParen
 import org.nsh07.wikireader.parser.toWikitextAnnotatedString
@@ -67,6 +71,7 @@ class UiViewModel(
 
     private val _articleListState = MutableStateFlow(LazyListState(0, 0))
     val articleListState: StateFlow<LazyListState> = _articleListState.asStateFlow()
+
     private val _searchListState = MutableStateFlow(LazyListState(0, 0))
     val searchListState: StateFlow<LazyListState> = _searchListState.asStateFlow()
 
@@ -95,7 +100,6 @@ class UiViewModel(
     private var fromLink: Boolean = false
 
     var isReady = false
-    var isAnimDurationComplete = false
 
     private var sections = 0
     private var currentSection = 0
@@ -172,13 +176,6 @@ class UiViewModel(
             interceptor.setHost("$lang.wikipedia.org")
             isReady = true
             loadFeed()
-        }
-    }
-
-    fun startAnimDuration() {
-        viewModelScope.launch {
-            delay(600)
-            isAnimDurationComplete = true
         }
     }
 
@@ -441,6 +438,8 @@ class UiViewModel(
                     val articleSections = mutableListOf<Pair<Int, String>>()
                     val parsedExtract = mutableListOf<List<AnnotatedString>>()
 
+                    extractText.buildRefList() // Build refList for article
+
                     _homeScreenState.update { currentState ->
                         currentState.copy(
                             title = apiResponse?.title ?: "Error",
@@ -476,6 +475,11 @@ class UiViewModel(
                             )
                         }
                     }
+
+                    // Reset refList
+                    refCount = 1
+                    refList.clear()
+                    refListCount.clear()
 
                     _homeScreenState.update { currentState ->
                         currentState.copy(isLoading = false)
@@ -907,7 +911,8 @@ class UiViewModel(
                 val apiResponse =
                     Json.decodeFromString<WikiApiPageData>(apiFile.readText()).query?.pages?.get(0)
 
-                val extract: List<String> = parseSections(contentFile.readText())
+                val extractText = contentFile.readText()
+                val extract: List<String> = parseSections(extractText)
 
                 sections = extract.size
                 var sectionIndex = 3
@@ -929,6 +934,8 @@ class UiViewModel(
                         lang = apiFileName.substringAfterLast('.')
                     )
                 }
+
+                extractText.buildRefList()
 
                 _homeScreenState.update { currentState ->
                     currentState.copy(
@@ -965,6 +972,10 @@ class UiViewModel(
                         )
                     }
                 }
+
+                refCount = 1
+                refList.clear()
+                refListCount.clear()
 
                 _homeScreenState.update { currentState ->
                     currentState.copy(
@@ -1022,7 +1033,10 @@ class UiViewModel(
                                 colorScheme = colorScheme,
                                 typography = typography,
                                 loadPage = ::loadPage,
-                                fontSize = preferencesState.value.fontSize
+                                fontSize = preferencesState.value.fontSize,
+                                showRef = {
+
+                                }
                             )
                         )
                         out.add(AnnotatedString(currSubstring))
@@ -1035,7 +1049,8 @@ class UiViewModel(
                                 colorScheme = colorScheme,
                                 typography = typography,
                                 loadPage = ::loadPage,
-                                fontSize = preferencesState.value.fontSize
+                                fontSize = preferencesState.value.fontSize,
+                                showRef = ::updateRef
                             )
                         )
                         out.add(AnnotatedString(currSubstring))
@@ -1056,7 +1071,8 @@ class UiViewModel(
                                     colorScheme = colorScheme,
                                     typography = typography,
                                     loadPage = ::loadPage,
-                                    fontSize = preferencesState.value.fontSize
+                                    fontSize = preferencesState.value.fontSize,
+                                    showRef = ::updateRef
                                 )
                             )
                             out.add(
@@ -1092,7 +1108,8 @@ class UiViewModel(
                                 colorScheme = colorScheme,
                                 typography = typography,
                                 loadPage = ::loadPage,
-                                fontSize = preferencesState.value.fontSize
+                                fontSize = preferencesState.value.fontSize,
+                                showRef = ::updateRef
                             )
                         )
                         out.add(AnnotatedString(currSubstring))
@@ -1106,7 +1123,8 @@ class UiViewModel(
                                 colorScheme = colorScheme,
                                 typography = typography,
                                 loadPage = ::loadPage,
-                                fontSize = preferencesState.value.fontSize
+                                fontSize = preferencesState.value.fontSize,
+                                showRef = ::updateRef
                             )
                         )
                         out.add(AnnotatedString(currSubstringNestedTable))
@@ -1121,11 +1139,38 @@ class UiViewModel(
                     colorScheme = colorScheme,
                     typography = typography,
                     loadPage = { loadPage(it) },
-                    fontSize = preferencesState.value.fontSize
+                    fontSize = preferencesState.value.fontSize,
+                    showRef = ::updateRef
                 )
             )
             out.toList()
         }
+
+    private fun updateRef(ref: String) {
+        _homeScreenState.update { currentState ->
+            currentState.copy(
+                ref = ref.toWikitextAnnotatedString(
+                    colorScheme = colorScheme,
+                    typography = typography,
+                    loadPage = {
+                        loadPage(it)
+                        hideRef()
+                    },
+                    fontSize = preferencesState.value.fontSize,
+                    showRef = ::updateRef
+                ),
+                showRef = true
+            )
+        }
+    }
+
+    fun hideRef() {
+        _homeScreenState.update { currentState ->
+            currentState.copy(
+                showRef = false
+            )
+        }
+    }
 
     fun focusSearchBar() {
         appSearchBarState.value.focusRequester.requestFocus()

@@ -1,5 +1,7 @@
 package org.nsh07.wikireader.ui.theme
 
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.TopAppBarColors
@@ -27,6 +29,9 @@ object CustomTopBarColors {
                 scrolledContainerColor = colorScheme.surfaceContainer
             ) else TopAppBarDefaults.topAppBarColors()
         }
+
+    val cardColors: CardColors
+        @Composable get() = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainer)
 }
 
 object ColorConstants {

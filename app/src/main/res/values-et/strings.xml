@@ -35,7 +35,7 @@
     <string name="instructions">Juhend</string>
     <string name="moreOptions">Lisavalikud</string>
     <string name="noSavedArticles">Salvestatud artikleid pole</string>
-    <string name="noSavedArticlesDesc">Alustamiseks klõpsi artikli ülaosas olevat allalaadimise nuppu</string>
+    <string name="noSavedArticlesDesc">Alustamiseks klõpsi artikli alaosa tööriistariba allalaadimise nuppu</string>
     <string name="onThisDay">Tänasel päeval</string>
     <string name="openInBrowser">Ava veebibrauseris</string>
     <string name="otherProjectsDesc">Vaata minu teisi projekte GitHubis</string>
@@ -103,8 +103,8 @@
     <string name="settingDataSaverDesc">Ära kohe laadi pilte ja uudisvoogu. Pilte saad siiski avada asenduskaardi klõpsimisel.</string>
     <string name="settingExpandSectionsDesc">Vaikimisi näita kõiki artikli lõike avatuna</string>
     <string name="settingImmersiveModeDesc">Artikli kerimisel peida otsinguriba ja ujuvad tegevustenupud. Väikeste ekraanidega nutiseadmetes on see eelistus vaikimisi kasutusel.</string>
-    <string name="translateDesc">Aita VikiLugejat tõlkida oma keelde</string>
-    <string name="setAsDefaultDesc">Sa võid VikiLugeja määrata Vikipeedia linkide vaikimise avajaks. Lisateavet leiad allpooltoodud nupust ja seadistustest saad seda siis muuta.</string>
+    <string name="translateDesc">Aita WikiReaderit tõlkida oma keelde</string>
+    <string name="setAsDefaultDesc">Sa võid WikiReaderi määrata Vikipeedia linkide vaikimise avajaks. Lisateavet leiad allpooltoodud nupust ja seadistustest saad seda siis muuta.</string>
     <string name="settingImageBackground">Pildi taust</string>
     <string name="settingImageBackgroundDesc">Lisa läbipaistvatele piltidele valge taust. Muu hulgas parandab see loetavust tumedas kujunduses.</string>
     <string name="app">Rakendus</string>
@@ -121,4 +121,6 @@
     <string name="settingFeedDesc">Rakenduse käivitamisel näita populaarsete artiklite, uudiste ja muid sisuvooge</string>
     <string name="donate">Toeta meid rahaliselt</string>
     <string name="supportMyWork">Toeta minu tööd</string>
+    <string name="settingAppLanguage">Rakenduse keel</string>
+    <string name="chooseAppLanguage">Vali rakenduse keel</string>
 </resources>

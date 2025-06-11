@@ -29,6 +29,8 @@ import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingToolbarDefaults
+import androidx.compose.material3.FloatingToolbarExitDirection
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.MaterialTheme.typography
@@ -84,9 +86,7 @@ import org.nsh07.wikireader.R.string
 import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiPhoto
-import org.nsh07.wikireader.data.WikiPhotoDesc
 import org.nsh07.wikireader.ui.aboutScreen.AboutScreen
-import org.nsh07.wikireader.ui.homeScreen.AppFab
 import org.nsh07.wikireader.ui.homeScreen.AppHomeScreen
 import org.nsh07.wikireader.ui.homeScreen.AppSearchBar
 import org.nsh07.wikireader.ui.image.FullScreenImage
@@ -164,6 +164,15 @@ fun AppScreen(
             preferencesState.immersiveMode
         ) TopAppBarDefaults.enterAlwaysScrollBehavior()
         else TopAppBarDefaults.pinnedScrollBehavior()
+    val floatingToolbarScrollBehaviour =
+        if (
+            !windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND) ||
+            preferencesState.immersiveMode
+        ) FloatingToolbarDefaults.exitAlwaysScrollBehavior(
+            exitDirection = FloatingToolbarExitDirection.Bottom,
+            snapAnimationSpec = motionScheme.defaultSpatialSpec()
+        )
+        else null
     val textFieldState = viewModel.textFieldState
 
     val imageLoader = remember {
@@ -383,56 +392,33 @@ fun AppScreen(
                             }
                         )
                     },
-                    floatingActionButton = {
-                        AppFab(
-                            index = if (homeScreenState.status != WRStatus.FEED_LOADED) index else feedIndex,
-                            visible =
-                                searchBarScrollBehavior.state.heightOffset !=
-                                        searchBarScrollBehavior.state.heightOffsetLimit,
-                            focusSearch = {
-                                viewModel.focusSearchBar()
-                                textFieldState.setTextAndPlaceCursorAtEnd(textFieldState.text.toString())
-                            },
-                            scrollToTop = {
-                                scope.launch {
-                                    if (homeScreenState.status != WRStatus.FEED_LOADED)
-                                        listState.scrollToItem(0)
-                                    else
-                                        feedListState.scrollToItem(0)
-                                }
-                            },
-                            performRandomPageSearch = {
-                                scope.launch {
-                                    searchBarState.animateToCollapsed()
-                                }
-                                viewModel.loadPage(
-                                    title = null,
-                                    random = true
-                                )
-                            }
-                        )
-                    },
                     snackbarHost = { SnackbarHost(snackBarHostState) },
                     contentWindowInsets =
                         if (!compactWindow)
                             ScaffoldDefaults.contentWindowInsets
                                 .only(WindowInsetsSides.Top + WindowInsetsSides.Bottom + WindowInsetsSides.End)
                         else ScaffoldDefaults.contentWindowInsets,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .nestedScroll(searchBarScrollBehavior.nestedScrollConnection)
+                    modifier = if (floatingToolbarScrollBehaviour != null)
+                        Modifier
+                            .fillMaxSize()
+                            .nestedScroll(searchBarScrollBehavior.nestedScrollConnection)
+                            .nestedScroll(floatingToolbarScrollBehaviour)
+                    else
+                        Modifier
+                            .fillMaxSize()
+                            .nestedScroll(searchBarScrollBehavior.nestedScrollConnection)
                 ) { insets ->
                     AppHomeScreen(
                         homeScreenState = homeScreenState,
                         listState = listState,
                         preferencesState = preferencesState,
                         feedState = feedState,
+                        floatingToolbarScrollBehaviour = floatingToolbarScrollBehaviour,
                         feedListState = feedListState,
                         imageLoader = imageLoader,
                         languageSearchStr = languageSearchStr,
                         languageSearchQuery = languageSearchQuery,
                         showLanguageSheet = showArticleLanguageSheet,
-                        onFontSizeChange = viewModel::saveFontSize,
                         onImageClick = {
                             if (homeScreenState.photo != null || homeScreenState.status == WRStatus.FEED_LOADED)
                                 navController.navigate(FullScreenImage())
@@ -446,17 +432,12 @@ fun AppScreen(
                         setLang = viewModel::saveLang,
                         setSearchStr = viewModel::updateLanguageSearchStr,
                         setShowArticleLanguageSheet = { showArticleLanguageSheet = it },
+                        enableScrollButton = if (homeScreenState.status != WRStatus.FEED_LOADED) index >= 1 else feedIndex >= 1,
                         saveArticle = {
                             scope.launch {
                                 if (homeScreenState.savedStatus == SavedStatus.NOT_SAVED) {
                                     val status = viewModel.saveArticle()
-                                    if (status == WRStatus.SUCCESS)
-                                        snackBarHostState.showSnackbar(
-                                            context.getString(
-                                                string.snackbarArticleSaved
-                                            )
-                                        )
-                                    else
+                                    if (status != WRStatus.SUCCESS)
                                         snackBarHostState.showSnackbar(
                                             context.getString(
                                                 string.snackbarUnableToSave,
@@ -466,13 +447,7 @@ fun AppScreen(
                                     delay(150L)
                                 } else if (homeScreenState.savedStatus == SavedStatus.SAVED) {
                                     val status = viewModel.deleteArticle()
-                                    if (status == WRStatus.SUCCESS)
-                                        snackBarHostState.showSnackbar(
-                                            context.getString(
-                                                string.snackbarArticleDeleted
-                                            )
-                                        )
-                                    else
+                                    if (status != WRStatus.SUCCESS)
                                         snackBarHostState.showSnackbar(
                                             context.getString(
                                                 string.snackbarUnableToDelete,
@@ -494,6 +469,25 @@ fun AppScreen(
                                         )
                             }
                         },
+                        onSearchButtonClick = {
+                            viewModel.focusSearchBar()
+                            textFieldState.setTextAndPlaceCursorAtEnd(textFieldState.text.toString())
+                        },
+                        loadRandom = {
+                            viewModel.loadPage(
+                                title = null,
+                                random = true
+                            )
+                        },
+                        scrollToTop = {
+                            scope.launch {
+                                if (homeScreenState.status != WRStatus.FEED_LOADED)
+                                    listState.scrollToItem(0)
+                                else
+                                    feedListState.scrollToItem(0)
+                            }
+                        },
+                        hideRef = viewModel::hideRef,
                         insets = insets,
                         windowSizeClass = windowSizeClass,
                         modifier = Modifier.fillMaxSize()
@@ -522,16 +516,12 @@ fun AppScreen(
                     } else {
                         FullScreenImage(
                             photo = WikiPhoto(
-                                source = feedState.image?.image?.source ?: "",
-                                width = feedState.image?.image?.width ?: 1,
-                                height = feedState.image?.image?.height ?: 1
+                                source = feedState.image?.thumbnail?.source ?: "",
+                                width = feedState.image?.thumbnail?.width ?: 1,
+                                height = feedState.image?.thumbnail?.height ?: 1
                             ),
-                            photoDesc = WikiPhotoDesc(
-                                label = listOf(
-                                    feedState.image?.description?.text?.parseAsHtml().toString()
-                                ),
-                                description = null
-                            ),
+                            photoDesc = feedState.image?.description?.text?.parseAsHtml()
+                                .toString(),
                             title = feedState.image?.title ?: "",
                             imageLoader = imageLoader,
                             link = feedState.image?.filePage,

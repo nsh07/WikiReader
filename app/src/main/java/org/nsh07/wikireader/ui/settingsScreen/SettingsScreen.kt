@@ -1,7 +1,9 @@
 package org.nsh07.wikireader.ui.settingsScreen
 
+import android.app.LocaleManager
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -31,6 +33,8 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
@@ -40,9 +44,7 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.motionScheme
-import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHost
@@ -79,9 +81,10 @@ import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.toColor
 import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
-import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.bottomListItemShape
-import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.middleListItemShape
-import org.nsh07.wikireader.ui.theme.ExpressiveListItemShapes.topListItemShape
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
@@ -129,6 +132,14 @@ fun SettingsScreen(
         }
     }
 
+    val currentLocales =
+        if (Build.VERSION.SDK_INT >= 33) {
+            context
+                .getSystemService(LocaleManager::class.java)
+                .applicationLocales
+        } else null
+    val currentLocalesSize = currentLocales?.size() ?: 0
+
     val theme = preferencesState.theme
     val fontStyle = preferencesState.fontStyle
     val color = preferencesState.colorScheme.toColor()
@@ -140,6 +151,8 @@ fun SettingsScreen(
     val (showResetSettingsDialog, setShowResetSettingsDialog) = remember { mutableStateOf(false) }
     val (showColorSchemeDialog, setShowColorSchemeDialog) = remember { mutableStateOf(false) }
     val (showLanguageSheet, setShowLanguageSheet) = remember { mutableStateOf(false) }
+    val (showAppLocaleSheet, setShowAppLocaleSheet) = remember { mutableStateOf(false) }
+
     var animateFontSize by remember { mutableStateOf(true) }
     var fontSizeFloat by remember(preferencesState.fontSize) { mutableFloatStateOf(preferencesState.fontSize.toFloat()) }
     val fontSizeAnimated by animateFloatAsState(
@@ -260,6 +273,13 @@ fun SettingsScreen(
             },
             setSearchStr = updateLanguageSearchStr
         )
+    if (showAppLocaleSheet && currentLocales != null)
+        AppLocaleBottomSheet(
+            searchStr = languageSearchStr,
+            currentLocales = currentLocales,
+            setSearchStr = updateLanguageSearchStr,
+            setShowSheet = setShowAppLocaleSheet
+        )
 
     Scaffold(
         topBar = {
@@ -361,6 +381,28 @@ fun SettingsScreen(
                         .clickable(onClick = { setShowLanguageSheet(true) })
                 )
             }
+            if (currentLocales != null)
+                item {
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                painterResource(R.drawable.language),
+                                contentDescription = null
+                            )
+                        },
+                        headlineContent = { Text(stringResource(string.settingAppLanguage)) },
+                        supportingContent = {
+                            Text(
+                                if (currentLocalesSize > 0) currentLocales.get(0).displayName
+                                else stringResource(string.themeSystemDefault)
+                            )
+                        },
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .clip(middleListItemShape)
+                            .clickable(onClick = { setShowAppLocaleSheet(true) })
+                    )
+                }
             item {
                 ListItem(
                     leadingContent = {
@@ -457,10 +499,10 @@ fun SettingsScreen(
                     supportingContent = { Text(stringResource(item.description)) },
                     trailingContent = {
                         Switch(
-                            checked = item.checked,
+                            checked = item.checked && item.enabled,
                             onCheckedChange = { item.onCheckedChange(it) },
                             thumbContent = {
-                                if (item.checked) {
+                                if (item.checked && item.enabled) {
                                     Icon(
                                         imageVector = Icons.Outlined.Check,
                                         contentDescription = null,
@@ -486,9 +528,10 @@ fun SettingsScreen(
                 )
             }
             item {
-                OutlinedCard(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    shape = shapes.large
+                Card(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                    shape = cardShape,
+                    colors = CardDefaults.cardColors(containerColor = ListItemDefaults.colors().containerColor)
                 ) {
                     Column(
                         modifier = Modifier.padding(20.dp),

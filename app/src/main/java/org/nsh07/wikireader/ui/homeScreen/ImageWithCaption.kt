@@ -28,10 +28,12 @@ fun ImageWithCaption(
     fontSize: Int,
     darkTheme: Boolean,
     background: Boolean,
+    checkFirstImage: Boolean,
     imageLoader: ImageLoader,
     onLinkClick: (String) -> Unit,
     onClick: (String, String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    pageImageUri: String? = null
 ) {
     val uriLow = remember(text) {
         "https://commons.wikimedia.org/wiki/Special:FilePath/${
@@ -43,39 +45,43 @@ fun ImageWithCaption(
             text.substringAfter(':').substringBefore('|').substringBefore("]]")
         }"
     }
-    val description = remember(text) { text.substringAfter('|', "").substringBefore('|') }
-    val invert = remember { text.contains("|invert") }
 
-    FeedImage(
-        source = uriLow,
-        description = description,
-        imageLoader = imageLoader,
-        loadingIndicator = false,
-        colorFilter = if (invert && darkTheme && !background) // Invert colors in dark theme
-            ColorFilter.colorMatrix(ColorMatrix(colorMatrixInvert))
-        else null,
-        background = background,
-        modifier = modifier
-            .padding(horizontal = 16.dp)
-            .padding(top = 8.dp)
-            .clip(shapes.large)
-            .animateContentSize()
-            .widthIn(max = 512.dp)
-            .clickable(onClick = { onClick(uriHigh, description) })
-    )
-    Text(
-        description.toWikitextAnnotatedString(
-            colorScheme = colorScheme,
-            fontSize = fontSize - 2,
-            loadPage = onLinkClick,
-            typography = typography
-        ),
-        fontSize = (fontSize - 2).sp,
-        lineHeight = (24 * ((fontSize - 2) / 16.0)).toInt().sp,
-        textAlign = TextAlign.Center,
-        color = colorScheme.onSurfaceVariant,
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .padding(vertical = 8.dp)
-    )
+    if (!checkFirstImage || uriHigh == pageImageUri) {
+        val description = remember(text) { text.substringAfter('|', "").substringBefore('|') }
+        val invert = remember { text.contains("|invert") }
+
+        FeedImage(
+            source = uriLow,
+            description = description,
+            imageLoader = imageLoader,
+            loadingIndicator = false,
+            colorFilter = if (invert && darkTheme && !background) // Invert colors in dark theme
+                ColorFilter.colorMatrix(ColorMatrix(colorMatrixInvert))
+            else null,
+            background = background,
+            modifier = modifier
+                .padding(horizontal = 16.dp)
+                .padding(top = 8.dp)
+                .clip(shapes.large)
+                .animateContentSize()
+                .widthIn(max = 512.dp)
+                .clickable(onClick = { onClick(uriHigh, description) })
+        )
+        Text(
+            description.toWikitextAnnotatedString(
+                colorScheme = colorScheme,
+                fontSize = fontSize - 2,
+                loadPage = onLinkClick,
+                typography = typography,
+                showRef = {}
+            ),
+            fontSize = (fontSize - 2).sp,
+            lineHeight = (24 * ((fontSize - 2) / 16.0)).toInt().sp,
+            textAlign = TextAlign.Center,
+            color = colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .padding(vertical = 8.dp)
+        )
+    }
 }

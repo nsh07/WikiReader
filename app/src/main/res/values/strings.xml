@@ -21,7 +21,7 @@
     <string name="deleteAll">Delete all</string>
     <string name="deleteAllArticles">Delete all articles?</string>
     <string name="deleteAllArticlesDesc">All articles will be permanently deleted from your device</string>
-    <string name="deleteArticle">Delete downloaded article</string>
+    <string name="deleteArticle">Delete article</string>
     <string name="deleteSavedArticle">Delete saved article?</string>
     <string name="deleteSavedArticleDesc">\"%1$s\" will be permanently deleted from your device</string>
     <string name="dialogDeleteHistoryItem">\"%1$s\" will be permanently deleted from your search history.</string>
@@ -47,7 +47,7 @@
     <string name="license">License</string>
     <string name="moreOptions">More options</string>
     <string name="noSavedArticles">No saved articles</string>
-    <string name="noSavedArticlesDesc">Click on the download button at the top of an article to get started</string>
+    <string name="noSavedArticlesDesc">Click on the download button in the toolbar at the bottom while viewing an article to get started</string>
     <string name="ok">OK</string>
     <string name="onThisDay">On this day</string>
     <string name="openInBrowser">Open in browser</string>
@@ -74,6 +74,7 @@
     <string name="selectedLabel">Selected</string>
     <string name="setAsDefault">Set as default</string>
     <string name="setAsDefaultDesc">You can set WikiReader as your default app for opening Wikipedia links. Click on the buttons below to know more or open settings.</string>
+    <string name="settingAppLanguage">App language</string>
     <string name="settingBlackTheme">Black theme</string>
     <string name="settingBlackThemeDesc">Use a pure black dark theme</string>
     <string name="settingColorScheme">Color scheme</string>
@@ -121,4 +122,5 @@
     <string name="wikipedia">Wikipedia</string>
     <string name="wikipediaWebsiteDesc">Visit the Wikipedia website</string>
     <string name="wikipedia_logo">Wikipedia\'s Logo</string>
+    <string name="chooseAppLanguage">Choose app language</string>
 </resources>

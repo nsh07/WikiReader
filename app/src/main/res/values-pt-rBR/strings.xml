@@ -23,7 +23,7 @@
     <string name="scroll_to_top">Rolar para o topo</string>
     <string name="search">Pesquisar</string>
     <string name="searchLanguages">Pesquisar idiomas</string>
-    <string name="setAsDefaultDesc">Você pode definir o WikiReader como seu app padrão para abrir links da Wikipédia. Pressione os botões abaixo para saber mais ou abrir as configurações.</string>
+    <string name="setAsDefaultDesc">Você pode definir o WikiReader como seu app padrão para abrir links da Wikipédia. Toque nos botões abaixo para saber mais ou abrir as configurações.</string>
     <string name="selectedLabel">Selecionados</string>
     <string name="setAsDefault">Definir como padrão</string>
     <string name="settingDataSaver">Economizador de dados</string>
@@ -38,7 +38,7 @@
     <string name="dialogDeleteHistoryItemDesc">Seu histórico de pesquisas será permanentemente deletado.</string>
     <string name="dialogDeleteSearchHistory">Deletar esta pesquisa do seu histórico?</string>
     <string name="dialogDeleteSearchHistoryDesc">Deletar seu histórico de pesquisas?</string>
-    <string name="donateToWikipedia">Doar ou contribuir para a Wikipédia</string>
+    <string name="donateToWikipedia">Doe ou contribua para a Wikipédia</string>
     <string name="downloadArticle">Baixar artigo</string>
     <string name="errorLoadingImage">Erro ao carregar imagem</string>
     <string name="expand_section">Expandir seção</string>
@@ -54,7 +54,7 @@
     <string name="moreOptions">Mais opções</string>
     <string name="ok">OK</string>
     <string name="onThisDay">Neste dia</string>
-    <string name="otherProjectsDesc">Veja meus outros projetos no GitHub</string>
+    <string name="otherProjectsDesc">Veja os meus outros projetos no GitHub</string>
     <string name="redirectedFrom">Redirecionado de %1$s</string>
     <string name="releases">Versões</string>
     <string name="releasesDesc">Veja versões novas e antigas</string>
@@ -74,7 +74,7 @@
     <string name="translate">Traduzir</string>
     <string name="trendingArticles">Artigos em alta</string>
     <string name="up_arrow">Ir para o topo</string>
-    <string name="wikipediaWebsiteDesc">Visitar o website da Wikipédia</string>
+    <string name="wikipediaWebsiteDesc">Visite o website da Wikipédia</string>
     <string name="wikipedia_logo">Logo da Wikipédia</string>
     <string name="resetSettingsDialog">Redefinir as configurações?</string>
     <string name="resetSettingsDialogDesc">Todas as configurações serão redefinidas para o padrão</string>
@@ -101,11 +101,11 @@
     <string name="dialogDeleteHistoryItem">\"%1$s\" será permanentemente deletado do seu histórico de pesquisas.</string>
     <string name="openInBrowser">Abrir no navegador</string>
     <string name="picOfTheDay">Imagem do dia</string>
-    <string name="deleteArticle">Deletar artigo baixado</string>
+    <string name="deleteArticle">Deletar artigo</string>
     <string name="settingImageBackgroundDesc">Adicionar um fundo branco em imagens transparentes. O fundo pode melhorar a legibilidade no modo escuro.</string>
     <string name="settingImmersiveModeDesc">Ocultar a barra de pesquisas e os botões de ação flutuantes durante a rolagem. Habilitado por padrão em telas pequenas.</string>
-    <string name="noSavedArticlesDesc">Pressione o botão de download no topo de um artigo para começar</string>
-    <string name="settingDataSaverDesc">Desabilitar imagens e o feed. As imagens de um artigo ainda podem ser abertas ao pressionar o card de descrição.</string>
+    <string name="noSavedArticlesDesc">Toque no botão de download na barra de ferramentas inferior enquanto estiver lendo um artigo para começar</string>
+    <string name="settingDataSaverDesc">Desabilitar imagens e o feed. As imagens de um artigo ainda podem ser abertas ao tocar no card de descrição.</string>
     <string name="settingFontStyle">Estilo da fonte</string>
     <string name="settings">Configurações</string>
     <string name="supportWikipedia">Apoiar a Wikipédia</string>
@@ -120,5 +120,7 @@
     <string name="settingFeed">Feed</string>
     <string name="settingFeedDesc">Exibir um feed de artigos em alta, notícias e mais na tela inicial do app</string>
     <string name="donate">Doar</string>
-    <string name="supportMyWork">Apoie meu trabalho</string>
+    <string name="supportMyWork">Apoie o meu trabalho</string>
+    <string name="settingAppLanguage">Idioma do app</string>
+    <string name="chooseAppLanguage">Escolher o idioma do app</string>
 </resources>

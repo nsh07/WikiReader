@@ -23,6 +23,7 @@
   <img src="https://img.shields.io/github/license/nsh07/wikireader?logo=gnu&color=blue&labelColor=1a1a1a">
 </a>
 <img src="https://img.shields.io/badge/API-26+-blue?logo=android&labelColor=1a1a1a">
+<br/><br/>
 
 A lightweight Android app for reading Wikipedia articles distraction-free
 
@@ -91,11 +92,31 @@ You can contribute to this project even if you are not a developer by helping in
 translating this project into languages you know.
 
 <a href="https://hosted.weblate.org/engage/wikireader/">
-<img src="https://hosted.weblate.org/widget/wikireader/open-graph.png" alt="Translation status" width="400" />
+<img src="https://hosted.weblate.org/widget/wikireader/horizontal-auto.svg" alt="Translation status" />
 </a>
-<a href="https://hosted.weblate.org/engage/wikireader/">
-<img src="https://hosted.weblate.org/widget/wikireader/multi-auto.svg" alt="Translation statistics" />
-</a>
+
+## Download
+
+- **F-Droid** (recommended): WikiReader is available for download on the
+  official [F-Droid app store repository](https://f-droid.org/). Updates on F-Droid are generally a
+  week late. To get faster updates, you can download WikiReader from
+  the [IzzyOnDroid repository](https://apt.izzysoft.de/fdroid/)
+- **Obtainium** (recommended): You can add this GitHub repository
+  on [Obtainium](https://obtainium.imranr.dev/) to get updates directly from GitHub releases. This
+  is the fastest way to install and update WikiReader.
+- **GitHub releases**: Alternatively, you can manually download and install APKs from
+  the [Releases](https://github.com/nsh07/WikiReader/releases/latest) section of this repo (This
+  method is not recommended, use Obtainium instead).
+
+> [!TIP]
+> To [verify](https://developer.android.com/studio/command-line/apksigner#usage-verify) the APK
+> downloaded from Obtainium/GitHub, use the following signing certificate fingerprints:
+> ```
+> SHA1: B1:4E:17:93:11:E8:DB:D5:35:EF:8D:E9:FB:8F:FF:08:F8:EC:65:08
+> SHA256: 07:BE:F3:05:81:BA:EE:8F:45:EC:93:E4:7E:E6:8E:F2:08:74:E5:0E:F5:70:9C:78:B2:EE:67:AC:86:BE:4C:3D
+> ```
+> The SHA256 and MD5 hashes of the individual APK files are also available in the `checksum.txt`
+> file for each release.
 
 ## Special Thanks
 

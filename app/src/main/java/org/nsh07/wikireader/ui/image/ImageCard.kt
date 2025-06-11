@@ -1,24 +1,29 @@
 package org.nsh07.wikireader.ui.image
 
-import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.layout.Column
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MaterialTheme.motionScheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
+import coil3.compose.rememberAsyncImagePainter
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import org.nsh07.wikireader.data.WikiPhoto
-import org.nsh07.wikireader.data.WikiPhotoDesc
+import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
 
 /**
  * Composable for displaying a Wikipedia image with its associated text
@@ -29,66 +34,58 @@ import org.nsh07.wikireader.data.WikiPhotoDesc
  *
  * @param photo A (nullable) WikiPhoto object. The image url and aspect ratio are provided by this
  * object
- * @param photoDesc A WikiPhotoDesc object that provides the image title and description
  */
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-fun ImageCard(
+fun SharedTransitionScope.ImageCard(
     photo: WikiPhoto?,
-    photoDesc: WikiPhotoDesc,
     title: String,
     imageLoader: ImageLoader,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     showPhoto: Boolean,
     background: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val labelBottomPadding =
-        if (photoDesc.description == null) 16.dp
-        else 8.dp
-    ElevatedCard(
-        onClick = onClick,
-        modifier = modifier
-            .padding(horizontal = 16.dp)
-            .widthIn(max = 512.dp)
-            .fillMaxWidth()
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .animateContentSize(motionScheme.defaultSpatialSpec())
+    val context = LocalContext.current
+
+    val contentScale = ContentScale.Crop
+    val painter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(context)
+            .data(photo?.source)
+            .crossfade(true)
+            .build(),
+        imageLoader = imageLoader,
+        contentScale = contentScale,
+    )
+    val painterState by painter.state.collectAsState()
+
+    if (photo != null && showPhoto) {
+        Card(
+            onClick = onClick,
+            colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainer),
+            shape = cardShape,
+            modifier = modifier
+                .padding(horizontal = 16.dp)
+                .widthIn(max = 512.dp)
+                .fillMaxWidth()
         ) {
-            if (photo != null && showPhoto) {
-                PageImage(
-                    photo = photo,
-                    photoDesc = photoDesc,
-                    contentScale = ContentScale.Crop,
-                    imageLoader = imageLoader,
-                    background = background,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-                Text(
-                    text = photoDesc.label?.get(0) ?: title,
-                    style = MaterialTheme.typography.titleLarge,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .padding(top = 16.dp, bottom = labelBottomPadding)
-                        .fillMaxWidth()
-                )
-            if (photoDesc.description != null) {
-                Text(
-                    text = photoDesc.description[0],
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = 16.dp)
-                        .fillMaxWidth()
-                )
-            }
+            PageImage(
+                photo = photo,
+                photoDesc = title,
+                painter = painter,
+                painterState = painterState,
+                contentScale = contentScale,
+                background = background,
+                modifier = Modifier
+                    .sharedBounds(
+                        sharedContentState = rememberSharedContentState(photo.source),
+                        animatedVisibilityScope = animatedVisibilityScope
+                    )
+                    .fillMaxWidth()
+                    .clip(cardShape)
+            )
         }
     }
 }

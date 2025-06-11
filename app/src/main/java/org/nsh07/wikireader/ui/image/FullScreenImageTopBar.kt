@@ -22,76 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import org.nsh07.wikireader.R
-import org.nsh07.wikireader.data.WikiPhotoDesc
 import org.nsh07.wikireader.parser.toWikitextAnnotatedString
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-fun FullScreenImageTopBar(
-    photoDesc: WikiPhotoDesc?,
-    title: String,
-    link: String? = null,
-    onBack: () -> Unit,
-) {
-    val sendIntent: Intent = Intent()
-        .apply {
-            action = Intent.ACTION_SEND
-            putExtra(
-                Intent.EXTRA_TEXT,
-                link
-            )
-            type = "text/plain"
-        }
-    val shareIntent = Intent.createChooser(sendIntent, null)
-    val context = LocalContext.current
-    val uriHandler = LocalUriHandler.current
-    TopAppBar(
-        title = { Text(stringResource(R.string.image)) },
-        subtitle = {
-            Text(
-                photoDesc?.label?.get(0) ?: title,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        },
-        navigationIcon = {
-            IconButton(shapes = IconButtonDefaults.shapes(), onClick = onBack) {
-                Icon(
-                    Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = stringResource(R.string.back)
-                )
-            }
-        },
-        actions = {
-            if (link != null) {
-                IconButton(
-                    shapes = IconButtonDefaults.shapes(),
-                    onClick = { context.startActivity(shareIntent) }) {
-                    Icon(
-                        painterResource(R.drawable.share_filled),
-                        tint = Color.White,
-                        contentDescription = stringResource(R.string.shareLink)
-                    )
-                }
-                IconButton(
-                    shapes = IconButtonDefaults.shapes(),
-                    onClick = { uriHandler.openUri(link) }) {
-                    Icon(
-                        painterResource(R.drawable.open_in_browser),
-                        tint = Color.White,
-                        contentDescription = stringResource(R.string.openInBrowser)
-                    )
-                }
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color(0f, 0f, 0f, 0.5f),
-            titleContentColor = Color.White,
-            subtitleContentColor = Color.LightGray,
-            navigationIconContentColor = Color.White
-        )
-    )
-}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -124,7 +55,8 @@ fun FullScreenImageTopBar(
                         colorScheme = colorScheme,
                         typography = typography,
                         loadPage = {},
-                        fontSize = 1
+                        fontSize = 1,
+                        showRef = {}
                     ).toString()
                 },
                 maxLines = 1,
@@ -162,7 +94,7 @@ fun FullScreenImageTopBar(
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color(0f, 0f, 0f, 0.5f),
+            containerColor = Color.Transparent,
             titleContentColor = Color.White,
             subtitleContentColor = Color.LightGray,
             navigationIconContentColor = Color.White

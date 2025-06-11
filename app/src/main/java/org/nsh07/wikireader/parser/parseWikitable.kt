@@ -55,7 +55,8 @@ fun parseWikitable(
                     colorScheme,
                     typography,
                     loadPage,
-                    fontSize
+                    fontSize,
+                    showRef = {}
                 )
             }
 
@@ -110,7 +111,8 @@ fun parseWikitable(
                                     colorScheme,
                                     typography,
                                     loadPage,
-                                    fontSize
+                                    fontSize,
+                                    showRef = {}
                                 )
                         )
                         repeat(colspan - 1) {
@@ -142,7 +144,8 @@ fun parseWikitable(
                                 colorScheme,
                                 typography,
                                 loadPage,
-                                fontSize
+                                fontSize,
+                                showRef = {}
                             )
                     )
                     repeat(colspan - 1) {
@@ -185,7 +188,8 @@ fun parseWikitable(
                                         colorScheme,
                                         typography,
                                         loadPage,
-                                        fontSize
+                                        fontSize,
+                                        showRef = {}
                                     )
                             )
                         }
@@ -221,7 +225,8 @@ fun parseWikitable(
                                     colorScheme,
                                     typography,
                                     loadPage,
-                                    fontSize
+                                    fontSize,
+                                    showRef = {}
                                 )
                         )
                     }
@@ -238,7 +243,13 @@ fun parseWikitable(
                     val lastIndex = currentRow.lastIndex
                     if (lastIndex != -1)
                         currentRow[lastIndex] += line.trim()
-                            .toWikitextAnnotatedString(colorScheme, typography, loadPage, fontSize)
+                            .toWikitextAnnotatedString(
+                                colorScheme,
+                                typography,
+                                loadPage,
+                                fontSize,
+                                showRef = {}
+                            )
                 }
             }
         }

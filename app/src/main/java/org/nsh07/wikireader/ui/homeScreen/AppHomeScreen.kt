@@ -1,15 +1,20 @@
 package org.nsh07.wikireader.ui.homeScreen
 
+import android.content.ClipData
 import android.content.Intent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.gestures.rememberTransformableState
-import androidx.compose.foundation.gestures.transformable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,68 +23,78 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FilledTonalIconToggleButton
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.FloatingToolbarDefaults
+import androidx.compose.material3.FloatingToolbarDefaults.vibrantFloatingToolbarColors
+import androidx.compose.material3.FloatingToolbarScrollBehavior
+import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.IconToggleButtonShapes
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.motionScheme
+import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.LoadingIndicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.window.core.layout.WindowSizeClass
 import coil3.ImageLoader
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.WRStatus
-import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.ui.image.ImageCard
+import org.nsh07.wikireader.ui.settingsScreen.LanguageBottomSheet
 import org.nsh07.wikireader.ui.shimmer.AnimatedShimmer
 import org.nsh07.wikireader.ui.shimmer.FeedLoader
 import org.nsh07.wikireader.ui.theme.isDark
 import org.nsh07.wikireader.ui.viewModel.FeedState
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
-import kotlin.math.round
 
 /**
  * The app home screen composable.
@@ -99,19 +114,23 @@ import kotlin.math.round
  * @param modifier Self explanatory
  */
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class,
+    ExperimentalSharedTransitionApi::class
+)
 @Composable
 fun AppHomeScreen(
     homeScreenState: HomeScreenState,
     listState: LazyListState,
     preferencesState: PreferencesState,
     feedState: FeedState,
+    floatingToolbarScrollBehaviour: FloatingToolbarScrollBehavior?,
     feedListState: LazyListState,
     imageLoader: ImageLoader,
     languageSearchStr: String,
     languageSearchQuery: String,
     showLanguageSheet: Boolean,
-    onFontSizeChange: (Int) -> Unit,
+    enableScrollButton: Boolean,
     onImageClick: () -> Unit,
     onGalleryImageClick: (String, String) -> Unit,
     onLinkClick: (String) -> Unit,
@@ -122,10 +141,17 @@ fun AppHomeScreen(
     setShowArticleLanguageSheet: (Boolean) -> Unit,
     saveArticle: () -> Unit,
     showFeedErrorSnackBar: () -> Unit,
+    onSearchButtonClick: () -> Unit,
+    loadRandom: () -> Unit,
+    scrollToTop: () -> Unit,
+    hideRef: () -> Unit,
     insets: PaddingValues,
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier
 ) {
+    val clipboard = LocalClipboard.current
+    val scope = rememberCoroutineScope()
+
     val photo = homeScreenState.photo
     val photoDesc = homeScreenState.photoDesc
     val fontSize = preferencesState.fontSize
@@ -135,9 +161,6 @@ fun AppHomeScreen(
     }
 
     val pullToRefreshState = rememberPullToRefreshState()
-    val transformableState = rememberTransformableState { zoomChange, _, _ ->
-        onFontSizeChange(round(fontSize * zoomChange).toInt().coerceIn(10, 22))
-    }
 
     var isRefreshing by remember { mutableStateOf(false) }
 
@@ -145,7 +168,7 @@ fun AppHomeScreen(
     if (s > 1) s -= 2
     else s = 0
 
-    val sendIntent: Intent = remember(homeScreenState.title, homeScreenState.currentLang) {
+    val sendIntent: Intent = remember(homeScreenState.title, preferencesState.lang) {
         Intent()
             .apply {
                 action = Intent.ACTION_SEND
@@ -158,7 +181,7 @@ fun AppHomeScreen(
                 type = "text/plain"
             }
     }
-    val shareIntent = remember(homeScreenState.title, homeScreenState.currentLang) {
+    val shareIntent = remember(homeScreenState.title, preferencesState.lang) {
         Intent.createChooser(sendIntent, null)
     }
 
@@ -168,7 +191,7 @@ fun AppHomeScreen(
     val lang = preferencesState.lang
     val pageId = homeScreenState.pageId
 
-    if (showLanguageSheet)
+    if (showLanguageSheet && homeScreenState.status == WRStatus.SUCCESS)
         ArticleLanguageBottomSheet(
             langs = homeScreenState.langs ?: emptyList(),
             searchStr = languageSearchStr,
@@ -178,227 +201,448 @@ fun AppHomeScreen(
             loadPage = onLinkClick,
             setSearchStr = setSearchStr
         )
-
-    Box(modifier = modifier) { // The container for all the composables in the home screen
-        if (homeScreenState.status != WRStatus.UNINITIALIZED &&
-            homeScreenState.status != WRStatus.FEED_LOADED &&
-            homeScreenState.status != WRStatus.FEED_NETWORK_ERROR
-        ) {
-            LaunchedEffect(isRefreshing) {
-                delay(3000)
-                isRefreshing = false
-            } // hide refresh indicator after a delay
-            PullToRefreshBox(
-                isRefreshing = isRefreshing,
-                state = pullToRefreshState,
-                onRefresh = {
-                    if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR)
-                        refreshFeed()
-                    else
-                        refreshSearch()
-                    isRefreshing = true
-                },
-                indicator = {
-                    LoadingIndicator(
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(top = insets.calculateTopPadding()),
-                        isRefreshing = isRefreshing,
-                        state = pullToRefreshState
+    else if (showLanguageSheet)
+        LanguageBottomSheet(
+            lang = preferencesState.lang,
+            searchStr = languageSearchStr,
+            searchQuery = languageSearchQuery,
+            setShowSheet = setShowArticleLanguageSheet,
+            setLang = {
+                setLang(it)
+                if (homeScreenState.status in listOf(
+                        WRStatus.FEED_LOADED,
+                        WRStatus.FEED_NETWORK_ERROR
                     )
-                }
-            ) {
-                LazyColumn( // The article
-                    state = listState,
-                    contentPadding = insets,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .transformable(transformableState)
-                ) {
-                    item { // Top buttons
-                        Row(modifier = Modifier.padding(16.dp)) {
-                            FilledTonalButton(
-                                shapes = ButtonDefaults.shapes(),
-                                onClick = { setShowArticleLanguageSheet(true) },
-                                enabled = homeScreenState.langs?.isEmpty() == false,
-                                modifier = Modifier.widthIn(max = 200.dp)
-                            ) {
-                                Icon(painterResource(R.drawable.translate), null)
-                                Spacer(Modifier.width(8.dp))
-                                Text(
-                                    langCodeToName(preferencesState.lang),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                            Spacer(Modifier.weight(1f))
-                            FilledTonalIconButton(
-                                shapes = IconButtonDefaults.shapes(),
-                                onClick = remember(
-                                    homeScreenState.title,
-                                    homeScreenState.currentLang
-                                ) {
-                                    {
-                                        context.startActivity(shareIntent)
-                                    }
-                                },
-                                enabled = homeScreenState.status == WRStatus.SUCCESS
-                            ) {
-                                Icon(
-                                    painterResource(R.drawable.share),
-                                    contentDescription = stringResource(R.string.sharePage)
-                                )
-                            }
-                            FilledTonalIconToggleButton(
-                                checked = homeScreenState.savedStatus == SavedStatus.SAVED,
-                                enabled = homeScreenState.status == WRStatus.SUCCESS,
-                                shapes = IconToggleButtonShapes(
-                                    CircleShape,
-                                    RoundedCornerShape(8.dp),
-                                    RoundedCornerShape(16.dp)
-                                ),
-                                onCheckedChange = { saveArticle() }
-                            ) {
-                                AnimatedContent(
-                                    homeScreenState.savedStatus,
-                                    label = "saveAnimation"
-                                ) { saved ->
-                                    when (saved) {
-                                        SavedStatus.SAVED ->
-                                            Icon(
-                                                painterResource(R.drawable.download_done),
-                                                contentDescription = stringResource(R.string.deleteArticle)
-                                            )
+                )
+                    refreshFeed()
+                else
+                    refreshSearch()
+            },
+            setSearchStr = setSearchStr
+        )
 
-                                        SavedStatus.SAVING ->
-                                            LoadingIndicator()
-
-                                        else ->
-                                            Icon(
-                                                painterResource(R.drawable.download),
-                                                contentDescription = stringResource(R.string.downloadArticle)
-                                            )
-                                    }
-                                }
-                            }
-                        }
-                        HorizontalDivider()
-                    }
-                    item { // Title + Image/description
+    if (homeScreenState.showRef) // Reference bottom sheet
+        ModalBottomSheet(
+            onDismissRequest = hideRef,
+        ) {
+            SelectionContainer {
+                Column(Modifier.padding(start = 24.dp, end = 24.dp, bottom = 24.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    ) {
                         Text(
-                            text = homeScreenState.title,
-                            style = MaterialTheme.typography.displayMedium,
-                            fontFamily = FontFamily.Serif,
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .animateContentSize(motionScheme.defaultSpatialSpec())
+                            text = "Reference",
+                            style = MaterialTheme.typography.titleLarge
                         )
-                        if (photoDesc != null) {
-                            ImageCard(
-                                photo = photo,
-                                photoDesc = photoDesc,
-                                title = homeScreenState.title,
-                                imageLoader = imageLoader,
-                                showPhoto = !preferencesState.dataSaver,
-                                onClick = onImageClick,
-                                background = preferencesState.imageBackground,
-                                modifier = Modifier.padding(bottom = 8.dp)
+                        Spacer(Modifier.weight(1f))
+                        IconButton(
+                            onClick = {
+                                scope.launch {
+                                    clipboard.setClipEntry(
+                                        ClipEntry(
+                                            ClipData.newPlainText(
+                                                homeScreenState.ref,
+                                                homeScreenState.ref
+                                            )
+                                        )
+                                    )
+                                }
+                            },
+                            shapes = IconButtonDefaults.shapes()
+                        ) {
+                            Icon(
+                                painterResource(R.drawable.copy),
+                                contentDescription = "Copy reference text"
                             )
                         }
                     }
-                    item { // Main description
-                        if (homeScreenState.extract.isNotEmpty())
-                            SelectionContainer {
-                                ParsedBodyText(
-                                    body = homeScreenState.extract[0],
-                                    fontSize = fontSize,
-                                    fontFamily = fontFamily,
-                                    renderMath = preferencesState.renderMath,
-                                    imageLoader = imageLoader,
-                                    darkTheme = colorScheme.isDark(),
-                                    dataSaver = preferencesState.dataSaver,
-                                    background = preferencesState.imageBackground,
-                                    onLinkClick = onLinkClick,
-                                    onGalleryImageClick = onGalleryImageClick
-                                )
-                            }
-                    }
-                    itemsIndexed(
-                        homeScreenState.extract,
-                        key = { i, it -> "$pageId.$lang#$i" }
-                    ) { i: Int, it: List<AnnotatedString> ->// Expandable sections logic
-                        if (i % 2 == 1)
-                            SelectionContainer {
-                                ExpandableSection(
-                                    title = homeScreenState.extract[i],
-                                    body = homeScreenState.extract.getOrElse(i + 1) { emptyList() },
-                                    fontSize = fontSize,
-                                    fontFamily = fontFamily,
-                                    imageLoader = imageLoader,
-                                    expanded = preferencesState.expandedSections,
-                                    darkTheme = colorScheme.isDark(),
-                                    dataSaver = preferencesState.dataSaver,
-                                    renderMath = preferencesState.renderMath,
-                                    imageBackground = preferencesState.imageBackground,
-                                    onLinkClick = onLinkClick,
-                                    onGalleryImageClick = onGalleryImageClick
-                                )
-                            }
-                    }
-                    item {
-                        Spacer(Modifier.height(156.dp))
+                    Spacer(Modifier.height(16.dp))
+                    Box(
+                        modifier = Modifier
+                            .clip(shapes.large)
+                            .background(colorScheme.surface)
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            homeScreenState.ref, Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth()
+                        )
                     }
                 }
             }
-        } else if ((homeScreenState.status == WRStatus.UNINITIALIZED) && !preferencesState.dataSaver && preferencesState.feedEnabled) {
-            AnimatedShimmer {
-                FeedLoader(brush = it, insets = insets)
-            }
-        } else if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR || homeScreenState.status == WRStatus.UNINITIALIZED) {
-            Icon(
-                painterResource(R.drawable.ic_launcher_monochrome),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(400.dp)
-                    .align(Alignment.Center)
-            )
-        } else {
-            ArticleFeed(
-                feedState = feedState,
-                imageLoader = imageLoader,
-                insets = insets,
-                loadPage = onLinkClick,
-                refreshFeed = refreshFeed,
-                onImageClick = onImageClick,
-                listState = feedListState,
-                windowSizeClass = windowSizeClass,
-                imageBackground = preferencesState.imageBackground
-            )
         }
 
-        AnimatedVisibility( // The linear progress bar that shows up when the article is loading
-            visible = homeScreenState.isLoading,
-            enter = expandVertically(expandFrom = Alignment.Top),
-            exit = shrinkVertically(shrinkTowards = Alignment.Top),
-            modifier = Modifier.padding(top = (max(systemBars, insets.calculateTopPadding())))
-        ) {
-            if (homeScreenState.loadingProgress == null)
-                LinearProgressIndicator(
+    val pagerState = if (feedState.mostReadArticles != null)
+        rememberPagerState { feedState.mostReadArticles.size / 5 }
+    else null
+
+    val newsCarouselState = if (feedState.news != null)
+        rememberCarouselState(0) { feedState.news.size }
+    else null
+
+    val otdCarouselState = if (feedState.onThisDay != null)
+        rememberCarouselState(0) { feedState.onThisDay.size }
+    else null
+
+    SharedTransitionLayout {
+        val condition1 = homeScreenState.status != WRStatus.UNINITIALIZED &&
+                homeScreenState.status != WRStatus.FEED_LOADED &&
+                homeScreenState.status != WRStatus.FEED_NETWORK_ERROR
+        val condition2 =
+            (homeScreenState.status == WRStatus.UNINITIALIZED) && !preferencesState.dataSaver && preferencesState.feedEnabled
+        val condition3 =
+            homeScreenState.status == WRStatus.FEED_NETWORK_ERROR || homeScreenState.status == WRStatus.UNINITIALIZED
+
+        Box(modifier = modifier) { // The container for all the composables in the home screen
+            AnimatedVisibility(
+                condition1,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                LaunchedEffect(isRefreshing) {
+                    delay(3000)
+                    isRefreshing = false
+                } // hide refresh indicator after a delay
+                PullToRefreshBox(
+                    isRefreshing = isRefreshing,
+                    state = pullToRefreshState,
+                    onRefresh = {
+                        if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR)
+                            refreshFeed()
+                        else
+                            refreshSearch()
+                        isRefreshing = true
+                    },
+                    indicator = {
+                        LoadingIndicator(
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .padding(top = insets.calculateTopPadding()),
+                            isRefreshing = isRefreshing,
+                            state = pullToRefreshState
+                        )
+                    }
+                ) {
+                    LazyColumn( // The article
+                        state = listState,
+                        contentPadding = insets,
+                        modifier = Modifier
+                            .fillMaxSize()
+                    ) {
+                        item { // Title + Image/description
+                            Text(
+                                text = homeScreenState.title,
+                                style = MaterialTheme.typography.displaySmallEmphasized,
+                                fontFamily = FontFamily.Serif,
+                                modifier = Modifier
+                                    .sharedBounds(
+                                        sharedContentState = rememberSharedContentState(
+                                            homeScreenState.title
+                                        ),
+                                        animatedVisibilityScope = this@AnimatedVisibility,
+                                        zIndexInOverlay = 1f
+                                    )
+                                    .padding(start = 16.dp, end = 16.dp, top = 16.dp)
+                                    .animateContentSize(motionScheme.defaultSpatialSpec())
+                            )
+                            if (photoDesc != null) {
+                                Text(
+                                    text = photoDesc,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = colorScheme.onSurfaceVariant,
+                                    fontFamily = FontFamily.Serif,
+                                    modifier = Modifier
+                                        .sharedBounds(
+                                            sharedContentState = rememberSharedContentState(
+                                                photoDesc
+                                            ),
+                                            animatedVisibilityScope = this@AnimatedVisibility,
+                                            zIndexInOverlay = 1f
+                                        )
+                                        .padding(
+                                            start = 16.dp,
+                                            end = 16.dp,
+                                            top = 4.dp,
+                                            bottom = 16.dp
+                                        )
+                                        .fillMaxWidth()
+                                )
+                            }
+                            if (photoDesc != null) {
+                                ImageCard(
+                                    photo = photo,
+                                    title = homeScreenState.title,
+                                    imageLoader = imageLoader,
+                                    animatedVisibilityScope = this@AnimatedVisibility,
+                                    showPhoto = !preferencesState.dataSaver,
+                                    onClick = onImageClick,
+                                    background = preferencesState.imageBackground,
+                                    modifier = Modifier.padding(bottom = 8.dp)
+                                )
+                            }
+                        }
+                        item { // Main description
+                            if (homeScreenState.extract.isNotEmpty())
+                                SelectionContainer {
+                                    ParsedBodyText(
+                                        body = homeScreenState.extract[0],
+                                        fontSize = fontSize,
+                                        fontFamily = fontFamily,
+                                        renderMath = preferencesState.renderMath,
+                                        imageLoader = imageLoader,
+                                        darkTheme = colorScheme.isDark(),
+                                        dataSaver = preferencesState.dataSaver,
+                                        background = preferencesState.imageBackground,
+                                        checkFirstImage = true,
+                                        onLinkClick = onLinkClick,
+                                        onGalleryImageClick = onGalleryImageClick,
+                                        pageImageUri = homeScreenState.photo?.source
+                                    )
+                                }
+                        }
+                        itemsIndexed(
+                            homeScreenState.extract,
+                            key = { i, it -> "$pageId.$lang#$i" }
+                        ) { i: Int, it: List<AnnotatedString> ->// Expandable sections logic
+                            if (i % 2 == 1)
+                                SelectionContainer {
+                                    ExpandableSection(
+                                        title = homeScreenState.extract[i],
+                                        body = homeScreenState.extract.getOrElse(i + 1) { emptyList() },
+                                        fontSize = fontSize,
+                                        fontFamily = fontFamily,
+                                        imageLoader = imageLoader,
+                                        expanded = preferencesState.expandedSections,
+                                        darkTheme = colorScheme.isDark(),
+                                        dataSaver = preferencesState.dataSaver,
+                                        renderMath = preferencesState.renderMath,
+                                        imageBackground = preferencesState.imageBackground,
+                                        onLinkClick = onLinkClick,
+                                        onGalleryImageClick = onGalleryImageClick
+                                    )
+                                }
+                        }
+                        item {
+                            Spacer(Modifier.height(156.dp))
+                        }
+                    }
+                }
+            }
+
+            AnimatedVisibility(
+                !condition1 && condition2,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                AnimatedShimmer {
+                    FeedLoader(brush = it, insets = insets)
+                }
+            }
+
+            AnimatedVisibility(
+                !condition1 && !condition2 && condition3,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Icon(
+                    painterResource(R.drawable.ic_launcher_monochrome),
+                    contentDescription = null,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 4.dp)
+                        .size(400.dp)
+                        .align(Alignment.Center)
                 )
-            else {
-                val animatedProgress by animateFloatAsState(
-                    targetValue = homeScreenState.loadingProgress,
-                    animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+            }
+
+            AnimatedVisibility(
+                !condition1 && !condition2 && !condition3,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                ArticleFeed(
+                    feedState = feedState,
+                    pagerState = pagerState,
+                    newsCarouselState = newsCarouselState,
+                    otdCarouselState = otdCarouselState,
+                    imageLoader = imageLoader,
+                    insets = insets,
+                    loadPage = onLinkClick,
+                    refreshFeed = refreshFeed,
+                    onImageClick = onImageClick,
+                    listState = feedListState,
+                    windowSizeClass = windowSizeClass,
+                    animatedVisibilityScope = this@AnimatedVisibility,
+                    imageBackground = preferencesState.imageBackground
                 )
-                LinearProgressIndicator(
-                    { animatedProgress },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 4.dp)
-                )
+            }
+
+            AnimatedVisibility( // The linear progress bar that shows up when the article is loading
+                visible = homeScreenState.isLoading,
+                enter = expandVertically(expandFrom = Alignment.Top),
+                exit = shrinkVertically(shrinkTowards = Alignment.Top),
+                modifier = Modifier.padding(top = (max(systemBars, insets.calculateTopPadding())))
+            ) {
+                if (homeScreenState.loadingProgress == null)
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 4.dp)
+                    )
+                else {
+                    val animatedProgress by animateFloatAsState(
+                        targetValue = homeScreenState.loadingProgress,
+                        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+                    )
+                    LinearProgressIndicator(
+                        { animatedProgress },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 4.dp)
+                    )
+                }
+            }
+
+            HorizontalFloatingToolbar(
+                expanded = true,
+                scrollBehavior = floatingToolbarScrollBehaviour,
+                colors = FloatingToolbarDefaults.vibrantFloatingToolbarColors(),
+                floatingActionButton = {
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text(stringResource(R.string.search)) } },
+                        state = rememberTooltipState()
+                    ) {
+                        FloatingToolbarDefaults.VibrantFloatingActionButton(
+                            onClick = onSearchButtonClick
+                        ) {
+                            Icon(Icons.Outlined.Search, stringResource(R.string.search))
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(horizontal = 16.dp)
+                    .offset(y = -(insets.calculateBottomPadding()))
+            ) {
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    tooltip = { PlainTooltip { Text(stringResource(R.string.settingWikipediaLanguage)) } },
+                    state = rememberTooltipState()
+                ) {
+                    IconButton(
+                        onClick = { setShowArticleLanguageSheet(true) },
+                        enabled = homeScreenState.status in listOf(
+                            WRStatus.FEED_LOADED,
+                            WRStatus.FEED_NETWORK_ERROR
+                        ) || homeScreenState.langs?.isEmpty() == false
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.translate),
+                            stringResource(R.string.settingWikipediaLanguage)
+                        )
+                    }
+                }
+
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    tooltip = { PlainTooltip { Text(stringResource(R.string.sharePage)) } },
+                    state = rememberTooltipState()
+                ) {
+                    IconButton(
+                        enabled = homeScreenState.status == WRStatus.SUCCESS,
+                        onClick = remember(
+                            homeScreenState.title,
+                            preferencesState.lang
+                        ) {
+                            { context.startActivity(shareIntent) }
+                        }
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.share),
+                            contentDescription = stringResource(R.string.sharePage)
+                        )
+                    }
+                }
+
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    tooltip = {
+                        PlainTooltip {
+                            Text(
+                                when (homeScreenState.savedStatus) {
+                                    SavedStatus.SAVED -> stringResource(R.string.deleteArticle)
+                                    else -> stringResource(R.string.downloadArticle)
+                                }
+                            )
+                        }
+                    },
+                    state = rememberTooltipState()
+                ) {
+                    FilledTonalIconToggleButton(
+                        checked = homeScreenState.savedStatus == SavedStatus.SAVED,
+                        enabled = homeScreenState.status == WRStatus.SUCCESS,
+                        colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
+                            containerColor = vibrantFloatingToolbarColors().toolbarContainerColor,
+                            contentColor = vibrantFloatingToolbarColors().toolbarContentColor,
+                            checkedContainerColor = colorScheme.surfaceContainer,
+                            checkedContentColor = colorScheme.onSurface,
+                            disabledContainerColor = vibrantFloatingToolbarColors().toolbarContainerColor,
+                            disabledContentColor = colorScheme.onPrimaryContainer.copy(alpha = 0.38f)
+                        ),
+                        onCheckedChange = { saveArticle() }
+                    ) {
+                        AnimatedContent(
+                            homeScreenState.savedStatus,
+                            label = "saveAnimation"
+                        ) { saved ->
+                            when (saved) {
+                                SavedStatus.SAVED ->
+                                    Icon(
+                                        painterResource(R.drawable.download_done),
+                                        contentDescription = stringResource(R.string.deleteArticle)
+                                    )
+
+                                SavedStatus.SAVING -> LoadingIndicator()
+
+                                else ->
+                                    Icon(
+                                        painterResource(R.drawable.download),
+                                        contentDescription = stringResource(R.string.downloadArticle)
+                                    )
+                            }
+                        }
+                    }
+                }
+
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    tooltip = { PlainTooltip { Text(stringResource(R.string.scroll_to_top)) } },
+                    state = rememberTooltipState()
+                ) {
+                    IconButton(
+                        onClick = scrollToTop,
+                        enabled = enableScrollButton
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.upward),
+                            contentDescription = stringResource(R.string.scroll_to_top)
+                        )
+                    }
+                }
+
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    tooltip = { PlainTooltip { Text(stringResource(R.string.randomArticle)) } },
+                    state = rememberTooltipState()
+                ) {
+                    IconButton(onClick = loadRandom) {
+                        Icon(
+                            painterResource(R.drawable.shuffle),
+                            contentDescription = stringResource(R.string.randomArticle)
+                        )
+                    }
+                }
             }
         }
     }

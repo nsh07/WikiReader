@@ -31,7 +31,7 @@
     <string name="settingBlackThemeDesc">पूर्णतः काले रंग की थीम का उपयोग करें</string>
     <string name="settingFontStyle">फ़ॉन्ट शैली</string>
     <string name="setAsDefaultDesc">आप विकिपीडिया लिंक खोलने के लिए विकीरीडर को अपने डिफ़ॉल्ट ऐप के रूप में सेट कर सकते हैं। अधिक जानकारी या सेटिंग खोलने के लिए नीचे दिए गए बटन पर क्लिक करें।</string>
-    <string name="app_name">विकीरीडर</string>
+    <string name="app_name">WikiReader</string>
     <string name="settingImmersiveModeDesc">स्क्रॉल करते समय सर्च बार और फ्लोटिंग एक्शन बटन छिपाएँ। छोटे स्क्रीन साइज़ पर डिफ़ॉल्ट रूप से सक्षम।</string>
     <string name="settingRenderMathDesc">इस सुविधा के लिए थोड़ी मात्रा में अतिरिक्त डेटा की आवश्यकता होती है। पठनीयता की कीमत पर ऐप की गति बढ़ाने के लिए इसे बंद करें।</string>
     <string name="fontStyleSansSerif">सैंस-सेरिफ़</string>
@@ -48,7 +48,7 @@
     <string name="delete">डिलीट करें</string>
     <string name="deleteAll">सभी डिलीट करें</string>
     <string name="deleteAllArticles">सभी लेख हटाएँ?</string>
-    <string name="deleteArticle">डाउनलोड किया गया लेख हटाएं</string>
+    <string name="deleteArticle">लेख हटाएं</string>
     <string name="deleteSavedArticle">सहेजे गए लेख को हटाएं?</string>
     <string name="deleteAllArticlesDesc">आपके डिवाइस से सभी लेख स्थायी रूप से हटा दिए जाएंगे</string>
     <string name="deleteSavedArticleDesc">\"%1$s\" को आपके डिवाइस से स्थायी रूप से हटा दिया जाएगा</string>
@@ -63,7 +63,7 @@
     <string name="license">लाइसेंस</string>
     <string name="moreOptions">अधिक विकल्प</string>
     <string name="noSavedArticles">कोई सहेजा गया लेख नहीं</string>
-    <string name="noSavedArticlesDesc">आरंभ करने के लिए किसी लेख के शीर्ष पर स्थित डाउनलोड बटन पर क्लिक करें</string>
+    <string name="noSavedArticlesDesc">आरंभ करने के लिए किसी लेख को देखते समय नीचे टूलबार में डाउनलोड बटन पर क्लिक करें</string>
     <string name="ok">ठीक</string>
     <string name="onThisDay">इस दिन</string>
     <string name="openInBrowser">ब्राउज़र में खोलें</string>
@@ -121,4 +121,6 @@
     <string name="settingFeedDesc">ऐप खुलने पर ट्रेंडिंग लेख, समाचार और अधिक की फ़ीड दिखाएं</string>
     <string name="donate">दान करें</string>
     <string name="supportMyWork">मेरे काम में मेरी सहायता करें</string>
+    <string name="settingAppLanguage">ऐप भाषा</string>
+    <string name="chooseAppLanguage">ऐप भाषा चुनें</string>
 </resources>
