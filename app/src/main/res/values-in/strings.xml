@@ -20,7 +20,7 @@
     <string name="delete">Hapus</string>
     <string name="deleteAll">Hapus semua</string>
     <string name="deleteAllArticles">Hapus semua artikel?</string>
-    <string name="deleteArticle">Hapus artikel yang terunduh</string>
+    <string name="deleteArticle">Hapus artikel</string>
     <string name="deleteSavedArticle">Hapus artikel yang tersimpan?</string>
     <string name="deleteSavedArticleDesc">\"%1$s\" akan dihapus secara permanen dari perangkat Anda</string>
     <string name="dialogDeleteHistoryItemDesc">Riwayat penelusuran Anda akan dihapus secara permanen.</string>
@@ -42,7 +42,7 @@
     <string name="instructions">Instruksi</string>
     <string name="license">Lisensi</string>
     <string name="moreOptions">Opsi selengkapnya</string>
-    <string name="noSavedArticlesDesc">Klik tombol unduh di bagian atas artikel untuk memulai</string>
+    <string name="noSavedArticlesDesc">Klik tombol unduh di bilah alat bagian bawah sembari melihat artikel untuk memulai</string>
     <string name="ok">Oke</string>
     <string name="openInBrowser">Buka di peramban</string>
     <string name="pageIndicator">Halaman %1$s dari %2$s</string>
@@ -121,4 +121,6 @@
     <string name="wikipediaWebsiteDesc">Kunjungi situs web Wikipedia</string>
     <string name="wikipedia_logo">Logo Wikipedia</string>
     <string name="snackbarUnableToLoadFeed">Tidak dapat memuat umpan: %1$s</string>
+    <string name="settingAppLanguage">Bahasa apl</string>
+    <string name="chooseAppLanguage">Pilih bahasa apl</string>
 </resources>

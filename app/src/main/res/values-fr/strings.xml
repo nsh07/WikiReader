@@ -27,7 +27,7 @@
     <string name="deleteAll">Tout supprimer</string>
     <string name="deleteAllArticles">Supprimer tous les articles ?</string>
     <string name="deleteAllArticlesDesc">Tous les articles seront définitivement supprimés de votre appareil</string>
-    <string name="deleteArticle">Supprimer l\'article téléchargé</string>
+    <string name="deleteArticle">Supprimer l\'article</string>
     <string name="deleteSavedArticle">Supprimer l\'article sauvegardé ?</string>
     <string name="dialogDeleteHistoryItem">\"%1$s\" sera définitivement supprimé de votre historique de recherche.</string>
     <string name="dialogDeleteHistoryItemDesc">Votre historique de recherche sera définitivement supprimé.</string>

@@ -22,7 +22,7 @@
     <string name="delete">حذف</string>
     <string name="deleteAll">حذف الكل</string>
     <string name="deleteAllArticlesDesc">سيتم حذف جميع المقالات نهائيا من جهازك</string>
-    <string name="deleteArticle">حذف المقال المُنزّل</string>
+    <string name="deleteArticle">حذف المقال</string>
     <string name="deleteSavedArticle">هل تريد حذف المقال المحفوظ؟</string>
     <string name="deleteSavedArticleDesc">سيتم حذف \"%1$s\" نهائيًا من جهازك</string>
     <string name="dialogDeleteHistoryItem">سيتم حذف \"%1$s\" نهائيًا من سجل البحث الخاص بك.</string>
