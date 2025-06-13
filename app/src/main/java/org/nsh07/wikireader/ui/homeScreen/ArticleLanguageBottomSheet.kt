@@ -10,9 +10,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -38,6 +43,7 @@ import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
 @Composable
 fun ArticleLanguageBottomSheet(
     langs: List<WikiLang>,
+    currentLang: WikiLang,
     searchStr: String,
     searchQuery: String,
     setShowSheet: (Boolean) -> Unit,
@@ -77,6 +83,39 @@ fun ArticleLanguageBottomSheet(
                     .padding(horizontal = 16.dp)
                     .clip(shapes.large)
             ) {
+                item {
+                    val langName: String? = try {
+                        langCodeToName(currentLang.lang)
+                    } catch (_: Exception) {
+                        Log.e("Language", "Language not found: ${currentLang.lang}")
+                        null
+                    }
+                    ListItem(
+                        headlineContent = { Text(langName ?: currentLang.lang) },
+                        supportingContent = { Text(currentLang.title) },
+                        trailingContent = {
+                            Icon(
+                                Icons.Outlined.Check,
+                                contentDescription = stringResource(R.string.selectedLabel)
+                            )
+                        },
+                        colors = ListItemDefaults.colors(containerColor = colorScheme.primaryContainer),
+                        modifier = Modifier
+                            .clip(shapes.large)
+                            .clickable(
+                                onClick = {
+                                    scope
+                                        .launch { bottomSheetState.hide() }
+                                        .invokeOnCompletion {
+                                            if (!bottomSheetState.isVisible) {
+                                                setShowSheet(false)
+                                            }
+                                        }
+                                }
+                            )
+                    )
+                    Spacer(Modifier.height(16.dp))
+                }
                 itemsIndexed(langs, key = { index: Int, it: WikiLang -> it.lang }) { index, it ->
                     val langName: String? = try {
                         langCodeToName(it.lang)

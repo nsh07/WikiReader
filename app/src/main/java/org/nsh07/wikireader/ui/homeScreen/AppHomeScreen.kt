@@ -87,6 +87,7 @@ import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.WRStatus
+import org.nsh07.wikireader.data.WikiLang
 import org.nsh07.wikireader.ui.image.ImageCard
 import org.nsh07.wikireader.ui.settingsScreen.LanguageBottomSheet
 import org.nsh07.wikireader.ui.shimmer.AnimatedShimmer
@@ -194,6 +195,7 @@ fun AppHomeScreen(
     if (showLanguageSheet && homeScreenState.status == WRStatus.SUCCESS)
         ArticleLanguageBottomSheet(
             langs = homeScreenState.langs ?: emptyList(),
+            currentLang = WikiLang(preferencesState.lang, homeScreenState.title),
             searchStr = languageSearchStr,
             searchQuery = languageSearchQuery,
             setShowSheet = setShowArticleLanguageSheet,
