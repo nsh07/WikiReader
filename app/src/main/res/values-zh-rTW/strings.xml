@@ -28,7 +28,7 @@
     <string name="featuredArticle">典範條目</string>
     <string name="deleteAllArticles">刪除所有條目？</string>
     <string name="deleteAllArticlesDesc">將永久刪除您設備中的所有條目</string>
-    <string name="deleteArticle">刪除已下載的條目</string>
+    <string name="deleteArticle">刪除條目</string>
     <string name="downloadArticle">下載條目</string>
     <string name="fontStyleSerif">有襯線</string>
     <string name="fontStyleSansSerif">無襯線</string>
@@ -39,7 +39,7 @@
     <string name="license">授權</string>
     <string name="moreOptions">更多選項</string>
     <string name="noSavedArticles">沒有儲存的條目</string>
-    <string name="noSavedArticlesDesc">點擊條目頂部的下載按鈕開始下載</string>
+    <string name="noSavedArticlesDesc">點擊條目底部工具列的下載按鈕開始下載</string>
     <string name="onThisDay">歷史上的今天</string>
     <string name="openInBrowser">在瀏覽器中開啟</string>
     <string name="picOfTheDay">每日圖片</string>
@@ -121,4 +121,6 @@
     <string name="settingFeedDesc">在應用程式啟動時顯示熱門文章、新聞及更多的動態消息</string>
     <string name="donate">捐赠</string>
     <string name="supportMyWork">支持我</string>
+    <string name="settingAppLanguage">應用程式語言</string>
+    <string name="chooseAppLanguage">選擇應用程式語言</string>
 </resources>

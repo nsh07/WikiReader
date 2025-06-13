@@ -18,7 +18,7 @@
     <string name="deleteAll">Kustuta kõik</string>
     <string name="deleteAllArticles">Kas kustutame kõik artiklid?</string>
     <string name="deleteAllArticlesDesc">Järgnevaga saavad kõik artiklid siit nutiseadmest kustutatud</string>
-    <string name="deleteArticle">Kustuta allalaaditud artikkel</string>
+    <string name="deleteArticle">Kustuta artikkel</string>
     <string name="dialogDeleteHistoryItem">Otsingusõna „%1$s“ saab otsinguajaloost kustutatud.</string>
     <string name="dialogDeleteHistoryItemDesc">Järgnevaga saab kogu otsinguajalugu kustutatud.</string>
     <string name="dialogDeleteSearchHistory">Kas soovid kustutada selle otsingusõna ajaloost?</string>
