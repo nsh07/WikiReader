@@ -24,6 +24,7 @@ interface PreferencesRepository {
     suspend fun readHistory(): Set<String>?
 
     suspend fun resetSettings()
+    suspend fun eraseHistory()
 }
 
 class AppPreferencesRepository(
@@ -65,6 +66,15 @@ class AppPreferencesRepository(
                 preferences[dataStoreKey] = value
             }
             value
+        }
+
+    override suspend fun eraseHistory() =
+        withContext(ioDispatcher) {
+            val dataStoreKey = stringSetPreferencesKey("history")
+            context.dataStore.edit { preferences ->
+                preferences.remove(dataStoreKey)
+            }
+            Unit
         }
 
     /**

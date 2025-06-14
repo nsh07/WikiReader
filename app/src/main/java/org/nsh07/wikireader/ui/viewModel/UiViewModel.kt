@@ -111,7 +111,7 @@ class UiViewModel(
     private var currentSection = 0
 
     init {
-        viewModelScope.launch { // Run blocking to delay app startup until theme is determined
+        viewModelScope.launch(Dispatchers.IO) { // Run blocking to delay app startup until theme is determined
             val colorScheme = appPreferencesRepository.readStringPreference("color-scheme")
                 ?: appPreferencesRepository.saveStringPreference(
                     "color-scheme",
@@ -173,10 +173,18 @@ class UiViewModel(
                 )
             }
 
-            // TODO: Migrate history from datastore to room
-//            _appSearchBarState.update { currentState ->
-//                currentState.copy(history = appPreferencesRepository.readHistory() ?: emptySet())
-//            }
+            val oldHistory = appPreferencesRepository.readHistory()
+
+            if (oldHistory != null) {
+                val currTime = System.currentTimeMillis()
+                oldHistory.forEachIndexed { index, it ->
+                    val time = currTime - (oldHistory.size - index - 1)
+                    appHistoryRepository.insert(
+                        SearchHistoryItem(time, it, preferencesState.value.lang), false
+                    )
+                }
+                appPreferencesRepository.eraseHistory()
+            }
 
             updateArticlesList()
 
