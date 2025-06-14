@@ -15,6 +15,7 @@ interface AppContainer {
     val interceptor: HostSelectionInterceptor
     val wikipediaRepository: WikipediaRepository
     val appPreferencesRepository: AppPreferencesRepository
+    val appHistoryRepository: AppHistoryRepository
 }
 
 class DefaultAppContainer(context: Context) : AppContainer {
@@ -59,5 +60,9 @@ class DefaultAppContainer(context: Context) : AppContainer {
 
     override val appPreferencesRepository: AppPreferencesRepository by lazy {
         AppPreferencesRepository(context, Dispatchers.IO)
+    }
+
+    override val appHistoryRepository: AppHistoryRepository by lazy {
+        AppHistoryRepository(AppDatabase.getDatabase(context).historyDao())
     }
 }

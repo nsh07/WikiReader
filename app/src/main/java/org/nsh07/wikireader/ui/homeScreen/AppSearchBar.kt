@@ -86,6 +86,7 @@ import androidx.compose.ui.unit.max
 import androidx.window.core.layout.WindowSizeClass
 import coil3.ImageLoader
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.data.SearchHistoryItem
 import org.nsh07.wikireader.data.WikiPrefixSearchResult
 import org.nsh07.wikireader.data.WikiSearchResult
 import org.nsh07.wikireader.data.langCodeToName
@@ -108,6 +109,7 @@ fun AppSearchBar(
     searchBarState: SearchBarState,
     preferencesState: PreferencesState,
     textFieldState: TextFieldState,
+    searchHistory: List<SearchHistoryItem>,
     searchBarEnabled: Boolean,
     imageLoader: ImageLoader,
     searchListState: LazyListState,
@@ -123,7 +125,7 @@ fun AppSearchBar(
     loadRandom: () -> Unit,
     onExpandedChange: (Boolean) -> Unit,
     setQuery: (String) -> Unit,
-    removeHistoryItem: (String) -> Unit,
+    removeHistoryItem: (SearchHistoryItem) -> Unit,
     clearHistory: () -> Unit,
     onMenuIconClicked: () -> Unit,
     modifier: Modifier = Modifier
@@ -131,8 +133,7 @@ fun AppSearchBar(
     val focusRequester = appSearchBarState.focusRequester
     val haptic = LocalHapticFeedback.current
     val colorScheme = colorScheme
-    val history = appSearchBarState.history.toList()
-    val size = history.size
+    val size = searchHistory.size
     val compactWindow =
         !windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
 
@@ -314,8 +315,8 @@ fun AppSearchBar(
                                     }
                                 }
                             }
-                            items(size, key = { history[size - it - 1] }) {
-                                val currentText = history[size - it - 1]
+                            items(size, key = { searchHistory[it].time }) {
+                                val currentText = searchHistory[it].query
                                 ListItem(
                                     leadingContent = {
                                         Icon(
@@ -361,7 +362,7 @@ fun AppSearchBar(
                                                 haptic.performHapticFeedback(
                                                     HapticFeedbackType.LongPress
                                                 )
-                                                removeHistoryItem(currentText)
+                                                removeHistoryItem(searchHistory[it])
                                             }
                                         )
                                         .animateItem()

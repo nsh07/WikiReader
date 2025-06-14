@@ -21,7 +21,6 @@ import org.nsh07.wikireader.ui.savedArticlesScreen.LanguageFilterOption
 data class AppSearchBarState(
     val prefixSearchResults: List<WikiPrefixSearchResult>? = emptyList(),
     val searchResults: List<WikiSearchResult>? = emptyList(),
-    val history: Set<String> = setOf(),
     val focusRequester: FocusRequester = FocusRequester()
 )
 

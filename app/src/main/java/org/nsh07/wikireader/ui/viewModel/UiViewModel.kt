@@ -25,13 +25,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import org.nsh07.wikireader.WikiReaderApplication
+import org.nsh07.wikireader.data.AppHistoryRepository
 import org.nsh07.wikireader.data.AppPreferencesRepository
 import org.nsh07.wikireader.data.SavedStatus
+import org.nsh07.wikireader.data.SearchHistoryItem
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiApiPageData
 import org.nsh07.wikireader.data.WikipediaRepository
@@ -55,7 +58,8 @@ import kotlin.math.min
 class UiViewModel(
     private val interceptor: HostSelectionInterceptor,
     private val wikipediaRepository: WikipediaRepository,
-    private val appPreferencesRepository: AppPreferencesRepository
+    private val appPreferencesRepository: AppPreferencesRepository,
+    private val appHistoryRepository: AppHistoryRepository
 ) : ViewModel() {
     private val _appSearchBarState = MutableStateFlow(AppSearchBarState())
     val appSearchBarState: StateFlow<AppSearchBarState> = _appSearchBarState.asStateFlow()
@@ -82,6 +86,8 @@ class UiViewModel(
     val languageSearchStr: StateFlow<String> = _languageSearchStr.asStateFlow()
 
     val textFieldState: TextFieldState = TextFieldState()
+
+    val searchHistoryFlow = appHistoryRepository.getSearchHistory().distinctUntilChanged()
 
     @OptIn(FlowPreview::class)
     val languageSearchQuery = languageSearchStr.debounce(500L)
@@ -167,9 +173,10 @@ class UiViewModel(
                 )
             }
 
-            _appSearchBarState.update { currentState ->
-                currentState.copy(history = appPreferencesRepository.readHistory() ?: emptySet())
-            }
+            // TODO: Migrate history from datastore to room
+//            _appSearchBarState.update { currentState ->
+//                currentState.copy(history = appPreferencesRepository.readHistory() ?: emptySet())
+//            }
 
             updateArticlesList()
 
@@ -273,7 +280,6 @@ class UiViewModel(
         listStatePair: Pair<Int, Int>? = null
     ) {
         val q = query?.trim() ?: " "
-        val history = appSearchBarState.value.history.toMutableSet()
         if (q != "") {
             viewModelScope.launch {
                 var setLang = preferencesState.value.lang
@@ -286,10 +292,7 @@ class UiViewModel(
                         currentState.copy(isLoading = true, loadingProgress = null)
                     }
                     if (!random && listStatePair == null && preferencesState.value.searchHistory) {
-                        history.remove(q)
-                        history.add(q)
-                        if (history.size > 50) history.remove(history.first())
-                        appPreferencesRepository.saveHistory(history)
+                        appHistoryRepository.insert(SearchHistoryItem(query = q, lang = setLang))
                     }
                     if (!random) {
                         loadSearchResults(q)
@@ -345,13 +348,6 @@ class UiViewModel(
                     }
                 }
             }
-
-            if (!random && listStatePair == null)
-                _appSearchBarState.update { currentState ->
-                    currentState.copy(
-                        history = history
-                    )
-                }
         }
     }
 
@@ -1176,23 +1172,16 @@ class UiViewModel(
         appSearchBarState.value.focusRequester.requestFocus()
     }
 
-    fun removeHistoryItem(item: String) {
-        viewModelScope.launch {
-            val history = appSearchBarState.value.history.toMutableSet()
-            history.remove(item)
-            _appSearchBarState.update { currentState ->
-                currentState.copy(history = history)
-            }
-            appPreferencesRepository.saveHistory(history)
+    fun removeHistoryItem(item: SearchHistoryItem?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (item != null) appHistoryRepository.delete(item)
+            else clearHistory()
         }
     }
 
     fun clearHistory() {
-        viewModelScope.launch {
-            _appSearchBarState.update { currentState ->
-                currentState.copy(history = emptySet())
-            }
-            appPreferencesRepository.saveHistory(emptySet())
+        viewModelScope.launch(Dispatchers.IO) {
+            appHistoryRepository.deleteAll()
         }
     }
 
@@ -1351,10 +1340,12 @@ class UiViewModel(
                 val interceptor = application.container.interceptor
                 val wikipediaRepository = application.container.wikipediaRepository
                 val appPreferencesRepository = application.container.appPreferencesRepository
+                val appHistoryRepository = application.container.appHistoryRepository
                 UiViewModel(
                     interceptor = interceptor,
                     wikipediaRepository = wikipediaRepository,
-                    appPreferencesRepository = appPreferencesRepository
+                    appPreferencesRepository = appPreferencesRepository,
+                    appHistoryRepository = appHistoryRepository
                 )
             }
         }

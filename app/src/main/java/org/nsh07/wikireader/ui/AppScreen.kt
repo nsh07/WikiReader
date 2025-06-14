@@ -84,6 +84,7 @@ import kotlinx.serialization.Serializable
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.R.string
 import org.nsh07.wikireader.data.SavedStatus
+import org.nsh07.wikireader.data.SearchHistoryItem
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.ui.aboutScreen.AboutScreen
@@ -112,6 +113,7 @@ fun AppScreen(
     val savedArticlesState by viewModel.savedArticlesState.collectAsState()
     val listState by viewModel.articleListState.collectAsState()
     val searchListState by viewModel.searchListState.collectAsState()
+    val searchHistory by viewModel.searchHistoryFlow.collectAsState(emptyList())
     val searchBarState = rememberSearchBarState()
     val feedListState = rememberLazyListState()
     val railState = rememberWideNavigationRailState()
@@ -193,7 +195,7 @@ fun AppScreen(
     val index by remember { derivedStateOf { listState.firstVisibleItemIndex } }
     val feedIndex by remember { derivedStateOf { feedListState.firstVisibleItemIndex } }
     val (showDeleteDialog, setShowDeleteDialog) = remember { mutableStateOf(false) }
-    var (historyItem, setHistoryItem) = remember { mutableStateOf("") }
+    var historyItem: SearchHistoryItem? by remember { mutableStateOf(null) }
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -334,11 +336,9 @@ fun AppScreen(
                 if (showDeleteDialog)
                     DeleteHistoryItemDialog(
                         historyItem,
-                        setShowDeleteDialog
-                    ) {
-                        if (historyItem != "") viewModel.removeHistoryItem(it)
-                        else viewModel.clearHistory()
-                    }
+                        setShowDeleteDialog,
+                        viewModel::removeHistoryItem
+                    )
 
                 Scaffold(
                     topBar = {
@@ -347,6 +347,7 @@ fun AppScreen(
                             searchBarState = searchBarState,
                             preferencesState = preferencesState,
                             textFieldState = textFieldState,
+                            searchHistory = searchHistory,
                             scrollBehavior = searchBarScrollBehavior,
                             searchBarEnabled = !showArticleLanguageSheet,
                             imageLoader = imageLoader,
@@ -378,11 +379,11 @@ fun AppScreen(
                             },
                             setQuery = textFieldState::setTextAndPlaceCursorAtEnd,
                             clearHistory = {
-                                setHistoryItem("")
+                                historyItem = null
                                 setShowDeleteDialog(true)
                             },
                             removeHistoryItem = {
-                                setHistoryItem(it)
+                                historyItem = it
                                 setShowDeleteDialog(true)
                             },
                             onMenuIconClicked = {
@@ -601,18 +602,18 @@ fun AppScreen(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DeleteHistoryItemDialog(
-    item: String,
+    item: SearchHistoryItem?,
     setShowDeleteDialog: (Boolean) -> Unit,
-    removeHistoryItem: (String) -> Unit
+    removeHistoryItem: (SearchHistoryItem?) -> Unit
 ) {
     BasicAlertDialog(
         onDismissRequest = { setShowDeleteDialog(false) }
     ) {
         val titleText =
-            if (item != "") stringResource(string.dialogDeleteSearchHistory)
+            if (item != null) stringResource(string.dialogDeleteSearchHistory)
             else stringResource(string.dialogDeleteSearchHistoryDesc)
         val descText =
-            if (item != "") stringResource(string.dialogDeleteHistoryItem, item)
+            if (item != null) stringResource(string.dialogDeleteHistoryItem, item.query)
             else stringResource(string.dialogDeleteHistoryItemDesc)
 
         Surface(
