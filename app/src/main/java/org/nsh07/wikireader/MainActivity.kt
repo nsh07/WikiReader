@@ -29,8 +29,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen().setKeepOnScreenCondition { !viewModel.isReady }
+
         viewModel.setFilesDir(filesDir.path)
         viewModel.migrateArticles()
+
         enableEdgeToEdge()
 
         setContent {

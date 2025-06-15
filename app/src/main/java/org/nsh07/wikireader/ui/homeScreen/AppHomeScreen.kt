@@ -446,7 +446,8 @@ fun AppHomeScreen(
             AnimatedVisibility(
                 !condition1 && !condition2 && condition3,
                 enter = fadeIn(),
-                exit = fadeOut()
+                exit = fadeOut(),
+                modifier = Modifier.fillMaxSize()
             ) {
                 Icon(
                     painterResource(R.drawable.ic_launcher_monochrome),

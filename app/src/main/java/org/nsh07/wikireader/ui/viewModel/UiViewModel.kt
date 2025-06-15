@@ -725,36 +725,49 @@ class UiViewModel(
     }
 
     /**
-     * Migrates articles downloaded in the pre-2.0 format (single file) to the new format (split api
-     * and content files). The old file corresponding to an article is only deleted when the new files
-     * have been successfully written, so accidental data loss is not a concern.
+     * Migrates articles downloaded in the pre-2.4 format (raw files) to the new database.
+     * The old file corresponding to an article is only deleted when the new files
+     * have been successfully saved to the database, so accidental data loss is not a concern.
      *
      * It is recommended to run this function on every startup to ensure any pending migrations are
      * completed
      */
     fun migrateArticles() {
-//        try {
-//            val articleList =
-//                listArticles(filter = false).filterNot { it.contains("-api.") || it.contains("-content.") }
-//            val articlesDir = File(filesDir, "savedArticles")
-//            viewModelScope.launch {
-//                articleList.forEach { // Sequentially reload and save articles, then delete old files
-//                    val oldFile = File(articlesDir, it)
-//                    val saved =
-//                        saveArticle(
-//                            title = it.substringBefore('.'),
-//                            lang = it.substringAfterLast('.')
-//                        )
-//                    if (saved == WRStatus.SUCCESS) {
-//                        oldFile.delete()
-//                    }
-//                }
-//                interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
-//            }
-//        } catch (e: Exception) {
-//            Log.e("ViewModel", "Failed to load articles list: ${e.message}")
-//            e.printStackTrace()
-//        }
+        try {
+            viewModelScope.launch(Dispatchers.IO) {
+                val articleList = listArticles(true)
+                val articlesDir = File(filesDir, "savedArticles")
+
+                articleList.forEach {
+                    val apiFile = File(articlesDir, it)
+                    val contentFile = File(articlesDir, it.replace("-api", "-content"))
+
+                    val pageId = it.substringAfter('.').substringBefore('-').toInt()
+                    val title = it.substringBefore('.')
+                    val lang = it.substringAfterLast('.')
+                    val langName = langCodeToName(lang)
+                    val apiResponse = apiFile.readText()
+                    val pageContent = contentFile.readText()
+
+                    appDatabaseRepository.insertSavedArticle(
+                        SavedArticle(
+                            pageId = pageId,
+                            lang = lang,
+                            langName = langName,
+                            title = title,
+                            apiResponse = apiResponse,
+                            pageContent = pageContent
+                        )
+                    )
+
+                    apiFile.delete()
+                    contentFile.delete()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("ViewModel", "Failed to load articles list: ${e.message}")
+            e.printStackTrace()
+        }
     }
 
     /**
@@ -805,8 +818,9 @@ class UiViewModel(
             val savedArticle = appDatabaseRepository.getSavedArticle(pageId, lang)
 
             if (savedArticle != null) {
+                val jsonInst = Json { ignoreUnknownKeys = true }
                 val apiResponse =
-                    Json.decodeFromString<WikiApiPageData>(savedArticle.apiResponse)
+                    jsonInst.decodeFromString<WikiApiPageData>(savedArticle.apiResponse)
                         .query?.pages?.get(0)
 
                 val extractText = savedArticle.pageContent
