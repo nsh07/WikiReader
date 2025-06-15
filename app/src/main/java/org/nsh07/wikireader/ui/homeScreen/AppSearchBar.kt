@@ -1,5 +1,7 @@
 package org.nsh07.wikireader.ui.homeScreen
 
+import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animateFloatAsState
@@ -68,6 +70,8 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
@@ -85,6 +89,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.window.core.layout.WindowSizeClass
 import coil3.ImageLoader
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WikiPrefixSearchResult
 import org.nsh07.wikireader.data.WikiSearchResult
@@ -130,6 +136,7 @@ fun AppSearchBar(
 ) {
     val focusRequester = appSearchBarState.focusRequester
     val haptic = LocalHapticFeedback.current
+    val scope = rememberCoroutineScope()
     val colorScheme = colorScheme
     val history = appSearchBarState.history.toList()
     val size = history.size
@@ -137,6 +144,17 @@ fun AppSearchBar(
         !windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
 
     val (showLanguageSheet, setShowLanguageSheet) = remember { mutableStateOf(false) }
+
+    var enabled by remember { mutableStateOf(Build.VERSION.SDK_INT >= 29) }
+
+    if (Build.VERSION.SDK_INT < 29) {
+        LaunchedEffect(Unit) {
+            scope.launch {
+                delay(1000)
+                enabled = true
+            }
+        }
+    }
 
     LaunchedEffect(textFieldState.text) {
         loadSearchDebounced(textFieldState.text.toString())
@@ -174,7 +192,7 @@ fun AppSearchBar(
                             }
                         }
                     } else null,
-                enabled = searchBarEnabled,
+                enabled = searchBarEnabled && enabled,
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester)
@@ -290,6 +308,18 @@ fun AppSearchBar(
                 },
                 setSearchStr = updateLanguageSearchStr
             )
+
+        if (Build.VERSION.SDK_INT < 29) { // Workaround to fix the infinite search bar loop bug
+            BackHandler(true) {
+                scope.launch {
+                    enabled = false
+                    searchBarState.animateToCollapsed()
+                    delay(1000)
+                    enabled = true
+                }
+            }
+        }
+
         AnimatedContent(textFieldState.text.trim().isEmpty()) {
             when (it) {
                 true ->
