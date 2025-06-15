@@ -8,7 +8,7 @@
     <string name="dialogDeleteHistoryItem">\"%1$s\" будет навсегда удалено из истории поиска.</string>
     <string name="license">Лицензия</string>
     <string name="app">Приложение</string>
-    <string name="appTagline">Читайте Википедию без раздражителей</string>
+    <string name="appTagline">Читайте Википедию не отвлекаясь на лишнее</string>
     <string name="articlesSize">%1$s статей, %2$s всего</string>
     <string name="author">Автор</string>
     <string name="chooseColorScheme">Выберите цветовую схему</string>
@@ -33,7 +33,7 @@
     <string name="imageCounter">Изображение %1$s из %2$s</string>
     <string name="featuredArticle">Избранная статья</string>
     <string name="errorLoadingImage">Ошибка загрузки изображения</string>
-    <string name="donateToWikipedia">Пожертвовать денежно или внести свой вклад в развитие Википедии</string>
+    <string name="donateToWikipedia">Пожертвовать или внести свой вклад в развитие Википедии</string>
     <string name="inArticleMatches">Совпадения в статье</string>
     <string name="instructions">Инструкция</string>
     <string name="about">О приложении</string>
