@@ -1,0 +1,1 @@
+This update fixes a critical bug that caused the search bar to get stuck in a loop on older Android versions
