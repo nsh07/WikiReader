@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,9 +30,9 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialShapes
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -40,6 +41,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -59,12 +61,10 @@ import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.ArticleInfo
 import org.nsh07.wikireader.data.LanguageInfo
 import org.nsh07.wikireader.data.WRStatus
-import org.nsh07.wikireader.data.bytesToHumanReadableSize
 import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
-import org.nsh07.wikireader.ui.viewModel.SavedArticlesState
 
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
@@ -72,7 +72,6 @@ import org.nsh07.wikireader.ui.viewModel.SavedArticlesState
 )
 @Composable
 fun SavedArticlesScreen(
-    savedArticlesState: SavedArticlesState,
     savedArticles: List<ArticleInfo>,
     savedArticleLangs: List<LanguageInfo>,
     modifier: Modifier = Modifier,
@@ -81,19 +80,26 @@ fun SavedArticlesScreen(
     openSavedArticle: (Int, String) -> Unit,
     deleteArticle: (Int, String) -> WRStatus
 ) {
-    // TODO: Implement language filter chips
-    // TODO: Group articles list by language
     val coroutineScope = rememberCoroutineScope()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val snackBarHostState = remember { SnackbarHostState() }
     var toDelete: Pair<Int, String>? by remember { mutableStateOf(null) }
     var toDeleteTitle: String? by remember { mutableStateOf(null) }
     var showArticleDeleteDialog by remember { mutableStateOf(false) }
+    var ct by remember { mutableIntStateOf(0) }
 
-    var selectedLangs =
-        savedArticlesState.languageFilters.filter { it.selected }.map { it.langCode }
-    if (selectedLangs.isEmpty()) selectedLangs =
-        savedArticlesState.languageFilters.map { it.langCode }
+    val languageFilters = remember(savedArticleLangs) {
+        savedArticleLangs.map { LanguageFilterOption(it.langName, it.lang) }
+    }
+
+    val selectedLanguages = remember(ct, languageFilters) {
+        languageFilters.filter { it.selected }.map { it.option }
+    }
+
+    val groupedArticles = remember(savedArticles, selectedLanguages) {
+        savedArticles.groupBy { it.langName }
+            .filterKeys { selectedLanguages.isEmpty() || it in selectedLanguages }
+    }
 
     if (showArticleDeleteDialog)
         DeleteArticleDialog(
@@ -112,9 +118,7 @@ fun SavedArticlesScreen(
                 articlesInfo = stringResource(
                     R.string.articlesSize,
                     savedArticles.size,
-                    bytesToHumanReadableSize(
-                        savedArticlesState.articlesSize.toDouble()
-                    )
+                    remember { groupedArticles.size }
                 ),
                 scrollBehavior = scrollBehavior,
                 deleteEnabled = savedArticles.isNotEmpty(),
@@ -140,62 +144,75 @@ fun SavedArticlesScreen(
                     .background(topBarColors.containerColor)
             ) {
                 item {
-                    if (savedArticlesState.languageFilters.size > 1)
+                    if (savedArticleLangs.size > 1)
                         FlowRow(
                             Modifier.padding(horizontal = 16.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            savedArticlesState.languageFilters.forEach { filterOption ->
+                            languageFilters.forEach { filterOption ->
                                 FilterChip(
                                     selected = filterOption.selected,
                                     onClick = {
                                         filterOption.selected = !filterOption.selected
+                                        ct++
                                     },
                                     label = { Text(filterOption.option) },
-                                    leadingIcon = if (filterOption.selected) {
-                                        {
-                                            Icon(
-                                                Icons.Outlined.Check,
-                                                contentDescription = null
-                                            )
-                                        }
-                                    } else null
+                                    leadingIcon =
+                                        if (filterOption.selected) {
+                                            {
+                                                Icon(
+                                                    Icons.Outlined.Check,
+                                                    contentDescription = null
+                                                )
+                                            }
+                                        } else null
                                 )
                             }
                         }
                 }
-                itemsIndexed(
-                    savedArticles,
-                    key = { index: Int, it: ArticleInfo -> it.pageId.toString() + it.lang }
-                ) { index: Int, it: ArticleInfo ->
-                    ListItem(
-                        headlineContent = {
-                            Text(
-                                it.title,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        },
-                        supportingContent = { Text(it.langName) },
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .clip(
-                                if (savedArticles.size == 1) shapes.large
-                                else if (index == 0) topListItemShape
-                                else if (index == savedArticles.lastIndex) bottomListItemShape
-                                else middleListItemShape
-                            )
-                            .combinedClickable(
-                                onClick = { openSavedArticle(it.pageId, it.lang) },
-                                onLongClick = {
-                                    toDelete = Pair(it.pageId, it.lang)
-                                    toDeleteTitle = it.title
-                                    showArticleDeleteDialog = true
-                                }
-                            )
-                            .animateItem()
-                    )
+                groupedArticles.forEach { item ->
+                    if (groupedArticles.size > 1) item(key = item.key + "-lang") {
+                        Text(
+                            item.key,
+                            style = typography.labelLarge,
+                            modifier = Modifier
+                                .padding(horizontal = 24.dp, vertical = 14.dp)
+                                .animateItem()
+                        )
+                    }
+                    itemsIndexed(
+                        item.value,
+                        key = { index: Int, it: ArticleInfo -> it.pageId.toString() + it.lang }
+                    ) { index: Int, it: ArticleInfo ->
+                        ListItem(
+                            headlineContent = {
+                                Text(
+                                    it.title,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            },
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .clip(
+                                    if (item.value.size == 1) shapes.large
+                                    else if (index == 0) topListItemShape
+                                    else if (index == item.value.lastIndex) bottomListItemShape
+                                    else middleListItemShape
+                                )
+                                .combinedClickable(
+                                    onClick = { openSavedArticle(it.pageId, it.lang) },
+                                    onLongClick = {
+                                        toDelete = Pair(it.pageId, it.lang)
+                                        toDeleteTitle = it.title
+                                        showArticleDeleteDialog = true
+                                    }
+                                )
+                                .animateItem()
+                        )
+                    }
                 }
+                item { Spacer(Modifier.height(16.dp)) }
             }
         else
             Box(
@@ -240,13 +257,13 @@ fun SavedArticlesScreen(
                     Text(
                         stringResource(R.string.noSavedArticles),
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.titleLarge,
+                        style = typography.titleLarge,
                         modifier = Modifier.padding(8.dp)
                     )
                     Text(
                         stringResource(R.string.noSavedArticlesDesc),
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = typography.bodyMedium,
                         modifier = Modifier.padding(horizontal = 48.dp)
                     )
                 }

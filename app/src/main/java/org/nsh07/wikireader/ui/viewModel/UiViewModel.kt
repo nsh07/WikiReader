@@ -69,9 +69,6 @@ class UiViewModel(
     private val _feedState = MutableStateFlow(FeedState())
     val feedState: StateFlow<FeedState> = _feedState.asStateFlow()
 
-    private val _savedArticlesState = MutableStateFlow(SavedArticlesState())
-    val savedArticlesState: StateFlow<SavedArticlesState> = _savedArticlesState.asStateFlow()
-
     private val _articleListState = MutableStateFlow(LazyListState(0, 0))
     val articleListState: StateFlow<LazyListState> = _articleListState.asStateFlow()
 

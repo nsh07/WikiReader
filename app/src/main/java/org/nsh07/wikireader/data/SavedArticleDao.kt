@@ -26,9 +26,6 @@ interface SavedArticleDao {
     @Query("SELECT DISTINCT lang, langName FROM saved_article")
     fun getSavedArticleLanguages(): Flow<List<LanguageInfo>>
 
-    @Query("SELECT * FROM saved_article ORDER BY title")
+    @Query("SELECT * FROM saved_article ORDER BY lang, title")
     fun getAllSavedArticles(): Flow<List<ArticleInfo>>
-
-//    @Query("SELECT * FROM saved_article WHERE lang IN (:langs)")
-//    fun getFilteredSavedArticles(langs: List<String>): Flow<List<SavedArticle>>
 }

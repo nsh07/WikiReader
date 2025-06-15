@@ -110,7 +110,6 @@ fun AppScreen(
     val appSearchBarState by viewModel.appSearchBarState.collectAsState()
     val homeScreenState by viewModel.homeScreenState.collectAsState()
     val feedState by viewModel.feedState.collectAsState()
-    val savedArticlesState by viewModel.savedArticlesState.collectAsState()
     val listState by viewModel.articleListState.collectAsState()
     val searchListState by viewModel.searchListState.collectAsState()
     val searchHistory by viewModel.searchHistoryFlow.collectAsState(emptyList())
@@ -549,7 +548,6 @@ fun AppScreen(
 
             composable<SavedArticles> {
                 SavedArticlesScreen(
-                    savedArticlesState = savedArticlesState,
                     savedArticles = savedArticles,
                     savedArticleLangs = savedArticleLangs,
                     openSavedArticle = { pageId: Int, lang: String ->

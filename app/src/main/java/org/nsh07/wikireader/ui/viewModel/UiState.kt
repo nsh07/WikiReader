@@ -15,7 +15,6 @@ import org.nsh07.wikireader.data.WikiLang
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.data.WikiPrefixSearchResult
 import org.nsh07.wikireader.data.WikiSearchResult
-import org.nsh07.wikireader.ui.savedArticlesScreen.LanguageFilterOption
 
 @Immutable
 data class AppSearchBarState(
@@ -68,13 +67,6 @@ data class FeedState(
     val news: List<FeedApiNews>? = null,
     val onThisDay: List<FeedApiOTD>? = null,
     val sections: List<Pair<Int, FeedSection>> = emptyList()
-)
-
-@Immutable
-data class SavedArticlesState(
-    val isLoading: Boolean = false,
-    val languageFilters: List<LanguageFilterOption> = emptyList(),
-    val articlesSize: Long = 0L
 )
 
 enum class FeedSection {
