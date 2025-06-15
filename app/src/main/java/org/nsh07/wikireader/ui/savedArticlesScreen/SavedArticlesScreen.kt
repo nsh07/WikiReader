@@ -56,9 +56,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.data.ArticleInfo
+import org.nsh07.wikireader.data.LanguageInfo
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.bytesToHumanReadableSize
-import org.nsh07.wikireader.data.langCodeToWikiName
 import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
@@ -72,16 +73,21 @@ import org.nsh07.wikireader.ui.viewModel.SavedArticlesState
 @Composable
 fun SavedArticlesScreen(
     savedArticlesState: SavedArticlesState,
+    savedArticles: List<ArticleInfo>,
+    savedArticleLangs: List<LanguageInfo>,
     modifier: Modifier = Modifier,
     deleteAll: () -> WRStatus,
     onBack: () -> Unit,
-    openSavedArticle: (String) -> Unit,
-    deleteArticle: (String) -> WRStatus
+    openSavedArticle: (Int, String) -> Unit,
+    deleteArticle: (Int, String) -> WRStatus
 ) {
+    // TODO: Implement language filter chips
+    // TODO: Group articles list by language
     val coroutineScope = rememberCoroutineScope()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val snackBarHostState = remember { SnackbarHostState() }
-    var toDelete: String? by remember { mutableStateOf("") }
+    var toDelete: Pair<Int, String>? by remember { mutableStateOf(null) }
+    var toDeleteTitle: String? by remember { mutableStateOf(null) }
     var showArticleDeleteDialog by remember { mutableStateOf(false) }
 
     var selectedLangs =
@@ -91,7 +97,9 @@ fun SavedArticlesScreen(
 
     if (showArticleDeleteDialog)
         DeleteArticleDialog(
-            articleFileName = toDelete,
+            pageId = toDelete?.first,
+            lang = toDelete?.second,
+            title = toDeleteTitle,
             setShowDeleteDialog = { showArticleDeleteDialog = it },
             deleteArticle = deleteArticle,
             deleteAll = deleteAll,
@@ -103,16 +111,17 @@ fun SavedArticlesScreen(
             SavedArticlesTopBar(
                 articlesInfo = stringResource(
                     R.string.articlesSize,
-                    savedArticlesState.savedArticles.size,
+                    savedArticles.size,
                     bytesToHumanReadableSize(
                         savedArticlesState.articlesSize.toDouble()
                     )
                 ),
                 scrollBehavior = scrollBehavior,
-                deleteEnabled = savedArticlesState.savedArticles.isNotEmpty(),
+                deleteEnabled = savedArticles.isNotEmpty(),
                 onBack = onBack,
                 onDeleteAll = {
                     toDelete = null
+                    toDeleteTitle = null
                     showArticleDeleteDialog = true
                 }
             )
@@ -122,7 +131,7 @@ fun SavedArticlesScreen(
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { insets ->
-        if (savedArticlesState.savedArticles.isNotEmpty())
+        if (savedArticles.isNotEmpty())
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(2.dp),
                 contentPadding = insets,
@@ -156,46 +165,31 @@ fun SavedArticlesScreen(
                         }
                 }
                 itemsIndexed(
-                    savedArticlesState.savedArticles.filter {
-                        selectedLangs.contains(
-                            it.substringAfterLast(
-                                '.'
-                            )
-                        )
-                    },
-                    key = { index: Int, it: String -> it }
-                ) { index: Int, it: String ->
+                    savedArticles,
+                    key = { index: Int, it: ArticleInfo -> it.pageId.toString() + it.lang }
+                ) { index: Int, it: ArticleInfo ->
                     ListItem(
                         headlineContent = {
                             Text(
-                                remember {
-                                    it.substringBeforeLast('.').substringBeforeLast('.')
-                                },
+                                it.title,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
                         },
-                        supportingContent = {
-                            Text(remember {
-                                langCodeToWikiName(
-                                    it.substringAfterLast(
-                                        '.'
-                                    )
-                                )
-                            })
-                        },
+                        supportingContent = { Text(it.langName) },
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .clip(
-                                if (savedArticlesState.savedArticles.size == 1) shapes.large
+                                if (savedArticles.size == 1) shapes.large
                                 else if (index == 0) topListItemShape
-                                else if (index == savedArticlesState.savedArticles.lastIndex) bottomListItemShape
+                                else if (index == savedArticles.lastIndex) bottomListItemShape
                                 else middleListItemShape
                             )
                             .combinedClickable(
-                                onClick = { openSavedArticle(it) },
+                                onClick = { openSavedArticle(it.pageId, it.lang) },
                                 onLongClick = {
-                                    toDelete = it
+                                    toDelete = Pair(it.pageId, it.lang)
+                                    toDeleteTitle = it.title
                                     showArticleDeleteDialog = true
                                 }
                             )

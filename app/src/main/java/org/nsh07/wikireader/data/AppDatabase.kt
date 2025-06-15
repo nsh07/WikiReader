@@ -6,12 +6,13 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [SearchHistoryItem::class],
+    entities = [SearchHistoryItem::class, SavedArticle::class],
     version = 1
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun historyDao(): SearchHistoryDao
+    abstract fun savedArticleDao(): SavedArticleDao
 
     companion object {
 

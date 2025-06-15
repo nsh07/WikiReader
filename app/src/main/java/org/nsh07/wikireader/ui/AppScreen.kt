@@ -114,6 +114,8 @@ fun AppScreen(
     val listState by viewModel.articleListState.collectAsState()
     val searchListState by viewModel.searchListState.collectAsState()
     val searchHistory by viewModel.searchHistoryFlow.collectAsState(emptyList())
+    val savedArticles by viewModel.savedArticlesFlow.collectAsState(emptyList())
+    val savedArticleLangs by viewModel.savedArticleLangs.collectAsState(emptyList())
     val searchBarState = rememberSearchBarState()
     val feedListState = rememberLazyListState()
     val railState = rememberWideNavigationRailState()
@@ -447,7 +449,10 @@ fun AppScreen(
                                         )
                                     delay(150L)
                                 } else if (homeScreenState.savedStatus == SavedStatus.SAVED) {
-                                    val status = viewModel.deleteArticle()
+                                    val status = viewModel.deleteArticle(
+                                        pageId = homeScreenState.pageId ?: 0,
+                                        lang = preferencesState.lang
+                                    )
                                     if (status != WRStatus.SUCCESS)
                                         snackBarHostState.showSnackbar(
                                             context.getString(
@@ -545,18 +550,17 @@ fun AppScreen(
             composable<SavedArticles> {
                 SavedArticlesScreen(
                     savedArticlesState = savedArticlesState,
-                    openSavedArticle = {
+                    savedArticles = savedArticles,
+                    savedArticleLangs = savedArticleLangs,
+                    openSavedArticle = { pageId: Int, lang: String ->
                         scope.launch {
                             navController.navigateUp()
-                            viewModel.loadSavedArticle(it)
+                            viewModel.loadSavedArticle(pageId, lang)
                         }
                     },
                     deleteArticle = viewModel::deleteArticle,
                     deleteAll = viewModel::deleteAllArticles,
-                    onBack = {
-                        navController.navigateUp()
-                        viewModel.updateLanguageFilters()
-                    }
+                    onBack = navController::navigateUp
                 )
             }
 

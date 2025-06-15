@@ -1,0 +1,56 @@
+package org.nsh07.wikireader.data
+
+import kotlinx.coroutines.flow.Flow
+
+interface DatabaseRepository {
+    suspend fun insertSearchHistory(search: SearchHistoryItem, deduplicate: Boolean = true)
+    suspend fun deleteSearchHistory(search: SearchHistoryItem)
+    suspend fun deleteAllSearchHistory()
+    fun getSearchHistory(): Flow<List<SearchHistoryItem>>
+
+    suspend fun insertSavedArticle(savedArticle: SavedArticle)
+    suspend fun deleteSavedArticle(pageId: Int, lang: String)
+    suspend fun deleteAllSavedArticles()
+    suspend fun isArticleSaved(pageId: Int, lang: String): Boolean
+    suspend fun getSavedArticle(pageId: Int, lang: String): SavedArticle?
+    fun getSavedArticleLanguages(): Flow<List<LanguageInfo>>
+    fun getSavedArticles(): Flow<List<ArticleInfo>>
+}
+
+class AppDatabaseRepository(
+    private val searchHistoryDao: SearchHistoryDao,
+    private val savedArticleDao: SavedArticleDao
+) : DatabaseRepository {
+    override suspend fun insertSearchHistory(search: SearchHistoryItem, deduplicate: Boolean) {
+        if (deduplicate) searchHistoryDao.deduplicateSearch(search.query, search.lang)
+        searchHistoryDao.insert(search)
+    }
+
+    override suspend fun deleteSearchHistory(search: SearchHistoryItem) =
+        searchHistoryDao.delete(search)
+
+    override suspend fun deleteAllSearchHistory() = searchHistoryDao.deleteAll()
+
+    override fun getSearchHistory(): Flow<List<SearchHistoryItem>> =
+        searchHistoryDao.getSearchHistory()
+
+    override suspend fun insertSavedArticle(savedArticle: SavedArticle) =
+        savedArticleDao.insert(savedArticle)
+
+    override suspend fun deleteSavedArticle(pageId: Int, lang: String) =
+        savedArticleDao.delete(pageId, lang)
+
+    override suspend fun deleteAllSavedArticles() = savedArticleDao.deleteAll()
+
+    override suspend fun isArticleSaved(pageId: Int, lang: String): Boolean =
+        savedArticleDao.isSaved(pageId, lang)
+
+    override suspend fun getSavedArticle(pageId: Int, lang: String): SavedArticle? =
+        savedArticleDao.getSavedArticle(pageId, lang)
+
+    override fun getSavedArticleLanguages(): Flow<List<LanguageInfo>> =
+        savedArticleDao.getSavedArticleLanguages()
+
+    override fun getSavedArticles(): Flow<List<ArticleInfo>> =
+        savedArticleDao.getAllSavedArticles()
+}

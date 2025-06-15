@@ -73,7 +73,6 @@ data class FeedState(
 @Immutable
 data class SavedArticlesState(
     val isLoading: Boolean = false,
-    val savedArticles: List<String> = emptyList(),
     val languageFilters: List<LanguageFilterOption> = emptyList(),
     val articlesSize: Long = 0L
 )
