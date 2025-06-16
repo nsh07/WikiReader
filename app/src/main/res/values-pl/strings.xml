@@ -73,7 +73,7 @@
     <string name="chooseColorScheme">Wybierz schemat kolorów</string>
     <string name="chooseTheme">Wybierz motyw</string>
     <string name="clear">Wyczyść</string>
-    <string name="articlesSize">%1$s artykułów, %2$s łącznie</string>
+    <string name="articlesSize">%1$s artykułów, %2$s języków</string>
     <string name="back">powrót</string>
     <string name="dialogDeleteSearchHistoryDesc">Usunąć twoją historię wyszukiwania?</string>
     <string name="deleteAll">Usuń wszystko</string>

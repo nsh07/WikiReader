@@ -86,7 +86,7 @@
     <string name="about">Rakenduse teave</string>
     <string name="colorSchemeDynamic">Dünaamiline</string>
     <string name="ok">Sobib</string>
-    <string name="articlesSize">%1$s artiklit, kokku %2$s</string>
+    <string name="articlesSize">%1$s artiklit, %2$s-s keeles</string>
     <string name="cancel">Katkesta</string>
     <string name="chooseTheme">Vali kujundus</string>
     <string name="license">Litsents</string>

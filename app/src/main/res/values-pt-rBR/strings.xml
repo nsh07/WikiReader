@@ -28,7 +28,7 @@
     <string name="setAsDefault">Definir como padrão</string>
     <string name="settingDataSaver">Economizador de dados</string>
     <string name="articleDeleted">Artigo deletado</string>
-    <string name="articlesSize">%1$s artigos, %2$s total</string>
+    <string name="articlesSize">%1$s artigos, %2$s idiomas</string>
     <string name="author">Autor</string>
     <string name="chooseColorScheme">Escolher esquema de cores</string>
     <string name="chooseTheme">Escolher tema</string>

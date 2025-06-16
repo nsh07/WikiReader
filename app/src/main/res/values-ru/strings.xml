@@ -9,7 +9,7 @@
     <string name="license">Лицензия</string>
     <string name="app">Приложение</string>
     <string name="appTagline">Читайте Википедию не отвлекаясь на лишнее</string>
-    <string name="articlesSize">%1$s статей, %2$s всего</string>
+    <string name="articlesSize">%1$s статей, на %2$s языках</string>
     <string name="author">Автор</string>
     <string name="chooseColorScheme">Выберите цветовую схему</string>
     <string name="chooseTheme">Выберите тему</string>
