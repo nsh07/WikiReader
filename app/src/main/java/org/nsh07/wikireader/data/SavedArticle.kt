@@ -10,6 +10,7 @@ data class SavedArticle(
     val lang: String,
     val langName: String,
     val title: String,
+    val description: String,
     val apiResponse: String,
     val pageContent: String
 )
@@ -18,7 +19,8 @@ data class ArticleInfo(
     val pageId: Int,
     val lang: String,
     val langName: String,
-    val title: String
+    val title: String,
+    val description: String
 )
 
 data class LanguageInfo(

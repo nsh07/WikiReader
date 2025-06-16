@@ -19,7 +19,7 @@ data class WikiApiPage(
     val extract: String? = null,
     @SerialName(value = "pageid") val pageId: Int? = null,
     @SerialName(value = "original") val photo: WikiPhoto? = null,
-    @SerialName(value = "description") val photoDesc: String? = null,
+    @SerialName(value = "description") val description: String? = null,
     @SerialName(value = "langlinks") val langs: List<WikiLang>? = null
 )
 

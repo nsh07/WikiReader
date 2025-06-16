@@ -442,7 +442,7 @@ class UiViewModel(
                         currentState.copy(
                             title = apiResponse?.title ?: "Error",
                             photo = apiResponse?.photo,
-                            photoDesc = apiResponse?.photoDesc,
+                            photoDesc = apiResponse?.description,
                             langs = apiResponse?.langs,
                             currentLang = setLang,
                             status = status,
@@ -702,6 +702,7 @@ class UiViewModel(
                     lang = currentLang,
                     langName = langCodeToName(currentLang),
                     title = apiResponseQuery.title,
+                    description = apiResponseQuery.description ?: "",
                     apiResponse = Json.encodeToString(apiResponse),
                     pageContent = pageContent
                 )
@@ -733,10 +734,11 @@ class UiViewModel(
      * completed
      */
     fun migrateArticles() {
-        try {
-            viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
                 val articleList = listArticles(true)
                 val articlesDir = File(filesDir, "savedArticles")
+                val jsonInst = Json { ignoreUnknownKeys = true }
 
                 articleList.forEach {
                     val apiFile = File(articlesDir, it)
@@ -747,6 +749,9 @@ class UiViewModel(
                     val lang = it.substringAfterLast('.')
                     val langName = langCodeToName(lang)
                     val apiResponse = apiFile.readText()
+                    val description = jsonInst
+                        .decodeFromString<WikiApiPageData>(apiResponse)
+                        .query?.pages?.get(0)?.description ?: ""
                     val pageContent = contentFile.readText()
 
                     appDatabaseRepository.insertSavedArticle(
@@ -755,6 +760,7 @@ class UiViewModel(
                             lang = lang,
                             langName = langName,
                             title = title,
+                            description = description,
                             apiResponse = apiResponse,
                             pageContent = pageContent
                         )
@@ -763,10 +769,10 @@ class UiViewModel(
                     apiFile.delete()
                     contentFile.delete()
                 }
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Failed to load articles list: ${e.message}")
+                e.printStackTrace()
             }
-        } catch (e: Exception) {
-            Log.e("ViewModel", "Failed to load articles list: ${e.message}")
-            e.printStackTrace()
         }
     }
 
@@ -853,7 +859,7 @@ class UiViewModel(
                     currentState.copy(
                         title = apiResponse?.title ?: "Error",
                         photo = apiResponse?.photo,
-                        photoDesc = apiResponse?.photoDesc,
+                        photoDesc = apiResponse?.description,
                         langs = apiResponse?.langs,
                         currentLang = preferencesState.value.lang,
                         pageId = apiResponse?.pageId,

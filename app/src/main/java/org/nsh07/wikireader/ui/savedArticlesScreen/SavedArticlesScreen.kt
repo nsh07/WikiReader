@@ -192,6 +192,16 @@ fun SavedArticlesScreen(
                                     overflow = TextOverflow.Ellipsis
                                 )
                             },
+                            supportingContent =
+                                if (it.description.isNotEmpty()) {
+                                    {
+                                        Text(
+                                            it.description,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                } else null,
                             modifier = Modifier
                                 .padding(horizontal = 16.dp)
                                 .clip(
