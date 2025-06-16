@@ -65,6 +65,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.text.parseAsHtml
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -107,18 +108,18 @@ fun AppScreen(
     val scope = rememberCoroutineScope()
 
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
-    val appSearchBarState by viewModel.appSearchBarState.collectAsState()
-    val homeScreenState by viewModel.homeScreenState.collectAsState()
-    val feedState by viewModel.feedState.collectAsState()
-    val listState by viewModel.articleListState.collectAsState()
-    val searchListState by viewModel.searchListState.collectAsState()
+    val appSearchBarState by viewModel.appSearchBarState.collectAsStateWithLifecycle()
+    val homeScreenState by viewModel.homeScreenState.collectAsStateWithLifecycle()
+    val feedState by viewModel.feedState.collectAsStateWithLifecycle()
+    val listState by viewModel.articleListState.collectAsStateWithLifecycle()
+    val searchListState by viewModel.searchListState.collectAsStateWithLifecycle()
     val searchHistory by viewModel.searchHistoryFlow.collectAsState(emptyList())
     val savedArticles by viewModel.savedArticlesFlow.collectAsState(emptyList())
     val savedArticleLangs by viewModel.savedArticleLangs.collectAsState(emptyList())
     val searchBarState = rememberSearchBarState()
     val feedListState = rememberLazyListState()
     val railState = rememberWideNavigationRailState()
-    val languageSearchStr by viewModel.languageSearchStr.collectAsState()
+    val languageSearchStr by viewModel.languageSearchStr.collectAsStateWithLifecycle()
     val languageSearchQuery by viewModel.languageSearchQuery.collectAsState("")
     val motionScheme = motionScheme
     var showArticleLanguageSheet by rememberSaveable { mutableStateOf(false) }
