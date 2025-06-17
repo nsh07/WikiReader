@@ -9,7 +9,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 private const val API_QUERY =
-    "w/api.php?format=json&action=query&prop=pageimages|description|langlinks&piprop=original&pilicense=any&lllimit=max&redirects=1&formatversion=2&maxage=900&smaxage=900"
+    "w/api.php?format=json&action=query&prop=pageimages|description|langlinks&piprop=thumbnail|original&pithumbsize=320&pilicense=any&lllimit=max&redirects=1&formatversion=2&maxage=900&smaxage=900"
 
 private const val CONTENT_QUERY =
     "wiki/{title}?action=raw&maxage=900&smaxage=900"

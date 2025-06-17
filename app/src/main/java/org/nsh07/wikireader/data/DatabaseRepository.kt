@@ -6,7 +6,14 @@ interface DatabaseRepository {
     suspend fun insertSearchHistory(search: SearchHistoryItem, deduplicate: Boolean = true)
     suspend fun deleteSearchHistory(search: SearchHistoryItem)
     suspend fun deleteAllSearchHistory()
+    suspend fun deleteOldSearchHistory()
     fun getSearchHistory(): Flow<List<SearchHistoryItem>>
+
+    suspend fun insertViewHistory(viewHistoryItem: ViewHistoryItem)
+    suspend fun deleteViewHistory(viewHistoryItem: ViewHistoryItem)
+    suspend fun deleteAllViewHistory()
+    suspend fun deleteOldViewHistory()
+    fun getViewHistory(): Flow<List<ViewHistoryItem>>
 
     suspend fun insertSavedArticle(savedArticle: SavedArticle)
     suspend fun deleteSavedArticle(pageId: Int, lang: String)
@@ -19,7 +26,8 @@ interface DatabaseRepository {
 
 class AppDatabaseRepository(
     private val searchHistoryDao: SearchHistoryDao,
-    private val savedArticleDao: SavedArticleDao
+    private val savedArticleDao: SavedArticleDao,
+    private val viewHistoryDao: ViewHistoryDao
 ) : DatabaseRepository {
     override suspend fun insertSearchHistory(search: SearchHistoryItem, deduplicate: Boolean) {
         if (deduplicate) searchHistoryDao.deduplicateSearch(search.query, search.lang)
@@ -30,9 +38,19 @@ class AppDatabaseRepository(
         searchHistoryDao.delete(search)
 
     override suspend fun deleteAllSearchHistory() = searchHistoryDao.deleteAll()
-
+    override suspend fun deleteOldSearchHistory() = searchHistoryDao.deleteOld()
     override fun getSearchHistory(): Flow<List<SearchHistoryItem>> =
         searchHistoryDao.getSearchHistory()
+
+    override suspend fun insertViewHistory(viewHistoryItem: ViewHistoryItem) =
+        viewHistoryDao.insert(viewHistoryItem)
+
+    override suspend fun deleteViewHistory(viewHistoryItem: ViewHistoryItem) =
+        viewHistoryDao.delete(viewHistoryItem)
+
+    override suspend fun deleteAllViewHistory() = viewHistoryDao.deleteAll()
+    override suspend fun deleteOldViewHistory() = viewHistoryDao.deleteOld()
+    override fun getViewHistory(): Flow<List<ViewHistoryItem>> = viewHistoryDao.getViewHistory()
 
     override suspend fun insertSavedArticle(savedArticle: SavedArticle) =
         savedArticleDao.insert(savedArticle)
@@ -41,7 +59,6 @@ class AppDatabaseRepository(
         savedArticleDao.delete(pageId, lang)
 
     override suspend fun deleteAllSavedArticles() = savedArticleDao.deleteAll()
-
     override suspend fun isArticleSaved(pageId: Int, lang: String): Boolean =
         savedArticleDao.isSaved(pageId, lang)
 

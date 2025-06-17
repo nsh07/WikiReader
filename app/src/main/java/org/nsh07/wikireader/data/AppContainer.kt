@@ -64,8 +64,9 @@ class DefaultAppContainer(context: Context) : AppContainer {
 
     override val appDatabaseRepository: AppDatabaseRepository by lazy {
         AppDatabaseRepository(
-            searchHistoryDao = AppDatabase.getDatabase(context).historyDao(),
-            savedArticleDao = AppDatabase.getDatabase(context).savedArticleDao()
+            searchHistoryDao = AppDatabase.getDatabase(context).searchHistoryDao(),
+            savedArticleDao = AppDatabase.getDatabase(context).savedArticleDao(),
+            viewHistoryDao = AppDatabase.getDatabase(context).viewHistoryDao()
         )
     }
 }

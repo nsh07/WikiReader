@@ -36,6 +36,7 @@ import org.nsh07.wikireader.data.AppPreferencesRepository
 import org.nsh07.wikireader.data.SavedArticle
 import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.SearchHistoryItem
+import org.nsh07.wikireader.data.ViewHistoryItem
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiApiPageData
 import org.nsh07.wikireader.data.WikipediaRepository
@@ -183,6 +184,9 @@ class UiViewModel(
                 }
                 appPreferencesRepository.eraseHistory()
             }
+
+            appDatabaseRepository.deleteOldSearchHistory()
+            appDatabaseRepository.deleteOldViewHistory()
 
             interceptor.setHost("$lang.wikipedia.org")
             isReady = true
@@ -451,6 +455,16 @@ class UiViewModel(
                             savedStatus = saved
                         )
                     }
+
+                    if (apiResponse != null)
+                        appDatabaseRepository.insertViewHistory(
+                            ViewHistoryItem(
+                                System.currentTimeMillis(),
+                                apiResponse.thumbnail?.source,
+                                apiResponse.title,
+                                setLang
+                            )
+                        )
 
                     extract.forEachIndexed { index, it ->
                         currentSection = index + 1

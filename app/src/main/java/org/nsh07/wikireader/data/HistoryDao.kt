@@ -10,17 +10,38 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SearchHistoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(search: SearchHistoryItem)
+    suspend fun insert(item: SearchHistoryItem)
 
     @Delete
-    suspend fun delete(search: SearchHistoryItem)
+    suspend fun delete(item: SearchHistoryItem)
 
     @Query("DELETE FROM search_history")
     suspend fun deleteAll()
 
+    @Query("DELETE FROM search_history WHERE time in (SELECT time FROM search_history ORDER BY time DESC LIMIT 50 OFFSET 100)")
+    suspend fun deleteOld()
+
     @Query("DELETE FROM search_history WHERE `query` = :query AND `lang` = :lang")
     suspend fun deduplicateSearch(query: String, lang: String)
 
-    @Query("SELECT * FROM search_history ORDER BY time DESC LIMIT 50")
+    @Query("SELECT * FROM search_history ORDER BY time DESC LIMIT 100")
     fun getSearchHistory(): Flow<List<SearchHistoryItem>>
+}
+
+@Dao
+interface ViewHistoryDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(item: ViewHistoryItem)
+
+    @Delete
+    suspend fun delete(item: ViewHistoryItem)
+
+    @Query("DELETE FROM view_history")
+    suspend fun deleteAll()
+
+    @Query("DELETE FROM view_history WHERE time in (SELECT time FROM view_history ORDER BY time DESC LIMIT 50 OFFSET 100)")
+    suspend fun deleteOld()
+
+    @Query("SELECT * FROM view_history ORDER BY time DESC LIMIT 100")
+    fun getViewHistory(): Flow<List<ViewHistoryItem>>
 }
