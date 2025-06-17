@@ -228,7 +228,7 @@ fun SettingsScreen(
             ),
             SettingsSwitchItem(
                 preferencesState.searchHistory,
-                R.drawable.history,
+                R.drawable.search_history,
                 string.settingSearchHistory,
                 string.settingSearchHistoryDesc,
                 saveSearchHistory

@@ -17,5 +17,6 @@ data class ViewHistoryItem(
     val time: Long = System.currentTimeMillis(),
     val thumbnail: String?,
     val title: String,
+    val description: String?,
     val lang: String
 )

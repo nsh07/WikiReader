@@ -85,6 +85,7 @@ class UiViewModel(
     val textFieldState: TextFieldState = TextFieldState()
 
     val searchHistoryFlow = appDatabaseRepository.getSearchHistory().distinctUntilChanged()
+    val viewHistoryFlow = appDatabaseRepository.getViewHistory().distinctUntilChanged()
     val savedArticleLangs = appDatabaseRepository.getSavedArticleLanguages().distinctUntilChanged()
     val savedArticlesFlow = appDatabaseRepository.getSavedArticles().distinctUntilChanged()
 
@@ -459,10 +460,10 @@ class UiViewModel(
                     if (apiResponse != null)
                         appDatabaseRepository.insertViewHistory(
                             ViewHistoryItem(
-                                System.currentTimeMillis(),
-                                apiResponse.thumbnail?.source,
-                                apiResponse.title,
-                                setLang
+                                thumbnail = apiResponse.thumbnail?.source,
+                                title = apiResponse.title,
+                                description = apiResponse.description,
+                                lang = setLang
                             )
                         )
 
@@ -1085,16 +1086,17 @@ class UiViewModel(
         appSearchBarState.value.focusRequester.requestFocus()
     }
 
-    fun removeHistoryItem(item: SearchHistoryItem?) {
+    fun removeSearchHistoryItem(item: SearchHistoryItem?) {
         viewModelScope.launch(Dispatchers.IO) {
             if (item != null) appDatabaseRepository.deleteSearchHistory(item)
-            else clearHistory()
+            else appDatabaseRepository.deleteAllSearchHistory()
         }
     }
 
-    fun clearHistory() {
+    fun removeViewHistoryItem(item: ViewHistoryItem?) {
         viewModelScope.launch(Dispatchers.IO) {
-            appDatabaseRepository.deleteAllSearchHistory()
+            if (item != null) appDatabaseRepository.deleteViewHistory(item)
+            else appDatabaseRepository.deleteAllViewHistory()
         }
     }
 

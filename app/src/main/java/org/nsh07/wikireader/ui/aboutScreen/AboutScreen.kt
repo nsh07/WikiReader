@@ -187,7 +187,7 @@ fun AboutScreen(
                         stringResource(R.string.author),
                         style = typography.labelLarge,
                         color = colorScheme.primary,
-                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
+                        modifier = Modifier.padding(horizontal = 32.dp, vertical = 14.dp)
                     )
                     ListItem(
                         leadingContent = {
@@ -229,7 +229,7 @@ fun AboutScreen(
                         stringResource(R.string.wikipedia),
                         style = typography.labelLarge,
                         color = colorScheme.primary,
-                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
+                        modifier = Modifier.padding(horizontal = 32.dp, vertical = 14.dp)
                     )
                     ListItem(
                         leadingContent = {

@@ -74,11 +74,11 @@ import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
 fun SavedArticlesScreen(
     savedArticles: List<ArticleInfo>,
     savedArticleLangs: List<LanguageInfo>,
-    modifier: Modifier = Modifier,
+    openSavedArticle: (Int, String) -> Unit,
+    deleteArticle: (Int, String) -> WRStatus,
     deleteAll: () -> WRStatus,
     onBack: () -> Unit,
-    openSavedArticle: (Int, String) -> Unit,
-    deleteArticle: (Int, String) -> WRStatus
+    modifier: Modifier = Modifier
 ) {
     val coroutineScope = rememberCoroutineScope()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -174,9 +174,9 @@ fun SavedArticlesScreen(
                     if (groupedArticles.size > 1) item(key = item.key + "-lang") {
                         Text(
                             item.key,
-                            style = typography.labelLarge,
+                            style = typography.titleSmall,
                             modifier = Modifier
-                                .padding(horizontal = 24.dp, vertical = 14.dp)
+                                .padding(horizontal = 32.dp, vertical = 14.dp)
                                 .animateItem()
                         )
                     }

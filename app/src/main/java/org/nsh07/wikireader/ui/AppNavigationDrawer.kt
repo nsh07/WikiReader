@@ -73,6 +73,7 @@ fun AppNavigationDrawer(
     backStackEntry: NavBackStackEntry?,
     modifier: Modifier = Modifier,
     onAboutClick: () -> Unit,
+    onHistoryClick: () -> Unit,
     onHomeClick: () -> Unit,
     onSavedArticlesClick: () -> Unit,
     onSettingsClick: () -> Unit,
@@ -94,6 +95,13 @@ fun AppNavigationDrawer(
             painterResource(drawable.filled_download_done),
             SavedArticles::class,
             onSavedArticlesClick
+        ),
+        Item(
+            string.history,
+            painterResource(drawable.history),
+            painterResource(drawable.history_selected),
+            History::class,
+            onHistoryClick
         ),
         Item(
             string.settings,

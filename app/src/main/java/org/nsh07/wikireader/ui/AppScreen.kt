@@ -59,6 +59,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key.Companion.Home
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -89,6 +90,7 @@ import org.nsh07.wikireader.data.SearchHistoryItem
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.ui.aboutScreen.AboutScreen
+import org.nsh07.wikireader.ui.historyScreen.HistoryScreen
 import org.nsh07.wikireader.ui.homeScreen.AppHomeScreen
 import org.nsh07.wikireader.ui.homeScreen.AppSearchBar
 import org.nsh07.wikireader.ui.image.FullScreenImage
@@ -115,6 +117,7 @@ fun AppScreen(
     val searchListState by viewModel.searchListState.collectAsStateWithLifecycle()
     val searchHistory by viewModel.searchHistoryFlow.collectAsState(emptyList())
     val savedArticles by viewModel.savedArticlesFlow.collectAsState(emptyList())
+    val viewHistory by viewModel.viewHistoryFlow.collectAsStateWithLifecycle(emptyList())
     val savedArticleLangs by viewModel.savedArticleLangs.collectAsState(emptyList())
     val searchBarState = rememberSearchBarState()
     val feedListState = rememberLazyListState()
@@ -213,6 +216,15 @@ fun AppScreen(
         backStackEntry = navBackStackEntry,
         onAboutClick = {
             navController.navigate(About) {
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
+        },
+        onHistoryClick = {
+            navController.navigate(History) {
                 popUpTo(navController.graph.findStartDestination().id) {
                     saveState = true
                 }
@@ -339,7 +351,7 @@ fun AppScreen(
                     DeleteHistoryItemDialog(
                         historyItem,
                         setShowDeleteDialog,
-                        viewModel::removeHistoryItem
+                        viewModel::removeSearchHistoryItem
                     )
 
                 Scaffold(
@@ -563,6 +575,20 @@ fun AppScreen(
                 )
             }
 
+            composable<History> {
+                HistoryScreen(
+                    viewHistory = viewHistory,
+                    imageLoader = imageLoader,
+                    imageBackground = preferencesState.imageBackground,
+                    openArticle = { title, lang ->
+                        viewModel.loadPage(title, lang)
+                        navController.navigateUp()
+                    },
+                    deleteHistoryItem = viewModel::removeViewHistoryItem,
+                    onBack = navController::navigateUp
+                )
+            }
+
             composable<Settings> {
                 SettingsScreen(
                     preferencesState = preferencesState,
@@ -691,6 +717,9 @@ data class FullScreenImage(
 
 @Serializable
 object SavedArticles
+
+@Serializable
+object History
 
 @Serializable
 object Settings
