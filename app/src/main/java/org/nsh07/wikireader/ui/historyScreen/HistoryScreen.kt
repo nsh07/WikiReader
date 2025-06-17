@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,18 +22,28 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 import coil3.ImageLoader
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.ViewHistoryItem
 import org.nsh07.wikireader.ui.image.FeedImage
@@ -55,12 +64,20 @@ fun HistoryScreen(
     imageLoader: ImageLoader,
     imageBackground: Boolean,
     openArticle: (String, String) -> Unit,
+    insertHistoryItem: (ViewHistoryItem) -> Unit,
     deleteHistoryItem: (ViewHistoryItem?) -> Unit,
+    deleteAllHistory: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val locale = LocalConfiguration.current.locales.get(0)
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     val zone = ZoneId.systemDefault()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    var lastDeleted: ViewHistoryItem? = null
+    var deletedItems: List<ViewHistoryItem>? = null
 
     val dtf = remember {
         DateTimeFormatter
@@ -84,7 +101,7 @@ fun HistoryScreen(
     Scaffold(
         topBar = {
             LargeFlexibleTopAppBar(
-                title = { Text("History") },
+                title = { Text(stringResource(R.string.history)) },
                 navigationIcon = {
                     IconButton(
                         onClick = onBack,
@@ -96,10 +113,34 @@ fun HistoryScreen(
                         )
                     }
                 },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            deletedItems = viewHistory
+                            deleteAllHistory()
+                            scope.launch {
+                                val result = snackbarHostState.showSnackbar(
+                                    message = context.getString(R.string.allHistoryDeleted),
+                                    actionLabel = context.getString(R.string.undo)
+                                )
+                                if (result == SnackbarResult.ActionPerformed) {
+                                    deletedItems.fastForEach {
+                                        insertHistoryItem(it)
+                                        delay(10)
+                                    }
+                                }
+                            }
+                        },
+                        shapes = IconButtonDefaults.shapes()
+                    ) {
+                        Icon(painterResource(R.drawable.delete), stringResource(R.string.deleteAll))
+                    }
+                },
                 scrollBehavior = scrollBehavior,
                 colors = topBarColors
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         modifier = modifier
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection)
@@ -108,7 +149,7 @@ fun HistoryScreen(
             verticalArrangement = Arrangement.spacedBy(2.dp),
             contentPadding = insets,
             modifier = Modifier
-                .fillMaxHeight()
+                .fillMaxSize()
                 .background(topBarColors.containerColor)
         ) {
             groupedHistory.forEach { item ->
@@ -174,9 +215,21 @@ fun HistoryScreen(
                             .combinedClickable(
                                 onClick = { openArticle(it.title, it.lang) },
                                 onLongClick = {
-//                                    toDelete = Pair(it.pageId, it.lang)
-//                                    toDeleteTitle = it.title
-//                                    showArticleDeleteDialog = true
+                                    lastDeleted = it
+                                    deleteHistoryItem(it)
+                                    scope.launch {
+                                        val result = snackbarHostState.showSnackbar(
+                                            message = context.getString(
+                                                R.string.deletedFromHistory,
+                                                it.title
+                                            ),
+                                            actionLabel = context.getString(R.string.undo),
+                                            duration = SnackbarDuration.Long
+                                        )
+                                        if (result == SnackbarResult.ActionPerformed) {
+                                            insertHistoryItem(lastDeleted)
+                                        }
+                                    }
                                 }
                             )
                             .animateItem()

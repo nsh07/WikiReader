@@ -586,7 +586,9 @@ fun AppScreen(
                         viewModel.loadPage(title, lang)
                         navController.navigateUp()
                     },
+                    insertHistoryItem = viewModel::insertViewHistoryItem,
                     deleteHistoryItem = viewModel::removeViewHistoryItem,
+                    deleteAllHistory = { viewModel.removeViewHistoryItem(null) },
                     onBack = navController::navigateUp
                 )
             }

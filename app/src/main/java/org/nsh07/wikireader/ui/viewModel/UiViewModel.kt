@@ -1089,10 +1089,22 @@ class UiViewModel(
         appSearchBarState.value.focusRequester.requestFocus()
     }
 
+    fun insertSearchHistoryItem(item: SearchHistoryItem) {
+        viewModelScope.launch(Dispatchers.IO) {
+            appDatabaseRepository.insertSearchHistory(item)
+        }
+    }
+
     fun removeSearchHistoryItem(item: SearchHistoryItem?) {
         viewModelScope.launch(Dispatchers.IO) {
             if (item != null) appDatabaseRepository.deleteSearchHistory(item)
             else appDatabaseRepository.deleteAllSearchHistory()
+        }
+    }
+
+    fun insertViewHistoryItem(item: ViewHistoryItem) {
+        viewModelScope.launch(Dispatchers.IO) {
+            appDatabaseRepository.insertViewHistory(item)
         }
     }
 

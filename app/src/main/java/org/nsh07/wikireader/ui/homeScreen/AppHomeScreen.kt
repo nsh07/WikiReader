@@ -234,7 +234,7 @@ fun AppHomeScreen(
                         modifier = Modifier.padding(horizontal = 8.dp)
                     ) {
                         Text(
-                            text = "Reference",
+                            text = stringResource(R.string.reference),
                             style = MaterialTheme.typography.titleLarge
                         )
                         Spacer(Modifier.weight(1f))

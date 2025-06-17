@@ -19,6 +19,8 @@ import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachIndexed
 import com.github.tomtung.latex2unicode.LaTeX2Unicode
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.parser.ReferenceData.refCount
@@ -569,7 +571,7 @@ fun String.toWikitextAnnotatedString(
                                     append("Main article")
                                     if (splitList.size > 1) append("s: ")
                                     else append(": ")
-                                    splitList.forEachIndexed { index, it ->
+                                    splitList.fastForEachIndexed { index, it ->
                                         append(
                                             "[[${it.substringBefore(MAGIC_SEP)}|${
                                                 it.substringAfter(MAGIC_SEP).replace(
@@ -592,7 +594,7 @@ fun String.toWikitextAnnotatedString(
                                 val splitList = curr.split('|').filterNot { it.startsWith('#') }
                                 withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
                                     append("See also: ")
-                                    splitList.forEachIndexed { index, it ->
+                                    splitList.fastForEachIndexed { index, it ->
                                         append(
                                             "[[${it.substringBefore(MAGIC_SEP)}|${
                                                 it.substringAfter((MAGIC_SEP)).replace("#", " § ")
@@ -636,7 +638,7 @@ fun String.toWikitextAnnotatedString(
                                     else curr.split('|')
                                 withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
                                     append("Not to be confused with ")
-                                    if (!textSpecified) splitList.forEachIndexed { index, it ->
+                                    if (!textSpecified) splitList.fastForEachIndexed { index, it ->
                                         append(
                                             "[[${it.substringBefore(MAGIC_SEP)}|${
                                                 it.substringAfter(
@@ -787,7 +789,7 @@ fun String.toWikitextAnnotatedString(
                                 append(curr.substringBefore('|'))
                                 append(' ')
                                 var date = ""
-                                curr.substringAfter('|').split('|').forEach {
+                                curr.substringAfter('|').split('|').fastForEach {
                                     if (it.toIntOrNull() != null) {
                                         date += it
                                         date += '/'
