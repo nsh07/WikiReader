@@ -563,6 +563,8 @@ fun AppScreen(
                 SavedArticlesScreen(
                     savedArticles = savedArticles,
                     savedArticleLangs = savedArticleLangs,
+                    imageLoader = imageLoader,
+                    imageBackground = preferencesState.imageBackground,
                     openSavedArticle = { pageId: Int, lang: String ->
                         scope.launch {
                             navController.navigateUp()

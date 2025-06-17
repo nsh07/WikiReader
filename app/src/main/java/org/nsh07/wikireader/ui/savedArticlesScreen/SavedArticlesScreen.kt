@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -56,11 +57,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil3.ImageLoader
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.ArticleInfo
 import org.nsh07.wikireader.data.LanguageInfo
 import org.nsh07.wikireader.data.WRStatus
+import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
@@ -74,6 +77,8 @@ import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
 fun SavedArticlesScreen(
     savedArticles: List<ArticleInfo>,
     savedArticleLangs: List<LanguageInfo>,
+    imageLoader: ImageLoader,
+    imageBackground: Boolean,
     openSavedArticle: (Int, String) -> Unit,
     deleteArticle: (Int, String) -> WRStatus,
     deleteAll: () -> WRStatus,
@@ -185,6 +190,24 @@ fun SavedArticlesScreen(
                         key = { index: Int, it: ArticleInfo -> it.pageId.toString() + it.lang }
                     ) { index: Int, it: ArticleInfo ->
                         ListItem(
+                            leadingContent = if (it.description != null) {
+                                {
+                                    FeedImage(
+                                        source = it.thumbnail,
+                                        description = it.description,
+                                        imageLoader = imageLoader,
+                                        loadingIndicator = true,
+                                        background = imageBackground,
+                                        modifier = Modifier
+                                            .size(56.dp)
+                                            .clip(shapes.large)
+                                    )
+                                }
+                            } else {
+                                {
+                                    Spacer(Modifier.width(56.dp))
+                                }
+                            },
                             headlineContent = {
                                 Text(
                                     it.title,
@@ -193,11 +216,11 @@ fun SavedArticlesScreen(
                                 )
                             },
                             supportingContent =
-                                if (it.description.isNotEmpty()) {
+                                if (it.description != null) {
                                     {
                                         Text(
                                             it.description,
-                                            maxLines = 2,
+                                            maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
                                     }

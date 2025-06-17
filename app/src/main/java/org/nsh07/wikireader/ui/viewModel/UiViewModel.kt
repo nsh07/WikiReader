@@ -717,7 +717,8 @@ class UiViewModel(
                     lang = currentLang,
                     langName = langCodeToName(currentLang),
                     title = apiResponseQuery.title,
-                    description = apiResponseQuery.description ?: "",
+                    thumbnail = apiResponseQuery.thumbnail?.source,
+                    description = apiResponseQuery.description,
                     apiResponse = Json.encodeToString(apiResponse),
                     pageContent = pageContent
                 )
@@ -759,14 +760,15 @@ class UiViewModel(
                     val apiFile = File(articlesDir, it)
                     val contentFile = File(articlesDir, it.replace("-api", "-content"))
 
+                    val apiResponse = apiFile.readText()
+                    val pageData = jsonInst
+                        .decodeFromString<WikiApiPageData>(apiResponse)
+                        .query?.pages?.get(0)
+
                     val pageId = it.substringAfter('.').substringBefore('-').toInt()
                     val title = it.substringBefore('.')
                     val lang = it.substringAfterLast('.')
                     val langName = langCodeToName(lang)
-                    val apiResponse = apiFile.readText()
-                    val description = jsonInst
-                        .decodeFromString<WikiApiPageData>(apiResponse)
-                        .query?.pages?.get(0)?.description ?: ""
                     val pageContent = contentFile.readText()
 
                     appDatabaseRepository.insertSavedArticle(
@@ -775,7 +777,8 @@ class UiViewModel(
                             lang = lang,
                             langName = langName,
                             title = title,
-                            description = description,
+                            thumbnail = pageData?.thumbnail?.source,
+                            description = pageData?.description,
                             apiResponse = apiResponse,
                             pageContent = pageContent
                         )
