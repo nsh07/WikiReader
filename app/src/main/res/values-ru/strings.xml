@@ -123,4 +123,9 @@
     <string name="supportMyWork">Поддержите мою работу</string>
     <string name="settingAppLanguage">Язык приложения</string>
     <string name="chooseAppLanguage">Выберите язык приложения</string>
+    <string name="deletedFromHistory">\"%1$s\" удалён из истории</string>
+    <string name="table">Таблица</string>
+    <string name="undo">Отменить</string>
+    <string name="reference">Примечание</string>
+    <string name="allHistoryDeleted">История полностью очищена</string>
 </resources>

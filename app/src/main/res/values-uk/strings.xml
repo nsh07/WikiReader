@@ -123,4 +123,9 @@
     <string name="supportMyWork">Підтримайте мою роботу</string>
     <string name="settingAppLanguage">Мова програми</string>
     <string name="chooseAppLanguage">Виберіть мову програми</string>
+    <string name="deletedFromHistory">\"%1$s\" видалено з історії</string>
+    <string name="table">Стіл</string>
+    <string name="allHistoryDeleted">Вся історія видалена</string>
+    <string name="reference">Послання</string>
+    <string name="undo">Відмінити</string>
 </resources>

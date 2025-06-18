@@ -123,4 +123,9 @@
     <string name="supportMyWork">Apoie o meu trabalho</string>
     <string name="settingAppLanguage">Idioma do app</string>
     <string name="chooseAppLanguage">Escolher o idioma do app</string>
+    <string name="allHistoryDeleted">Todo o histórico foi deletado</string>
+    <string name="undo">Desfazer</string>
+    <string name="deletedFromHistory">\"%1$s\" foi deletado do histórico</string>
+    <string name="reference">Referência</string>
+    <string name="table">Tabela</string>
 </resources>

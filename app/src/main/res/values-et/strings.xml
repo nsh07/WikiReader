@@ -123,4 +123,9 @@
     <string name="supportMyWork">Toeta minu tööd</string>
     <string name="settingAppLanguage">Rakenduse keel</string>
     <string name="chooseAppLanguage">Vali rakenduse keel</string>
+    <string name="allHistoryDeleted">Kogu ajalugu on kustutatud</string>
+    <string name="undo">Võta tegevus tagasi</string>
+    <string name="deletedFromHistory">„%1$s“ on ajaloost kustutatud</string>
+    <string name="reference">Viide</string>
+    <string name="table">Tabel</string>
 </resources>
