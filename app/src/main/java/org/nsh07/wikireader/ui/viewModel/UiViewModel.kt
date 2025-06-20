@@ -926,6 +926,15 @@ class UiViewModel(
             } else return@withContext WRStatus.DATABASE_ERROR
         }
 
+    /**
+     * Function to split a Wikitext section source string into a list of [AnnotatedString]s where
+     * each element represents a certain type of page content (text, table, image, gallery,
+     * math expression)
+     *
+     * @param wikitext The Wikitext source string
+     *
+     * @return A list of [AnnotatedString]s representing the page content
+     */
     suspend fun parseWikitext(wikitext: String): List<AnnotatedString> =
         withContext(Dispatchers.IO) {
             val parsed = cleanUpWikitext(wikitext)

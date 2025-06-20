@@ -47,4 +47,10 @@ interface ViewHistoryDao {
 
     @Query("SELECT DISTINCT lang  FROM view_history ORDER BY time DESC LIMIT 4")
     fun getRecentLanguages(): Flow<List<String>>
+
+    @Query("SELECT * FROM view_history ORDER BY time DESC LIMIT 1")
+    suspend fun getLast(): ViewHistoryItem?
+
+    @Query("DELETE FROM view_history WHERE time = :time")
+    suspend fun deleteByTime(time: Long)
 }

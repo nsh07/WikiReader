@@ -43,8 +43,13 @@ class AppDatabaseRepository(
     override fun getSearchHistory(): Flow<List<SearchHistoryItem>> =
         searchHistoryDao.getSearchHistory()
 
-    override suspend fun insertViewHistory(viewHistoryItem: ViewHistoryItem) =
+    override suspend fun insertViewHistory(viewHistoryItem: ViewHistoryItem) {
+        val last = viewHistoryDao.getLast()
+        if (last?.title == viewHistoryItem.title && last.lang == viewHistoryItem.lang) {
+            viewHistoryDao.deleteByTime(last.time) // Delete the last inserted item if it's identical
+        }
         viewHistoryDao.insert(viewHistoryItem)
+    }
 
     override suspend fun deleteViewHistory(viewHistoryItem: ViewHistoryItem) =
         viewHistoryDao.delete(viewHistoryItem)
