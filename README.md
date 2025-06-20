@@ -118,6 +118,19 @@ translating this project into languages you know.
 > The SHA256 and MD5 hashes of the individual APK files are also available in the `checksum.txt`
 > file for each release.
 
+## Donate
+
+You can support WikiReader's development
+through [my GitHub Sponsors page](https://github.com/sponsors/nsh07)
+or [my BuyMeACoffee page](https://coff.ee/nsh07):
+
+<a href="https://github.com/sponsors/nsh07">
+  <img src=".github/repo_photos/sponsors.png" width="128px">
+</a>
+<a href="https://coff.ee/nsh07">
+  <img src=".github/repo_photos/bmc_qr.png" width="128px">
+</a>
+
 ## Special Thanks
 
 - [Wikimedia Foundation](https://wikimediafoundation.org/): For
