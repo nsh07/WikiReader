@@ -59,7 +59,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key.Companion.Home
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -216,7 +215,7 @@ fun AppScreen(
         windowSizeClass = windowSizeClass,
         backStackEntry = navBackStackEntry,
         onAboutClick = {
-            navController.navigate(About) {
+            navController.navigate(AboutScreen) {
                 popUpTo(navController.graph.findStartDestination().id) {
                     saveState = true
                 }
@@ -225,7 +224,7 @@ fun AppScreen(
             }
         },
         onHistoryClick = {
-            navController.navigate(History) {
+            navController.navigate(HistoryScreen) {
                 popUpTo(navController.graph.findStartDestination().id) {
                     saveState = true
                 }
@@ -234,10 +233,10 @@ fun AppScreen(
             }
         },
         onHomeClick = {
-            if (navBackStackEntry?.destination?.hasRoute(Home::class) == true) {
+            if (navBackStackEntry?.destination?.hasRoute(HomeScreen::class) == true) {
                 viewModel.loadFeed(true)
             } else {
-                navController.navigate(Home()) {
+                navController.navigate(HomeScreen()) {
                     popUpTo(navController.graph.findStartDestination().id) {
                         saveState = true
                     }
@@ -247,7 +246,7 @@ fun AppScreen(
             }
         },
         onSavedArticlesClick = {
-            navController.navigate(SavedArticles) {
+            navController.navigate(SavedArticlesScreen) {
                 popUpTo(navController.graph.findStartDestination().id) {
                     saveState = true
                 }
@@ -256,7 +255,7 @@ fun AppScreen(
             }
         },
         onSettingsClick = {
-            navController.navigate(Settings) {
+            navController.navigate(SettingsScreen) {
                 popUpTo(navController.graph.findStartDestination().id) {
                     saveState = true
                 }
@@ -270,7 +269,7 @@ fun AppScreen(
             !windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
         NavHost(
             navController = navController,
-            startDestination = Home(),
+            startDestination = HomeScreen(),
             enterTransition = {
                 if (compactWindow)
                     slideInHorizontally(
@@ -316,7 +315,7 @@ fun AppScreen(
                     fadeOut(animationSpec = tween(90))
             }
         ) {
-            composable<Home>(
+            composable<HomeScreen>(
                 deepLinks = listOf(
                     navDeepLink { uriPattern = "{lang}.m.wikipedia.org/wiki/{query}" },
                     navDeepLink { uriPattern = "{lang}.wikipedia.org/wiki/{query}" }
@@ -562,7 +561,7 @@ fun AppScreen(
                 }
             }
 
-            composable<SavedArticles> {
+            composable<SavedArticlesScreen> {
                 SavedArticlesScreen(
                     savedArticles = savedArticles,
                     savedArticleLangs = savedArticleLangs,
@@ -580,7 +579,7 @@ fun AppScreen(
                 )
             }
 
-            composable<History> {
+            composable<HistoryScreen> {
                 HistoryScreen(
                     viewHistory = viewHistory,
                     imageLoader = imageLoader,
@@ -596,7 +595,7 @@ fun AppScreen(
                 )
             }
 
-            composable<Settings> {
+            composable<SettingsScreen> {
                 SettingsScreen(
                     preferencesState = preferencesState,
                     homeScreenState = homeScreenState,
@@ -629,7 +628,7 @@ fun AppScreen(
                 )
             }
 
-            composable<About> {
+            composable<AboutScreen> {
                 AboutScreen(onBack = navController::navigateUp)
             }
         }
@@ -712,7 +711,7 @@ fun calculateStatusBarHeight(): () -> Float {
 
 
 @Serializable
-data class Home(
+data class HomeScreen(
     val lang: String? = null,
     val query: String? = null
 )
@@ -724,13 +723,13 @@ data class FullScreenImage(
 )
 
 @Serializable
-object SavedArticles
+object SavedArticlesScreen
 
 @Serializable
-object History
+object HistoryScreen
 
 @Serializable
-object Settings
+object SettingsScreen
 
 @Serializable
-object About
+object AboutScreen

@@ -87,35 +87,35 @@ fun AppNavigationDrawer(
             string.home,
             painterResource(drawable.outline_home),
             painterResource(drawable.filled_home),
-            Home::class,
+            HomeScreen::class,
             onHomeClick
         ),
         Item(
             string.saved,
             painterResource(drawable.download_done),
             painterResource(drawable.filled_download_done),
-            SavedArticles::class,
+            SavedArticlesScreen::class,
             onSavedArticlesClick
         ),
         Item(
             string.history,
             painterResource(drawable.history),
             painterResource(drawable.history_selected),
-            History::class,
+            HistoryScreen::class,
             onHistoryClick
         ),
         Item(
             string.settings,
             painterResource(drawable.outline_settings),
             painterResource(drawable.filled_settings),
-            Settings::class,
+            SettingsScreen::class,
             onSettingsClick
         ),
         Item(
             string.about,
             painterResource(drawable.outline_info),
             painterResource(drawable.filled_info),
-            About::class,
+            AboutScreen::class,
             onAboutClick
         )
     )
@@ -276,7 +276,7 @@ private fun AppNavigationRailContent(
                 railExpanded = expanded
             )
         }
-        if (expanded && backStackEntry?.destination?.hasRoute(Home::class) == true) {
+        if (expanded && backStackEntry?.destination?.hasRoute(HomeScreen::class) == true) {
             Text(
                 stringResource(string.sections),
                 style = typography.titleSmall,
