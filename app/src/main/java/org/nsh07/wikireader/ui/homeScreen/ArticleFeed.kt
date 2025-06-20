@@ -43,6 +43,7 @@ import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.carousel.CarouselDefaults
 import androidx.compose.material3.carousel.CarouselState
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -364,6 +365,7 @@ fun SharedTransitionScope.ArticleFeed(
                                             Text(
                                                 feedState.mostReadArticles[i].description
                                                     ?: "",
+                                                style = typography.bodyMedium,
                                                 maxLines = 2,
                                                 overflow = TextOverflow.Ellipsis,
                                                 modifier = Modifier.sharedBounds(
@@ -377,7 +379,10 @@ fun SharedTransitionScope.ArticleFeed(
                                             )
                                             Row(
                                                 verticalAlignment = Alignment.CenterVertically,
-                                                modifier = Modifier.padding(bottom = 8.dp)
+                                                modifier = Modifier.padding(
+                                                    bottom = 8.dp,
+                                                    top = 4.dp
+                                                )
                                             ) {
                                                 ArticleViewsGraph(
                                                     remember {
@@ -394,7 +399,7 @@ fun SharedTransitionScope.ArticleFeed(
                                                 )
                                                 Text(
                                                     df.format(feedState.mostReadArticles[i].views),
-                                                    style = typography.titleSmall,
+                                                    style = typography.bodyMedium,
                                                     color = colorScheme.primary
                                                 )
                                             }
@@ -416,7 +421,7 @@ fun SharedTransitionScope.ArticleFeed(
                                                     )
                                                     .padding(16.dp)
                                                     .clip(shapes.large)
-                                                    .size(80.dp, 80.dp)
+                                                    .size(80.dp)
                                             )
                                     }
                                 }
@@ -564,6 +569,7 @@ fun SharedTransitionScope.ArticleFeed(
                     HorizontalMultiBrowseCarousel(
                         state = newsCarouselState!!,
                         itemSpacing = 8.dp,
+                        flingBehavior = CarouselDefaults.multiBrowseFlingBehavior(newsCarouselState),
                         modifier = if (!expanded)
                             Modifier
                                 .padding(16.dp)
@@ -669,6 +675,7 @@ fun SharedTransitionScope.ArticleFeed(
                     HorizontalMultiBrowseCarousel(
                         state = otdCarouselState!!,
                         itemSpacing = 8.dp,
+                        flingBehavior = CarouselDefaults.multiBrowseFlingBehavior(otdCarouselState),
                         modifier =
                             if (!expanded)
                                 Modifier

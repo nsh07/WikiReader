@@ -193,7 +193,7 @@ fun HistoryScreen(
                                         loadingIndicator = true,
                                         background = imageBackground,
                                         modifier = Modifier
-                                            .size(56.dp)
+                                            .size(64.dp)
                                             .clip(shapes.large)
                                     )
                                 }
