@@ -1,0 +1,12 @@
+app:
+  name: WikiReader
+  authors: Nishant Mishra
+  category: readers
+  commercial: false
+  description: Android app for reading Wikipedia pages distraction-free
+  icon: https://raw.githubusercontent.com/nsh07/WikiReader/refs/heads/main/app/src/main/ic_launcher-playstore.png
+  id: org.nsh07.wikireader
+  type: curated
+  verified: true
+  releases:
+    url: https://github.com/nsh07/WikiReader/releases
