@@ -15,9 +15,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -74,7 +74,7 @@ fun LanguageBottomSheet(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = stringResource(R.string.chooseWikipediaLanguage),
-                style = MaterialTheme.typography.labelLarge
+                style = typography.labelLarge
             )
             LanguageSearchBar(
                 searchStr = searchStr,
@@ -90,7 +90,14 @@ fun LanguageBottomSheet(
                     .padding(horizontal = 16.dp)
                     .clip(shapes.large)
             ) {
-                if (recentLangs.isNotEmpty()) {
+                if (recentLangs.isNotEmpty() && searchQuery.isEmpty()) {
+                    item {
+                        Text(
+                            stringResource(R.string.recentLanguages),
+                            style = typography.titleSmall,
+                            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                        )
+                    }
                     itemsIndexed(
                         recentLangs,
                         key = { _: Int, it: String -> it }
@@ -136,9 +143,19 @@ fun LanguageBottomSheet(
                             Spacer(Modifier.height(2.dp))
                         }
                     }
-                    item { Spacer(Modifier.height(16.dp)) }
                 }
-
+                item {
+                    Text(
+                        stringResource(R.string.otherLanguages),
+                        style = typography.titleSmall,
+                        modifier = Modifier.padding(
+                            top = 14.dp,
+                            bottom = 16.dp,
+                            start = 16.dp,
+                            end = 16.dp
+                        )
+                    )
+                }
                 itemsIndexed(
                     langNames,
                     key = { _: Int, it: String -> it }

@@ -130,4 +130,8 @@
     <string name="table">Table</string>
     <string name="noHistoryItems">No items in history</string>
     <string name="noHistoryItemsDesc">Recently opened articles will appear here</string>
+    <string name="currentLanguage">Current language</string>
+    <string name="recentLanguages">Recent languages</string>
+    <string name="otherLanguages">Other languages</string>
+    <string name="items">%1$s items</string>
 </resources>

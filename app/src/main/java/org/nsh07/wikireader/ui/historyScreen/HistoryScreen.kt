@@ -118,7 +118,7 @@ fun HistoryScreen(
         topBar = {
             LargeFlexibleTopAppBar(
                 title = { Text(stringResource(R.string.history)) },
-                subtitle = { Text("${viewHistory.size} items") },
+                subtitle = { Text(stringResource(R.string.items, viewHistory.size)) },
                 navigationIcon = {
                     IconButton(
                         onClick = onBack,
