@@ -35,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 
@@ -103,7 +104,7 @@ fun ColorSchemePickerDialog(
                 Column(Modifier.align(Alignment.CenterHorizontally)) {
                     (0..11 step 4).forEach {
                         Row {
-                            colorSchemes.slice(it..it + 3).forEach { color ->
+                            colorSchemes.slice(it..it + 3).fastForEach { color ->
                                 ColorPickerButton(
                                     color,
                                     color == currentColor,

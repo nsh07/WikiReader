@@ -40,6 +40,7 @@ import org.nsh07.wikireader.data.LanguageData.langCodes
 import org.nsh07.wikireader.data.LanguageData.langNames
 import org.nsh07.wikireader.data.LanguageData.wikipediaNames
 import org.nsh07.wikireader.data.langCodeToName
+import org.nsh07.wikireader.data.langCodeToWikiName
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
@@ -48,6 +49,7 @@ import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LanguageBottomSheet(
+    recentLangs: List<String>,
     lang: String,
     searchStr: String,
     searchQuery: String,
@@ -88,6 +90,55 @@ fun LanguageBottomSheet(
                     .padding(horizontal = 16.dp)
                     .clip(shapes.large)
             ) {
+                if (recentLangs.isNotEmpty()) {
+                    itemsIndexed(
+                        recentLangs,
+                        key = { _: Int, it: String -> it }
+                    ) { index: Int, it: String ->
+                        if (it.contains(searchQuery, ignoreCase = true)) {
+                            val langName = remember(it) { langCodeToName(it) }
+                            ListItem(
+                                headlineContent = {
+                                    Text(langName)
+                                },
+                                supportingContent = { Text(remember(it) { langCodeToWikiName(it) }) },
+                                trailingContent = {
+                                    if (selectedOption == langName) Icon(
+                                        Icons.Outlined.Check,
+                                        contentDescription = stringResource(R.string.selectedLabel)
+                                    )
+                                },
+                                colors =
+                                    if (selectedOption == langName) ListItemDefaults.colors(
+                                        containerColor = colorScheme.primaryContainer
+                                    )
+                                    else ListItemDefaults.colors(),
+                                modifier = Modifier
+                                    .clip(
+                                        if (index == 0) topListItemShape
+                                        else if (index == recentLangs.size - 1) bottomListItemShape
+                                        else middleListItemShape
+                                    )
+                                    .clickable(
+                                        onClick = {
+                                            setLang(it)
+                                            scope
+                                                .launch { bottomSheetState.hide() }
+                                                .invokeOnCompletion {
+                                                    if (!bottomSheetState.isVisible) {
+                                                        setShowSheet(false)
+                                                        setSearchStr("")
+                                                    }
+                                                }
+                                        }
+                                    )
+                            )
+                            Spacer(Modifier.height(2.dp))
+                        }
+                    }
+                    item { Spacer(Modifier.height(16.dp)) }
+                }
+
                 itemsIndexed(
                     langNames,
                     key = { _: Int, it: String -> it }
@@ -144,7 +195,7 @@ fun LanguageBottomSheet(
 fun LanguageSheetPreview() {
     WikiReaderTheme {
         LanguageBottomSheet(
-            lang = "en", searchStr = "", searchQuery = "",
+            emptyList(), lang = "en", searchStr = "", searchQuery = "",
             {}, {}, {})
     }
 }

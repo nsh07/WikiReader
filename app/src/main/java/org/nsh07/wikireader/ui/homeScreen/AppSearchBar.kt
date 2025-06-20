@@ -109,6 +109,7 @@ fun AppSearchBar(
     searchBarState: SearchBarState,
     preferencesState: PreferencesState,
     textFieldState: TextFieldState,
+    recentLangs: List<String>,
     searchHistory: List<SearchHistoryItem>,
     searchBarEnabled: Boolean,
     imageLoader: ImageLoader,
@@ -282,6 +283,7 @@ fun AppSearchBar(
         if (showLanguageSheet)
             LanguageBottomSheet(
                 lang = preferencesState.lang,
+                recentLangs = recentLangs,
                 searchStr = languageSearchStr,
                 searchQuery = languageSearchQuery,
                 setShowSheet = setShowLanguageSheet,

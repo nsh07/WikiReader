@@ -36,6 +36,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastForEach
 import coil3.ImageLoader
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
@@ -93,7 +94,7 @@ fun ExpandableSection(
             Text(
                 text = remember {
                     var out = ""
-                    title.forEach {
+                    title.fastForEach {
                         out += it
                     }
                     out.replace("<.+>".toRegex(), "")

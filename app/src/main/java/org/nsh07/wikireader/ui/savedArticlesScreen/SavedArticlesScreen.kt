@@ -57,6 +57,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastForEach
 import coil3.ImageLoader
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
@@ -98,7 +100,7 @@ fun SavedArticlesScreen(
     }
 
     val selectedLanguages = remember(ct, languageFilters) {
-        languageFilters.filter { it.selected }.map { it.option }
+        languageFilters.fastFilter { it.selected }.map { it.option }
     }
 
     val groupedArticles = remember(savedArticles, selectedLanguages) {
@@ -154,7 +156,7 @@ fun SavedArticlesScreen(
                             Modifier.padding(horizontal = 16.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            languageFilters.forEach { filterOption ->
+                            languageFilters.fastForEach { filterOption ->
                                 FilterChip(
                                     selected = filterOption.selected,
                                     onClick = {

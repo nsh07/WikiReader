@@ -95,6 +95,7 @@ import kotlin.math.round
 fun SettingsScreen(
     preferencesState: PreferencesState,
     homeScreenState: HomeScreenState,
+    recentLangs: List<String>,
     languageSearchStr: String,
     languageSearchQuery: String,
     themeMap: Map<String, Pair<Int, String>>,
@@ -259,6 +260,7 @@ fun SettingsScreen(
     if (showLanguageSheet)
         LanguageBottomSheet(
             lang = preferencesState.lang,
+            recentLangs = recentLangs,
             searchStr = languageSearchStr,
             searchQuery = languageSearchQuery,
             setShowSheet = setShowLanguageSheet,
@@ -631,6 +633,7 @@ fun SettingsPreview() {
         SettingsScreen(
             preferencesState = PreferencesState(),
             homeScreenState = HomeScreenState(),
+            recentLangs = emptyList(),
             languageSearchStr = "",
             languageSearchQuery = "",
             themeMap = themeMap,

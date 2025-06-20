@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import com.github.tomtung.latex2unicode.LaTeX2Unicode
@@ -369,7 +370,7 @@ fun String.toWikitextAnnotatedString(
                                         params["publisher"],
                                         params["isbn"]?.let { "[[ISBN]] $it" }
                                     )
-                                        .filter { it.isNotBlank() }
+                                        .fastFilter { it.isNotBlank() }
                                         .joinToString(". ")
                                         .plus(".")
                                         .trim()
@@ -431,7 +432,7 @@ fun String.toWikitextAnnotatedString(
                                         "[${params["archive-url"]} Archived] ${params["archive-date"]}".takeIf { params["archive-url"] != null },
                                         "via ${params["via"]}".takeIf { params["via"] != null }
                                     )
-                                        .filter { it.isNotBlank() }
+                                        .fastFilter { it.isNotBlank() }
                                         .joinToString(". ")
                                         .plus(".")
                                         .trim()
@@ -490,7 +491,7 @@ fun String.toWikitextAnnotatedString(
                                         "[[PMC]]:${params["PMC"]}".takeIf { params["PMC"] != null },
                                         "[[PMID]]:${params["PMID"]}".takeIf { params["PMID"] != null },
                                     )
-                                        .filter { it.isNotBlank() }
+                                        .fastFilter { it.isNotBlank() }
                                         .joinToString(". ")
                                         .plus(".")
                                         .trim()

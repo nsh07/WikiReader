@@ -118,6 +118,7 @@ fun AppScreen(
     val searchHistory by viewModel.searchHistoryFlow.collectAsState(emptyList())
     val savedArticles by viewModel.savedArticlesFlow.collectAsState(emptyList())
     val viewHistory by viewModel.viewHistoryFlow.collectAsStateWithLifecycle(emptyList())
+    val recentLangs by viewModel.recentLangsFlow.collectAsStateWithLifecycle(emptyList())
     val savedArticleLangs by viewModel.savedArticleLangs.collectAsState(emptyList())
     val searchBarState = rememberSearchBarState()
     val feedListState = rememberLazyListState()
@@ -361,6 +362,7 @@ fun AppScreen(
                             searchBarState = searchBarState,
                             preferencesState = preferencesState,
                             textFieldState = textFieldState,
+                            recentLangs = recentLangs,
                             searchHistory = searchHistory,
                             scrollBehavior = searchBarScrollBehavior,
                             searchBarEnabled = !showArticleLanguageSheet,
@@ -428,6 +430,7 @@ fun AppScreen(
                         listState = listState,
                         preferencesState = preferencesState,
                         feedState = feedState,
+                        recentLangs = recentLangs,
                         floatingToolbarScrollBehaviour = floatingToolbarScrollBehaviour,
                         feedListState = feedListState,
                         imageLoader = imageLoader,
@@ -597,6 +600,7 @@ fun AppScreen(
                 SettingsScreen(
                     preferencesState = preferencesState,
                     homeScreenState = homeScreenState,
+                    recentLangs = recentLangs,
                     languageSearchStr = languageSearchStr,
                     languageSearchQuery = languageSearchQuery,
                     themeMap = themeMap,

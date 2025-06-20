@@ -125,6 +125,7 @@ fun AppHomeScreen(
     listState: LazyListState,
     preferencesState: PreferencesState,
     feedState: FeedState,
+    recentLangs: List<String>,
     floatingToolbarScrollBehaviour: FloatingToolbarScrollBehavior?,
     feedListState: LazyListState,
     imageLoader: ImageLoader,
@@ -195,6 +196,7 @@ fun AppHomeScreen(
     if (showLanguageSheet && homeScreenState.status == WRStatus.SUCCESS)
         ArticleLanguageBottomSheet(
             langs = homeScreenState.langs ?: emptyList(),
+            recentLangs = recentLangs,
             currentLang = WikiLang(preferencesState.lang, homeScreenState.title),
             searchStr = languageSearchStr,
             searchQuery = languageSearchQuery,
@@ -205,6 +207,7 @@ fun AppHomeScreen(
         )
     else if (showLanguageSheet)
         LanguageBottomSheet(
+            recentLangs = recentLangs,
             lang = preferencesState.lang,
             searchStr = languageSearchStr,
             searchQuery = languageSearchQuery,

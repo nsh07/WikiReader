@@ -48,6 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.window.core.layout.WindowSizeClass
@@ -253,7 +254,7 @@ private fun AppNavigationRailContent(
             rememberScrollState()
         )
     ) {
-        items.forEach { item ->
+        items.fastForEach { item ->
             val selected = backStackEntry?.destination?.hasRoute(item.route) == true
             WideNavigationRailItem(
                 selected = selected,
@@ -284,7 +285,7 @@ private fun AppNavigationRailContent(
             )
             when (homeScreenStatus) {
                 WRStatus.FEED_LOADED -> {
-                    feedSections.forEach { section ->
+                    feedSections.fastForEach { section ->
                         WideNavigationRailItem(
                             railExpanded = true,
                             label = {
@@ -314,7 +315,7 @@ private fun AppNavigationRailContent(
                 }
 
                 WRStatus.SUCCESS -> {
-                    homeScreenSections.forEach { section ->
+                    homeScreenSections.fastForEach { section ->
                         WideNavigationRailItem(
                             railExpanded = true,
                             label = {

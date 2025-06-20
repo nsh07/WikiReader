@@ -9,6 +9,8 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastForEach
 import androidx.core.text.parseAsHtml
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -86,6 +88,7 @@ class UiViewModel(
 
     val searchHistoryFlow = appDatabaseRepository.getSearchHistory().distinctUntilChanged()
     val viewHistoryFlow = appDatabaseRepository.getViewHistory().distinctUntilChanged()
+    val recentLangsFlow = appDatabaseRepository.getRecentLanguages().distinctUntilChanged()
     val savedArticleLangs = appDatabaseRepository.getSavedArticleLanguages().distinctUntilChanged()
     val savedArticlesFlow = appDatabaseRepository.getSavedArticles().distinctUntilChanged()
 
@@ -756,7 +759,7 @@ class UiViewModel(
                 val articlesDir = File(filesDir, "savedArticles")
                 val jsonInst = Json { ignoreUnknownKeys = true }
 
-                articleList.forEach {
+                articleList.fastForEach {
                     val apiFile = File(articlesDir, it)
                     val contentFile = File(articlesDir, it.replace("-api", "-content"))
 
@@ -826,11 +829,11 @@ class UiViewModel(
         val articlesDir = File(filesDir, "savedArticles")
         val directoryEntries = articlesDir.toPath().listDirectoryEntries()
         val out = mutableListOf<String>()
-        directoryEntries.forEach {
+        directoryEntries.fastForEach {
             out.add(it.fileName.toString())
         }
         out.sort()
-        return if (filter) out.filter { it.contains("-api.") } else out
+        return if (filter) out.fastFilter { it.contains("-api.") } else out
     }
 
     suspend fun loadSavedArticle(pageId: Int, lang: String): WRStatus =

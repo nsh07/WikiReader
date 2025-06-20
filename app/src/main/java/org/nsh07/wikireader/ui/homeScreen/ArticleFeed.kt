@@ -66,6 +66,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 import androidx.core.text.parseAsHtml
 import androidx.window.core.layout.WindowSizeClass
 import coil3.ImageLoader
@@ -622,7 +623,7 @@ fun SharedTransitionScope.ArticleFeed(
                                 ) {
                                     feedState.news[i].links
                                         ?.subList(0, min(3, feedState.news[i].links?.size ?: 0))
-                                        ?.forEach {
+                                        ?.fastForEach {
                                             OutlinedButton(
                                                 shapes = ButtonDefaults.shapes(),
                                                 border = BorderStroke(
@@ -742,7 +743,7 @@ fun SharedTransitionScope.ArticleFeed(
                                                 0,
                                                 min(3, feedState.onThisDay[i].pages?.size ?: 0)
                                             )
-                                            ?.forEach {
+                                            ?.fastForEach {
                                                 OutlinedButton(
                                                     shapes = ButtonDefaults.shapes(),
                                                     border = BorderStroke(

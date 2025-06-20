@@ -3,6 +3,9 @@ package org.nsh07.wikireader.parser
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 import kotlin.math.max
 import kotlin.text.Typography.mdash
 
@@ -14,7 +17,7 @@ fun parseWikitable(
 ): Pair<AnnotatedString, List<List<AnnotatedString>>> {
     val rows = mutableListOf<MutableList<AnnotatedString>>()
     var caption = AnnotatedString("")
-    val lines = table.lines().map { it.trim() }.filter { it.isNotEmpty() }
+    val lines = table.lines().fastMap { it.trim() }.fastFilter { it.isNotEmpty() }
     val styling =
         "class=|align=|scope=|style=|rowspan=|colspan=|width=|[^{]nowrap|data-sort".toRegex()
 
@@ -86,7 +89,7 @@ fun parseWikitable(
                 val pipeSep = "||" in line
                 if ("!!" in line || pipeSep) {
                     if (pipeSep) sep = "||"
-                    content.split(sep).forEach {
+                    content.split(sep).fastForEach {
                         var colspan = 1
                         if (it.contains("colspan")) {
                             colspan = it.substringAfter("colspan=").substringBefore('|')
@@ -160,7 +163,7 @@ fun parseWikitable(
                 val content = line.removePrefix("|")
                 val cells = mutableListOf<AnnotatedString>()
                 if ("||" in content) {
-                    content.split("||").forEach {
+                    content.split("||").fastForEach {
                         var colspan = 1
                         if (it.contains("colspan")) {
                             colspan = it.substringAfter("colspan=").substringBefore('|')

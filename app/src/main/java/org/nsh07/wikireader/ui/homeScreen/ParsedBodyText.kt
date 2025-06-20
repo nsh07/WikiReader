@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastForEach
 import coil3.ImageLoader
 import com.github.tomtung.latex2unicode.LaTeX2Unicode
 import kotlin.text.Typography.nbsp
@@ -40,7 +41,7 @@ fun ParsedBodyText(
     val dpi = LocalDensity.current.density
 
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
-        body.forEach {
+        body.fastForEach {
             if (it.startsWith("[[File:")) {
                 if (!dataSaver) {
                     ImageWithCaption(
