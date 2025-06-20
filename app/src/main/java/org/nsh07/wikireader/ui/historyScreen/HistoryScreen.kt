@@ -1,8 +1,16 @@
 package org.nsh07.wikireader.ui.historyScreen
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -14,11 +22,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialShapes
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
@@ -28,16 +39,21 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
@@ -102,6 +118,7 @@ fun HistoryScreen(
         topBar = {
             LargeFlexibleTopAppBar(
                 title = { Text(stringResource(R.string.history)) },
+                subtitle = { Text("${viewHistory.size} items") },
                 navigationIcon = {
                     IconButton(
                         onClick = onBack,
@@ -114,7 +131,7 @@ fun HistoryScreen(
                     }
                 },
                 actions = {
-                    IconButton(
+                    FilledTonalIconButton(
                         onClick = {
                             deletedItems = viewHistory
                             deleteAllHistory()
@@ -131,6 +148,7 @@ fun HistoryScreen(
                                 }
                             }
                         },
+                        enabled = viewHistory.isNotEmpty(),
                         shapes = IconButtonDefaults.shapes()
                     ) {
                         Icon(painterResource(R.drawable.delete), stringResource(R.string.deleteAll))
@@ -145,94 +163,152 @@ fun HistoryScreen(
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { insets ->
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-            contentPadding = insets,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(topBarColors.containerColor)
-        ) {
-            groupedHistory.forEach { item ->
-                item {
-                    Text(
-                        item.key,
-                        style = typography.titleSmall,
-                        modifier = Modifier.padding(horizontal = 32.dp, vertical = 14.dp)
-                    )
-                }
-                itemsIndexed(
-                    item.value,
-                    key = { index: Int, it: ViewHistoryItem -> it.time }
-                ) { index, it ->
-                    ListItem(
-                        leadingContent = if (it.description != null) {
-                            {
-                                FeedImage(
-                                    source = it.thumbnail,
-                                    description = it.description,
-                                    imageLoader = imageLoader,
-                                    loadingIndicator = true,
-                                    background = imageBackground,
-                                    modifier = Modifier
-                                        .size(56.dp)
-                                        .clip(shapes.large)
-                                )
-                            }
-                        } else {
-                            {
-                                Spacer(Modifier.width(56.dp))
-                            }
-                        },
-                        headlineContent = {
-                            Text(
-                                it.title,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        },
-                        supportingContent = if (it.description != null) {
-                            {
+        if (viewHistory.isNotEmpty()) {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+                contentPadding = insets,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(topBarColors.containerColor)
+            ) {
+                groupedHistory.forEach { item ->
+                    item {
+                        Text(
+                            item.key,
+                            style = typography.titleSmall,
+                            modifier = Modifier.padding(horizontal = 32.dp, vertical = 14.dp)
+                        )
+                    }
+                    itemsIndexed(
+                        item.value,
+                        key = { index: Int, it: ViewHistoryItem -> it.time }
+                    ) { index, it ->
+                        ListItem(
+                            leadingContent = if (it.description != null) {
+                                {
+                                    FeedImage(
+                                        source = it.thumbnail,
+                                        description = it.description,
+                                        imageLoader = imageLoader,
+                                        loadingIndicator = true,
+                                        background = imageBackground,
+                                        modifier = Modifier
+                                            .size(56.dp)
+                                            .clip(shapes.large)
+                                    )
+                                }
+                            } else {
+                                {
+                                    Spacer(Modifier.width(56.dp))
+                                }
+                            },
+                            headlineContent = {
                                 Text(
-                                    it.description,
+                                    it.title,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
-                            }
-                        } else null,
-                        trailingContent = {
-                            Text(
-                                remember { Instant.ofEpochMilli(it.time).atZone(zone).format(tf) }
-                            )
-                        },
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .clip(
-                                if (item.value.size == 1) shapes.large
-                                else if (index == 0) topListItemShape
-                                else if (index == item.value.lastIndex) bottomListItemShape
-                                else middleListItemShape
-                            )
-                            .combinedClickable(
-                                onClick = { openArticle(it.title, it.lang) },
-                                onLongClick = {
-                                    lastDeleted = it
-                                    deleteHistoryItem(it)
-                                    scope.launch {
-                                        val result = snackbarHostState.showSnackbar(
-                                            message = context.getString(
-                                                R.string.deletedFromHistory,
-                                                it.title
-                                            ),
-                                            actionLabel = context.getString(R.string.undo),
-                                            duration = SnackbarDuration.Long
-                                        )
-                                        if (result == SnackbarResult.ActionPerformed) {
-                                            insertHistoryItem(lastDeleted)
+                            },
+                            supportingContent = if (it.description != null) {
+                                {
+                                    Text(
+                                        it.description,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                            } else null,
+                            trailingContent = {
+                                Text(
+                                    remember {
+                                        Instant.ofEpochMilli(it.time).atZone(zone).format(tf)
+                                    }
+                                )
+                            },
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .clip(
+                                    if (item.value.size == 1) shapes.large
+                                    else if (index == 0) topListItemShape
+                                    else if (index == item.value.lastIndex) bottomListItemShape
+                                    else middleListItemShape
+                                )
+                                .combinedClickable(
+                                    onClick = { openArticle(it.title, it.lang) },
+                                    onLongClick = {
+                                        lastDeleted = it
+                                        deleteHistoryItem(it)
+                                        scope.launch {
+                                            val result = snackbarHostState.showSnackbar(
+                                                message = context.getString(
+                                                    R.string.deletedFromHistory,
+                                                    it.title
+                                                ),
+                                                actionLabel = context.getString(R.string.undo),
+                                                duration = SnackbarDuration.Long
+                                            )
+                                            if (result == SnackbarResult.ActionPerformed) {
+                                                insertHistoryItem(lastDeleted)
+                                            }
                                         }
                                     }
+                                )
+                                .animateItem()
+                        )
+                    }
+                }
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(topBarColors.containerColor),
+                contentAlignment = Alignment.Center
+            ) {
+                val transition = rememberInfiniteTransition(
+                    label = "Cookie rotate"
+                )
+                val angle by transition.animateFloat(
+                    initialValue = 0f,
+                    targetValue = 360f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(durationMillis = 10000, easing = LinearEasing),
+                        repeatMode = RepeatMode.Restart
+                    ),
+                    label = "Cookie animation"
+                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Spacer(
+                            Modifier
+                                .graphicsLayer {
+                                    rotationZ = angle
                                 }
-                            )
-                            .animateItem()
+                                .clip(MaterialShapes.Cookie12Sided.toShape())
+                                .background(colorScheme.primaryContainer)
+                                .padding(32.dp)
+                                .size(100.dp)
+                        )
+                        Icon(
+                            painterResource(R.drawable.history_huge),
+                            contentDescription = null,
+                            tint = colorScheme.onPrimaryContainer,
+                            modifier = Modifier
+                                .padding(32.dp)
+                                .size(100.dp)
+                        )
+                    }
+                    Text(
+                        stringResource(R.string.noHistoryItems),
+                        textAlign = TextAlign.Center,
+                        style = typography.titleLarge,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                    Text(
+                        stringResource(R.string.noHistoryItemsDesc),
+                        textAlign = TextAlign.Center,
+                        style = typography.bodyMedium,
+                        modifier = Modifier.padding(horizontal = 48.dp)
                     )
                 }
             }

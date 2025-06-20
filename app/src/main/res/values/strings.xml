@@ -128,4 +128,6 @@
     <string name="deletedFromHistory">\"%1$s\" deleted from history</string>
     <string name="reference">Reference</string>
     <string name="table">Table</string>
+    <string name="noHistoryItems">No items in history</string>
+    <string name="noHistoryItemsDesc">Recently opened articles will appear here</string>
 </resources>

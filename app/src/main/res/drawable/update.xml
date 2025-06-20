@@ -3,11 +3,11 @@
     android:height="24dp"
     android:autoMirrored="true"
     android:tint="#000000"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
+    android:viewportWidth="960"
+    android:viewportHeight="960">
 
     <path
         android:fillColor="@android:color/white"
-        android:pathData="M11,8v5l4.25,2.52l0.77,-1.28l-3.52,-2.09V8H11zM21,10V3l-2.64,2.64C16.74,4.01 14.49,3 12,3c-4.97,0 -9,4.03 -9,9s4.03,9 9,9s9,-4.03 9,-9h-2c0,3.86 -3.14,7 -7,7s-7,-3.14 -7,-7s3.14,-7 7,-7c1.93,0 3.68,0.79 4.95,2.05L14,10H21z" />
+        android:pathData="M480,840q-75,0 -140.5,-28.5t-114,-77q-48.5,-48.5 -77,-114T120,480q0,-75 28.5,-140.5t77,-114q48.5,-48.5 114,-77T480,120q82,0 155.5,35T760,254v-94h80v240L600,400v-80h110q-41,-56 -101,-88t-129,-32q-117,0 -198.5,81.5T200,480q0,117 81.5,198.5T480,760q105,0 183.5,-68T756,520h82q-15,137 -117.5,228.5T480,840ZM592,648L440,496v-216h80v184l128,128 -56,56Z" />
 
 </vector>
