@@ -403,6 +403,7 @@ fun AppHomeScreen(
                                         checkFirstImage = true,
                                         onLinkClick = onLinkClick,
                                         onGalleryImageClick = onGalleryImageClick,
+                                        showRef = { },
                                         pageImageUri = homeScreenState.photo?.source
                                     )
                                 }
@@ -425,7 +426,8 @@ fun AppHomeScreen(
                                         renderMath = preferencesState.renderMath,
                                         imageBackground = preferencesState.imageBackground,
                                         onLinkClick = onLinkClick,
-                                        onGalleryImageClick = onGalleryImageClick
+                                        onGalleryImageClick = onGalleryImageClick,
+                                        showRef = {}
                                     )
                                 }
                         }

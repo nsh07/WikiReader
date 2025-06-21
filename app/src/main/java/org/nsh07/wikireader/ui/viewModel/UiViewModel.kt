@@ -1023,11 +1023,46 @@ class UiViewModel(
                     } else {
                         curr += parsed[i]
                     }
-                } else if (parsed[i] == '{' && parsed.getOrNull(i + 1) == '|') {
-                    val currSubstring = parsed.substringMatchingParen('{', '}', i)
-                    if (!currSubstring.substring(min(i + 2, currSubstring.lastIndex))
-                            .contains("{|")
+                } else if (parsed[i] == '{') {
+                    if (parsed.getOrNull(i + 1) == '|') {
+                        val currSubstring = parsed.substringMatchingParen('{', '}', i)
+                        if (!currSubstring.substring(min(i + 2, currSubstring.lastIndex))
+                                .contains("{|")
+                        ) {
+                            out.add(
+                                curr.toWikitextAnnotatedString(
+                                    colorScheme = colorScheme,
+                                    typography = typography,
+                                    loadPage = ::loadPage,
+                                    fontSize = preferencesState.value.fontSize,
+                                    showRef = ::updateRef
+                                )
+                            )
+                            out.add(AnnotatedString(currSubstring))
+                            curr = ""
+                            i += currSubstring.length
+                        } else {
+                            val currSubstringNestedTable =
+                                parsed.substringMatchingParen('{', '}', parsed.indexOf("{|", i + 2))
+                            out.add(
+                                curr.toWikitextAnnotatedString(
+                                    colorScheme = colorScheme,
+                                    typography = typography,
+                                    loadPage = ::loadPage,
+                                    fontSize = preferencesState.value.fontSize,
+                                    showRef = ::updateRef
+                                )
+                            )
+                            out.add(AnnotatedString(currSubstringNestedTable))
+                            curr = ""
+                            i += currSubstring.length
+                        }
+                    } else if (
+                        stack < 2 && parsed.getOrNull(i + 1) == '{' &&
+                        parsed.substring(i, min(i + 12, parsed.length))
+                            .startsWith("{{Infobox", true)
                     ) {
+                        val currSubstring = parsed.substringMatchingParen('{', '}', i)
                         out.add(
                             curr.toWikitextAnnotatedString(
                                 colorScheme = colorScheme,
@@ -1040,22 +1075,7 @@ class UiViewModel(
                         out.add(AnnotatedString(currSubstring))
                         curr = ""
                         i += currSubstring.length
-                    } else {
-                        val currSubstringNestedTable =
-                            parsed.substringMatchingParen('{', '}', parsed.indexOf("{|", i + 2))
-                        out.add(
-                            curr.toWikitextAnnotatedString(
-                                colorScheme = colorScheme,
-                                typography = typography,
-                                loadPage = ::loadPage,
-                                fontSize = preferencesState.value.fontSize,
-                                showRef = ::updateRef
-                            )
-                        )
-                        out.add(AnnotatedString(currSubstringNestedTable))
-                        curr = ""
-                        i += currSubstring.length
-                    }
+                    } else curr += parsed[i]
                 } else curr += parsed[i]
                 i++
             }

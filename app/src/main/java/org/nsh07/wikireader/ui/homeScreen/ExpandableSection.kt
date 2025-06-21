@@ -57,7 +57,8 @@ fun ExpandableSection(
     imageBackground: Boolean,
     modifier: Modifier = Modifier,
     onLinkClick: (String) -> Unit,
-    onGalleryImageClick: (String, String) -> Unit
+    onGalleryImageClick: (String, String) -> Unit,
+    showRef: (String) -> Unit
 ) {
     var expanded by rememberSaveable { mutableStateOf(expanded) }
     val arrowRotation by animateFloatAsState(
@@ -124,7 +125,8 @@ fun ExpandableSection(
                 dataSaver = dataSaver,
                 background = imageBackground,
                 onLinkClick = onLinkClick,
-                onGalleryImageClick = onGalleryImageClick
+                onGalleryImageClick = onGalleryImageClick,
+                showRef = showRef
             )
         }
     }
@@ -145,7 +147,9 @@ fun ExpandableSectionPreview() {
             darkTheme = false,
             false,
             false,
-            onLinkClick = {}
-        ) { a, b -> }
+            onLinkClick = {},
+            onGalleryImageClick = { _, _ -> },
+            showRef = {}
+        )
     }
 }

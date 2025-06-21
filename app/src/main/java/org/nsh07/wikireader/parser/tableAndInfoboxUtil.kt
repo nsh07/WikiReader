@@ -6,13 +6,29 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
+import java.util.Locale
 import kotlin.math.max
 import kotlin.text.Typography.mdash
 
+/**
+ * Converts a Wikitable into a format which is possible to be displayed by the app
+ *
+ * @param table The Wikitable to be parsed
+ * @param colorScheme [ColorScheme] composition local
+ * @param typography [Typography] composition local
+ * @param loadPage Function to load a page, to be provided by the [androidx.lifecycle.ViewModel]
+ * @param showRef Function to show the reference bottom sheet/popup with the given reference string
+ * @param fontSize Font size in app preferences
+ *
+ * @return A [Pair] containing the table caption at the first value, and the table matrix as the
+ * second value (both are [AnnotatedString]s)
+ */
 fun parseWikitable(
-    table: String, colorScheme: ColorScheme,
+    table: String,
+    colorScheme: ColorScheme,
     typography: Typography,
     loadPage: (String) -> Unit,
+    showRef: (String) -> Unit,
     fontSize: Int
 ): Pair<AnnotatedString, List<List<AnnotatedString>>> {
     val rows = mutableListOf<MutableList<AnnotatedString>>()
@@ -59,7 +75,7 @@ fun parseWikitable(
                     typography,
                     loadPage,
                     fontSize,
-                    showRef = {}
+                    showRef = showRef
                 )
             }
 
@@ -115,7 +131,7 @@ fun parseWikitable(
                                     typography,
                                     loadPage,
                                     fontSize,
-                                    showRef = {}
+                                    showRef = showRef
                                 )
                         )
                         repeat(colspan - 1) {
@@ -148,7 +164,7 @@ fun parseWikitable(
                                 typography,
                                 loadPage,
                                 fontSize,
-                                showRef = {}
+                                showRef = showRef
                             )
                     )
                     repeat(colspan - 1) {
@@ -192,7 +208,7 @@ fun parseWikitable(
                                         typography,
                                         loadPage,
                                         fontSize,
-                                        showRef = {}
+                                        showRef = showRef
                                     )
                             )
                         }
@@ -229,7 +245,7 @@ fun parseWikitable(
                                     typography,
                                     loadPage,
                                     fontSize,
-                                    showRef = {}
+                                    showRef = showRef
                                 )
                         )
                     }
@@ -251,7 +267,7 @@ fun parseWikitable(
                                 typography,
                                 loadPage,
                                 fontSize,
-                                showRef = {}
+                                showRef = showRef
                             )
                 }
             }
@@ -272,4 +288,94 @@ fun parseWikitable(
     }
 
     return Pair(caption, rows)
+}
+
+/**
+ * Converts an Infobox into a format which is possible to be displayed by the app
+ *
+ * @param infoboxSource The Infobox to be parsed
+ * @param colorScheme [ColorScheme] composition local
+ * @param typography [Typography] composition local
+ * @param loadPage Function to load a page, to be provided by the [androidx.lifecycle.ViewModel]
+ * @param showRef Function to show the reference bottom sheet/popup with the given reference string
+ * @param fontSize Font size in app preferences
+ *
+ * @return a [List] of [Pair]s of the Infobox entries, in key-value format.
+ */
+fun parseInfobox(
+    infoboxSource: String,
+    colorScheme: ColorScheme,
+    typography: Typography,
+    loadPage: (String) -> Unit,
+    showRef: (String) -> Unit,
+    fontSize: Int
+): List<Pair<AnnotatedString, AnnotatedString>> {
+    val rows = mutableListOf<Pair<AnnotatedString, AnnotatedString>>()
+    val locale = Locale.getDefault()
+
+    val lines = infoboxSource.lines().fastFilter { it.isNotEmpty() }.drop(1)
+    var currentRowKey = ""
+    var currentRowVal = ""
+
+    lines.fastForEach {
+        if (it.startsWith('|')) {
+            if (currentRowVal.matches(".{1,6}:.+".toRegex())) { // Add image data in plaintext
+                rows.add(Pair(AnnotatedString(currentRowKey), AnnotatedString(currentRowVal)))
+            } else if (currentRowVal.isNotBlank()) {
+                rows.add(
+                    Pair(
+                        currentRowKey.toWikitextAnnotatedString(
+                            colorScheme,
+                            typography,
+                            loadPage,
+                            fontSize,
+                            showRef = showRef
+                        ),
+                        currentRowVal.toWikitextAnnotatedString(
+                            colorScheme,
+                            typography,
+                            loadPage,
+                            fontSize,
+                            showRef = showRef
+                        )
+                    )
+                )
+            }
+            currentRowKey = ""
+            currentRowVal = ""
+
+            val thisRow = it.split('=', limit = 2)
+            currentRowKey = thisRow[0]
+                .removePrefix("|")
+                .trim()
+                .replace('_', ' ')
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
+            currentRowVal = thisRow[1].trim()
+        } else {
+            currentRowVal += it
+        }
+    }
+
+    if (currentRowVal.isNotBlank()) {
+        rows.add(
+            Pair(
+                currentRowKey.toWikitextAnnotatedString(
+                    colorScheme,
+                    typography,
+                    loadPage,
+                    fontSize,
+                    showRef = showRef
+                ),
+                currentRowVal.removeSuffix("}}").trim('\n', ' ').toWikitextAnnotatedString(
+                    colorScheme,
+                    typography,
+                    loadPage,
+                    fontSize,
+                    showRef = showRef
+                )
+            )
+        )
+    }
+
+    return rows
 }

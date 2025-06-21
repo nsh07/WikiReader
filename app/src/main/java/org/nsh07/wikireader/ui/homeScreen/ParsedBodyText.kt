@@ -33,6 +33,7 @@ fun ParsedBodyText(
     dataSaver: Boolean,
     onLinkClick: (String) -> Unit,
     onGalleryImageClick: (String, String) -> Unit,
+    showRef: (String) -> Unit,
     modifier: Modifier = Modifier,
     checkFirstImage: Boolean = false,
     pageImageUri: String? = null
@@ -91,7 +92,15 @@ fun ParsedBodyText(
                 AsyncWikitable(
                     text = it.toString(),
                     fontSize = fontSize,
-                    onLinkClick = onLinkClick
+                    onLinkClick = onLinkClick,
+                    showRef = showRef
+                )
+            } else if (it.startsWith("{{Infobox", true)) {
+                AsyncInfobox(
+                    text = it.toString(),
+                    fontSize = fontSize,
+                    onLinkClick = onLinkClick,
+                    showRef = showRef
                 )
             } else {
                 Text(

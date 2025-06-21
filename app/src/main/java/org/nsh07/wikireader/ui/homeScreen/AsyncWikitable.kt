@@ -59,7 +59,8 @@ import kotlin.math.max
 fun AsyncWikitable(
     text: String,
     fontSize: Int,
-    onLinkClick: (String) -> Unit
+    onLinkClick: (String) -> Unit,
+    showRef: (String) -> Unit
 ) {
     val colorScheme = colorScheme
     val typography = typography
@@ -85,7 +86,7 @@ fun AsyncWikitable(
 
     LaunchedEffect(text) {
         coroutineScope.launch(Dispatchers.IO) {
-            rows = parseWikitable(text, colorScheme, typography, onLinkClick, fontSize)
+            rows = parseWikitable(text, colorScheme, typography, onLinkClick, showRef, fontSize)
         }
     }
 
@@ -108,7 +109,7 @@ fun AsyncWikitable(
                     Icon(Icons.Outlined.KeyboardArrowUp, contentDescription = null)
             }
             Text(
-                if (rows.first != AnnotatedString("")) rows.first
+                if (rows.first.isNotEmpty()) rows.first
                 else tableTitle,
                 modifier = Modifier
                     .weight(1f)
