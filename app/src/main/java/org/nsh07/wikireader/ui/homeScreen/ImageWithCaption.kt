@@ -33,7 +33,8 @@ fun ImageWithCaption(
     onLinkClick: (String) -> Unit,
     onClick: (String, String) -> Unit,
     modifier: Modifier = Modifier,
-    pageImageUri: String? = null
+    pageImageUri: String? = null,
+    showCaption: Boolean = true
 ) {
     val uriLow = remember(text) {
         "https://commons.wikimedia.org/wiki/Special:FilePath/${
@@ -67,21 +68,22 @@ fun ImageWithCaption(
                 .widthIn(max = 512.dp)
                 .clickable(onClick = { onClick(uriHigh, description) })
         )
-        Text(
-            description.toWikitextAnnotatedString(
-                colorScheme = colorScheme,
-                fontSize = fontSize - 2,
-                loadPage = onLinkClick,
-                typography = typography,
-                showRef = {}
-            ),
-            fontSize = (fontSize - 2).sp,
-            lineHeight = (24 * ((fontSize - 2) / 16.0)).toInt().sp,
-            textAlign = TextAlign.Center,
-            color = colorScheme.onSurfaceVariant,
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .padding(vertical = 8.dp)
-        )
+        if (showCaption)
+            Text(
+                description.toWikitextAnnotatedString(
+                    colorScheme = colorScheme,
+                    fontSize = fontSize - 2,
+                    loadPage = onLinkClick,
+                    typography = typography,
+                    showRef = {}
+                ),
+                fontSize = (fontSize - 2).sp,
+                lineHeight = (24 * ((fontSize - 2) / 16.0)).toInt().sp,
+                textAlign = TextAlign.Center,
+                color = colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(vertical = 8.dp)
+            )
     }
 }

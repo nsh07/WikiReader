@@ -185,7 +185,7 @@ fun AppScreen(
     val imageLoader = remember {
         ImageLoader.Builder(context)
             .components {
-                add(SvgDecoder.Factory())
+                add(SvgDecoder.Factory(scaleToDensity = true))
                 if (SDK_INT >= 28) {
                     add(AnimatedImageDecoder.Factory())
                 } else {

@@ -6,6 +6,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.Locale
 import kotlin.math.max
 import kotlin.text.Typography.mdash
@@ -23,14 +25,14 @@ import kotlin.text.Typography.mdash
  * @return A [Pair] containing the table caption at the first value, and the table matrix as the
  * second value (both are [AnnotatedString]s)
  */
-fun parseWikitable(
+suspend fun parseWikitable(
     table: String,
     colorScheme: ColorScheme,
     typography: Typography,
     loadPage: (String) -> Unit,
     showRef: (String) -> Unit,
     fontSize: Int
-): Pair<AnnotatedString, List<List<AnnotatedString>>> {
+): Pair<AnnotatedString, List<List<AnnotatedString>>> = withContext(Dispatchers.IO) {
     val rows = mutableListOf<MutableList<AnnotatedString>>()
     var caption = AnnotatedString("")
     val lines = table.lines().fastMap { it.trim() }.fastFilter { it.isNotEmpty() }
@@ -287,7 +289,7 @@ fun parseWikitable(
         }
     }
 
-    return Pair(caption, rows)
+    Pair(caption, rows)
 }
 
 /**
@@ -302,14 +304,14 @@ fun parseWikitable(
  *
  * @return a [List] of [Pair]s of the Infobox entries, in key-value format.
  */
-fun parseInfobox(
+suspend fun parseInfobox(
     infoboxSource: String,
     colorScheme: ColorScheme,
     typography: Typography,
     loadPage: (String) -> Unit,
     showRef: (String) -> Unit,
     fontSize: Int
-): List<Pair<AnnotatedString, AnnotatedString>> {
+): List<Pair<AnnotatedString, AnnotatedString>> = withContext(Dispatchers.IO) {
     val rows = mutableListOf<Pair<AnnotatedString, AnnotatedString>>()
     val locale = Locale.getDefault()
 
@@ -352,7 +354,7 @@ fun parseInfobox(
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
             currentRowVal = thisRow[1].trim()
         } else {
-            currentRowVal += it
+            currentRowVal += '\n' + it
         }
     }
 
@@ -377,5 +379,5 @@ fun parseInfobox(
         )
     }
 
-    return rows
+    rows.fastFilter { !it.first.matches("Image|Caption|Alt|Alt .+".toRegex()) }
 }

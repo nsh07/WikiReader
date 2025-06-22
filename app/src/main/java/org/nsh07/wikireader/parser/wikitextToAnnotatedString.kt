@@ -19,9 +19,11 @@ import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.fastMap
 import com.github.tomtung.latex2unicode.LaTeX2Unicode
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.parser.ReferenceData.refCount
@@ -829,7 +831,7 @@ fun String.toWikitextAnnotatedString(
                                 append(curr.twas())
                             }
 
-                            arrayOf("{{nowrap", "{{nobr", "{{nobreak", "{{nwr", "{{nbr").any {
+                            listOf("{{nowrap", "{{nobr", "{{nobreak", "{{nwr", "{{nbr").fastAny {
                                 currSubstring.startsWith(it, ignoreCase = true)
                             } -> {
                                 val curr = currSubstring.substringAfter('|')
@@ -862,6 +864,17 @@ fun String.toWikitextAnnotatedString(
                                 withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
                                     append(curr.twas())
                                 }
+                            }
+
+                            currSubstring.startsWith("{{unbulleted list") -> {
+                                val splitList = currSubstring
+                                    .substringAfter('|')
+                                    .splitNotInBraces('|')
+                                    .fastFilter { !it.contains('=') }
+                                    .fastMap { it.trim() }
+                                    .joinToString("\n")
+
+                                append(splitList.twas())
                             }
 
                             currSubstring.startsWith("{{Starbox begin", ignoreCase = true) -> {
@@ -1077,6 +1090,30 @@ fun String.buildRefList() {
         }
         i++
     }
+}
+
+fun String.splitNotInBraces(delimiter: Char, open: Char = '[', close: Char = ']'): List<String> {
+    var stack = 0
+    var out = mutableListOf<String>()
+    var curr = ""
+
+    for (c in this) {
+        if (c == open) stack++
+        else if (c == close) stack--
+
+        if (c == delimiter && stack == 0) {
+            out.add(curr)
+            curr = ""
+        } else {
+            curr += c
+        }
+    }
+
+    if (curr.isNotEmpty()) {
+        out.add(curr)
+    }
+
+    return out
 }
 
 object ReferenceData {

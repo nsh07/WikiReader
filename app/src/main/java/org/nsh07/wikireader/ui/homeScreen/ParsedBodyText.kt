@@ -99,6 +99,10 @@ fun ParsedBodyText(
                 AsyncInfobox(
                     text = it.toString(),
                     fontSize = fontSize,
+                    darkTheme = darkTheme,
+                    background = background,
+                    imageLoader = imageLoader,
+                    onImageClick = onGalleryImageClick,
                     onLinkClick = onLinkClick,
                     showRef = showRef
                 )
