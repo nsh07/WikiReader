@@ -180,7 +180,6 @@ fun AsyncInfobox(
                                         onLinkClick = onLinkClick,
                                         onClick = onImageClick,
                                         showCaption = false,
-                                        shape = shapes.medium,
                                         modifier = Modifier
                                             .weight(2f)
                                     )

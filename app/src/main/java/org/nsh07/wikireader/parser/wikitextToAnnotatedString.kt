@@ -29,6 +29,7 @@ import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.parser.ReferenceData.refCount
 import org.nsh07.wikireader.parser.ReferenceData.refList
 import org.nsh07.wikireader.parser.ReferenceData.refListCount
+import org.nsh07.wikireader.parser.ReferenceData.refListIndex
 import kotlin.math.min
 import kotlin.text.Typography.bullet
 import kotlin.text.Typography.nbsp
@@ -134,6 +135,7 @@ fun String.toWikitextAnnotatedString(
                                     }
                                 ) {
                                     append("<sup>$refCount </sup>".twas())
+                                    refListIndex[refCount] = curr
                                     refCount++
                                 }
                                 i += 5 + curr.length + 5
@@ -142,6 +144,7 @@ fun String.toWikitextAnnotatedString(
                                 val refWt = refList[refName] ?: ""
                                 if (refListCount[refWt] == null) {
                                     refListCount[refWt] = refCount
+                                    refListIndex[refCount] = refWt
                                     refCount++
                                 }
                                 withLink(
@@ -160,6 +163,7 @@ fun String.toWikitextAnnotatedString(
                                 val refWt = refList[refName] ?: ""
                                 if (refListCount[refWt] == null) {
                                     refListCount[refWt] = refCount
+                                    refList[refName]
                                     refCount++
                                 }
                                 withLink(
@@ -918,6 +922,25 @@ fun String.toWikitextAnnotatedString(
                                 )
                             }
 
+                            currSubstring.startsWith("{{reflist", true) -> {
+                                val reflist = refListIndex
+                                    .toSortedMap()
+                                    .map { "${it.key}.\t\t${it.value}" }
+
+                                reflist.fastForEach {
+                                    withStyle(
+                                        ParagraphStyle(
+                                            textIndent = TextIndent(restLine = 27.sp),
+                                            lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
+                                            lineHeightStyle = LineHeightStyle(
+                                                alignment = LineHeightStyle.Alignment.Center,
+                                                trim = LineHeightStyle.Trim.None
+                                            )
+                                        )
+                                    ) { append(it.twas()) }
+                                }
+                            }
+
                             else -> {
                                 val curr = input.getOrNull(i + 1 + currSubstring.length + 1)
                                 if (curr == '\n') i++
@@ -1136,5 +1159,6 @@ fun String.splitNotInBraces(delimiter: Char, open: Char = '[', close: Char = ']'
 object ReferenceData {
     var refCount = 1
     val refList = mutableMapOf<String, String>()
+    val refListIndex = mutableMapOf<Int, String>()
     val refListCount = mutableMapOf<String, Int>()
 }
