@@ -320,7 +320,7 @@ suspend fun parseInfobox(
     var currentRowVal = ""
 
     lines.fastForEach {
-        if (it.startsWith('|')) {
+        if (it.startsWith('|') && it.contains('=')) {
             if (currentRowVal.matches(".{1,6}:.+".toRegex())) { // Add image data in plaintext
                 rows.add(Pair(AnnotatedString(currentRowKey), AnnotatedString(currentRowVal)))
             } else if (currentRowVal.isNotBlank()) {
@@ -368,7 +368,7 @@ suspend fun parseInfobox(
                     fontSize,
                     showRef = showRef
                 ),
-                currentRowVal.removeSuffix("}}").trim('\n', ' ').toWikitextAnnotatedString(
+                currentRowVal.trim('\n', ' ', '}').toWikitextAnnotatedString(
                     colorScheme,
                     typography,
                     loadPage,

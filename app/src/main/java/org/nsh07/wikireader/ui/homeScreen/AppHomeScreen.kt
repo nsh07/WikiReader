@@ -398,6 +398,7 @@ fun AppHomeScreen(
                                 SelectionContainer {
                                     ParsedBodyText(
                                         body = homeScreenState.extract[0],
+                                        lang = homeScreenState.currentLang ?: "en",
                                         fontSize = fontSize,
                                         fontFamily = fontFamily,
                                         renderMath = preferencesState.renderMath,
@@ -422,6 +423,7 @@ fun AppHomeScreen(
                                     ExpandableSection(
                                         title = homeScreenState.extract[i],
                                         body = homeScreenState.extract.getOrElse(i + 1) { emptyList() },
+                                        lang = homeScreenState.currentLang ?: "en",
                                         fontSize = fontSize,
                                         fontFamily = fontFamily,
                                         imageLoader = imageLoader,

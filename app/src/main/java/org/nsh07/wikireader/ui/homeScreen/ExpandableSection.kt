@@ -47,6 +47,7 @@ import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 fun ExpandableSection(
     title: List<AnnotatedString>,
     body: List<AnnotatedString>,
+    lang: String,
     fontSize: Int,
     fontFamily: FontFamily,
     imageLoader: ImageLoader,
@@ -117,6 +118,7 @@ fun ExpandableSection(
         ) {
             ParsedBodyText(
                 body = body,
+                lang = lang,
                 fontSize = fontSize,
                 fontFamily = fontFamily,
                 renderMath = renderMath,
@@ -139,6 +141,7 @@ fun ExpandableSectionPreview() {
         ExpandableSection(
             title = listOf(buildAnnotatedString { append("Title") }),
             body = listOf(buildAnnotatedString { append("Lorem\nIpsum\nBig\nHonking\nBody\nText") }),
+            lang = "en",
             fontSize = 16,
             fontFamily = FontFamily.SansSerif,
             imageLoader = ImageLoader(context = LocalContext.current),

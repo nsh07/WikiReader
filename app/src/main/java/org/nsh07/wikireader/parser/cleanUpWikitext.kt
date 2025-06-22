@@ -7,6 +7,7 @@ package org.nsh07.wikireader.parser
  */
 fun cleanUpWikitext(wikitext: String): String {
     return wikitext
+        .replace("<!--.+?-->".toRegex(), "")
         .replace(
             "\\{\\{nobility table header.*?\\}\\}"
                 .toRegex(setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)),

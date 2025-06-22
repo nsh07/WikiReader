@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +46,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import coil3.ImageLoader
 import kotlinx.coroutines.Dispatchers
@@ -57,6 +59,7 @@ import org.nsh07.wikireader.ui.theme.CustomTopBarColors.cardColors
 @Composable
 fun AsyncInfobox(
     text: String,
+    lang: String,
     fontSize: Int,
     darkTheme: Boolean,
     background: Boolean,
@@ -68,6 +71,7 @@ fun AsyncInfobox(
     val context = LocalContext.current
     val colorScheme = colorScheme
     val typography = typography
+    val extensions = listOf(".jpg", ".jpeg", ".png", ".svg", ".gif")
     val scope = rememberCoroutineScope()
     var infobox by remember { mutableStateOf(emptyList<Pair<AnnotatedString, AnnotatedString>>()) }
     var title: AnnotatedString? by remember { mutableStateOf(AnnotatedString(context.getString(R.string.infobox))) }
@@ -79,7 +83,7 @@ fun AsyncInfobox(
         }
     }
 
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
 
     SharedTransitionLayout {
         Card(
@@ -150,10 +154,10 @@ fun AsyncInfobox(
                                     )
                                     .padding(vertical = 8.dp)
                             )
-                        infobox.fastForEach {
+                        infobox.fastForEach { item ->
                             Row(Modifier.fillMaxWidth()) {
                                 Text(
-                                    it.first,
+                                    item.first,
                                     fontSize = fontSize.sp,
                                     fontWeight = FontWeight.Bold,
                                     lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
@@ -162,10 +166,13 @@ fun AsyncInfobox(
                                         .widthIn(max = 256.dp)
                                         .weight(1f)
                                 )
-                                if (it.second.matches("\\[\\[.{1,6}:.+]]".toRegex())) {
+                                if (item.second.matches("\\[\\[.{1,6}:.+]]".toRegex()) ||
+                                    extensions.fastAny { item.second.endsWith(it) }
+                                ) {
                                     ImageWithCaption(
-                                        it.second.toString(),
+                                        item.second.toString(),
                                         fontSize,
+                                        lang,
                                         darkTheme,
                                         background,
                                         false,
@@ -173,12 +180,13 @@ fun AsyncInfobox(
                                         onLinkClick = onLinkClick,
                                         onClick = onImageClick,
                                         showCaption = false,
+                                        shape = shapes.medium,
                                         modifier = Modifier
                                             .weight(2f)
                                     )
                                 } else {
                                     Text(
-                                        it.second,
+                                        item.second,
                                         fontSize = fontSize.sp,
                                         lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
                                         modifier = Modifier

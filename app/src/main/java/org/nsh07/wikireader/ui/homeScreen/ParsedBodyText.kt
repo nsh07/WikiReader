@@ -24,6 +24,7 @@ import kotlin.text.Typography.nbsp
 @Composable
 fun ParsedBodyText(
     body: List<AnnotatedString>,
+    lang: String,
     fontSize: Int,
     fontFamily: FontFamily,
     imageLoader: ImageLoader,
@@ -47,6 +48,7 @@ fun ParsedBodyText(
                 if (!dataSaver) {
                     ImageWithCaption(
                         text = it.toString(),
+                        lang = lang,
                         fontSize = fontSize,
                         imageLoader = imageLoader,
                         onLinkClick = onLinkClick,
@@ -61,6 +63,7 @@ fun ParsedBodyText(
                 if (!dataSaver) {
                     Gallery(
                         text = it.toString(),
+                        lang = lang,
                         fontSize = fontSize,
                         imageLoader = imageLoader,
                         onClick = onGalleryImageClick,
@@ -98,6 +101,7 @@ fun ParsedBodyText(
             } else if (it.startsWith("{{Infobox", true)) {
                 AsyncInfobox(
                     text = it.toString(),
+                    lang = lang,
                     fontSize = fontSize,
                     darkTheme = darkTheme,
                     background = background,
