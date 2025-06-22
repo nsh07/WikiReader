@@ -128,4 +128,10 @@
     <string name="allHistoryDeleted">Вся історія видалена</string>
     <string name="reference">Послання</string>
     <string name="undo">Відмінити</string>
+    <string name="noHistoryItemsDesc">Нещодавно відкриті статті з\'являтимуться тут</string>
+    <string name="noHistoryItems">Немає елементів в історії</string>
+    <string name="recentLanguages">Нещодавні мови</string>
+    <string name="otherLanguages">Інші мови</string>
+    <string name="currentLanguage">Поточна мова</string>
+    <string name="items">%1$s предмети</string>
 </resources>

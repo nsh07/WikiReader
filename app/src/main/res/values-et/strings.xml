@@ -128,4 +128,10 @@
     <string name="deletedFromHistory">„%1$s“ on ajaloost kustutatud</string>
     <string name="reference">Viide</string>
     <string name="table">Tabel</string>
+    <string name="noHistoryItems">Ajaloos pole ühtegi kirjet</string>
+    <string name="recentLanguages">Hiljutised keeled</string>
+    <string name="otherLanguages">Muud keeled</string>
+    <string name="noHistoryItemsDesc">Hiljuti avatud artiklid saavad olema nähtavad siin</string>
+    <string name="currentLanguage">Praegune keel</string>
+    <string name="items">%1$s kirje(t)</string>
 </resources>

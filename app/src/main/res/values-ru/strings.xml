@@ -128,4 +128,10 @@
     <string name="undo">Отменить</string>
     <string name="reference">Примечание</string>
     <string name="allHistoryDeleted">История полностью очищена</string>
+    <string name="noHistoryItems">История пуста</string>
+    <string name="noHistoryItemsDesc">Здесь будут появляться просмотренные вами статьи</string>
+    <string name="recentLanguages">Недавние языки</string>
+    <string name="otherLanguages">Другие языки</string>
+    <string name="items">%1$s записей</string>
+    <string name="currentLanguage">Текущий язык</string>
 </resources>

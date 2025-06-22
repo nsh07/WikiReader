@@ -123,4 +123,15 @@
     <string name="supportMyWork">支持我</string>
     <string name="settingAppLanguage">應用程式語言</string>
     <string name="chooseAppLanguage">選擇應用程式語言</string>
+    <string name="allHistoryDeleted">所有歷史紀錄均已刪除</string>
+    <string name="undo">還原</string>
+    <string name="deletedFromHistory">「%1$s」已從歷史記錄中刪除</string>
+    <string name="reference">參考文獻</string>
+    <string name="table">表格</string>
+    <string name="noHistoryItemsDesc">近期開啟的條目將顯示在此處</string>
+    <string name="noHistoryItems">歷史記錄中尚無條目</string>
+    <string name="recentLanguages">最近的語言</string>
+    <string name="currentLanguage">當前語言</string>
+    <string name="otherLanguages">其他語言</string>
+    <string name="items">%1$s 個條目</string>
 </resources>

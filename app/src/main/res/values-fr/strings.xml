@@ -128,4 +128,6 @@
     <string name="reference">Référence</string>
     <string name="deletedFromHistory">\"%1$s\" a été supprimé de l’historique</string>
     <string name="table">Tableau</string>
+    <string name="noHistoryItemsDesc">Les articles récemment ouverts apparaîtront ici</string>
+    <string name="noHistoryItems">Pas d’éléments dans l’historique</string>
 </resources>

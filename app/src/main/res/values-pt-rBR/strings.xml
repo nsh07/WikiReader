@@ -128,4 +128,10 @@
     <string name="deletedFromHistory">\"%1$s\" foi deletado do histórico</string>
     <string name="reference">Referência</string>
     <string name="table">Tabela</string>
+    <string name="noHistoryItems">Nenhum item no histórico</string>
+    <string name="noHistoryItemsDesc">Os artigos abertos recentemente serão exibidos aqui</string>
+    <string name="recentLanguages">Idiomas recentes</string>
+    <string name="otherLanguages">Outros idiomas</string>
+    <string name="items">%1$s itens</string>
+    <string name="currentLanguage">Idioma atual</string>
 </resources>
