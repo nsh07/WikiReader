@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -64,11 +65,12 @@ fun AsyncInfobox(
     onLinkClick: (String) -> Unit,
     showRef: (String) -> Unit
 ) {
+    val context = LocalContext.current
     val colorScheme = colorScheme
     val typography = typography
     val scope = rememberCoroutineScope()
     var infobox by remember { mutableStateOf(emptyList<Pair<AnnotatedString, AnnotatedString>>()) }
-    var title: AnnotatedString? by remember { mutableStateOf(AnnotatedString("Infobox")) }
+    var title: AnnotatedString? by remember { mutableStateOf(AnnotatedString(context.getString(R.string.infobox))) }
 
     LaunchedEffect(text) {
         scope.launch(Dispatchers.IO) {
@@ -106,7 +108,7 @@ fun AsyncInfobox(
                     },
                     headlineContent = {
                         Row {
-                            Text("Infobox", fontWeight = FontWeight.Medium)
+                            Text(stringResource(R.string.infobox), fontWeight = FontWeight.Medium)
                             Spacer(Modifier.width(8.dp))
                             AnimatedVisibility(!expanded) {
                                 Text(

@@ -134,4 +134,5 @@
     <string name="recentLanguages">Recent languages</string>
     <string name="otherLanguages">Other languages</string>
     <string name="items">%1$s items</string>
+    <string name="infobox">Infobox</string>
 </resources>
