@@ -1091,7 +1091,7 @@ class UiViewModel(
             out.toList()
         }
 
-    private fun updateRef(ref: String) {
+    fun updateRef(ref: String) {
         _homeScreenState.update { currentState ->
             currentState.copy(
                 ref = ref.toWikitextAnnotatedString(
@@ -1119,12 +1119,6 @@ class UiViewModel(
 
     fun focusSearchBar() {
         appSearchBarState.value.focusRequester.requestFocus()
-    }
-
-    fun insertSearchHistoryItem(item: SearchHistoryItem) {
-        viewModelScope.launch(Dispatchers.IO) {
-            appDatabaseRepository.insertSearchHistory(item)
-        }
     }
 
     fun removeSearchHistoryItem(item: SearchHistoryItem?) {

@@ -146,6 +146,7 @@ fun AppHomeScreen(
     onSearchButtonClick: () -> Unit,
     loadRandom: () -> Unit,
     scrollToTop: () -> Unit,
+    showRef: (String) -> Unit,
     hideRef: () -> Unit,
     insets: PaddingValues,
     windowSizeClass: WindowSizeClass,
@@ -337,55 +338,59 @@ fun AppHomeScreen(
                             .fillMaxSize()
                     ) {
                         item { // Title + Image/description
-                            Text(
-                                text = homeScreenState.title,
-                                style = MaterialTheme.typography.displaySmallEmphasized,
-                                fontFamily = FontFamily.Serif,
-                                modifier = Modifier
-                                    .sharedBounds(
-                                        sharedContentState = rememberSharedContentState(
-                                            homeScreenState.title
-                                        ),
-                                        animatedVisibilityScope = this@AnimatedVisibility,
-                                        zIndexInOverlay = 1f
+                            SelectionContainer {
+                                Column {
+                                    Text(
+                                        text = homeScreenState.title,
+                                        style = MaterialTheme.typography.displaySmallEmphasized,
+                                        fontFamily = FontFamily.Serif,
+                                        modifier = Modifier
+                                            .sharedBounds(
+                                                sharedContentState = rememberSharedContentState(
+                                                    homeScreenState.title
+                                                ),
+                                                animatedVisibilityScope = this@AnimatedVisibility,
+                                                zIndexInOverlay = 1f
+                                            )
+                                            .padding(start = 16.dp, end = 16.dp, top = 16.dp)
+                                            .animateContentSize(motionScheme.defaultSpatialSpec())
                                     )
-                                    .padding(start = 16.dp, end = 16.dp, top = 16.dp)
-                                    .animateContentSize(motionScheme.defaultSpatialSpec())
-                            )
-                            if (photoDesc != null) {
-                                Text(
-                                    text = photoDesc,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = colorScheme.onSurfaceVariant,
-                                    fontFamily = FontFamily.Serif,
-                                    modifier = Modifier
-                                        .sharedBounds(
-                                            sharedContentState = rememberSharedContentState(
-                                                photoDesc
-                                            ),
+                                    if (photoDesc != null) {
+                                        Text(
+                                            text = photoDesc,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            color = colorScheme.onSurfaceVariant,
+                                            fontFamily = FontFamily.Serif,
+                                            modifier = Modifier
+                                                .sharedBounds(
+                                                    sharedContentState = rememberSharedContentState(
+                                                        photoDesc
+                                                    ),
+                                                    animatedVisibilityScope = this@AnimatedVisibility,
+                                                    zIndexInOverlay = 1f
+                                                )
+                                                .padding(
+                                                    start = 16.dp,
+                                                    end = 16.dp,
+                                                    top = 4.dp,
+                                                    bottom = 16.dp
+                                                )
+                                                .fillMaxWidth()
+                                        )
+                                    }
+                                    if (photoDesc != null) {
+                                        ImageCard(
+                                            photo = photo,
+                                            title = homeScreenState.title,
+                                            imageLoader = imageLoader,
                                             animatedVisibilityScope = this@AnimatedVisibility,
-                                            zIndexInOverlay = 1f
+                                            showPhoto = !preferencesState.dataSaver,
+                                            onClick = onImageClick,
+                                            background = preferencesState.imageBackground,
+                                            modifier = Modifier.padding(bottom = 8.dp)
                                         )
-                                        .padding(
-                                            start = 16.dp,
-                                            end = 16.dp,
-                                            top = 4.dp,
-                                            bottom = 16.dp
-                                        )
-                                        .fillMaxWidth()
-                                )
-                            }
-                            if (photoDesc != null) {
-                                ImageCard(
-                                    photo = photo,
-                                    title = homeScreenState.title,
-                                    imageLoader = imageLoader,
-                                    animatedVisibilityScope = this@AnimatedVisibility,
-                                    showPhoto = !preferencesState.dataSaver,
-                                    onClick = onImageClick,
-                                    background = preferencesState.imageBackground,
-                                    modifier = Modifier.padding(bottom = 8.dp)
-                                )
+                                    }
+                                }
                             }
                         }
                         item { // Main description
@@ -403,7 +408,7 @@ fun AppHomeScreen(
                                         checkFirstImage = true,
                                         onLinkClick = onLinkClick,
                                         onGalleryImageClick = onGalleryImageClick,
-                                        showRef = { },
+                                        showRef = showRef,
                                         pageImageUri = homeScreenState.photo?.source
                                     )
                                 }
@@ -427,7 +432,7 @@ fun AppHomeScreen(
                                         imageBackground = preferencesState.imageBackground,
                                         onLinkClick = onLinkClick,
                                         onGalleryImageClick = onGalleryImageClick,
-                                        showRef = {}
+                                        showRef = showRef
                                     )
                                 }
                         }

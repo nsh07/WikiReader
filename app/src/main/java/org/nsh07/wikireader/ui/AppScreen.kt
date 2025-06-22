@@ -507,6 +507,7 @@ fun AppScreen(
                                     feedListState.scrollToItem(0)
                             }
                         },
+                        showRef = viewModel::updateRef,
                         hideRef = viewModel::hideRef,
                         insets = insets,
                         windowSizeClass = windowSizeClass,
