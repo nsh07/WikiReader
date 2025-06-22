@@ -379,5 +379,5 @@ suspend fun parseInfobox(
         )
     }
 
-    rows.fastFilter { !it.first.matches("Image|Caption|Alt|Alt .+".toRegex()) }
+    rows.fastFilter { !it.first.matches("Image|Caption|Alt|Alt .+".toRegex()) && it.second.isNotBlank() }
 }

@@ -866,6 +866,23 @@ fun String.toWikitextAnnotatedString(
                                 }
                             }
 
+                            listOf("{{birth date", "{{death date").fastAny {
+                                currSubstring.startsWith(it)
+                            } -> {
+                                val splitList = currSubstring
+                                    .substringAfter('|')
+                                    .splitNotInBraces('|')
+                                    .fastFilter { !it.contains("df|mf".toRegex()) }
+                                    .fastMap { it.substringAfter('=').trim() }
+
+                                append(
+                                    splitList
+                                        .take(min(splitList.size, 3))
+                                        .joinToString("/")
+                                        .twas()
+                                )
+                            }
+
                             currSubstring.startsWith("{{unbulleted list") -> {
                                 val splitList = currSubstring
                                     .substringAfter('|')
