@@ -87,6 +87,7 @@ import org.nsh07.wikireader.R
 import org.nsh07.wikireader.R.string
 import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.SearchHistoryItem
+import org.nsh07.wikireader.data.UserLanguage
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.ui.aboutScreen.AboutScreen
@@ -115,11 +116,22 @@ fun AppScreen(
     val feedState by viewModel.feedState.collectAsStateWithLifecycle()
     val listState by viewModel.articleListState.collectAsStateWithLifecycle()
     val searchListState by viewModel.searchListState.collectAsStateWithLifecycle()
+
     val searchHistory by viewModel.searchHistoryFlow.collectAsState(emptyList())
     val savedArticles by viewModel.savedArticlesFlow.collectAsState(emptyList())
     val viewHistory by viewModel.viewHistoryFlow.collectAsStateWithLifecycle(emptyList())
     val recentLangs by viewModel.recentLangsFlow.collectAsStateWithLifecycle(emptyList())
-    val savedArticleLangs by viewModel.savedArticleLangs.collectAsState(emptyList())
+    val savedArticleLangs by viewModel.savedArticleLangsFlow.collectAsState(emptyList())
+    val userLangs by viewModel.userLangsFlow.collectAsState(
+        listOf(
+            UserLanguage(
+                "en",
+                "English",
+                true
+            )
+        )
+    )
+
     val searchBarState = rememberSearchBarState()
     val feedListState = rememberLazyListState()
     val railState = rememberWideNavigationRailState()
@@ -362,6 +374,7 @@ fun AppScreen(
                             searchBarState = searchBarState,
                             preferencesState = preferencesState,
                             textFieldState = textFieldState,
+                            userLangs = userLangs,
                             recentLangs = recentLangs,
                             searchHistory = searchHistory,
                             scrollBehavior = searchBarScrollBehavior,
@@ -406,7 +419,9 @@ fun AppScreen(
                                 scope.launch {
                                     railState.expand()
                                 }
-                            }
+                            },
+                            deselectAll = viewModel::deselectAllUserLanguages,
+                            markSelected = viewModel::markUserLanguageSelected
                         )
                     },
                     snackbarHost = { SnackbarHost(snackBarHostState) },

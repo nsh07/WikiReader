@@ -122,7 +122,8 @@ fun LanguageBottomSheet(
                                     else ListItemDefaults.colors(),
                                 modifier = Modifier
                                     .clip(
-                                        if (index == 0) topListItemShape
+                                        if (recentLangs.size == 1) shapes.large
+                                        else if (index == 0) topListItemShape
                                         else if (index == recentLangs.size - 1) bottomListItemShape
                                         else middleListItemShape
                                     )
@@ -177,7 +178,8 @@ fun LanguageBottomSheet(
                                 else ListItemDefaults.colors(),
                             modifier = Modifier
                                 .clip(
-                                    if (index == 0) topListItemShape
+                                    if (langNames.size == 1) shapes.large
+                                    else if (index == 0) topListItemShape
                                     else if (index == langNames.size - 1) bottomListItemShape
                                     else middleListItemShape
                                 )

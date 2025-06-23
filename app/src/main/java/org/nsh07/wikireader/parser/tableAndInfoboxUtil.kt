@@ -319,7 +319,8 @@ suspend fun parseInfobox(
     var currentRowKey = ""
     var currentRowVal = ""
 
-    lines.fastForEach {
+    lines.fastForEach { item ->
+        val it = item.trim()
         if (it.startsWith('|') && it.contains('=')) {
             if (currentRowVal.matches(".{1,6}:.+".toRegex())) { // Add image data in plaintext
                 rows.add(Pair(AnnotatedString(currentRowKey), AnnotatedString(currentRowVal)))
@@ -348,8 +349,7 @@ suspend fun parseInfobox(
 
             val thisRow = it.split('=', limit = 2)
             currentRowKey = thisRow[0]
-                .removePrefix("|")
-                .trim()
+                .trim(' ', '|')
                 .replace('_', ' ')
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
             currentRowVal = thisRow[1].trim()

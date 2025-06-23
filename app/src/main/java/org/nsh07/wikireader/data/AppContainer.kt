@@ -66,7 +66,8 @@ class DefaultAppContainer(context: Context) : AppContainer {
         AppDatabaseRepository(
             searchHistoryDao = AppDatabase.getDatabase(context).searchHistoryDao(),
             savedArticleDao = AppDatabase.getDatabase(context).savedArticleDao(),
-            viewHistoryDao = AppDatabase.getDatabase(context).viewHistoryDao()
+            viewHistoryDao = AppDatabase.getDatabase(context).viewHistoryDao(),
+            userLanguageDao = AppDatabase.getDatabase(context).userLanguageDao()
         )
     }
 }

@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -38,6 +39,7 @@ import org.nsh07.wikireader.data.AppPreferencesRepository
 import org.nsh07.wikireader.data.SavedArticle
 import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.SearchHistoryItem
+import org.nsh07.wikireader.data.UserLanguage
 import org.nsh07.wikireader.data.ViewHistoryItem
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiApiPageData
@@ -89,8 +91,10 @@ class UiViewModel(
     val searchHistoryFlow = appDatabaseRepository.getSearchHistory().distinctUntilChanged()
     val viewHistoryFlow = appDatabaseRepository.getViewHistory().distinctUntilChanged()
     val recentLangsFlow = appDatabaseRepository.getRecentLanguages().distinctUntilChanged()
-    val savedArticleLangs = appDatabaseRepository.getSavedArticleLanguages().distinctUntilChanged()
+    val savedArticleLangsFlow =
+        appDatabaseRepository.getSavedArticleLanguages().distinctUntilChanged()
     val savedArticlesFlow = appDatabaseRepository.getSavedArticles().distinctUntilChanged()
+    val userLangsFlow = appDatabaseRepository.getUserLanguages().distinctUntilChanged()
 
     @OptIn(FlowPreview::class)
     val languageSearchQuery = languageSearchStr.debounce(500L)
@@ -193,6 +197,11 @@ class UiViewModel(
             appDatabaseRepository.deleteOldViewHistory()
 
             interceptor.setHost("$lang.wikipedia.org")
+
+            userLangsFlow.first().let {
+                if (it.isEmpty()) insertUserLanguage(UserLanguage("en", "English", true))
+            }
+
             isReady = true
             loadFeed()
         }
@@ -1139,6 +1148,25 @@ class UiViewModel(
             if (item != null) appDatabaseRepository.deleteViewHistory(item)
             else appDatabaseRepository.deleteAllViewHistory()
         }
+    }
+
+    suspend fun insertUserLanguage(userLanguage: UserLanguage) {
+        if (userLanguage.selected) {
+            deselectAllUserLanguages()
+            appDatabaseRepository.insertUserLanguage(userLanguage)
+            markUserLanguageSelected(userLanguage.lang)
+        }
+    }
+
+    suspend fun deselectAllUserLanguages() {
+        appDatabaseRepository.deselectAllUserLanguages()
+    }
+
+    fun markUserLanguageSelected(lang: String) {
+        viewModelScope.launch {
+            appDatabaseRepository.markUserLanguageSelected(lang)
+        }
+        saveLang(lang)
     }
 
     fun saveTheme(theme: String) {

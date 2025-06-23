@@ -23,12 +23,19 @@ interface DatabaseRepository {
     suspend fun getSavedArticle(pageId: Int, lang: String): SavedArticle?
     fun getSavedArticleLanguages(): Flow<List<LanguageInfo>>
     fun getSavedArticles(): Flow<List<ArticleInfo>>
+
+    suspend fun insertUserLanguage(userLanguage: UserLanguage)
+    suspend fun deleteUserLanguage(userLanguage: UserLanguage)
+    suspend fun deselectAllUserLanguages()
+    suspend fun markUserLanguageSelected(lang: String)
+    fun getUserLanguages(): Flow<List<UserLanguage>>
 }
 
 class AppDatabaseRepository(
     private val searchHistoryDao: SearchHistoryDao,
     private val savedArticleDao: SavedArticleDao,
-    private val viewHistoryDao: ViewHistoryDao
+    private val viewHistoryDao: ViewHistoryDao,
+    private val userLanguageDao: UserLanguageDao
 ) : DatabaseRepository {
     override suspend fun insertSearchHistory(search: SearchHistoryItem, deduplicate: Boolean) {
         if (deduplicate) searchHistoryDao.deduplicateSearch(search.query, search.lang)
@@ -77,4 +84,16 @@ class AppDatabaseRepository(
 
     override fun getSavedArticles(): Flow<List<ArticleInfo>> =
         savedArticleDao.getAllSavedArticles()
+
+    override suspend fun insertUserLanguage(userLanguage: UserLanguage) {
+        if (userLanguage.selected) deselectAllUserLanguages()
+        userLanguageDao.insert(userLanguage)
+    }
+
+    override suspend fun deleteUserLanguage(userLanguage: UserLanguage) =
+        userLanguageDao.delete(userLanguage)
+
+    override suspend fun deselectAllUserLanguages() = userLanguageDao.deselectAll()
+    override suspend fun markUserLanguageSelected(lang: String) = userLanguageDao.markSelected(lang)
+    override fun getUserLanguages(): Flow<List<UserLanguage>> = userLanguageDao.getUserLanguages()
 }
