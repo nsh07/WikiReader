@@ -134,4 +134,5 @@
     <string name="currentLanguage">當前語言</string>
     <string name="otherLanguages">其他語言</string>
     <string name="items">%1$s 個條目</string>
+    <string name="infobox">資訊框</string>
 </resources>

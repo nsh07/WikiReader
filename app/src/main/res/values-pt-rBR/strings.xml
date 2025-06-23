@@ -134,4 +134,5 @@
     <string name="otherLanguages">Outros idiomas</string>
     <string name="items">%1$s itens</string>
     <string name="currentLanguage">Idioma atual</string>
+    <string name="infobox">Infocaixa</string>
 </resources>

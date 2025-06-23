@@ -134,4 +134,5 @@
     <string name="noHistoryItemsDesc">Hiljuti avatud artiklid saavad olema nähtavad siin</string>
     <string name="currentLanguage">Praegune keel</string>
     <string name="items">%1$s kirje(t)</string>
+    <string name="infobox">Infobox</string>
 </resources>

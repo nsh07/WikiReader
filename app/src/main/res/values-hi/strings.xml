@@ -101,7 +101,7 @@
     <string name="dialogDeleteSearchHistoryDesc">खोज इतिहास मिटाएँ?</string>
     <string name="inArticleMatches">लेख में मिलान</string>
     <string name="topArticlesOTD">आज के प्रमुख लेख</string>
-    <string name="articlesSize">%1$s लेख, %2$s कुल</string>
+    <string name="articlesSize">%1$s लेख, %2$s भाषाएँ</string>
     <string name="translate">अनुवाद</string>
     <string name="translateDesc">अपनी भाषा में विकीरीडर का अनुवाद करने में मदद करें</string>
     <string name="imageCounter">छवि %2$s में से %1$s</string>
@@ -123,4 +123,16 @@
     <string name="supportMyWork">मेरे काम में मेरी सहायता करें</string>
     <string name="settingAppLanguage">ऐप भाषा</string>
     <string name="chooseAppLanguage">ऐप भाषा चुनें</string>
+    <string name="allHistoryDeleted">सारा इतिहास हटा दिया गया</string>
+    <string name="undo">पूर्ववत् करें</string>
+    <string name="deletedFromHistory">\"%1$s\" इतिहास से हटा दिया गया</string>
+    <string name="reference">संदर्भ</string>
+    <string name="noHistoryItems">इतिहास में कुछ नहीं</string>
+    <string name="noHistoryItemsDesc">हाल ही में खोले गए लेख यहां दिखाई देंगे</string>
+    <string name="recentLanguages">हाल की भाषाएँ</string>
+    <string name="otherLanguages">अन्य भाषाएं</string>
+    <string name="currentLanguage">वर्तमान भाषा</string>
+    <string name="infobox">ज्ञानसन्दूक</string>
+    <string name="items">%1$s वस्तुएं</string>
+    <string name="table">टेबल</string>
 </resources>

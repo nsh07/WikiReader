@@ -130,4 +130,9 @@
     <string name="table">Tableau</string>
     <string name="noHistoryItemsDesc">Les articles récemment ouverts apparaîtront ici</string>
     <string name="noHistoryItems">Pas d’éléments dans l’historique</string>
+    <string name="recentLanguages">Langues récentes</string>
+    <string name="otherLanguages">Autres langues</string>
+    <string name="items">%1$s articles</string>
+    <string name="infobox">Infobox</string>
+    <string name="currentLanguage">Langue actuelle</string>
 </resources>

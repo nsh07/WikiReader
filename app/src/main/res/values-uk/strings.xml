@@ -134,4 +134,5 @@
     <string name="otherLanguages">Інші мови</string>
     <string name="currentLanguage">Поточна мова</string>
     <string name="items">%1$s предмети</string>
+    <string name="infobox">Інфобокс</string>
 </resources>

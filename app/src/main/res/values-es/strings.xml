@@ -4,7 +4,7 @@
     <string name="back">Volver</string>
     <string name="app_name">WikiReader</string>
     <string name="about">Acerca de</string>
-    <string name="articlesSize">%1$s artículos, %2$s total</string>
+    <string name="articlesSize">%1$s artículos, %2$s idiomas</string>
     <string name="author">Autor</string>
     <string name="app">Aplicación</string>
     <string name="featuredArticle">Artículo destacado</string>
@@ -20,7 +20,7 @@
     <string name="delete">Eliminar</string>
     <string name="deleteAll">Eliminar todo</string>
     <string name="deleteAllArticles">¿Eliminar todos los articulos?</string>
-    <string name="deleteArticle">Eliminar el artículo descargado</string>
+    <string name="deleteArticle">Eliminar el artículo</string>
     <string name="dialogDeleteSearchHistory">¿Eliminar esta búsqueda del historial?</string>
     <string name="dialogDeleteHistoryItem">\"%1$s\" será eliminado permanentemente del historial de búsqueda.</string>
     <string name="deleteSavedArticleDesc">\"%1$s\" sera eliminado permanentemente del dispositivo</string>
@@ -102,7 +102,7 @@
     <string name="dialogDeleteHistoryItemDesc">Su historial de búsqueda será eliminado permanentemente.</string>
     <string name="information">Información</string>
     <string name="openInBrowser">Abrir en el navegador</string>
-    <string name="noSavedArticlesDesc">Haz clic en el botón de descarga en la parte superior del artículo para comenzar</string>
+    <string name="noSavedArticlesDesc">Haga clic en el botón de descarga en la barra de herramientas en la parte inferior mientras visualiza un artículo para comenzar.</string>
     <string name="settingDataSaver">Ahorro de datos</string>
     <string name="snackbarUnableToLoadFeed">No se pudo cargar el feed: %1$s</string>
     <string name="selectedLabel">Seleccionado</string>
@@ -121,4 +121,17 @@
     <string name="unableToDeleteArticle">No se pudo eliminar el artículo: %1$s</string>
     <string name="donate">Donar</string>
     <string name="supportMyWork">Apoya mi trabajo</string>
+    <string name="allHistoryDeleted">Todo el historial eliminado</string>
+    <string name="undo">Deshacer</string>
+    <string name="deletedFromHistory">Se eliminó \"%1$s\" del historial</string>
+    <string name="reference">Referencia</string>
+    <string name="table">Tabla</string>
+    <string name="noHistoryItems">No hay elementos en el historial</string>
+    <string name="noHistoryItemsDesc">Los artículos abiertos recientemente aparecerán aquí</string>
+    <string name="currentLanguage">Idioma actual</string>
+    <string name="recentLanguages">Idiomas recientes</string>
+    <string name="items">%1$s elementos</string>
+    <string name="settingAppLanguage">Idioma de la aplicación</string>
+    <string name="chooseAppLanguage">Elegir idioma de la aplicación</string>
+    <string name="otherLanguages">Otros idiomas</string>
 </resources>
