@@ -58,6 +58,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -692,22 +693,31 @@ fun DeleteHistoryItemDialog(
 @Composable
 private fun StatusBarProtection(
     color: Color = MaterialTheme.colorScheme.surface,
-    heightProvider: () -> Float = calculateStatusBarHeight(),
+    heightProvider: () -> Float = calculateGradientHeight(),
 ) {
     Canvas(Modifier.fillMaxSize()) {
         val calculatedHeight = heightProvider()
+        val gradient = Brush.verticalGradient(
+            colors = listOf(
+                color.copy(alpha = 1f),
+                color.copy(alpha = 0.8f),
+                Color.Transparent
+            ),
+            startY = 0f,
+            endY = calculatedHeight
+        )
         drawRect(
-            color = color.copy(alpha = 0.8f),
+            brush = gradient,
             size = Size(size.width, calculatedHeight),
         )
     }
 }
 
 @Composable
-fun calculateStatusBarHeight(): () -> Float {
+fun calculateGradientHeight(): () -> Float {
     val statusBars = WindowInsets.statusBars
     val density = LocalDensity.current
-    return { statusBars.getTop(density).toFloat() }
+    return { statusBars.getTop(density).times(1.2f) }
 }
 
 

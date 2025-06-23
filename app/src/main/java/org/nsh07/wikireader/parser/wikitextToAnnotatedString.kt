@@ -535,7 +535,7 @@ fun String.toWikitextAnnotatedString(
                                 append(toAdd)
                             }
 
-                            currSubstring.startsWith("{{mono", ignoreCase = true) -> {
+                            currSubstring.startsWith("{{mono|", ignoreCase = true) -> {
                                 val curr = currSubstring.substringAfter('|')
                                 withStyle(SpanStyle(fontFamily = FontFamily.Monospace)) {
                                     append(curr.twas())
@@ -896,6 +896,13 @@ fun String.toWikitextAnnotatedString(
                                     .joinToString("\n")
 
                                 append(splitList.twas())
+                            }
+
+                            currSubstring.startsWith("{{Transcluded section", true) -> {
+                                val title =
+                                    currSubstring.split('|').filter { it.contains("source=") }
+                                        .joinToString().substringAfter('=')
+                                append("''This section is transcluded from [[$title]]''".twas())
                             }
 
                             currSubstring.startsWith("{{Starbox begin", ignoreCase = true) -> {
