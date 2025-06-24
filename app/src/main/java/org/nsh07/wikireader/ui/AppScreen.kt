@@ -420,8 +420,9 @@ fun AppScreen(
                                     railState.expand()
                                 }
                             },
-                            deselectAll = viewModel::deselectAllUserLanguages,
-                            markSelected = viewModel::markUserLanguageSelected
+                            markUserLanguageSelected = viewModel::markUserLanguageSelected,
+                            insertUserLanguage = viewModel::insertUserLanguage,
+                            deleteUserLanguage = viewModel::deleteUserLanguage
                         )
                     },
                     snackbarHost = { SnackbarHost(snackBarHostState) },

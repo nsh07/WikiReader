@@ -34,11 +34,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastAll
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.LanguageData.langCodes
 import org.nsh07.wikireader.data.LanguageData.langNames
 import org.nsh07.wikireader.data.LanguageData.wikipediaNames
+import org.nsh07.wikireader.data.UserLanguage
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.langCodeToWikiName
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
@@ -56,8 +58,18 @@ fun LanguageBottomSheet(
     setShowSheet: (Boolean) -> Unit,
     setLang: (String) -> Unit,
     setSearchStr: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    userLanguageSelectionMode: Boolean = false,
+    insertUserLanguage: (suspend (UserLanguage) -> Unit)? = null,
+    deleteUserLanguage: ((String) -> Unit)? = null,
 ) {
+    // Require that either user lang selection is disabled OR none of the user lang lambdas are null
+    require(
+        !userLanguageSelectionMode || listOf(
+            insertUserLanguage,
+            deleteUserLanguage
+        ).fastAll { it != null }
+    )
     var selectedOption by remember { mutableStateOf(langCodeToName(lang)) }
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -131,7 +143,18 @@ fun LanguageBottomSheet(
                                         onClick = {
                                             setLang(it)
                                             scope
-                                                .launch { bottomSheetState.hide() }
+                                                .launch {
+                                                    if (userLanguageSelectionMode) {
+                                                        insertUserLanguage?.invoke(
+                                                            UserLanguage(
+                                                                it,
+                                                                langName,
+                                                                true
+                                                            )
+                                                        )
+                                                    }
+                                                    bottomSheetState.hide()
+                                                }
                                                 .invokeOnCompletion {
                                                     if (!bottomSheetState.isVisible) {
                                                         setShowSheet(false)
@@ -187,7 +210,18 @@ fun LanguageBottomSheet(
                                     onClick = {
                                         setLang(langCodes[index])
                                         scope
-                                            .launch { bottomSheetState.hide() }
+                                            .launch {
+                                                if (userLanguageSelectionMode) {
+                                                    insertUserLanguage?.invoke(
+                                                        UserLanguage(
+                                                            langCodes[index],
+                                                            it,
+                                                            true
+                                                        )
+                                                    )
+                                                }
+                                                bottomSheetState.hide()
+                                            }
                                             .invokeOnCompletion {
                                                 if (!bottomSheetState.isVisible) {
                                                     setShowSheet(false)

@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -137,8 +138,9 @@ fun AppSearchBar(
     removeHistoryItem: (SearchHistoryItem) -> Unit,
     clearHistory: () -> Unit,
     onMenuIconClicked: () -> Unit,
-    deselectAll: suspend () -> Unit,
-    markSelected: (String) -> Unit,
+    markUserLanguageSelected: (String) -> Unit,
+    insertUserLanguage: suspend (UserLanguage) -> Unit,
+    deleteUserLanguage: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = appSearchBarState.focusRequester
@@ -302,7 +304,10 @@ fun AppSearchBar(
                     saveLang(it)
                     loadSearchDebounced(textFieldState.text.toString())
                 },
-                setSearchStr = updateLanguageSearchStr
+                setSearchStr = updateLanguageSearchStr,
+                userLanguageSelectionMode = true,
+                insertUserLanguage = insertUserLanguage,
+                deleteUserLanguage = deleteUserLanguage
             )
         AnimatedContent(textFieldState.text.trim().isEmpty()) {
             when (it) {
@@ -402,29 +407,54 @@ fun AppSearchBar(
                                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
                                         userLangs.fastForEach { filterOption ->
-                                            FilterChip(
-                                                selected = filterOption.selected,
-                                                onClick = {
-                                                    scope.launch {
-                                                        deselectAll()
-                                                        markSelected(filterOption.lang)
-                                                        haptic.performHapticFeedback(
-                                                            HapticFeedbackType.ToggleOn
+                                            val filterChipInteractionSource =
+                                                remember { MutableInteractionSource() }
+                                            Box {
+                                                FilterChip(
+                                                    selected = filterOption.selected,
+                                                    onClick = {},
+                                                    label = { Text(filterOption.langName) },
+                                                    leadingIcon =
+                                                        if (filterOption.selected) {
+                                                            {
+                                                                Icon(
+                                                                    Icons.Outlined.Check,
+                                                                    contentDescription = null
+                                                                )
+                                                            }
+                                                        } else null,
+                                                    interactionSource = filterChipInteractionSource
+                                                )
+                                                Box( // Workaround to enable
+                                                    modifier = Modifier
+                                                        .matchParentSize()
+                                                        .combinedClickable(
+                                                            onClick = {
+                                                                scope.launch {
+                                                                    markUserLanguageSelected(
+                                                                        filterOption.lang
+                                                                    )
+                                                                    haptic.performHapticFeedback(
+                                                                        HapticFeedbackType.ToggleOn
+                                                                    )
+                                                                    loadSearchDebounced(
+                                                                        textFieldState.text.toString()
+                                                                    )
+                                                                }
+                                                            },
+                                                            onLongClick = {
+                                                                haptic.performHapticFeedback(
+                                                                    HapticFeedbackType.LongPress
+                                                                )
+                                                                if (userLangs.size > 1) deleteUserLanguage(
+                                                                    filterOption.lang
+                                                                )
+                                                            },
+                                                            interactionSource = filterChipInteractionSource,
+                                                            indication = null,
                                                         )
-                                                        loadSearchDebounced(textFieldState.text.toString())
-                                                    }
-                                                },
-                                                label = { Text(filterOption.langName) },
-                                                leadingIcon =
-                                                    if (filterOption.selected) {
-                                                        {
-                                                            Icon(
-                                                                Icons.Outlined.Check,
-                                                                contentDescription = null
-                                                            )
-                                                        }
-                                                    } else null
-                                            )
+                                                )
+                                            }
                                         }
                                         InputChip(
                                             onClick = { setShowLanguageSheet(true) },
@@ -573,29 +603,52 @@ fun AppSearchBar(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     userLangs.fastForEach { filterOption ->
-                                        FilterChip(
-                                            selected = filterOption.selected,
-                                            onClick = {
-                                                scope.launch {
-                                                    deselectAll()
-                                                    markSelected(filterOption.lang)
-                                                    haptic.performHapticFeedback(
-                                                        HapticFeedbackType.ToggleOn
+                                        val filterChipInteractionSource =
+                                            remember { MutableInteractionSource() }
+                                        Box {
+                                            FilterChip(
+                                                selected = filterOption.selected,
+                                                onClick = {},
+                                                label = { Text(filterOption.langName) },
+                                                leadingIcon =
+                                                    if (filterOption.selected) {
+                                                        {
+                                                            Icon(
+                                                                Icons.Outlined.Check,
+                                                                contentDescription = null
+                                                            )
+                                                        }
+                                                    } else null,
+                                                interactionSource = filterChipInteractionSource
+                                            )
+                                            Box( // Workaround to enable
+                                                modifier = Modifier
+                                                    .matchParentSize()
+                                                    .combinedClickable(
+                                                        onClick = {
+                                                            scope.launch {
+                                                                markUserLanguageSelected(
+                                                                    filterOption.lang
+                                                                )
+                                                                haptic.performHapticFeedback(
+                                                                    HapticFeedbackType.ToggleOn
+                                                                )
+                                                                loadSearchDebounced(textFieldState.text.toString())
+                                                            }
+                                                        },
+                                                        onLongClick = {
+                                                            haptic.performHapticFeedback(
+                                                                HapticFeedbackType.LongPress
+                                                            )
+                                                            if (userLangs.size > 1) deleteUserLanguage(
+                                                                filterOption.lang
+                                                            )
+                                                        },
+                                                        interactionSource = filterChipInteractionSource,
+                                                        indication = null,
                                                     )
-                                                    loadSearchDebounced(textFieldState.text.toString())
-                                                }
-                                            },
-                                            label = { Text(filterOption.langName) },
-                                            leadingIcon =
-                                                if (filterOption.selected) {
-                                                    {
-                                                        Icon(
-                                                            Icons.Outlined.Check,
-                                                            contentDescription = null
-                                                        )
-                                                    }
-                                                } else null
-                                        )
+                                            )
+                                        }
                                     }
                                     InputChip(
                                         onClick = { setShowLanguageSheet(true) },

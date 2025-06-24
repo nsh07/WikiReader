@@ -1155,15 +1155,22 @@ class UiViewModel(
             deselectAllUserLanguages()
             appDatabaseRepository.insertUserLanguage(userLanguage)
             markUserLanguageSelected(userLanguage.lang)
+        } else appDatabaseRepository.insertUserLanguage(userLanguage)
+    }
+
+    fun deleteUserLanguage(lang: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            appDatabaseRepository.deleteUserLanguage(lang)
         }
     }
 
-    suspend fun deselectAllUserLanguages() {
+    private suspend fun deselectAllUserLanguages() {
         appDatabaseRepository.deselectAllUserLanguages()
     }
 
     fun markUserLanguageSelected(lang: String) {
         viewModelScope.launch {
+            deselectAllUserLanguages()
             appDatabaseRepository.markUserLanguageSelected(lang)
         }
         saveLang(lang)

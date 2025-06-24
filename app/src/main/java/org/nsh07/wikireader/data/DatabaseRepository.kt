@@ -25,7 +25,7 @@ interface DatabaseRepository {
     fun getSavedArticles(): Flow<List<ArticleInfo>>
 
     suspend fun insertUserLanguage(userLanguage: UserLanguage)
-    suspend fun deleteUserLanguage(userLanguage: UserLanguage)
+    suspend fun deleteUserLanguage(lang: String)
     suspend fun deselectAllUserLanguages()
     suspend fun markUserLanguageSelected(lang: String)
     fun getUserLanguages(): Flow<List<UserLanguage>>
@@ -90,8 +90,8 @@ class AppDatabaseRepository(
         userLanguageDao.insert(userLanguage)
     }
 
-    override suspend fun deleteUserLanguage(userLanguage: UserLanguage) =
-        userLanguageDao.delete(userLanguage)
+    override suspend fun deleteUserLanguage(lang: String) =
+        userLanguageDao.delete(lang)
 
     override suspend fun deselectAllUserLanguages() = userLanguageDao.deselectAll()
     override suspend fun markUserLanguageSelected(lang: String) = userLanguageDao.markSelected(lang)
