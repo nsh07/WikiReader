@@ -6,7 +6,15 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [SearchHistoryItem::class, SavedArticle::class, ViewHistoryItem::class, UserLanguage::class],
+    entities = [
+        SearchHistoryItem::class,
+        ViewHistoryItem::class,
+        SavedArticle::class,
+        UserLanguage::class,
+        StringPreference::class,
+        IntPreference::class,
+        BooleanPreference::class
+    ],
     version = 1
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -15,6 +23,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun savedArticleDao(): SavedArticleDao
     abstract fun viewHistoryDao(): ViewHistoryDao
     abstract fun userLanguageDao(): UserLanguageDao
+    abstract fun preferenceDao(): PreferenceDao
 
     companion object {
 

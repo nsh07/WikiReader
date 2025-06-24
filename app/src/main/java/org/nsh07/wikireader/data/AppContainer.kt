@@ -59,7 +59,11 @@ class DefaultAppContainer(context: Context) : AppContainer {
     }
 
     override val appPreferencesRepository: AppPreferencesRepository by lazy {
-        AppPreferencesRepository(context, Dispatchers.IO)
+        AppPreferencesRepository(
+            context,
+            Dispatchers.IO,
+            AppDatabase.getDatabase(context).preferenceDao()
+        )
     }
 
     override val appDatabaseRepository: AppDatabaseRepository by lazy {

@@ -67,8 +67,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -125,6 +127,7 @@ fun SettingsScreen(
 ) {
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
     val coroutineScope = rememberCoroutineScope()
 
     val appInfoIntent = remember {
@@ -470,11 +473,14 @@ fun SettingsScreen(
                     headlineContent = { Text(stringResource(string.settingFontSize)) },
                     supportingContent = {
                         Column {
-                            Text(round(fontSizeFloat).toInt().toString())
+                            val intSize = round(fontSizeFloat).toInt()
+                            Text(intSize.toString())
                             Slider(
                                 value = fontSizeAnimated,
                                 onValueChange = {
                                     animateFontSize = false
+                                    if (round(it).toInt() != intSize)
+                                        haptic.performHapticFeedback(HapticFeedbackType.SegmentTick)
                                     fontSizeFloat = it
                                 },
                                 valueRange = 10f..22f,

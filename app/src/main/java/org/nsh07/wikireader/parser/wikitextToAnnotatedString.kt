@@ -694,6 +694,13 @@ fun String.toWikitextAnnotatedString(
                                 }
                             }
 
+                            currSubstring.startsWith("{{transliteration", true) -> {
+                                val curr = currSubstring.substringAfterLast('|', "")
+                                withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                                    append(curr.twas())
+                                }
+                            }
+
                             currSubstring.startsWith("{{IPA", ignoreCase = true) -> {
                                 val curr = currSubstring.substringAfter('|')
                                 withStyle(SpanStyle(fontSize = (fontSize - 2).sp)) {
