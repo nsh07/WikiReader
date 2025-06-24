@@ -340,7 +340,7 @@ fun String.toWikitextAnnotatedString(
 
                                     // Extract inside of {{Cite book ...}}
                                     val content =
-                                        currSubstring.substringAfter('|', "").trim()
+                                        currSubstring.substringAfter('|').trim()
 
                                     // Split by pipes, then split each param by '='
                                     val parts = content.split("|")
@@ -391,7 +391,7 @@ fun String.toWikitextAnnotatedString(
 
                                     // Extract inside of {{Cite ...}}
                                     val content =
-                                        currSubstring.substringAfter('|', "").trim()
+                                        currSubstring.substringAfter('|').trim()
 
                                     // Split by pipes, then split each param by '='
                                     val parts = content.split("|")
@@ -448,7 +448,7 @@ fun String.toWikitextAnnotatedString(
 
                                     // Extract inside of {{Cite journal ...}}
                                     val content =
-                                        currSubstring.substringAfter('|', "").trim()
+                                        currSubstring.substringAfter('|').trim()
 
                                     // Split by pipes, then split each param by '='
                                     val parts = content.split("|")
@@ -507,8 +507,7 @@ fun String.toWikitextAnnotatedString(
                             }
 
                             currSubstring.startsWith("{{abbr", ignoreCase = true) -> {
-                                val curr =
-                                    currSubstring.substringAfter('|', "").substringBefore('|')
+                                val curr = currSubstring.substringAfter('|').substringBefore('|')
                                 append(curr.twas())
                             }
 
@@ -517,14 +516,14 @@ fun String.toWikitextAnnotatedString(
                             }
 
                             currSubstring.startsWith("{{efn", ignoreCase = true) -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 curr.twas()
                             }
 
                             currSubstring.startsWith("{{convert", ignoreCase = true) ||
                                     currSubstring.startsWith("{{cvt", ignoreCase = true)
                                 -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 val currSplit = curr.split('|')
                                 var toAdd = ""
                                 toAdd += currSplit[0]
@@ -537,7 +536,7 @@ fun String.toWikitextAnnotatedString(
                             }
 
                             currSubstring.startsWith("{{mono|", ignoreCase = true) -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 withStyle(SpanStyle(fontFamily = FontFamily.Monospace)) {
                                     append(curr.twas())
                                 }
@@ -553,27 +552,26 @@ fun String.toWikitextAnnotatedString(
                             }
 
                             currSubstring.startsWith("{{val", ignoreCase = true) -> {
-                                val curr =
-                                    currSubstring.substringAfter('|', "").substringBefore('|')
+                                val curr = currSubstring.substringAfter('|').substringBefore('|')
                                 append(curr.twas())
                             }
 
                             currSubstring.startsWith("{{var", ignoreCase = true) -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 append("''$curr''".twas())
                             }
 
                             arrayOf("{{small", "{{smaller", "{{petit", "{{hw-small", "{{sma").any {
                                 currSubstring.startsWith(it, ignoreCase = true)
                             } -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 withStyle(SpanStyle(fontSize = (fontSize - 2).sp)) {
                                     append(curr.twas())
                                 }
                             }
 
                             currSubstring.startsWith("{{main", ignoreCase = true) -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 val splitList = curr.split('|')
                                 withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
                                     append("Main article")
@@ -598,7 +596,7 @@ fun String.toWikitextAnnotatedString(
                             }
 
                             currSubstring.startsWith("{{see also", ignoreCase = true) -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 val splitList = curr.split('|').filterNot { it.startsWith('#') }
                                 withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
                                     append("See also: ")
@@ -617,7 +615,7 @@ fun String.toWikitextAnnotatedString(
                             }
 
                             currSubstring.startsWith("{{date", ignoreCase = true) -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 val splitList = curr.split('|')
                                 if (splitList.size < 3) {
                                     append(splitList[0])
@@ -631,7 +629,7 @@ fun String.toWikitextAnnotatedString(
                             }
 
                             currSubstring.startsWith("{{dfn", true) -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 append("'''$curr'''".twas())
                             }
 
@@ -640,7 +638,7 @@ fun String.toWikitextAnnotatedString(
                                     currSubstring.contains("text=") || currSubstring.contains("text =")
                                 val curr =
                                     if (textSpecified) currSubstring.substringAfter('=').trim()
-                                    else currSubstring.substringAfter('|', "")
+                                    else currSubstring.substringAfter('|')
                                 val splitList =
                                     if (textSpecified) listOf(curr)
                                     else curr.split('|')
@@ -664,24 +662,22 @@ fun String.toWikitextAnnotatedString(
                             }
 
                             currSubstring.startsWith("{{hatnote", ignoreCase = true) -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 append("''$curr''".twas())
                             }
 
                             currSubstring.startsWith("{{IPAc-en", ignoreCase = true) -> {
-                                val curr = currSubstring.substringAfter('|', "").split('|')
+                                val curr = currSubstring.substringAfter('|').split('|')
                                     .filterNot { it.contains('=') }.joinToString("")
                                 append("/${curr.replace(' ', nbsp)}/")
                             }
 
                             currSubstring.startsWith("{{langx", ignoreCase = true) -> {
                                 val lang = langCodeToName(
-                                    currSubstring.substringAfter('|', "").substringBefore('|')
-                                        .trim()
+                                    currSubstring.substringAfter('|').substringBefore('|').trim()
                                 )
                                 val text =
-                                    currSubstring.substringAfter('|', "").substringAfter('|', "")
-                                        .split('|')
+                                    currSubstring.substringAfter('|').substringAfter('|').split('|')
                                         .filterNot { it.contains('=') }.joinToString()
                                 append("[[$lang|$lang]]: ".twas())
                                 withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
@@ -692,42 +688,41 @@ fun String.toWikitextAnnotatedString(
                             }
 
                             currSubstring.startsWith("{{lang|", ignoreCase = true) -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
-                                    append(curr.substringAfter('|', "").substringBefore('|').twas())
+                                    append(curr.substringAfter('|').substringBefore('|').twas())
                                 }
                             }
 
                             currSubstring.startsWith("{{IPA", ignoreCase = true) -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 withStyle(SpanStyle(fontSize = (fontSize - 2).sp)) {
                                     append("${langCodeToName(curr.substringBefore('|'))}: ")
                                 }
                                 append(
                                     "[${
-                                        curr.substringAfter('|', "").substringBefore("|")
+                                        curr.substringAfter('|').substringBefore("|")
                                             .replace("|", "").replace(' ', nbsp)
                                     }]"
                                 )
                             }
 
                             currSubstring.startsWith("{{respell", ignoreCase = true) -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
                                     append(curr.replace('|', '-'))
                                 }
                             }
 
                             currSubstring.startsWith("{{BCE", ignoreCase = true) -> {
-                                val curr =
-                                    currSubstring.substringAfter('|', "").substringBefore('|')
+                                val curr = currSubstring.substringAfter('|').substringBefore('|')
                                 append(curr)
                                 append(nbsp)
                                 append("BCE")
                             }
 
                             currSubstring.startsWith("{{blockquote", ignoreCase = true) -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 withStyle(
                                     ParagraphStyle(
                                         textIndent = TextIndent(
@@ -750,7 +745,7 @@ fun String.toWikitextAnnotatedString(
                             }
 
                             currSubstring.startsWith("{{further", ignoreCase = true) -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 val topic = curr.substringAfter("topic=", "").substringBefore('|')
                                 withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
                                     append("Further")
@@ -758,7 +753,7 @@ fun String.toWikitextAnnotatedString(
                                         append(" information on $topic")
                                         append(
                                             ": [[${
-                                                curr.substringAfter('|', "").substringBefore('|')
+                                                curr.substringAfter('|').substringBefore('|')
                                                     .substringBefore('#')
                                             }]]\n".twas()
                                         )
@@ -766,7 +761,7 @@ fun String.toWikitextAnnotatedString(
                                         append(" reading")
                                         append(
                                             ": [[${
-                                                curr.substringAfter('|', "").substringBefore('|')
+                                                curr.substringAfter('|').substringBefore('|')
                                                     .substringBefore('#')
                                             }]]\n".twas()
                                         )
@@ -775,18 +770,18 @@ fun String.toWikitextAnnotatedString(
                             }
 
                             currSubstring.startsWith("{{rp", true) -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 append("<sup>:$curr </sup>".twas())
                             }
 
                             currSubstring.startsWith("{{isbn", true) -> {
-                                val curr = currSubstring.substringAfter('|', "").split('|')
+                                val curr = currSubstring.substringAfter('|').split('|')
                                     .filterNot { it.contains('=') }.joinToString()
                                 append("[[ISBN]] $curr".twas())
                             }
 
                             currSubstring.startsWith("{{sfrac") -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 val splitList = curr.split('|')
                                 when (splitList.size) {
                                     3 -> append("${splitList[0]}<sup>${splitList[1]}</sup>/<sub>${splitList[2]}</sub>".twas())
@@ -800,7 +795,7 @@ fun String.toWikitextAnnotatedString(
                                 append(curr.substringBefore('|'))
                                 append(' ')
                                 var date = ""
-                                curr.substringAfter('|', "").split('|').fastForEach {
+                                curr.substringAfter('|').split('|').fastForEach {
                                     if (it.toIntOrNull() != null) {
                                         date += it
                                         date += '/'
@@ -810,8 +805,7 @@ fun String.toWikitextAnnotatedString(
                             }
 
                             currSubstring.startsWith("{{unichar", ignoreCase = true) -> {
-                                val curr =
-                                    currSubstring.substringAfter('|', "").substringBefore('|')
+                                val curr = currSubstring.substringAfter('|').substringBefore('|')
                                 append("<code>U+$curr</code> ".twas())
                                 try {
                                     append(Character.toString(curr.toInt(16)))
@@ -820,31 +814,30 @@ fun String.toWikitextAnnotatedString(
                             }
 
                             currSubstring.startsWith("{{char", ignoreCase = true) -> {
-                                append(currSubstring.substringAfter('|', "").twas())
+                                append(currSubstring.substringAfter('|').twas())
                             }
 
                             currSubstring.startsWith("{{Nihongo", ignoreCase = true) -> {
-                                val curr = currSubstring.substringAfter('|', "").split('|')
+                                val curr = currSubstring.substringAfter('|').split('|')
                                     .filterNot { it.contains('=') }.joinToString("|")
                                 append(curr.twas())
                             }
 
                             currSubstring.startsWith("{{flagg", ignoreCase = true) -> {
-                                val curr =
-                                    currSubstring.substringAfter('|', "").substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|').substringAfter('|')
                                     .substringBefore('|')
                                 append(curr.twas())
                             }
 
                             currSubstring.startsWith("{{noflag", ignoreCase = true) -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 append(curr.twas())
                             }
 
                             listOf("{{nowrap", "{{nobr", "{{nobreak", "{{nwr", "{{nbr").fastAny {
                                 currSubstring.startsWith(it, ignoreCase = true)
                             } -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 append(curr.replace(' ', nbsp).twas())
                             }
 
@@ -870,7 +863,7 @@ fun String.toWikitextAnnotatedString(
                             }
 
                             currSubstring.startsWith("{{\"|") -> {
-                                val curr = currSubstring.substringAfter('|', "")
+                                val curr = currSubstring.substringAfter('|')
                                 withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
                                     append(curr.twas())
                                 }
@@ -880,7 +873,7 @@ fun String.toWikitextAnnotatedString(
                                 currSubstring.startsWith(it)
                             } -> {
                                 val splitList = currSubstring
-                                    .substringAfter('|', "")
+                                    .substringAfter('|')
                                     .splitNotInBraces('|')
                                     .fastFilter { !it.contains("df|mf".toRegex()) }
                                     .fastMap { it.substringAfter('=').trim() }
@@ -895,7 +888,7 @@ fun String.toWikitextAnnotatedString(
 
                             currSubstring.startsWith("{{unbulleted list") -> {
                                 val splitList = currSubstring
-                                    .substringAfter('|', "")
+                                    .substringAfter('|')
                                     .splitNotInBraces('|')
                                     .fastFilter { !it.contains('=') }
                                     .fastMap { it.trim() }
@@ -925,8 +918,7 @@ fun String.toWikitextAnnotatedString(
                                 true
                             ) -> { // Indonesian template for date of birth and death
                                 val curr =
-                                    currSubstring.substringAfter('|', "").substringAfter('|', "")
-                                        .split('|')
+                                    currSubstring.substringAfter('|').substringAfter('|').split('|')
                                 if (curr.size <= 3) {
                                     append("lahir " + curr.joinToString("/").twas())
                                 } else append(
@@ -1078,7 +1070,7 @@ fun String.toWikitextAnnotatedString(
                                     loadPage(curr.substringBefore('|').substringBefore('#'))
                                 }
                             ) {
-                                append(curr.substringAfter('|', "").trim().twas())
+                                append(curr.substringAfter('|').trim().twas())
                             }
                             i += 1 + curr.length + 2
                         } else i += substringMatchingParen('[', ']', i).length - 1
