@@ -6,7 +6,7 @@
     <string name="app">Apl</string>
     <string name="app_name">WikiReader</string>
     <string name="articleDeleted">Artikel dihapus</string>
-    <string name="articlesSize">%1$s artikel, %2$s total</string>
+    <string name="articlesSize">%1$s artikel, %2$s bahasa</string>
     <string name="author">Penggubah</string>
     <string name="back">Kembali</string>
     <string name="cancel">Batalkan</string>
@@ -123,4 +123,16 @@
     <string name="snackbarUnableToLoadFeed">Tidak dapat memuat umpan: %1$s</string>
     <string name="settingAppLanguage">Bahasa apl</string>
     <string name="chooseAppLanguage">Pilih bahasa apl</string>
+    <string name="allHistoryDeleted">Semua riwayat dihapus</string>
+    <string name="deletedFromHistory">\"%1$s\" dihapus dari riwayat</string>
+    <string name="undo">Urungkan</string>
+    <string name="reference">Referensi</string>
+    <string name="table">Tabel</string>
+    <string name="noHistoryItems">Tidak ada butir dalam riwayat</string>
+    <string name="noHistoryItemsDesc">Artikel yang baru-baru ini dibuka akan muncul di sini</string>
+    <string name="recentLanguages">Bahasa baru-baru ini</string>
+    <string name="otherLanguages">Bahasa lainnya</string>
+    <string name="items">%1$s butir</string>
+    <string name="infobox">Kotak info</string>
+    <string name="currentLanguage">Bahasa saat ini</string>
 </resources>

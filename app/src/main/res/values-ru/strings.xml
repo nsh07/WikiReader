@@ -134,4 +134,5 @@
     <string name="otherLanguages">Другие языки</string>
     <string name="items">%1$s записей</string>
     <string name="currentLanguage">Текущий язык</string>
+    <string name="infobox">Карточка</string>
 </resources>
