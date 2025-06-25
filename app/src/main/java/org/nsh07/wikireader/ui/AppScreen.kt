@@ -716,7 +716,7 @@ private fun StatusBarProtection(
         val gradient = Brush.verticalGradient(
             colors = listOf(
                 color.copy(alpha = 1f),
-                color.copy(alpha = 0.8f),
+                color.copy(alpha = 0.7f),
                 Color.Transparent
             ),
             startY = 0f,

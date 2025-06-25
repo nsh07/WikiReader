@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastAny
@@ -110,13 +111,14 @@ fun AsyncInfobox(
                         }
                     },
                     headlineContent = {
-                        Row {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(stringResource(R.string.infobox), fontWeight = FontWeight.Medium)
                             Spacer(Modifier.width(8.dp))
                             AnimatedVisibility(!expanded) {
                                 Text(
                                     title ?: AnnotatedString(""),
                                     color = colorScheme.outline,
+                                    textAlign = TextAlign.Center,
                                     modifier = Modifier
                                         .sharedBounds(
                                             sharedContentState = rememberSharedContentState(
@@ -144,6 +146,7 @@ fun AsyncInfobox(
                             Text(
                                 title ?: AnnotatedString(""),
                                 style = typography.headlineSmall,
+                                textAlign = TextAlign.Center,
                                 modifier = Modifier
                                     .sharedBounds(
                                         sharedContentState = rememberSharedContentState(

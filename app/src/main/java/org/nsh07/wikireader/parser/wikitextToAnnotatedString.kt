@@ -30,6 +30,8 @@ import org.nsh07.wikireader.parser.ReferenceData.refCount
 import org.nsh07.wikireader.parser.ReferenceData.refList
 import org.nsh07.wikireader.parser.ReferenceData.refListCount
 import org.nsh07.wikireader.parser.ReferenceData.refListIndex
+import org.nsh07.wikireader.parser.ReferenceData.refTemplate
+import org.nsh07.wikireader.parser.ReferenceData.refTemplates
 import kotlin.math.min
 import kotlin.text.Typography.bullet
 import kotlin.text.Typography.nbsp
@@ -334,8 +336,13 @@ fun String.toWikitextAnnotatedString(
                         val currSubstring =
                             substringMatchingParen('{', '}', i).substringBeforeLast("}}")
                         when {
-                            currSubstring.startsWith("{{cite", ignoreCase = true) -> {
-                                val text = if (currSubstring.startsWith("{{cite book", true)) {
+                            refTemplates.fastAny { item ->
+                                currSubstring
+                                    .startsWith(item, ignoreCase = true)
+                                    .also { if (it) refTemplate = item }
+                            } -> {
+                                val text =
+                                    if (currSubstring.startsWith("$refTemplate book", true)) {
                                     val params = mutableMapOf<String, String>()
 
                                     // Extract inside of {{Cite book ...}}
@@ -382,10 +389,10 @@ fun String.toWikitextAnnotatedString(
                                         .trim()
                                         .twas()
                                 } else if (
-                                    currSubstring.startsWith("{{cite web", true) ||
-                                    currSubstring.startsWith("{{cite news", true) ||
-                                    currSubstring.startsWith("{{cite AV media", true) ||
-                                    currSubstring.startsWith("{{cite press release", true)
+                                        currSubstring.startsWith("$refTemplate web", true) ||
+                                        currSubstring.startsWith("$refTemplate news", true) ||
+                                        currSubstring.startsWith("$refTemplate AV media", true) ||
+                                        currSubstring.startsWith("$refTemplate press release", true)
                                 ) {
                                     val params = mutableMapOf<String, String>()
 
@@ -443,7 +450,11 @@ fun String.toWikitextAnnotatedString(
                                         .plus(".")
                                         .trim()
                                         .twas()
-                                } else if (currSubstring.startsWith("{{cite journal", true)) {
+                                    } else if (currSubstring.startsWith(
+                                            "$refTemplate journal",
+                                            true
+                                        )
+                                    ) {
                                     val params = mutableMapOf<String, String>()
 
                                     // Extract inside of {{Cite journal ...}}
@@ -1147,7 +1158,7 @@ fun String.buildRefList() {
 
 fun String.splitNotInBraces(delimiter: Char, open: Char = '[', close: Char = ']'): List<String> {
     var stack = 0
-    var out = mutableListOf<String>()
+    val out = mutableListOf<String>()
     var curr = ""
 
     for (c in this) {
@@ -1174,4 +1185,6 @@ object ReferenceData {
     val refList = mutableMapOf<String, String>()
     val refListIndex = mutableMapOf<Int, String>()
     val refListCount = mutableMapOf<String, Int>()
+    var refTemplate = "{{cite"
+    val refTemplates = listOf("{{cite", "{{lien", "{{cita")
 }
