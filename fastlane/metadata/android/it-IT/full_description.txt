@@ -1,0 +1,19 @@
+<p>Un'applicazione Android leggera per leggere gli articoli di Wikipedia senza distrazioni. Supporta modalità chiara e scura, colori dinamici Material You e più di 300 lingue di Wikipedia, con un'interfaccia semplice e personalizzabile</p>
+
+<p>Caratteristiche</p>
+<ul>
+    <li><b>Caricamento veloce:</b> Il testo dell'articolo viene caricato prima di tutto il resto, per permetterti di passare immediatamente alla lettura</li>
+    <li><b>Bacheca:</b> Leggi l'articolo del giorno, trova gli articoli di tendenza e aggiornati sulle ultime notizie con la bacheca di Wikipedia</li>
+    <li><b>Immagine dell'articolo:</b> Guarda un'immagine sull'argomento dalla sua pagina di Wikipedia. Clicca su di essa per allargarla e vederla a tutto schermo</li>
+    <li><b>Articolo a caso:</b> Ti senti fortunato? Clicca il pulsante per leggere un articolo preso a caso</li>
+    <li><b>Scegli la tua lingua: Scegli tra oltre 300 lingue su Wikipedia</b></li>
+    <li><b>Salva gli articoli:</b> Scarica gli articoli sul tuo dispositivo per una lettura offline</li>
+    <li><b>Uso ad una mano:</b> Usa i pulsanti fluttuanti nella parte inferiore per una completa esperienza ad una mano</li>
+    <li><b>Leggerezza:</b> L'app si avvia istantaneamente, e funziona in modo fluido</li>
+    <li><b>Material Design 3:</b> Disegnata in accordo con le ultime linee guida Material Design 3</li>
+    <li><b>Animazioni fluide:</b> Animazioni fluide e scorrevoli</li>
+    <li><b>Colori personalizzabili:</b> Scegli tra tema chiaro/scuro e personalizza lo schema colori Material 3</li>
+    <li><b>Dimensione carattere personalizzabile:</b> Scegli la dimensione del carattere a te più comoda</li>
+    <li><b>Risparmio dati:</b> Risparmia sul tuo piano dati a consumo scaricando solo il testo</li>
+    <li><b>Espressioni matematiche:</b> Visualizza espressioni matematiche correttamente renderizzate per una più facile lettura degli articoli tecnici</li>
+</ul>

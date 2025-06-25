@@ -123,4 +123,16 @@
     <string name="up_arrow">Przejdź na górę</string>
     <string name="unableToDeleteArticle">Nie można usunąć artykułu: %1$s</string>
     <string name="wikipedia">Wikipedia</string>
+    <string name="allHistoryDeleted">Cała historia została usunięta</string>
+    <string name="undo">Cofnij</string>
+    <string name="reference">Odniesienie</string>
+    <string name="deletedFromHistory">\"%1$s\" zostało usunięte z historii</string>
+    <string name="table">Tabela</string>
+    <string name="noHistoryItems">Brak elementów w historii</string>
+    <string name="noHistoryItemsDesc">Ostatnio otwarte artykuły pojawią się tutaj</string>
+    <string name="items">%1$s elementów</string>
+    <string name="infobox">Infoboks</string>
+    <string name="currentLanguage">Aktualny język</string>
+    <string name="otherLanguages">Inne języki</string>
+    <string name="recentLanguages">Ostatnie języki</string>
 </resources>
