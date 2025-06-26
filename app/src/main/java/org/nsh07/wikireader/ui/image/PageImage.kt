@@ -34,43 +34,49 @@ fun PageImage(
     contentScale: ContentScale,
     modifier: Modifier = Modifier
 ) {
-    if (painterState is AsyncImagePainter.State.Success) {
-        Image(
-            painter = painter,
-            contentDescription = photoDesc,
-            contentScale = contentScale,
-            modifier = modifier
-                .aspectRatio(photo.width.toFloat() / photo.height.toFloat())
-                .background(if (background) Color.White else Color.Transparent)
-        )
-    } else if (painterState is AsyncImagePainter.State.Loading) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = modifier
-                .fillMaxWidth()
-                .aspectRatio(
-                    photo.width.toFloat() / photo.height.toFloat()
-                )
-        ) {
-            CircularWavyProgressIndicator()
-        }
-    } else {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = modifier
-                .fillMaxWidth()
-                .aspectRatio(
-                    photo.width.toFloat() / photo.height.toFloat()
-                )
-        ) {
-            Icon(
-                painterResource(R.drawable.error),
-                contentDescription = stringResource(R.string.errorLoadingImage),
-                modifier = Modifier
-                    .padding(vertical = 16.dp)
-                    .size(64.dp),
-                tint = colorScheme.error
+    when (painterState) {
+        is AsyncImagePainter.State.Success -> {
+            Image(
+                painter = painter,
+                contentDescription = photoDesc,
+                contentScale = contentScale,
+                modifier = modifier
+                    .aspectRatio(photo.width.toFloat() / photo.height.toFloat())
+                    .background(if (background) Color.White else Color.Transparent)
             )
+        }
+
+        is AsyncImagePainter.State.Loading -> {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = modifier
+                    .fillMaxWidth()
+                    .aspectRatio(
+                        photo.width.toFloat() / photo.height.toFloat()
+                    )
+            ) {
+                CircularWavyProgressIndicator()
+            }
+        }
+
+        else -> {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = modifier
+                    .fillMaxWidth()
+                    .aspectRatio(
+                        photo.width.toFloat() / photo.height.toFloat()
+                    )
+            ) {
+                Icon(
+                    painterResource(R.drawable.error),
+                    contentDescription = stringResource(R.string.errorLoadingImage),
+                    modifier = Modifier
+                        .padding(vertical = 16.dp)
+                        .size(64.dp),
+                    tint = colorScheme.error
+                )
+            }
         }
     }
 }

@@ -109,8 +109,7 @@ fun AsyncWikitable(
                     Icon(Icons.Outlined.KeyboardArrowUp, contentDescription = null)
             }
             Text(
-                if (rows.first.isNotEmpty()) rows.first
-                else tableTitle,
+                rows.first.ifEmpty { tableTitle },
                 modifier = Modifier
                     .weight(1f)
                     .padding(vertical = 16.dp)

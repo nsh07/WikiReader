@@ -736,7 +736,6 @@ fun calculateGradientHeight(): () -> Float {
     return { statusBars.getTop(density).times(1.2f) }
 }
 
-
 @Serializable
 data class HomeScreen(
     val lang: String? = null,

@@ -328,9 +328,11 @@ fun SharedTransitionScope.ArticleFeed(
                                     Row(
                                         modifier = Modifier
                                             .clip(
-                                                if (i == it * 5) topListItemShape
-                                                else if (i == it * 5 + 4) bottomListItemShape
-                                                else middleListItemShape
+                                                when (i) {
+                                                    it * 5 -> topListItemShape
+                                                    it * 5 + 4 -> bottomListItemShape
+                                                    else -> middleListItemShape
+                                                }
                                             )
                                             .background(colorScheme.surfaceContainer)
                                             .clickable(

@@ -167,10 +167,6 @@ fun AppHomeScreen(
 
     var isRefreshing by remember { mutableStateOf(false) }
 
-    var s = homeScreenState.extract.size
-    if (s > 1) s -= 2
-    else s = 0
-
     val sendIntent: Intent = remember(homeScreenState.title, preferencesState.lang) {
         Intent()
             .apply {
