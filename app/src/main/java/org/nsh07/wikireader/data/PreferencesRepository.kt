@@ -17,19 +17,27 @@ interface PreferencesRepository {
     suspend fun saveStringPreference(key: String, value: String): String
     suspend fun saveIntPreference(key: String, value: Int): Int
     suspend fun saveBooleanPreference(key: String, value: Boolean): Boolean
-    suspend fun saveHistory(history: Set<String>)
 
     suspend fun readStringPreference(key: String): String?
     suspend fun readIntPreference(key: String): Int?
     suspend fun readBooleanPreference(key: String): Boolean?
-    suspend fun readHistory(): Set<String>?
+
+    suspend fun readOldStringPreference(key: String): String?
+    suspend fun readOldIntPreference(key: String): Int?
+    suspend fun readOldBooleanPreference(key: String): Boolean?
+    suspend fun readOldHistory(): Set<String>?
 
     suspend fun resetSettings()
+    suspend fun eraseOldStringPreference(key: String)
+    suspend fun eraseOldIntPreference(key: String)
+    suspend fun eraseOldBooleanPreference(key: String)
+    suspend fun eraseOldHistory()
 }
 
 class AppPreferencesRepository(
     private val context: Context,
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
+    private val preferenceDao: PreferenceDao
 ) : PreferencesRepository {
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "preferences")
 
@@ -41,40 +49,37 @@ class AppPreferencesRepository(
      *
      * @return a [String] with the same value as [value]
      */
-    override suspend fun saveStringPreference(key: String, value: String): String =
+    override suspend fun saveStringPreference(key: String, value: String) =
         withContext(ioDispatcher) {
-            val dataStoreKey = stringPreferencesKey(key)
-            context.dataStore.edit { preferences ->
-                preferences[dataStoreKey] = value
-            }
+            preferenceDao.insertStringPreference(StringPreference(key, value))
             value
         }
 
-    override suspend fun saveIntPreference(key: String, value: Int): Int =
+    override suspend fun saveIntPreference(key: String, value: Int) =
         withContext(ioDispatcher) {
-            val dataStoreKey = intPreferencesKey(key)
-            context.dataStore.edit { preferences ->
-                preferences[dataStoreKey] = value
-            }
+            preferenceDao.insertIntPreference(IntPreference(key, value))
             value
         }
 
-    override suspend fun saveBooleanPreference(key: String, value: Boolean): Boolean =
+    override suspend fun saveBooleanPreference(key: String, value: Boolean) =
         withContext(ioDispatcher) {
-            val dataStoreKey = booleanPreferencesKey(key)
-            context.dataStore.edit { preferences ->
-                preferences[dataStoreKey] = value
-            }
+            preferenceDao.insertBooleanPreference(BooleanPreference(key, value))
             value
         }
 
-    override suspend fun saveHistory(history: Set<String>) =
+    override suspend fun readStringPreference(key: String): String? =
         withContext(ioDispatcher) {
-            val dataStoreKey = stringSetPreferencesKey("history")
-            context.dataStore.edit { preferences ->
-                preferences[dataStoreKey] = history
-            }
-            Unit
+            preferenceDao.getStringPreference(key)?.value
+        }
+
+    override suspend fun readIntPreference(key: String): Int? =
+        withContext(ioDispatcher) {
+            preferenceDao.getIntPreference(key)?.value
+        }
+
+    override suspend fun readBooleanPreference(key: String): Boolean? =
+        withContext(ioDispatcher) {
+            preferenceDao.getBooleanPreference(key)?.value
         }
 
     /**
@@ -84,25 +89,25 @@ class AppPreferencesRepository(
      *
      * @return a [String] with the value corresponding to the [key]
      */
-    override suspend fun readStringPreference(key: String): String? =
+    override suspend fun readOldStringPreference(key: String): String? =
         withContext(ioDispatcher) {
             val dataStoreKey = stringPreferencesKey(key)
             context.dataStore.data.first()[dataStoreKey]
         }
 
-    override suspend fun readIntPreference(key: String): Int? =
+    override suspend fun readOldIntPreference(key: String): Int? =
         withContext(ioDispatcher) {
             val dataStoreKey = intPreferencesKey(key)
             context.dataStore.data.first()[dataStoreKey]
         }
 
-    override suspend fun readBooleanPreference(key: String): Boolean? =
+    override suspend fun readOldBooleanPreference(key: String): Boolean? =
         withContext(ioDispatcher) {
             val dataStoreKey = booleanPreferencesKey(key)
             context.dataStore.data.first()[dataStoreKey]
         }
 
-    override suspend fun readHistory(): Set<String>? =
+    override suspend fun readOldHistory(): Set<String>? =
         withContext(ioDispatcher) {
             val dataStoreKey = stringSetPreferencesKey("history")
             context.dataStore.data.first()[dataStoreKey]
@@ -110,8 +115,43 @@ class AppPreferencesRepository(
 
     override suspend fun resetSettings() =
         withContext(ioDispatcher) {
+            preferenceDao.resetStringPreferences()
+            preferenceDao.resetIntPreferences()
+            preferenceDao.resetBooleanPreferences()
+        }
+
+    override suspend fun eraseOldStringPreference(key: String) =
+        withContext(ioDispatcher) {
+            val dataStoreKey = stringPreferencesKey(key)
             context.dataStore.edit { preferences ->
-                preferences.clear()
+                preferences.remove(dataStoreKey)
+            }
+            Unit
+        }
+
+    override suspend fun eraseOldIntPreference(key: String) =
+        withContext(ioDispatcher) {
+            val dataStoreKey = intPreferencesKey(key)
+            context.dataStore.edit { preferences ->
+                preferences.remove(dataStoreKey)
+            }
+            Unit
+        }
+
+    override suspend fun eraseOldBooleanPreference(key: String) =
+        withContext(ioDispatcher) {
+            val dataStoreKey = booleanPreferencesKey(key)
+            context.dataStore.edit { preferences ->
+                preferences.remove(dataStoreKey)
+            }
+            Unit
+        }
+
+    override suspend fun eraseOldHistory() =
+        withContext(ioDispatcher) {
+            val dataStoreKey = stringSetPreferencesKey("history")
+            context.dataStore.edit { preferences ->
+                preferences.remove(dataStoreKey)
             }
             Unit
         }

@@ -1,0 +1,13 @@
+New features:
+- Add support for Infoboxes
+- View history: view recently opened articles in the "History" screen
+- Recently used languages can now be seen in the languages bottom sheet
+- Added a language "chip list" to search for quickly searching in multiple languages
+
+Bug fixes:
+- Saved articles failing to load
+
+Improvements:
+- Reworked data storage system: Saving anything is now much faster and reliable
+- Improved image loading
+- Minor layout improvements and refinements throughout the app

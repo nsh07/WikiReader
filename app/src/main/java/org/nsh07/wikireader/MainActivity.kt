@@ -10,12 +10,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.nsh07.wikireader.data.isRtl
 import org.nsh07.wikireader.data.toColor
 import org.nsh07.wikireader.ui.AppScreen
@@ -29,12 +29,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen().setKeepOnScreenCondition { !viewModel.isReady }
+
         viewModel.setFilesDir(filesDir.path)
         viewModel.migrateArticles()
+
         enableEdgeToEdge()
 
         setContent {
-            val preferencesState by viewModel.preferencesState.collectAsState()
+            val preferencesState by viewModel.preferencesState.collectAsStateWithLifecycle()
 
             val darkTheme = when (preferencesState.theme) {
                 "dark" -> true

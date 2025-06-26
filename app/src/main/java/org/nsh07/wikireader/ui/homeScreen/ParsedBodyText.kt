@@ -16,13 +16,17 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.util.fastForEach
 import coil3.ImageLoader
 import com.github.tomtung.latex2unicode.LaTeX2Unicode
+import org.nsh07.wikireader.parser.ReferenceData.infoboxTemplates
 import kotlin.text.Typography.nbsp
 
 @Composable
 fun ParsedBodyText(
     body: List<AnnotatedString>,
+    lang: String,
     fontSize: Int,
     fontFamily: FontFamily,
     imageLoader: ImageLoader,
@@ -32,6 +36,7 @@ fun ParsedBodyText(
     dataSaver: Boolean,
     onLinkClick: (String) -> Unit,
     onGalleryImageClick: (String, String) -> Unit,
+    showRef: (String) -> Unit,
     modifier: Modifier = Modifier,
     checkFirstImage: Boolean = false,
     pageImageUri: String? = null
@@ -40,11 +45,12 @@ fun ParsedBodyText(
     val dpi = LocalDensity.current.density
 
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
-        body.forEach {
+        body.fastForEach {
             if (it.startsWith("[[File:")) {
                 if (!dataSaver) {
                     ImageWithCaption(
                         text = it.toString(),
+                        lang = lang,
                         fontSize = fontSize,
                         imageLoader = imageLoader,
                         onLinkClick = onLinkClick,
@@ -59,6 +65,7 @@ fun ParsedBodyText(
                 if (!dataSaver) {
                     Gallery(
                         text = it.toString(),
+                        lang = lang,
                         fontSize = fontSize,
                         imageLoader = imageLoader,
                         onClick = onGalleryImageClick,
@@ -90,7 +97,22 @@ fun ParsedBodyText(
                 AsyncWikitable(
                     text = it.toString(),
                     fontSize = fontSize,
-                    onLinkClick = onLinkClick
+                    onLinkClick = onLinkClick,
+                    showRef = showRef
+                )
+            } else if (
+                infoboxTemplates.fastAny { item -> (it.startsWith(item, true)) }
+            ) {
+                AsyncInfobox(
+                    text = it.toString(),
+                    lang = lang,
+                    fontSize = fontSize,
+                    darkTheme = darkTheme,
+                    background = background,
+                    imageLoader = imageLoader,
+                    onImageClick = onGalleryImageClick,
+                    onLinkClick = onLinkClick,
+                    showRef = showRef
                 )
             } else {
                 Text(

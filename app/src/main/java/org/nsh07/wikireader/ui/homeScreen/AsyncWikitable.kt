@@ -39,6 +39,7 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -49,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.nsh07.wikireader.R
 import org.nsh07.wikireader.parser.parseWikitable
 import kotlin.math.max
 
@@ -57,7 +59,8 @@ import kotlin.math.max
 fun AsyncWikitable(
     text: String,
     fontSize: Int,
-    onLinkClick: (String) -> Unit
+    onLinkClick: (String) -> Unit,
+    showRef: (String) -> Unit
 ) {
     val colorScheme = colorScheme
     val typography = typography
@@ -73,11 +76,17 @@ fun AsyncWikitable(
     }
     var expanded by remember { mutableStateOf(false) }
     val tableTitle =
-        buildAnnotatedString { withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("Table") } }
+        buildAnnotatedString {
+            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                append(
+                    stringResource(R.string.table)
+                )
+            }
+        }
 
     LaunchedEffect(text) {
         coroutineScope.launch(Dispatchers.IO) {
-            rows = parseWikitable(text, colorScheme, typography, onLinkClick, fontSize)
+            rows = parseWikitable(text, colorScheme, typography, onLinkClick, showRef, fontSize)
         }
     }
 
@@ -100,8 +109,7 @@ fun AsyncWikitable(
                     Icon(Icons.Outlined.KeyboardArrowUp, contentDescription = null)
             }
             Text(
-                if (rows.first != AnnotatedString("")) rows.first
-                else tableTitle,
+                rows.first.ifEmpty { tableTitle },
                 modifier = Modifier
                     .weight(1f)
                     .padding(vertical = 16.dp)

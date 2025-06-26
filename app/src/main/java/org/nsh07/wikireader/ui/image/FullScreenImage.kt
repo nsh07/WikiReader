@@ -24,7 +24,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.ImageLoader
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
@@ -165,7 +165,7 @@ fun FullScreenImage(
         }
 
         val coroutineScope = rememberCoroutineScope()
-        val painterState by painter.state.collectAsState()
+        val painterState by painter.state.collectAsStateWithLifecycle()
 
         if (photo != null && photoDesc != null)
             Box(contentAlignment = Alignment.Center) {
@@ -337,7 +337,7 @@ fun FullScreenImage(
             showTopBar = if (scale > 1.1f) false else true
         }
 
-        val painterState by painter.state.collectAsState()
+        val painterState by painter.state.collectAsStateWithLifecycle()
 
         Box(contentAlignment = Alignment.Center) {
             AnimatedVisibility(

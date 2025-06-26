@@ -30,7 +30,7 @@
     <string name="delete">מחק</string>
     <string name="deleteAll">מחק הכל</string>
     <string name="deleteAllArticlesDesc">כל המאמרים יימחקו לצמיתות מהמכשיר שלך</string>
-    <string name="deleteArticle">מחיקת המאמר שירד</string>
+    <string name="deleteArticle">מחיקת המאמר</string>
     <string name="deleteSavedArticleDesc">\"%1$s\" יימחק לצמיתות מהמכשיר שלך</string>
     <string name="dialogDeleteHistoryItemDesc">היסטורית החיפוש שלך תמחק לצמיתות.</string>
     <string name="dialogDeleteSearchHistory">למחוק את החיפוש הזה מההיסטוריה שלך?</string>
@@ -50,7 +50,7 @@
     <string name="license">רישיון</string>
     <string name="moreOptions">אפשרויות נוספות</string>
     <string name="noSavedArticles">עדיין לא שמרת מאמרים</string>
-    <string name="noSavedArticlesDesc">לחץ על כפתור ההורדה בראש המאמר כדי להתחיל לשמור</string>
+    <string name="noSavedArticlesDesc">לחץ על כפתור ההורדה בסרגל הכלים בתחתית בזמן צפייה במאמר כדי להתחיל</string>
     <string name="ok">בסדר</string>
     <string name="otherProjectsDesc">בדקו את הפרויקטים האחרים שלי ב-GitHub</string>
     <string name="pageIndicator">עמוד %1$s מתוך %2$s</string>
@@ -119,4 +119,8 @@
     <string name="saved">נשמר</string>
     <string name="settingFeedDesc">הצגת פיד של מאמרים, חדשות ועוד פופולריים בנושא הפעלת אפליקציות</string>
     <string name="settingFeed">פיד</string>
+    <string name="donate">תרום</string>
+    <string name="supportMyWork">תמוך בעבודה שלי</string>
+    <string name="settingAppLanguage">שפת יישום</string>
+    <string name="chooseAppLanguage">בחירת שפת היישום</string>
 </resources>

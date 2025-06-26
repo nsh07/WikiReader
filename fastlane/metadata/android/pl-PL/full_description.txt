@@ -1,0 +1,17 @@
+<p>Lekka aplikacja na Androida do czytania artykułów z Wikipedii bez zbędnych rozpraszaczy. Obsługuje tryb jasny, ciemny, dynamiczne kolory Material You oraz ponad 300 języków Wikipedii, a także oferuje prosty, konfigurowalny interfejs.</p><p>Funkcje</p>
+<ul>
+    <li><b>Szybkie ładowanie:</b> Tekst artykułu ładuje się jako pierwszy, dzięki czemu możesz szybko zacząć czytać</li>
+    <li><b>Kanał aktualności:</b> Przeczytaj artykuł dnia, odkrywaj popularne artykuły i bądź na bieżąco z wiadomościami dzięki kanałowi Wikipedii</li>
+    <li><b>Zdjęcie artykułu:</b> Zobacz obrazek tematu z jego strony na Wikipedii. Kliknij, aby powiększyć i oglądać na pełnym ekranie</li>
+    <li><b>Losowy artykuł:</b> Masz ochotę na niespodziankę? Kliknij przycisk losowego artykułu, aby przeczytać wybrany losowo tekst</li>
+    <li><b>Wybierz język:</b> Wybierz spośród ponad 300 języków dostępnych na Wikipedii</li>
+    <li><b>Zapisuj artykuły:</b> Pobieraj artykuły na urządzenie, aby czytać je offline</li>
+    <li><b>Obsługa jedną ręką:</b> Korzystaj z pływających przycisków na dole ekranu dla wygody używania jedną ręką</li>
+    <li><b>Lekka i szybka:</b> Aplikacja uruchamia się błyskawicznie i działa płynnie</li>
+    <li><b>Material Design 3:</b> Zaprojektowana zgodnie z najnowszymi wytycznymi Material Design 3</li>
+    <li><b>Płynne animacje:</b> Gładkie i płynne animacje zapewniają komfort użytkowania</li>
+    <li><b>Personalizacja kolorów:</b> Wybierz spośród jasnego i ciemnego motywu oraz dostosuj paletę kolorów Material 3</li>
+    <li><b>Regulacja rozmiaru czcionki:</b> Dobierz rozmiar czcionki do własnych potrzeb</li>
+    <li><b>Oszczędzanie danych:</b> Oszczędzaj transfer, ładując tylko tekst</li>
+    <li><b>Wyświetlanie wzorów matematycznych:</b> Prawidłowo renderowane wzory matematyczne ułatwiają czytanie artykułów naukowych</li>
+</ul>

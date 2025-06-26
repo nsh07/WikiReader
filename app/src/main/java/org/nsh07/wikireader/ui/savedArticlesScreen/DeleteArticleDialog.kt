@@ -28,13 +28,15 @@ import org.nsh07.wikireader.data.WRStatus
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DeleteArticleDialog(
-    articleFileName: String?,
+    pageId: Int?,
+    lang: String?,
+    title: String?,
     showSnackbar: (String) -> Unit,
     setShowDeleteDialog: (Boolean) -> Unit,
-    deleteArticle: (String) -> WRStatus,
+    deleteArticle: (Int, String) -> WRStatus,
     deleteAll: () -> WRStatus
 ) {
-    val articleName: String? = articleFileName?.substringBeforeLast('.')?.substringBeforeLast('.')
+    val articleName: String? = title
     val context = LocalContext.current
     BasicAlertDialog(
         onDismissRequest = { setShowDeleteDialog(false) }
@@ -70,7 +72,7 @@ fun DeleteArticleDialog(
                     }
                     TextButton(shapes = ButtonDefaults.shapes(), onClick = {
                         setShowDeleteDialog(false)
-                        val status = if (articleFileName != null) deleteArticle(articleFileName)
+                        val status = if (title != null) deleteArticle(pageId ?: 0, lang ?: "en")
                         else deleteAll()
                         if (status == WRStatus.SUCCESS)
                             showSnackbar(context.getString(R.string.articleDeleted))

@@ -36,6 +36,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastForEach
 import coil3.ImageLoader
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
@@ -46,6 +47,7 @@ import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 fun ExpandableSection(
     title: List<AnnotatedString>,
     body: List<AnnotatedString>,
+    lang: String,
     fontSize: Int,
     fontFamily: FontFamily,
     imageLoader: ImageLoader,
@@ -56,7 +58,8 @@ fun ExpandableSection(
     imageBackground: Boolean,
     modifier: Modifier = Modifier,
     onLinkClick: (String) -> Unit,
-    onGalleryImageClick: (String, String) -> Unit
+    onGalleryImageClick: (String, String) -> Unit,
+    showRef: (String) -> Unit
 ) {
     var expanded by rememberSaveable { mutableStateOf(expanded) }
     val arrowRotation by animateFloatAsState(
@@ -93,7 +96,7 @@ fun ExpandableSection(
             Text(
                 text = remember {
                     var out = ""
-                    title.forEach {
+                    title.fastForEach {
                         out += it
                     }
                     out.replace("<.+>".toRegex(), "")
@@ -115,6 +118,7 @@ fun ExpandableSection(
         ) {
             ParsedBodyText(
                 body = body,
+                lang = lang,
                 fontSize = fontSize,
                 fontFamily = fontFamily,
                 renderMath = renderMath,
@@ -123,7 +127,8 @@ fun ExpandableSection(
                 dataSaver = dataSaver,
                 background = imageBackground,
                 onLinkClick = onLinkClick,
-                onGalleryImageClick = onGalleryImageClick
+                onGalleryImageClick = onGalleryImageClick,
+                showRef = showRef
             )
         }
     }
@@ -136,6 +141,7 @@ fun ExpandableSectionPreview() {
         ExpandableSection(
             title = listOf(buildAnnotatedString { append("Title") }),
             body = listOf(buildAnnotatedString { append("Lorem\nIpsum\nBig\nHonking\nBody\nText") }),
+            lang = "en",
             fontSize = 16,
             fontFamily = FontFamily.SansSerif,
             imageLoader = ImageLoader(context = LocalContext.current),
@@ -144,7 +150,9 @@ fun ExpandableSectionPreview() {
             darkTheme = false,
             false,
             false,
-            onLinkClick = {}
-        ) { a, b -> }
+            onLinkClick = {},
+            onGalleryImageClick = { _, _ -> },
+            showRef = {}
+        )
     }
 }

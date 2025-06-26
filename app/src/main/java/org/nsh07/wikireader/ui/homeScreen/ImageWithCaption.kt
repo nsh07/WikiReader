@@ -4,6 +4,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
@@ -26,6 +27,7 @@ import org.nsh07.wikireader.ui.theme.ColorConstants.colorMatrixInvert
 fun ImageWithCaption(
     text: String,
     fontSize: Int,
+    lang: String,
     darkTheme: Boolean,
     background: Boolean,
     checkFirstImage: Boolean,
@@ -33,15 +35,17 @@ fun ImageWithCaption(
     onLinkClick: (String) -> Unit,
     onClick: (String, String) -> Unit,
     modifier: Modifier = Modifier,
-    pageImageUri: String? = null
+    pageImageUri: String? = null,
+    showCaption: Boolean = true,
+    shape: CornerBasedShape = shapes.large
 ) {
     val uriLow = remember(text) {
-        "https://commons.wikimedia.org/wiki/Special:FilePath/${
+        "https://$lang.wikipedia.org/wiki/Special:FilePath/${
             text.substringAfter(':').substringBefore('|').substringBefore("]]")
         }?width=720"
     }
     val uriHigh = remember(text) {
-        "https://commons.wikimedia.org/wiki/Special:FilePath/${
+        "https://$lang.wikipedia.org/wiki/Special:FilePath/${
             text.substringAfter(':').substringBefore('|').substringBefore("]]")
         }"
     }
@@ -62,26 +66,27 @@ fun ImageWithCaption(
             modifier = modifier
                 .padding(horizontal = 16.dp)
                 .padding(top = 8.dp)
-                .clip(shapes.large)
+                .clip(shape)
                 .animateContentSize()
                 .widthIn(max = 512.dp)
                 .clickable(onClick = { onClick(uriHigh, description) })
         )
-        Text(
-            description.toWikitextAnnotatedString(
-                colorScheme = colorScheme,
-                fontSize = fontSize - 2,
-                loadPage = onLinkClick,
-                typography = typography,
-                showRef = {}
-            ),
-            fontSize = (fontSize - 2).sp,
-            lineHeight = (24 * ((fontSize - 2) / 16.0)).toInt().sp,
-            textAlign = TextAlign.Center,
-            color = colorScheme.onSurfaceVariant,
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .padding(vertical = 8.dp)
-        )
+        if (showCaption)
+            Text(
+                description.toWikitextAnnotatedString(
+                    colorScheme = colorScheme,
+                    fontSize = fontSize - 2,
+                    loadPage = onLinkClick,
+                    typography = typography,
+                    showRef = {}
+                ),
+                fontSize = (fontSize - 2).sp,
+                lineHeight = (24 * ((fontSize - 2) / 16.0)).toInt().sp,
+                textAlign = TextAlign.Center,
+                color = colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(vertical = 8.dp)
+            )
     }
 }

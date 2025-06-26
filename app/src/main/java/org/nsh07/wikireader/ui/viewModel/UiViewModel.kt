@@ -9,6 +9,9 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastForEach
 import androidx.core.text.parseAsHtml
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -25,13 +28,20 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import org.nsh07.wikireader.WikiReaderApplication
+import org.nsh07.wikireader.data.AppDatabaseRepository
 import org.nsh07.wikireader.data.AppPreferencesRepository
+import org.nsh07.wikireader.data.SavedArticle
 import org.nsh07.wikireader.data.SavedStatus
+import org.nsh07.wikireader.data.SearchHistoryItem
+import org.nsh07.wikireader.data.UserLanguage
+import org.nsh07.wikireader.data.ViewHistoryItem
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiApiPageData
 import org.nsh07.wikireader.data.WikipediaRepository
@@ -39,6 +49,7 @@ import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.parseSections
 import org.nsh07.wikireader.network.HostSelectionInterceptor
 import org.nsh07.wikireader.network.NetworkException
+import org.nsh07.wikireader.parser.ReferenceData.infoboxTemplates
 import org.nsh07.wikireader.parser.ReferenceData.refCount
 import org.nsh07.wikireader.parser.ReferenceData.refList
 import org.nsh07.wikireader.parser.ReferenceData.refListCount
@@ -46,16 +57,15 @@ import org.nsh07.wikireader.parser.buildRefList
 import org.nsh07.wikireader.parser.cleanUpWikitext
 import org.nsh07.wikireader.parser.substringMatchingParen
 import org.nsh07.wikireader.parser.toWikitextAnnotatedString
-import org.nsh07.wikireader.ui.savedArticlesScreen.LanguageFilterOption
 import java.io.File
-import java.io.FileOutputStream
 import kotlin.io.path.listDirectoryEntries
 import kotlin.math.min
 
 class UiViewModel(
     private val interceptor: HostSelectionInterceptor,
     private val wikipediaRepository: WikipediaRepository,
-    private val appPreferencesRepository: AppPreferencesRepository
+    private val appPreferencesRepository: AppPreferencesRepository,
+    private val appDatabaseRepository: AppDatabaseRepository
 ) : ViewModel() {
     private val _appSearchBarState = MutableStateFlow(AppSearchBarState())
     val appSearchBarState: StateFlow<AppSearchBarState> = _appSearchBarState.asStateFlow()
@@ -65,9 +75,6 @@ class UiViewModel(
 
     private val _feedState = MutableStateFlow(FeedState())
     val feedState: StateFlow<FeedState> = _feedState.asStateFlow()
-
-    private val _savedArticlesState = MutableStateFlow(SavedArticlesState())
-    val savedArticlesState: StateFlow<SavedArticlesState> = _savedArticlesState.asStateFlow()
 
     private val _articleListState = MutableStateFlow(LazyListState(0, 0))
     val articleListState: StateFlow<LazyListState> = _articleListState.asStateFlow()
@@ -82,6 +89,14 @@ class UiViewModel(
     val languageSearchStr: StateFlow<String> = _languageSearchStr.asStateFlow()
 
     val textFieldState: TextFieldState = TextFieldState()
+
+    val searchHistoryFlow = appDatabaseRepository.getSearchHistory().distinctUntilChanged()
+    val viewHistoryFlow = appDatabaseRepository.getViewHistory().distinctUntilChanged()
+    val recentLangsFlow = appDatabaseRepository.getRecentLanguages().distinctUntilChanged()
+    val savedArticleLangsFlow =
+        appDatabaseRepository.getSavedArticleLanguages().distinctUntilChanged()
+    val savedArticlesFlow = appDatabaseRepository.getSavedArticles().distinctUntilChanged()
+    val userLangsFlow = appDatabaseRepository.getUserLanguages().distinctUntilChanged()
 
     @OptIn(FlowPreview::class)
     val languageSearchQuery = languageSearchStr.debounce(500L)
@@ -105,47 +120,71 @@ class UiViewModel(
     private var currentSection = 0
 
     init {
-        viewModelScope.launch { // Run blocking to delay app startup until theme is determined
+        viewModelScope.launch(Dispatchers.IO) { // Run blocking to delay app startup until theme is determined
+            // Migrate old preferences stored in Preferences DataStore to Room database
+            mapOf(
+                "color-scheme" to appPreferencesRepository.readOldStringPreference("color-scheme"),
+                "font-style" to appPreferencesRepository.readOldStringPreference("font-style"),
+                "lang" to appPreferencesRepository.readOldStringPreference("lang"),
+                "theme" to appPreferencesRepository.readOldStringPreference("theme")
+            ).forEach {
+                if (it.value != null) {
+                    appPreferencesRepository.saveStringPreference(it.key, it.value!!)
+                    appPreferencesRepository.eraseOldStringPreference(it.key)
+                }
+            }
+            mapOf(
+                "font-size" to appPreferencesRepository.readOldIntPreference("font-size")
+            ).forEach {
+                if (it.value != null) {
+                    appPreferencesRepository.saveIntPreference(it.key, it.value!!)
+                    appPreferencesRepository.eraseOldIntPreference(it.key)
+                }
+            }
+            mapOf(
+                "black-theme" to appPreferencesRepository.readOldBooleanPreference("black-theme"),
+                "data-saver" to appPreferencesRepository.readOldBooleanPreference("data-saver"),
+                "feed-enabled" to appPreferencesRepository.readOldBooleanPreference("feed-enabled"),
+                "expanded-sections" to appPreferencesRepository.readOldBooleanPreference("expanded-sections"),
+                "image-background" to appPreferencesRepository.readOldBooleanPreference("image-background"),
+                "immersive-mode" to appPreferencesRepository.readOldBooleanPreference("immersive-mode"),
+                "render-math" to appPreferencesRepository.readOldBooleanPreference("render-math"),
+                "search-history" to appPreferencesRepository.readOldBooleanPreference("search-history")
+            ).forEach {
+                if (it.value != null) {
+                    appPreferencesRepository.saveBooleanPreference(it.key, it.value!!)
+                    appPreferencesRepository.eraseOldBooleanPreference(it.key)
+                }
+            }
+
             val colorScheme = appPreferencesRepository.readStringPreference("color-scheme")
                 ?: appPreferencesRepository.saveStringPreference(
                     "color-scheme",
                     Color.White.toString()
                 )
-
             val fontStyle = appPreferencesRepository.readStringPreference("font-style")
                 ?: appPreferencesRepository.saveStringPreference("font-style", "sans")
-
             val lang = appPreferencesRepository.readStringPreference("lang")
                 ?: appPreferencesRepository.saveStringPreference("lang", "en")
-
             val theme = appPreferencesRepository.readStringPreference("theme")
                 ?: appPreferencesRepository.saveStringPreference("theme", "auto")
-
             val fontSize = appPreferencesRepository.readIntPreference("font-size")
                 ?: appPreferencesRepository.saveIntPreference("font-size", 16)
-
             val blackTheme = appPreferencesRepository.readBooleanPreference("black-theme")
                 ?: appPreferencesRepository.saveBooleanPreference("black-theme", false)
-
             val dataSaver = appPreferencesRepository.readBooleanPreference("data-saver")
                 ?: appPreferencesRepository.saveBooleanPreference("data-saver", false)
-
             val feedEnabled = appPreferencesRepository.readBooleanPreference("feed-enabled")
                 ?: appPreferencesRepository.saveBooleanPreference("feed-enabled", true)
-
             val expandedSections =
                 appPreferencesRepository.readBooleanPreference("expanded-sections")
                     ?: appPreferencesRepository.saveBooleanPreference("expanded-sections", false)
-
             val imageBackground = appPreferencesRepository.readBooleanPreference("image-background")
                 ?: appPreferencesRepository.saveBooleanPreference("image-background", false)
-
             val immersiveMode = appPreferencesRepository.readBooleanPreference("immersive-mode")
                 ?: appPreferencesRepository.saveBooleanPreference("immersive-mode", true)
-
             val renderMath = appPreferencesRepository.readBooleanPreference("render-math")
                 ?: appPreferencesRepository.saveBooleanPreference("render-math", true)
-
             val searchHistory = appPreferencesRepository.readBooleanPreference("search-history")
                 ?: appPreferencesRepository.saveBooleanPreference("search-history", true)
 
@@ -167,13 +206,28 @@ class UiViewModel(
                 )
             }
 
-            _appSearchBarState.update { currentState ->
-                currentState.copy(history = appPreferencesRepository.readHistory() ?: emptySet())
+            val oldHistory = appPreferencesRepository.readOldHistory()
+
+            if (oldHistory != null) {
+                val currTime = System.currentTimeMillis()
+                oldHistory.forEachIndexed { index, it ->
+                    val time = currTime - (oldHistory.size - index - 1)
+                    appDatabaseRepository.insertSearchHistory(
+                        SearchHistoryItem(time, it, preferencesState.value.lang), false
+                    )
+                }
+                appPreferencesRepository.eraseOldHistory()
             }
 
-            updateArticlesList()
+            appDatabaseRepository.deleteOldSearchHistory()
+            appDatabaseRepository.deleteOldViewHistory()
 
             interceptor.setHost("$lang.wikipedia.org")
+
+            userLangsFlow.first().let {
+                if (it.isEmpty()) insertUserLanguage(UserLanguage("en", "English", true))
+            }
+
             isReady = true
             loadFeed()
         }
@@ -273,7 +327,6 @@ class UiViewModel(
         listStatePair: Pair<Int, Int>? = null
     ) {
         val q = query?.trim() ?: " "
-        val history = appSearchBarState.value.history.toMutableSet()
         if (q != "") {
             viewModelScope.launch {
                 var setLang = preferencesState.value.lang
@@ -286,10 +339,12 @@ class UiViewModel(
                         currentState.copy(isLoading = true, loadingProgress = null)
                     }
                     if (!random && listStatePair == null && preferencesState.value.searchHistory) {
-                        history.remove(q)
-                        history.add(q)
-                        if (history.size > 50) history.remove(history.first())
-                        appPreferencesRepository.saveHistory(history)
+                        appDatabaseRepository.insertSearchHistory(
+                            SearchHistoryItem(
+                                query = q,
+                                lang = setLang
+                            )
+                        )
                     }
                     if (!random) {
                         loadSearchResults(q)
@@ -345,13 +400,6 @@ class UiViewModel(
                     }
                 }
             }
-
-            if (!random && listStatePair == null)
-                _appSearchBarState.update { currentState ->
-                    currentState.copy(
-                        history = history
-                    )
-                }
         }
     }
 
@@ -400,20 +448,13 @@ class UiViewModel(
                     val extractText = if (apiResponse != null)
                         wikipediaRepository.getPageContent(apiResponse.title)
                     else ""
-                    var saved = SavedStatus.NOT_SAVED
                     val extract: List<String> = parseSections(extractText)
                     val status: WRStatus = WRStatus.SUCCESS
 
-                    try {
-                        val articlesDir = File(filesDir, "savedArticles")
-
-                        val apiFile = File(
-                            articlesDir,
-                            "${apiResponse!!.title}.${apiResponse.pageId}-api.${setLang}"
-                        )
-                        if (apiFile.exists()) saved = SavedStatus.SAVED
-                    } catch (_: Exception) {
-                    }
+                    val saved =
+                        if (appDatabaseRepository.isArticleSaved(apiResponse?.pageId ?: 0, setLang))
+                            SavedStatus.SAVED
+                        else SavedStatus.NOT_SAVED
 
                     if (
                         listStatePair == null &&
@@ -444,7 +485,7 @@ class UiViewModel(
                         currentState.copy(
                             title = apiResponse?.title ?: "Error",
                             photo = apiResponse?.photo,
-                            photoDesc = apiResponse?.photoDesc,
+                            photoDesc = apiResponse?.description,
                             langs = apiResponse?.langs,
                             currentLang = setLang,
                             status = status,
@@ -453,6 +494,16 @@ class UiViewModel(
                             savedStatus = saved
                         )
                     }
+
+                    if (apiResponse != null)
+                        appDatabaseRepository.insertViewHistory(
+                            ViewHistoryItem(
+                                thumbnail = apiResponse.thumbnail?.source,
+                                title = apiResponse.title,
+                                description = apiResponse.description,
+                                lang = setLang
+                            )
+                        )
 
                     extract.forEachIndexed { index, it ->
                         currentSection = index + 1
@@ -698,55 +749,23 @@ class UiViewModel(
 
             val pageContent = wikipediaRepository.getPageContent(apiResponseQuery.title)
 
-            try {
-                val apiFileName =
-                    "${apiResponseQuery.title}.${apiResponseQuery.pageId}-api.${currentLang}"
-                val contentFileName =
-                    "${apiResponseQuery.title}.${apiResponseQuery.pageId}-content.${currentLang}"
-
-                val articlesDir = File(filesDir, "savedArticles")
-                articlesDir.mkdirs()
-
-                val apiFile = File(
-                    articlesDir,
-                    apiFileName
+            appDatabaseRepository.insertSavedArticle(
+                SavedArticle(
+                    pageId = apiResponseQuery.pageId ?: 0,
+                    lang = currentLang,
+                    langName = langCodeToName(currentLang),
+                    title = apiResponseQuery.title,
+                    thumbnail = apiResponseQuery.thumbnail?.source,
+                    description = apiResponseQuery.description,
+                    apiResponse = Json.encodeToString(apiResponse),
+                    pageContent = pageContent
                 )
-                val contentFile = File(
-                    articlesDir,
-                    contentFileName
-                )
+            )
 
-                FileOutputStream(apiFile).use {
-                    it.write(Json.encodeToString(apiResponse).toByteArray())
-                }
-                FileOutputStream(contentFile).use {
-                    it.write(pageContent.toByteArray())
-                }
-
-                if (title == null)
-                    _homeScreenState.update { currentState ->
-                        currentState.copy(savedStatus = SavedStatus.SAVED)
-                    }
-                _savedArticlesState.update { currentState ->
-                    currentState.copy(
-                        savedArticles = currentState.savedArticles + apiFileName,
-                        articlesSize = totalArticlesSize(),
-                    )
-                }
-                updateLanguageFilters()
-                return WRStatus.SUCCESS
-            } catch (e: Exception) {
-                Log.e(
-                    "ViewModel",
-                    "Cannot save article, file IO error"
-                )
-                e.printStackTrace()
-                _homeScreenState.update { currentState ->
-                    currentState.copy(savedStatus = SavedStatus.NOT_SAVED)
-                }
-                interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
-                return WRStatus.IO_ERROR
+            if (title == null) _homeScreenState.update { currentState ->
+                currentState.copy(savedStatus = SavedStatus.SAVED)
             }
+            return WRStatus.SUCCESS
         } catch (e: Exception) {
             Log.e("ViewModel", "Cannot save article, network error")
             e.printStackTrace()
@@ -756,40 +775,58 @@ class UiViewModel(
             interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
             return WRStatus.NETWORK_ERROR
         }
-
-        return WRStatus.OTHER
     }
 
     /**
-     * Migrates articles downloaded in the pre-2.0 format (single file) to the new format (split api
-     * and content files). The old file corresponding to an article is only deleted when the new files
-     * have been successfully written, so accidental data loss is not a concern.
+     * Migrates articles downloaded in the pre-2.4 format (raw files) to the new database.
+     * The old file corresponding to an article is only deleted when the new files
+     * have been successfully saved to the database, so accidental data loss is not a concern.
      *
      * It is recommended to run this function on every startup to ensure any pending migrations are
      * completed
      */
     fun migrateArticles() {
-        try {
-            val articleList =
-                listArticles(filter = false).filterNot { it.contains("-api.") || it.contains("-content.") }
-            val articlesDir = File(filesDir, "savedArticles")
-            viewModelScope.launch {
-                articleList.forEach { // Sequentially reload and save articles, then delete old files
-                    val oldFile = File(articlesDir, it)
-                    val saved =
-                        saveArticle(
-                            title = it.substringBefore('.'),
-                            lang = it.substringAfterLast('.')
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val articleList = listArticles(true)
+                val articlesDir = File(filesDir, "savedArticles")
+                val jsonInst = Json { ignoreUnknownKeys = true }
+
+                articleList.fastForEach {
+                    val apiFile = File(articlesDir, it)
+                    val contentFile = File(articlesDir, it.replace("-api", "-content"))
+
+                    val apiResponse = apiFile.readText()
+                    val pageData = jsonInst
+                        .decodeFromString<WikiApiPageData>(apiResponse)
+                        .query?.pages?.get(0)
+
+                    val pageId = it.substringAfter('.').substringBefore('-').toInt()
+                    val title = it.substringBefore('.')
+                    val lang = it.substringAfterLast('.')
+                    val langName = langCodeToName(lang)
+                    val pageContent = contentFile.readText()
+
+                    appDatabaseRepository.insertSavedArticle(
+                        SavedArticle(
+                            pageId = pageId,
+                            lang = lang,
+                            langName = langName,
+                            title = title,
+                            thumbnail = pageData?.thumbnail?.source,
+                            description = pageData?.description,
+                            apiResponse = apiResponse,
+                            pageContent = pageContent
                         )
-                    if (saved == WRStatus.SUCCESS) {
-                        oldFile.delete()
-                    }
+                    )
+
+                    apiFile.delete()
+                    contentFile.delete()
                 }
-                interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Failed to load articles list: ${e.message}")
+                e.printStackTrace()
             }
-        } catch (e: Exception) {
-            Log.e("ViewModel", "Failed to load articles list: ${e.message}")
-            e.printStackTrace()
         }
     }
 
@@ -798,120 +835,55 @@ class UiViewModel(
      *
      * @return A [WRStatus] enum value indicating the status of the delete operation
      */
-    fun deleteArticle(apiFileName: String = "${homeScreenState.value.title}.${homeScreenState.value.pageId}-api.${homeScreenState.value.currentLang}"): WRStatus {
+    fun deleteArticle(pageId: Int, lang: String): WRStatus {
         if (homeScreenState.value.status == WRStatus.UNINITIALIZED) {
             Log.e("ViewModel", "Cannot delete article, HomeScreenState is uninitialized")
             return WRStatus.OTHER
         }
 
-        try {
-            val articlesDir = File(filesDir, "savedArticles")
-
-            val apiFile = File(articlesDir, apiFileName)
-            val contentFile = File(articlesDir, apiFileName.replace("-api.", "-content."))
-
-            val deleted = apiFile.delete() && contentFile.delete()
-            if (deleted) {
-                _homeScreenState.update { currentState ->
-                    currentState.copy(savedStatus = SavedStatus.NOT_SAVED)
-                }
-                _savedArticlesState.update { currentState ->
-                    currentState.copy(
-                        savedArticles = currentState.savedArticles - apiFileName,
-                        articlesSize = totalArticlesSize()
-                    )
-                }
-                return WRStatus.SUCCESS
-            } else return WRStatus.IO_ERROR
-        } catch (e: Exception) {
-            Log.e("ViewModel", "Cannot delete article")
-            e.printStackTrace()
-            return WRStatus.IO_ERROR
+        viewModelScope.launch(Dispatchers.IO) {
+            appDatabaseRepository.deleteSavedArticle(pageId, lang)
+            _homeScreenState.update { currentState ->
+                currentState.copy(savedStatus = SavedStatus.NOT_SAVED)
+            }
         }
+
+        return WRStatus.SUCCESS
     }
 
     fun deleteAllArticles(): WRStatus {
-        try {
-            val articlesDir = File(filesDir, "savedArticles")
-            val deleted = articlesDir.deleteRecursively()
-            if (deleted) {
-                _savedArticlesState.update { currentState ->
-                    currentState.copy(savedArticles = emptyList(), articlesSize = 0)
-                }
-                updateLanguageFilters()
-                return WRStatus.SUCCESS
-            } else return WRStatus.IO_ERROR
-        } catch (e: Exception) {
-            Log.e("ViewModel", "Cannot delete all articles")
-            e.printStackTrace()
-            return WRStatus.IO_ERROR
+        viewModelScope.launch(Dispatchers.IO) {
+            appDatabaseRepository.deleteAllSavedArticles()
         }
+        return WRStatus.SUCCESS
     }
 
     fun listArticles(filter: Boolean = true): List<String> {
         val articlesDir = File(filesDir, "savedArticles")
         val directoryEntries = articlesDir.toPath().listDirectoryEntries()
         val out = mutableListOf<String>()
-        directoryEntries.forEach {
+        directoryEntries.fastForEach {
             out.add(it.fileName.toString())
         }
         out.sort()
-        return if (filter) out.filter { it.contains("-api.") } else out
+        return if (filter) out.fastFilter { it.contains("-api.") } else out
     }
 
-    fun updateArticlesList() =
-        viewModelScope.launch(Dispatchers.IO) {
-            _savedArticlesState.update { currentState ->
-                currentState.copy(isLoading = true)
-            }
-            try {
-                val out = listArticles()
-                _savedArticlesState.update { currentState ->
-                    currentState.copy(
-                        savedArticles = out.filter { it.contains("-api.") },
-                        articlesSize = totalArticlesSize()
-                    )
-                }
-                updateLanguageFilters()
-            } catch (e: Exception) {
-                Log.e("ViewModel", "Cannot load list of downloaded articles, IO error")
-                e.printStackTrace()
-                _savedArticlesState.update { currentState ->
-                    currentState.copy(savedArticles = emptyList(), articlesSize = 0)
-                }
-            }
-            _savedArticlesState.update { currentState ->
-                currentState.copy(isLoading = false)
-            }
-        }
-
-    private fun totalArticlesSize(): Long {
-        try {
-            val size = File(filesDir, "savedArticles")
-                .walkTopDown()
-                .map { it.length() }
-                .sum()
-            return size
-        } catch (e: Exception) {
-            Log.e("ViewModel", "Cannot load total article size, IO error")
-            e.printStackTrace()
-            return 0
-        }
-    }
-
-    suspend fun loadSavedArticle(apiFileName: String): WRStatus =
+    suspend fun loadSavedArticle(pageId: Int, lang: String): WRStatus =
         withContext(Dispatchers.IO) {
-            try {
-                _homeScreenState.update { currentState ->
-                    currentState.copy(isLoading = true, loadingProgress = null)
-                }
-                val articlesDir = File(filesDir, "savedArticles")
-                val apiFile = File(articlesDir, apiFileName)
-                val contentFile = File(articlesDir, apiFileName.replace("-api.", "-content."))
-                val apiResponse =
-                    Json.decodeFromString<WikiApiPageData>(apiFile.readText()).query?.pages?.get(0)
+            _homeScreenState.update { currentState ->
+                currentState.copy(isLoading = true, loadingProgress = null)
+            }
 
-                val extractText = contentFile.readText()
+            val savedArticle = appDatabaseRepository.getSavedArticle(pageId, lang)
+
+            if (savedArticle != null) {
+                val jsonInst = Json { ignoreUnknownKeys = true }
+                val apiResponse =
+                    jsonInst.decodeFromString<WikiApiPageData>(savedArticle.apiResponse)
+                        .query?.pages?.get(0)
+
+                val extractText = savedArticle.pageContent
                 val extract: List<String> = parseSections(extractText)
 
                 sections = extract.size
@@ -931,7 +903,7 @@ class UiViewModel(
 
                 _preferencesState.update { currentState ->
                     currentState.copy(
-                        lang = apiFileName.substringAfterLast('.')
+                        lang = savedArticle.lang
                     )
                 }
 
@@ -941,7 +913,7 @@ class UiViewModel(
                     currentState.copy(
                         title = apiResponse?.title ?: "Error",
                         photo = apiResponse?.photo,
-                        photoDesc = apiResponse?.photoDesc,
+                        photoDesc = apiResponse?.description,
                         langs = apiResponse?.langs,
                         currentLang = preferencesState.value.lang,
                         pageId = apiResponse?.pageId,
@@ -984,32 +956,18 @@ class UiViewModel(
                 }
 
                 return@withContext WRStatus.SUCCESS
-            } catch (e: Exception) {
-                e.printStackTrace()
-                return@withContext WRStatus.IO_ERROR
-            }
+            } else return@withContext WRStatus.DATABASE_ERROR
         }
 
-    fun updateLanguageFilters() {
-        val languageFilters = mutableSetOf<String>()
-        savedArticlesState.value.savedArticles.forEach {
-            languageFilters.add(it.substringAfterLast('.'))
-        }
-        _savedArticlesState.update { currentState ->
-            currentState.copy(
-                languageFilters =
-                    languageFilters
-                        .toList()
-                        .map {
-                            LanguageFilterOption(
-                                langCodeToName(it), it
-                            )
-                        }
-                        .sortedBy { it.option }
-            )
-        }
-    }
-
+    /**
+     * Function to split a Wikitext section source string into a list of [AnnotatedString]s where
+     * each element represents a certain type of page content (text, table, image, gallery,
+     * math expression)
+     *
+     * @param wikitext The Wikitext source string
+     *
+     * @return A list of [AnnotatedString]s representing the page content
+     */
     suspend fun parseWikitext(wikitext: String): List<AnnotatedString> =
         withContext(Dispatchers.IO) {
             val parsed = cleanUpWikitext(wikitext)
@@ -1098,11 +1056,50 @@ class UiViewModel(
                     } else {
                         curr += parsed[i]
                     }
-                } else if (parsed[i] == '{' && parsed.getOrNull(i + 1) == '|') {
-                    val currSubstring = parsed.substringMatchingParen('{', '}', i)
-                    if (!currSubstring.substring(min(i + 2, currSubstring.lastIndex))
-                            .contains("{|")
+                } else if (parsed[i] == '{') {
+                    if (parsed.getOrNull(i + 1) == '|') {
+                        val currSubstring = parsed.substringMatchingParen('{', '}', i)
+                        if (!currSubstring.substring(min(i + 2, currSubstring.lastIndex))
+                                .contains("{|")
+                        ) {
+                            out.add(
+                                curr.toWikitextAnnotatedString(
+                                    colorScheme = colorScheme,
+                                    typography = typography,
+                                    loadPage = ::loadPage,
+                                    fontSize = preferencesState.value.fontSize,
+                                    showRef = ::updateRef
+                                )
+                            )
+                            out.add(AnnotatedString(currSubstring))
+                            curr = ""
+                            i += currSubstring.length
+                        } else {
+                            val currSubstringNestedTable =
+                                parsed.substringMatchingParen('{', '}', parsed.indexOf("{|", i + 2))
+                            out.add(
+                                curr.toWikitextAnnotatedString(
+                                    colorScheme = colorScheme,
+                                    typography = typography,
+                                    loadPage = ::loadPage,
+                                    fontSize = preferencesState.value.fontSize,
+                                    showRef = ::updateRef
+                                )
+                            )
+                            out.add(AnnotatedString(currSubstringNestedTable))
+                            curr = ""
+                            i += currSubstring.length
+                        }
+                    } else if (
+                        stack < 2 && parsed.getOrNull(i + 1) == '{' &&
+                        parsed.substring(i, min(i + 24, parsed.length))
+                            .let { subStr ->
+                                infoboxTemplates.fastAny {
+                                    subStr.startsWith(it, true)
+                                }
+                            }
                     ) {
+                        val currSubstring = parsed.substringMatchingParen('{', '}', i)
                         out.add(
                             curr.toWikitextAnnotatedString(
                                 colorScheme = colorScheme,
@@ -1115,22 +1112,7 @@ class UiViewModel(
                         out.add(AnnotatedString(currSubstring))
                         curr = ""
                         i += currSubstring.length
-                    } else {
-                        val currSubstringNestedTable =
-                            parsed.substringMatchingParen('{', '}', parsed.indexOf("{|", i + 2))
-                        out.add(
-                            curr.toWikitextAnnotatedString(
-                                colorScheme = colorScheme,
-                                typography = typography,
-                                loadPage = ::loadPage,
-                                fontSize = preferencesState.value.fontSize,
-                                showRef = ::updateRef
-                            )
-                        )
-                        out.add(AnnotatedString(currSubstringNestedTable))
-                        curr = ""
-                        i += currSubstring.length
-                    }
+                    } else curr += parsed[i]
                 } else curr += parsed[i]
                 i++
             }
@@ -1146,7 +1128,7 @@ class UiViewModel(
             out.toList()
         }
 
-    private fun updateRef(ref: String) {
+    fun updateRef(ref: String) {
         _homeScreenState.update { currentState ->
             currentState.copy(
                 ref = ref.toWikitextAnnotatedString(
@@ -1176,54 +1158,70 @@ class UiViewModel(
         appSearchBarState.value.focusRequester.requestFocus()
     }
 
-    fun removeHistoryItem(item: String) {
-        viewModelScope.launch {
-            val history = appSearchBarState.value.history.toMutableSet()
-            history.remove(item)
-            _appSearchBarState.update { currentState ->
-                currentState.copy(history = history)
-            }
-            appPreferencesRepository.saveHistory(history)
+    fun removeSearchHistoryItem(item: SearchHistoryItem?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (item != null) appDatabaseRepository.deleteSearchHistory(item)
+            else appDatabaseRepository.deleteAllSearchHistory()
         }
     }
 
-    fun clearHistory() {
-        viewModelScope.launch {
-            _appSearchBarState.update { currentState ->
-                currentState.copy(history = emptySet())
-            }
-            appPreferencesRepository.saveHistory(emptySet())
+    fun insertViewHistoryItem(item: ViewHistoryItem) {
+        viewModelScope.launch(Dispatchers.IO) {
+            appDatabaseRepository.insertViewHistory(item)
         }
+    }
+
+    fun removeViewHistoryItem(item: ViewHistoryItem?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (item != null) appDatabaseRepository.deleteViewHistory(item)
+            else appDatabaseRepository.deleteAllViewHistory()
+        }
+    }
+
+    suspend fun insertUserLanguage(userLanguage: UserLanguage) {
+        if (userLanguage.selected) {
+            appDatabaseRepository.deselectAllUserLanguages()
+            appDatabaseRepository.insertUserLanguage(userLanguage)
+            markUserLanguageSelected(userLanguage.lang)
+        } else appDatabaseRepository.insertUserLanguage(userLanguage)
+    }
+
+    fun deleteUserLanguage(lang: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            appDatabaseRepository.deleteUserLanguage(lang)
+        }
+    }
+
+    fun markUserLanguageSelected(lang: String) {
+        viewModelScope.launch {
+            appDatabaseRepository.deselectAllUserLanguages()
+            appDatabaseRepository.markUserLanguageSelected(lang)
+        }
+        saveLang(lang)
     }
 
     fun saveTheme(theme: String) {
         viewModelScope.launch {
             _preferencesState.update { currentState ->
-                currentState.copy(
-                    theme = appPreferencesRepository
-                        .saveStringPreference("theme", theme)
-                )
+                currentState.copy(theme = theme)
             }
+            appPreferencesRepository.saveStringPreference("theme", theme)
         }
     }
 
     fun saveFontStyle(fontStyle: String) {
         viewModelScope.launch {
             _preferencesState.update { currentState ->
-                currentState.copy(
-                    fontStyle = appPreferencesRepository
-                        .saveStringPreference("font-style", fontStyle)
-                )
+                currentState.copy(fontStyle = fontStyle)
             }
+            appPreferencesRepository.saveStringPreference("font-style", fontStyle)
         }
     }
 
     fun saveLang(lang: String) {
         interceptor.setHost("$lang.wikipedia.org")
         _preferencesState.update { currentState ->
-            currentState.copy(
-                lang = lang
-            )
+            currentState.copy(lang = lang)
         }
         viewModelScope.launch {
             appPreferencesRepository.saveStringPreference("lang", lang)
@@ -1233,22 +1231,18 @@ class UiViewModel(
     fun saveColorScheme(colorScheme: String) {
         viewModelScope.launch {
             _preferencesState.update { currentState ->
-                currentState.copy(
-                    colorScheme = appPreferencesRepository
-                        .saveStringPreference("color-scheme", colorScheme)
-                )
+                currentState.copy(colorScheme = colorScheme)
             }
+            appPreferencesRepository.saveStringPreference("color-scheme", colorScheme)
         }
     }
 
     fun saveBlackTheme(blackTheme: Boolean) {
         viewModelScope.launch {
             _preferencesState.update { currentState ->
-                currentState.copy(
-                    blackTheme = appPreferencesRepository
-                        .saveBooleanPreference("black-theme", blackTheme)
-                )
+                currentState.copy(blackTheme = blackTheme)
             }
+            appPreferencesRepository.saveBooleanPreference("black-theme", blackTheme)
         }
     }
 
@@ -1351,10 +1345,12 @@ class UiViewModel(
                 val interceptor = application.container.interceptor
                 val wikipediaRepository = application.container.wikipediaRepository
                 val appPreferencesRepository = application.container.appPreferencesRepository
+                val appHistoryRepository = application.container.appDatabaseRepository
                 UiViewModel(
                     interceptor = interceptor,
                     wikipediaRepository = wikipediaRepository,
-                    appPreferencesRepository = appPreferencesRepository
+                    appPreferencesRepository = appPreferencesRepository,
+                    appDatabaseRepository = appHistoryRepository
                 )
             }
         }

@@ -8,10 +8,12 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -35,17 +37,20 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExpandedFullScreenSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.InputChip
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalTextStyle
@@ -87,14 +92,16 @@ import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
+import androidx.compose.ui.util.fastForEach
 import androidx.window.core.layout.WindowSizeClass
 import coil3.ImageLoader
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.data.SearchHistoryItem
+import org.nsh07.wikireader.data.UserLanguage
 import org.nsh07.wikireader.data.WikiPrefixSearchResult
 import org.nsh07.wikireader.data.WikiSearchResult
-import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.settingsScreen.LanguageBottomSheet
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
@@ -114,6 +121,9 @@ fun AppSearchBar(
     searchBarState: SearchBarState,
     preferencesState: PreferencesState,
     textFieldState: TextFieldState,
+    userLangs: List<UserLanguage>,
+    recentLangs: List<String>,
+    searchHistory: List<SearchHistoryItem>,
     searchBarEnabled: Boolean,
     imageLoader: ImageLoader,
     searchListState: LazyListState,
@@ -129,17 +139,19 @@ fun AppSearchBar(
     loadRandom: () -> Unit,
     onExpandedChange: (Boolean) -> Unit,
     setQuery: (String) -> Unit,
-    removeHistoryItem: (String) -> Unit,
+    removeHistoryItem: (SearchHistoryItem) -> Unit,
     clearHistory: () -> Unit,
     onMenuIconClicked: () -> Unit,
+    markUserLanguageSelected: (String) -> Unit,
+    insertUserLanguage: suspend (UserLanguage) -> Unit,
+    deleteUserLanguage: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = appSearchBarState.focusRequester
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
     val colorScheme = colorScheme
-    val history = appSearchBarState.history.toList()
-    val size = history.size
+    val size = searchHistory.size
     val compactWindow =
         !windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
 
@@ -299,6 +311,7 @@ fun AppSearchBar(
         if (showLanguageSheet)
             LanguageBottomSheet(
                 lang = preferencesState.lang,
+                recentLangs = recentLangs,
                 searchStr = languageSearchStr,
                 searchQuery = languageSearchQuery,
                 setShowSheet = setShowLanguageSheet,
@@ -306,7 +319,10 @@ fun AppSearchBar(
                     saveLang(it)
                     loadSearchDebounced(textFieldState.text.toString())
                 },
-                setSearchStr = updateLanguageSearchStr
+                setSearchStr = updateLanguageSearchStr,
+                userLanguageSelectionMode = true,
+                insertUserLanguage = insertUserLanguage,
+                deleteUserLanguage = deleteUserLanguage
             )
 
         if (Build.VERSION.SDK_INT < 29) { // Workaround to fix the infinite search bar loop bug
@@ -328,7 +344,7 @@ fun AppSearchBar(
                             item {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 24.dp)
+                                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 32.dp)
                                 ) {
                                     Text(
                                         stringResource(R.string.history),
@@ -344,8 +360,8 @@ fun AppSearchBar(
                                     }
                                 }
                             }
-                            items(size, key = { history[size - it - 1] }) {
-                                val currentText = history[size - it - 1]
+                            items(size, key = { searchHistory[it].time }) {
+                                val currentText = searchHistory[it].query
                                 ListItem(
                                     leadingContent = {
                                         Icon(
@@ -391,7 +407,7 @@ fun AppSearchBar(
                                                 haptic.performHapticFeedback(
                                                     HapticFeedbackType.LongPress
                                                 )
-                                                removeHistoryItem(currentText)
+                                                removeHistoryItem(searchHistory[it])
                                             }
                                         )
                                         .animateItem()
@@ -412,19 +428,70 @@ fun AppSearchBar(
                     if (!compactWindow) {
                         LazyVerticalGrid(columns = GridCells.Fixed(2)) {
                             item(span = { GridItemSpan(2) }) {
-                                Box(Modifier.padding(bottom = 16.dp)) {
-                                    FilledTonalButton(
-                                        shapes = ButtonDefaults.shapes(),
-                                        onClick = { setShowLanguageSheet(true) },
-                                        modifier = Modifier.padding(
-                                            start = 16.dp,
-                                            end = 16.dp,
-                                            top = 16.dp
-                                        )
+                                Box(Modifier.padding(vertical = 8.dp)) {
+                                    FlowRow(
+                                        Modifier.padding(horizontal = 16.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
-                                        Icon(painterResource(R.drawable.translate), null)
-                                        Spacer(Modifier.width(8.dp))
-                                        Text(langCodeToName(preferencesState.lang))
+                                        userLangs.fastForEach { filterOption ->
+                                            val filterChipInteractionSource =
+                                                remember { MutableInteractionSource() }
+                                            Box {
+                                                FilterChip(
+                                                    selected = filterOption.selected,
+                                                    onClick = {},
+                                                    label = { Text(filterOption.langName) },
+                                                    leadingIcon =
+                                                        if (filterOption.selected) {
+                                                            {
+                                                                Icon(
+                                                                    Icons.Outlined.Check,
+                                                                    contentDescription = null
+                                                                )
+                                                            }
+                                                        } else null,
+                                                    interactionSource = filterChipInteractionSource
+                                                )
+                                                Box( // Workaround to enable
+                                                    modifier = Modifier
+                                                        .matchParentSize()
+                                                        .combinedClickable(
+                                                            onClick = {
+                                                                scope.launch {
+                                                                    markUserLanguageSelected(
+                                                                        filterOption.lang
+                                                                    )
+                                                                    haptic.performHapticFeedback(
+                                                                        HapticFeedbackType.ToggleOn
+                                                                    )
+                                                                    loadSearchDebounced(
+                                                                        textFieldState.text.toString()
+                                                                    )
+                                                                }
+                                                            },
+                                                            onLongClick = {
+                                                                haptic.performHapticFeedback(
+                                                                    HapticFeedbackType.LongPress
+                                                                )
+                                                                if (userLangs.size > 1) deleteUserLanguage(
+                                                                    filterOption.lang
+                                                                )
+                                                            },
+                                                            interactionSource = filterChipInteractionSource,
+                                                            indication = null,
+                                                        )
+                                                )
+                                            }
+                                        }
+                                        InputChip(
+                                            onClick = { setShowLanguageSheet(true) },
+                                            label = {},
+                                            leadingIcon = {
+                                                Icon(Icons.Outlined.Add, "Add language")
+                                            },
+                                            selected = false,
+                                            modifier = Modifier.width(40.dp)
+                                        )
                                     }
                                 }
                             }
@@ -558,26 +625,75 @@ fun AppSearchBar(
                             state = searchListState
                         ) {
                             item {
-                                FilledTonalButton(
-                                    shapes = ButtonDefaults.shapes(),
-                                    onClick = { setShowLanguageSheet(true) },
-                                    modifier = Modifier.padding(
-                                        start = 16.dp,
-                                        end = 16.dp,
-                                        top = 16.dp
-                                    )
+                                FlowRow(
+                                    Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
-                                    Icon(painterResource(R.drawable.translate), null)
-                                    Spacer(Modifier.width(8.dp))
-                                    Text(langCodeToName(preferencesState.lang))
+                                    userLangs.fastForEach { filterOption ->
+                                        val filterChipInteractionSource =
+                                            remember { MutableInteractionSource() }
+                                        Box {
+                                            FilterChip(
+                                                selected = filterOption.selected,
+                                                onClick = {},
+                                                label = { Text(filterOption.langName) },
+                                                leadingIcon =
+                                                    if (filterOption.selected) {
+                                                        {
+                                                            Icon(
+                                                                Icons.Outlined.Check,
+                                                                contentDescription = null
+                                                            )
+                                                        }
+                                                    } else null,
+                                                interactionSource = filterChipInteractionSource
+                                            )
+                                            Box( // Workaround to enable
+                                                modifier = Modifier
+                                                    .matchParentSize()
+                                                    .combinedClickable(
+                                                        onClick = {
+                                                            scope.launch {
+                                                                markUserLanguageSelected(
+                                                                    filterOption.lang
+                                                                )
+                                                                haptic.performHapticFeedback(
+                                                                    HapticFeedbackType.ToggleOn
+                                                                )
+                                                                loadSearchDebounced(textFieldState.text.toString())
+                                                            }
+                                                        },
+                                                        onLongClick = {
+                                                            haptic.performHapticFeedback(
+                                                                HapticFeedbackType.LongPress
+                                                            )
+                                                            if (userLangs.size > 1) deleteUserLanguage(
+                                                                filterOption.lang
+                                                            )
+                                                        },
+                                                        interactionSource = filterChipInteractionSource,
+                                                        indication = null,
+                                                    )
+                                            )
+                                        }
+                                    }
+                                    InputChip(
+                                        onClick = { setShowLanguageSheet(true) },
+                                        label = {},
+                                        leadingIcon = {
+                                            Icon(Icons.Outlined.Add, "Add language")
+                                        },
+                                        selected = false,
+                                        modifier = Modifier.width(40.dp)
+                                    )
                                 }
                             }
                             item {
                                 Text(
                                     text = stringResource(R.string.titleMatches),
                                     modifier = Modifier.padding(
-                                        horizontal = 24.dp,
-                                        vertical = 16.dp
+                                        horizontal = 32.dp,
+                                        vertical = 14.dp
                                     ),
                                     style = typography.labelLarge
                                 )
@@ -640,8 +756,8 @@ fun AppSearchBar(
                                 Text(
                                     text = stringResource(R.string.inArticleMatches),
                                     modifier = Modifier.padding(
-                                        horizontal = 24.dp,
-                                        vertical = 16.dp
+                                        horizontal = 32.dp,
+                                        vertical = 14.dp
                                     ),
                                     style = typography.labelLarge
                                 )

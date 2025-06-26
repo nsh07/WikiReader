@@ -17,8 +17,10 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -29,9 +31,9 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialShapes
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -40,6 +42,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -54,16 +57,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastForEach
+import coil3.ImageLoader
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.data.ArticleInfo
+import org.nsh07.wikireader.data.LanguageInfo
 import org.nsh07.wikireader.data.WRStatus
-import org.nsh07.wikireader.data.bytesToHumanReadableSize
-import org.nsh07.wikireader.data.langCodeToWikiName
+import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
-import org.nsh07.wikireader.ui.viewModel.SavedArticlesState
 
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
@@ -71,27 +77,42 @@ import org.nsh07.wikireader.ui.viewModel.SavedArticlesState
 )
 @Composable
 fun SavedArticlesScreen(
-    savedArticlesState: SavedArticlesState,
-    modifier: Modifier = Modifier,
+    savedArticles: List<ArticleInfo>,
+    savedArticleLangs: List<LanguageInfo>,
+    imageLoader: ImageLoader,
+    imageBackground: Boolean,
+    openSavedArticle: (Int, String) -> Unit,
+    deleteArticle: (Int, String) -> WRStatus,
     deleteAll: () -> WRStatus,
     onBack: () -> Unit,
-    openSavedArticle: (String) -> Unit,
-    deleteArticle: (String) -> WRStatus
+    modifier: Modifier = Modifier
 ) {
     val coroutineScope = rememberCoroutineScope()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val snackBarHostState = remember { SnackbarHostState() }
-    var toDelete: String? by remember { mutableStateOf("") }
+    var toDelete: Pair<Int, String>? by remember { mutableStateOf(null) }
+    var toDeleteTitle: String? by remember { mutableStateOf(null) }
     var showArticleDeleteDialog by remember { mutableStateOf(false) }
+    var ct by remember { mutableIntStateOf(0) }
 
-    var selectedLangs =
-        savedArticlesState.languageFilters.filter { it.selected }.map { it.langCode }
-    if (selectedLangs.isEmpty()) selectedLangs =
-        savedArticlesState.languageFilters.map { it.langCode }
+    val languageFilters = remember(savedArticleLangs) {
+        savedArticleLangs.map { LanguageFilterOption(it.langName, it.lang) }
+    }
+
+    val selectedLanguages = remember(ct, languageFilters) {
+        languageFilters.fastFilter { it.selected }.map { it.option }
+    }
+
+    val groupedArticles = remember(savedArticles, selectedLanguages) {
+        savedArticles.groupBy { it.langName }
+            .filterKeys { selectedLanguages.isEmpty() || it in selectedLanguages }
+    }
 
     if (showArticleDeleteDialog)
         DeleteArticleDialog(
-            articleFileName = toDelete,
+            pageId = toDelete?.first,
+            lang = toDelete?.second,
+            title = toDeleteTitle,
             setShowDeleteDialog = { showArticleDeleteDialog = it },
             deleteArticle = deleteArticle,
             deleteAll = deleteAll,
@@ -103,16 +124,15 @@ fun SavedArticlesScreen(
             SavedArticlesTopBar(
                 articlesInfo = stringResource(
                     R.string.articlesSize,
-                    savedArticlesState.savedArticles.size,
-                    bytesToHumanReadableSize(
-                        savedArticlesState.articlesSize.toDouble()
-                    )
+                    savedArticles.size,
+                    remember { groupedArticles.size }
                 ),
                 scrollBehavior = scrollBehavior,
-                deleteEnabled = savedArticlesState.savedArticles.isNotEmpty(),
+                deleteEnabled = savedArticles.isNotEmpty(),
                 onBack = onBack,
                 onDeleteAll = {
                     toDelete = null
+                    toDeleteTitle = null
                     showArticleDeleteDialog = true
                 }
             )
@@ -122,7 +142,7 @@ fun SavedArticlesScreen(
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { insets ->
-        if (savedArticlesState.savedArticles.isNotEmpty())
+        if (savedArticles.isNotEmpty())
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(2.dp),
                 contentPadding = insets,
@@ -131,77 +151,103 @@ fun SavedArticlesScreen(
                     .background(topBarColors.containerColor)
             ) {
                 item {
-                    if (savedArticlesState.languageFilters.size > 1)
+                    if (savedArticleLangs.size > 1)
                         FlowRow(
                             Modifier.padding(horizontal = 16.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            savedArticlesState.languageFilters.forEach { filterOption ->
+                            languageFilters.fastForEach { filterOption ->
                                 FilterChip(
                                     selected = filterOption.selected,
                                     onClick = {
                                         filterOption.selected = !filterOption.selected
+                                        ct++
                                     },
                                     label = { Text(filterOption.option) },
-                                    leadingIcon = if (filterOption.selected) {
-                                        {
-                                            Icon(
-                                                Icons.Outlined.Check,
-                                                contentDescription = null
-                                            )
-                                        }
-                                    } else null
+                                    leadingIcon =
+                                        if (filterOption.selected) {
+                                            {
+                                                Icon(
+                                                    Icons.Outlined.Check,
+                                                    contentDescription = null
+                                                )
+                                            }
+                                        } else null
                                 )
                             }
                         }
                 }
-                itemsIndexed(
-                    savedArticlesState.savedArticles.filter {
-                        selectedLangs.contains(
-                            it.substringAfterLast(
-                                '.'
-                            )
+                groupedArticles.forEach { item ->
+                    if (groupedArticles.size > 1) item(key = item.key + "-lang") {
+                        Text(
+                            item.key,
+                            style = typography.titleSmall,
+                            modifier = Modifier
+                                .padding(horizontal = 32.dp, vertical = 14.dp)
+                                .animateItem()
                         )
-                    },
-                    key = { index: Int, it: String -> it }
-                ) { index: Int, it: String ->
-                    ListItem(
-                        headlineContent = {
-                            Text(
-                                remember {
-                                    it.substringBeforeLast('.').substringBeforeLast('.')
-                                },
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        },
-                        supportingContent = {
-                            Text(remember {
-                                langCodeToWikiName(
-                                    it.substringAfterLast(
-                                        '.'
+                    }
+                    itemsIndexed(
+                        item.value,
+                        key = { index: Int, it: ArticleInfo -> it.pageId.toString() + it.lang }
+                    ) { index: Int, it: ArticleInfo ->
+                        ListItem(
+                            leadingContent = if (it.description != null) {
+                                {
+                                    FeedImage(
+                                        source = it.thumbnail,
+                                        description = it.description,
+                                        imageLoader = imageLoader,
+                                        loadingIndicator = true,
+                                        background = imageBackground,
+                                        modifier = Modifier
+                                            .size(64.dp)
+                                            .clip(shapes.large)
                                     )
-                                )
-                            })
-                        },
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .clip(
-                                if (savedArticlesState.savedArticles.size == 1) shapes.large
-                                else if (index == 0) topListItemShape
-                                else if (index == savedArticlesState.savedArticles.lastIndex) bottomListItemShape
-                                else middleListItemShape
-                            )
-                            .combinedClickable(
-                                onClick = { openSavedArticle(it) },
-                                onLongClick = {
-                                    toDelete = it
-                                    showArticleDeleteDialog = true
                                 }
-                            )
-                            .animateItem()
-                    )
+                            } else {
+                                {
+                                    Spacer(Modifier.width(56.dp))
+                                }
+                            },
+                            headlineContent = {
+                                Text(
+                                    it.title,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            },
+                            supportingContent =
+                                if (it.description != null) {
+                                    {
+                                        Text(
+                                            it.description,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                } else null,
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .clip(
+                                    if (item.value.size == 1) shapes.large
+                                    else if (index == 0) topListItemShape
+                                    else if (index == item.value.lastIndex) bottomListItemShape
+                                    else middleListItemShape
+                                )
+                                .combinedClickable(
+                                    onClick = { openSavedArticle(it.pageId, it.lang) },
+                                    onLongClick = {
+                                        toDelete = Pair(it.pageId, it.lang)
+                                        toDeleteTitle = it.title
+                                        showArticleDeleteDialog = true
+                                    }
+                                )
+                                .animateItem()
+                        )
+                    }
                 }
+                item { Spacer(Modifier.height(16.dp)) }
             }
         else
             Box(
@@ -246,13 +292,13 @@ fun SavedArticlesScreen(
                     Text(
                         stringResource(R.string.noSavedArticles),
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.titleLarge,
+                        style = typography.titleLarge,
                         modifier = Modifier.padding(8.dp)
                     )
                     Text(
                         stringResource(R.string.noSavedArticlesDesc),
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = typography.bodyMedium,
                         modifier = Modifier.padding(horizontal = 48.dp)
                     )
                 }

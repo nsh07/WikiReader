@@ -87,6 +87,7 @@ import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.WRStatus
+import org.nsh07.wikireader.data.WikiLang
 import org.nsh07.wikireader.ui.image.ImageCard
 import org.nsh07.wikireader.ui.settingsScreen.LanguageBottomSheet
 import org.nsh07.wikireader.ui.shimmer.AnimatedShimmer
@@ -124,6 +125,7 @@ fun AppHomeScreen(
     listState: LazyListState,
     preferencesState: PreferencesState,
     feedState: FeedState,
+    recentLangs: List<String>,
     floatingToolbarScrollBehaviour: FloatingToolbarScrollBehavior?,
     feedListState: LazyListState,
     imageLoader: ImageLoader,
@@ -144,6 +146,7 @@ fun AppHomeScreen(
     onSearchButtonClick: () -> Unit,
     loadRandom: () -> Unit,
     scrollToTop: () -> Unit,
+    showRef: (String) -> Unit,
     hideRef: () -> Unit,
     insets: PaddingValues,
     windowSizeClass: WindowSizeClass,
@@ -163,10 +166,6 @@ fun AppHomeScreen(
     val pullToRefreshState = rememberPullToRefreshState()
 
     var isRefreshing by remember { mutableStateOf(false) }
-
-    var s = homeScreenState.extract.size
-    if (s > 1) s -= 2
-    else s = 0
 
     val sendIntent: Intent = remember(homeScreenState.title, preferencesState.lang) {
         Intent()
@@ -194,6 +193,8 @@ fun AppHomeScreen(
     if (showLanguageSheet && homeScreenState.status == WRStatus.SUCCESS)
         ArticleLanguageBottomSheet(
             langs = homeScreenState.langs ?: emptyList(),
+            recentLangs = recentLangs,
+            currentLang = WikiLang(preferencesState.lang, homeScreenState.title),
             searchStr = languageSearchStr,
             searchQuery = languageSearchQuery,
             setShowSheet = setShowArticleLanguageSheet,
@@ -203,6 +204,7 @@ fun AppHomeScreen(
         )
     else if (showLanguageSheet)
         LanguageBottomSheet(
+            recentLangs = recentLangs,
             lang = preferencesState.lang,
             searchStr = languageSearchStr,
             searchQuery = languageSearchQuery,
@@ -232,7 +234,7 @@ fun AppHomeScreen(
                         modifier = Modifier.padding(horizontal = 8.dp)
                     ) {
                         Text(
-                            text = "Reference",
+                            text = stringResource(R.string.reference),
                             style = MaterialTheme.typography.titleLarge
                         )
                         Spacer(Modifier.weight(1f))
@@ -332,55 +334,59 @@ fun AppHomeScreen(
                             .fillMaxSize()
                     ) {
                         item { // Title + Image/description
-                            Text(
-                                text = homeScreenState.title,
-                                style = MaterialTheme.typography.displaySmallEmphasized,
-                                fontFamily = FontFamily.Serif,
-                                modifier = Modifier
-                                    .sharedBounds(
-                                        sharedContentState = rememberSharedContentState(
-                                            homeScreenState.title
-                                        ),
-                                        animatedVisibilityScope = this@AnimatedVisibility,
-                                        zIndexInOverlay = 1f
+                            SelectionContainer {
+                                Column {
+                                    Text(
+                                        text = homeScreenState.title,
+                                        style = MaterialTheme.typography.displaySmallEmphasized,
+                                        fontFamily = FontFamily.Serif,
+                                        modifier = Modifier
+                                            .sharedBounds(
+                                                sharedContentState = rememberSharedContentState(
+                                                    homeScreenState.title
+                                                ),
+                                                animatedVisibilityScope = this@AnimatedVisibility,
+                                                zIndexInOverlay = 1f
+                                            )
+                                            .padding(start = 16.dp, end = 16.dp, top = 16.dp)
+                                            .animateContentSize(motionScheme.defaultSpatialSpec())
                                     )
-                                    .padding(start = 16.dp, end = 16.dp, top = 16.dp)
-                                    .animateContentSize(motionScheme.defaultSpatialSpec())
-                            )
-                            if (photoDesc != null) {
-                                Text(
-                                    text = photoDesc,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = colorScheme.onSurfaceVariant,
-                                    fontFamily = FontFamily.Serif,
-                                    modifier = Modifier
-                                        .sharedBounds(
-                                            sharedContentState = rememberSharedContentState(
-                                                photoDesc
-                                            ),
+                                    if (photoDesc != null) {
+                                        Text(
+                                            text = photoDesc,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            color = colorScheme.onSurfaceVariant,
+                                            fontFamily = FontFamily.Serif,
+                                            modifier = Modifier
+                                                .sharedBounds(
+                                                    sharedContentState = rememberSharedContentState(
+                                                        photoDesc
+                                                    ),
+                                                    animatedVisibilityScope = this@AnimatedVisibility,
+                                                    zIndexInOverlay = 1f
+                                                )
+                                                .padding(
+                                                    start = 16.dp,
+                                                    end = 16.dp,
+                                                    top = 4.dp,
+                                                    bottom = 16.dp
+                                                )
+                                                .fillMaxWidth()
+                                        )
+                                    }
+                                    if (photoDesc != null) {
+                                        ImageCard(
+                                            photo = photo,
+                                            title = homeScreenState.title,
+                                            imageLoader = imageLoader,
                                             animatedVisibilityScope = this@AnimatedVisibility,
-                                            zIndexInOverlay = 1f
+                                            showPhoto = !preferencesState.dataSaver,
+                                            onClick = onImageClick,
+                                            background = preferencesState.imageBackground,
+                                            modifier = Modifier.padding(bottom = 8.dp)
                                         )
-                                        .padding(
-                                            start = 16.dp,
-                                            end = 16.dp,
-                                            top = 4.dp,
-                                            bottom = 16.dp
-                                        )
-                                        .fillMaxWidth()
-                                )
-                            }
-                            if (photoDesc != null) {
-                                ImageCard(
-                                    photo = photo,
-                                    title = homeScreenState.title,
-                                    imageLoader = imageLoader,
-                                    animatedVisibilityScope = this@AnimatedVisibility,
-                                    showPhoto = !preferencesState.dataSaver,
-                                    onClick = onImageClick,
-                                    background = preferencesState.imageBackground,
-                                    modifier = Modifier.padding(bottom = 8.dp)
-                                )
+                                    }
+                                }
                             }
                         }
                         item { // Main description
@@ -388,6 +394,7 @@ fun AppHomeScreen(
                                 SelectionContainer {
                                     ParsedBodyText(
                                         body = homeScreenState.extract[0],
+                                        lang = homeScreenState.currentLang ?: "en",
                                         fontSize = fontSize,
                                         fontFamily = fontFamily,
                                         renderMath = preferencesState.renderMath,
@@ -398,6 +405,7 @@ fun AppHomeScreen(
                                         checkFirstImage = true,
                                         onLinkClick = onLinkClick,
                                         onGalleryImageClick = onGalleryImageClick,
+                                        showRef = showRef,
                                         pageImageUri = homeScreenState.photo?.source
                                     )
                                 }
@@ -411,6 +419,7 @@ fun AppHomeScreen(
                                     ExpandableSection(
                                         title = homeScreenState.extract[i],
                                         body = homeScreenState.extract.getOrElse(i + 1) { emptyList() },
+                                        lang = homeScreenState.currentLang ?: "en",
                                         fontSize = fontSize,
                                         fontFamily = fontFamily,
                                         imageLoader = imageLoader,
@@ -420,7 +429,8 @@ fun AppHomeScreen(
                                         renderMath = preferencesState.renderMath,
                                         imageBackground = preferencesState.imageBackground,
                                         onLinkClick = onLinkClick,
-                                        onGalleryImageClick = onGalleryImageClick
+                                        onGalleryImageClick = onGalleryImageClick,
+                                        showRef = showRef
                                     )
                                 }
                         }
@@ -444,7 +454,8 @@ fun AppHomeScreen(
             AnimatedVisibility(
                 !condition1 && !condition2 && condition3,
                 enter = fadeIn(),
-                exit = fadeOut()
+                exit = fadeOut(),
+                modifier = Modifier.fillMaxSize()
             ) {
                 Icon(
                     painterResource(R.drawable.ic_launcher_monochrome),

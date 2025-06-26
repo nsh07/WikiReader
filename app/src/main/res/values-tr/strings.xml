@@ -16,7 +16,7 @@
     <string name="setAsDefault">Varsayılan olarak ayarla</string>
     <string name="articleDeleted">Madde silindi</string>
     <string name="app_name">WikiReader</string>
-    <string name="articlesSize">%1$s madde, toplam %2$s</string>
+    <string name="articlesSize">%1$s madde, %2$s dil</string>
     <string name="author">Yazar</string>
     <string name="app">Uygulama</string>
     <string name="back">Geri git</string>
@@ -27,7 +27,7 @@
     <string name="clearSearchField">Arama kutusunu temizle</string>
     <string name="colorSchemeDynamic">Dinamik</string>
     <string name="deleteAll">Hepsini sil</string>
-    <string name="deleteArticle">İndirilen maddeyi sil</string>
+    <string name="deleteArticle">Maddeyi sil</string>
     <string name="deleteAllArticles">Tüm maddeler silinsin mi?</string>
     <string name="deleteAllArticlesDesc">Tüm maddeler cihazınızdan kalıcı olarak silinecektir</string>
     <string name="deleteSavedArticle">Kaydedilen madde silinsin mi?</string>
@@ -54,7 +54,7 @@
     <string name="ok">Tamam</string>
     <string name="instructions">Talimatlar</string>
     <string name="noSavedArticles">Kaydedilmiş madde yok</string>
-    <string name="noSavedArticlesDesc">Başlamak için bir makaleyi görüntülerken alt kısımdaki araç çubuğundaki indirme düğmesine tıklayın.</string>
+    <string name="noSavedArticlesDesc">Başlamak için bir makaleyi görüntülerken alt kısımdaki araç çubuğundaki indirme düğmesine tıklayın</string>
     <string name="onThisDay">Tarihte bugün</string>
     <string name="openInBrowser">Tarayıcıda aç</string>
     <string name="otherProjectsDesc">GitHub\'da diğer projelerime de bakın</string>
@@ -123,4 +123,16 @@
     <string name="supportMyWork">Çalışmalarımı destekleyin</string>
     <string name="settingAppLanguage">Uygulama Dili</string>
     <string name="chooseAppLanguage">Uygulama dilini seç</string>
+    <string name="undo">Geri al</string>
+    <string name="deletedFromHistory">\"%1$s\" geçmişten silindi</string>
+    <string name="table">Tablo</string>
+    <string name="reference">Referans</string>
+    <string name="noHistoryItemsDesc">Yakın zamanda görüntülediğiniz maddeler burada görünür</string>
+    <string name="noHistoryItems">Geçmişte öge yok</string>
+    <string name="recentLanguages">Yakın zamanda kullanılan diller</string>
+    <string name="currentLanguage">Kullanılan dil</string>
+    <string name="otherLanguages">Diğer diller</string>
+    <string name="items">%1$s öge</string>
+    <string name="infobox">Bilgi kutusu</string>
+    <string name="allHistoryDeleted">Tüm geçmiş silindi</string>
 </resources>

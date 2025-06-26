@@ -5,7 +5,7 @@
     <string name="appTagline">Read Wikipedia pages distraction-free</string>
     <string name="app_name">WikiReader</string>
     <string name="articleDeleted">Article deleted</string>
-    <string name="articlesSize">%1$s articles, %2$s total</string>
+    <string name="articlesSize">%1$s articles, %2$s languages</string>
     <string name="author">Author</string>
     <string name="back">Go back</string>
     <string name="cancel">Cancel</string>
@@ -123,4 +123,16 @@
     <string name="wikipediaWebsiteDesc">Visit the Wikipedia website</string>
     <string name="wikipedia_logo">Wikipedia\'s Logo</string>
     <string name="chooseAppLanguage">Choose app language</string>
+    <string name="allHistoryDeleted">All history deleted</string>
+    <string name="undo">Undo</string>
+    <string name="deletedFromHistory">\"%1$s\" deleted from history</string>
+    <string name="reference">Reference</string>
+    <string name="table">Table</string>
+    <string name="noHistoryItems">No items in history</string>
+    <string name="noHistoryItemsDesc">Recently opened articles will appear here</string>
+    <string name="currentLanguage">Current language</string>
+    <string name="recentLanguages">Recent languages</string>
+    <string name="otherLanguages">Other languages</string>
+    <string name="items">%1$s items</string>
+    <string name="infobox">Infobox</string>
 </resources>

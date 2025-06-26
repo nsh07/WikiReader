@@ -48,6 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.window.core.layout.WindowSizeClass
@@ -73,6 +74,7 @@ fun AppNavigationDrawer(
     backStackEntry: NavBackStackEntry?,
     modifier: Modifier = Modifier,
     onAboutClick: () -> Unit,
+    onHistoryClick: () -> Unit,
     onHomeClick: () -> Unit,
     onSavedArticlesClick: () -> Unit,
     onSettingsClick: () -> Unit,
@@ -85,28 +87,35 @@ fun AppNavigationDrawer(
             string.home,
             painterResource(drawable.outline_home),
             painterResource(drawable.filled_home),
-            Home::class,
+            HomeScreen::class,
             onHomeClick
         ),
         Item(
             string.saved,
             painterResource(drawable.download_done),
             painterResource(drawable.filled_download_done),
-            SavedArticles::class,
+            SavedArticlesScreen::class,
             onSavedArticlesClick
+        ),
+        Item(
+            string.history,
+            painterResource(drawable.history),
+            painterResource(drawable.history_selected),
+            HistoryScreen::class,
+            onHistoryClick
         ),
         Item(
             string.settings,
             painterResource(drawable.outline_settings),
             painterResource(drawable.filled_settings),
-            Settings::class,
+            SettingsScreen::class,
             onSettingsClick
         ),
         Item(
             string.about,
             painterResource(drawable.outline_info),
             painterResource(drawable.filled_info),
-            About::class,
+            AboutScreen::class,
             onAboutClick
         )
     )
@@ -245,7 +254,7 @@ private fun AppNavigationRailContent(
             rememberScrollState()
         )
     ) {
-        items.forEach { item ->
+        items.fastForEach { item ->
             val selected = backStackEntry?.destination?.hasRoute(item.route) == true
             WideNavigationRailItem(
                 selected = selected,
@@ -267,7 +276,7 @@ private fun AppNavigationRailContent(
                 railExpanded = expanded
             )
         }
-        if (expanded && backStackEntry?.destination?.hasRoute(Home::class) == true) {
+        if (expanded && backStackEntry?.destination?.hasRoute(HomeScreen::class) == true) {
             Text(
                 stringResource(string.sections),
                 style = typography.titleSmall,
@@ -276,7 +285,7 @@ private fun AppNavigationRailContent(
             )
             when (homeScreenStatus) {
                 WRStatus.FEED_LOADED -> {
-                    feedSections.forEach { section ->
+                    feedSections.fastForEach { section ->
                         WideNavigationRailItem(
                             railExpanded = true,
                             label = {
@@ -306,7 +315,7 @@ private fun AppNavigationRailContent(
                 }
 
                 WRStatus.SUCCESS -> {
-                    homeScreenSections.forEach { section ->
+                    homeScreenSections.fastForEach { section ->
                         WideNavigationRailItem(
                             railExpanded = true,
                             label = {

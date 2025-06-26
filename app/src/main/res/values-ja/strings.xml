@@ -20,14 +20,14 @@
     <string name="donate">寄付</string>
     <string name="donateToWikipedia">Wikipediaに寄付または貢献する</string>
     <string name="dialogDeleteSearchHistoryDesc">検索履歴を削除しますか？</string>
-    <string name="featuredArticle">注目の記事</string>
+    <string name="featuredArticle">注目記事</string>
     <string name="author">開発者</string>
     <string name="chooseTheme">テーマを選ぶ</string>
     <string name="inTheNews">ニュースで</string>
     <string name="inArticleMatches">内容が一致</string>
     <string name="license">ライセンス</string>
     <string name="instructions">説明書</string>
-    <string name="noSavedArticles">保存された記事はありません</string>
+    <string name="noSavedArticles">保存した記事はありません</string>
     <string name="picOfTheDay">今日の一枚</string>
     <string name="reset">リセット</string>
     <string name="randomArticle">ランダム記事</string>
@@ -37,7 +37,7 @@
     <string name="savedArticles">保存した記事</string>
     <string name="resetSettingsDialog">初期化しますか？</string>
     <string name="resetSettingsDialogDesc">すべての設定が初期化されます</string>
-    <string name="setAsDefault">規定のアプリ</string>
+    <string name="setAsDefault">デフォルトに設定</string>
     <string name="setAsDefaultDesc">Wikipediaのリンクを開くデフォルトのアプリとしてWikiReaderを設定することができます。下のボタンから詳細の確認と、設定の表示が可能です。</string>
     <string name="settingWikipediaLanguage">Wikipediaの言語</string>
     <string name="themeDark">ダーク</string>
@@ -107,4 +107,14 @@
     <string name="snackbarUnableToDelete">記事の削除に失敗: %1$s</string>
     <string name="snackbarUnableToLoadFeed">フィードの読み込みに失敗: %1$s</string>
     <string name="snackbarUnableToSave">記事の保存に失敗: %1$s</string>
+    <string name="noSavedArticlesDesc">記事の閲覧中に下部のツールバーにあるダウンロードボタンを押すことで保存することが可能です</string>
+    <string name="appTagline">Read Wikipedia pages distraction-free</string>
+    <string name="clearSearchField">検索フィールドをクリア</string>
+    <string name="collapse_section">セクションを折りたたむ</string>
+    <string name="deleteArticle">記事を削除する</string>
+    <string name="downloadArticle">記事を削除</string>
+    <string name="resetSettingsIconDesc">設定を初期化</string>
+    <string name="scroll_to_top">最上部に移動</string>
+    <string name="shareLink">リンクを共有</string>
+    <string name="sharePage">ページを共有</string>
 </resources>

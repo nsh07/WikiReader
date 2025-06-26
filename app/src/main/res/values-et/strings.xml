@@ -18,7 +18,7 @@
     <string name="deleteAll">Kustuta kõik</string>
     <string name="deleteAllArticles">Kas kustutame kõik artiklid?</string>
     <string name="deleteAllArticlesDesc">Järgnevaga saavad kõik artiklid siit nutiseadmest kustutatud</string>
-    <string name="deleteArticle">Kustuta allalaaditud artikkel</string>
+    <string name="deleteArticle">Kustuta artikkel</string>
     <string name="dialogDeleteHistoryItem">Otsingusõna „%1$s“ saab otsinguajaloost kustutatud.</string>
     <string name="dialogDeleteHistoryItemDesc">Järgnevaga saab kogu otsinguajalugu kustutatud.</string>
     <string name="dialogDeleteSearchHistory">Kas soovid kustutada selle otsingusõna ajaloost?</string>
@@ -86,7 +86,7 @@
     <string name="about">Rakenduse teave</string>
     <string name="colorSchemeDynamic">Dünaamiline</string>
     <string name="ok">Sobib</string>
-    <string name="articlesSize">%1$s artiklit, kokku %2$s</string>
+    <string name="articlesSize">%1$s artiklit, %2$s-s keeles</string>
     <string name="cancel">Katkesta</string>
     <string name="chooseTheme">Vali kujundus</string>
     <string name="license">Litsents</string>
@@ -123,4 +123,16 @@
     <string name="supportMyWork">Toeta minu tööd</string>
     <string name="settingAppLanguage">Rakenduse keel</string>
     <string name="chooseAppLanguage">Vali rakenduse keel</string>
+    <string name="allHistoryDeleted">Kogu ajalugu on kustutatud</string>
+    <string name="undo">Võta tegevus tagasi</string>
+    <string name="deletedFromHistory">„%1$s“ on ajaloost kustutatud</string>
+    <string name="reference">Viide</string>
+    <string name="table">Tabel</string>
+    <string name="noHistoryItems">Ajaloos pole ühtegi kirjet</string>
+    <string name="recentLanguages">Hiljutised keeled</string>
+    <string name="otherLanguages">Muud keeled</string>
+    <string name="noHistoryItemsDesc">Hiljuti avatud artiklid saavad olema nähtavad siin</string>
+    <string name="currentLanguage">Praegune keel</string>
+    <string name="items">%1$s kirje(t)</string>
+    <string name="infobox">Infobox</string>
 </resources>

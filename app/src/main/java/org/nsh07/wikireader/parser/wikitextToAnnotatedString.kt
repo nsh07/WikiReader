@@ -19,11 +19,19 @@ import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.fastMap
 import com.github.tomtung.latex2unicode.LaTeX2Unicode
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.parser.ReferenceData.refCount
 import org.nsh07.wikireader.parser.ReferenceData.refList
 import org.nsh07.wikireader.parser.ReferenceData.refListCount
+import org.nsh07.wikireader.parser.ReferenceData.refListIndex
+import org.nsh07.wikireader.parser.ReferenceData.refTemplate
+import org.nsh07.wikireader.parser.ReferenceData.refTemplates
 import kotlin.math.min
 import kotlin.text.Typography.bullet
 import kotlin.text.Typography.nbsp
@@ -129,6 +137,7 @@ fun String.toWikitextAnnotatedString(
                                     }
                                 ) {
                                     append("<sup>$refCount </sup>".twas())
+                                    refListIndex[refCount] = curr
                                     refCount++
                                 }
                                 i += 5 + curr.length + 5
@@ -137,6 +146,7 @@ fun String.toWikitextAnnotatedString(
                                 val refWt = refList[refName] ?: ""
                                 if (refListCount[refWt] == null) {
                                     refListCount[refWt] = refCount
+                                    refListIndex[refCount] = refWt
                                     refCount++
                                 }
                                 withLink(
@@ -155,6 +165,7 @@ fun String.toWikitextAnnotatedString(
                                 val refWt = refList[refName] ?: ""
                                 if (refListCount[refWt] == null) {
                                     refListCount[refWt] = refCount
+                                    refList[refName]
                                     refCount++
                                 }
                                 withLink(
@@ -266,7 +277,7 @@ fun String.toWikitextAnnotatedString(
 
                         currSubstring.startsWith("<small>") -> {
                             val curr = currSubstring.substringBefore("</small>").substringAfter('>')
-                            withStyle(SpanStyle(fontSize = (fontSize - 2).sp)) {
+                            withStyle(SpanStyle(fontSize = (fontSize - 4).sp)) {
                                 append(curr.twasNoNewline())
                             }
                             i += 7 + curr.length + 7
@@ -325,8 +336,13 @@ fun String.toWikitextAnnotatedString(
                         val currSubstring =
                             substringMatchingParen('{', '}', i).substringBeforeLast("}}")
                         when {
-                            currSubstring.startsWith("{{cite", ignoreCase = true) -> {
-                                val text = if (currSubstring.startsWith("{{cite book", true)) {
+                            refTemplates.fastAny { item ->
+                                currSubstring
+                                    .startsWith(item, ignoreCase = true)
+                                    .also { if (it) refTemplate = item }
+                            } -> {
+                                val text =
+                                    if (currSubstring.startsWith("$refTemplate book", true)) {
                                     val params = mutableMapOf<String, String>()
 
                                     // Extract inside of {{Cite book ...}}
@@ -367,16 +383,16 @@ fun String.toWikitextAnnotatedString(
                                         params["publisher"],
                                         params["isbn"]?.let { "[[ISBN]] $it" }
                                     )
-                                        .filter { it.isNotBlank() }
+                                        .fastFilter { it.isNotBlank() }
                                         .joinToString(". ")
                                         .plus(".")
                                         .trim()
                                         .twas()
                                 } else if (
-                                    currSubstring.startsWith("{{cite web", true) ||
-                                    currSubstring.startsWith("{{cite news", true) ||
-                                    currSubstring.startsWith("{{cite AV media", true) ||
-                                    currSubstring.startsWith("{{cite press release", true)
+                                        currSubstring.startsWith("$refTemplate web", true) ||
+                                        currSubstring.startsWith("$refTemplate news", true) ||
+                                        currSubstring.startsWith("$refTemplate AV media", true) ||
+                                        currSubstring.startsWith("$refTemplate press release", true)
                                 ) {
                                     val params = mutableMapOf<String, String>()
 
@@ -429,12 +445,16 @@ fun String.toWikitextAnnotatedString(
                                         "[${params["archive-url"]} Archived] ${params["archive-date"]}".takeIf { params["archive-url"] != null },
                                         "via ${params["via"]}".takeIf { params["via"] != null }
                                     )
-                                        .filter { it.isNotBlank() }
+                                        .fastFilter { it.isNotBlank() }
                                         .joinToString(". ")
                                         .plus(".")
                                         .trim()
                                         .twas()
-                                } else if (currSubstring.startsWith("{{cite journal", true)) {
+                                    } else if (currSubstring.startsWith(
+                                            "$refTemplate journal",
+                                            true
+                                        )
+                                    ) {
                                     val params = mutableMapOf<String, String>()
 
                                     // Extract inside of {{Cite journal ...}}
@@ -488,7 +508,7 @@ fun String.toWikitextAnnotatedString(
                                         "[[PMC]]:${params["PMC"]}".takeIf { params["PMC"] != null },
                                         "[[PMID]]:${params["PMID"]}".takeIf { params["PMID"] != null },
                                     )
-                                        .filter { it.isNotBlank() }
+                                        .fastFilter { it.isNotBlank() }
                                         .joinToString(". ")
                                         .plus(".")
                                         .trim()
@@ -526,7 +546,7 @@ fun String.toWikitextAnnotatedString(
                                 append(toAdd)
                             }
 
-                            currSubstring.startsWith("{{mono", ignoreCase = true) -> {
+                            currSubstring.startsWith("{{mono|", ignoreCase = true) -> {
                                 val curr = currSubstring.substringAfter('|')
                                 withStyle(SpanStyle(fontFamily = FontFamily.Monospace)) {
                                     append(curr.twas())
@@ -536,9 +556,8 @@ fun String.toWikitextAnnotatedString(
                             currSubstring.startsWith("{{math", ignoreCase = true) ||
                                     currSubstring.startsWith("{{mvar", ignoreCase = true)
                                 -> {
-                                val curr = currSubstring.substringAfter('|').removePrefix("1=")
+                                val curr = currSubstring.substringAfter('|', "").removePrefix("1=")
                                 withStyle(SpanStyle(fontFamily = FontFamily.Serif)) {
-                                    append(curr.replace(' ', nbsp).twas())
                                     append(curr.replace(' ', nbsp).twas())
                                 }
                             }
@@ -569,7 +588,7 @@ fun String.toWikitextAnnotatedString(
                                     append("Main article")
                                     if (splitList.size > 1) append("s: ")
                                     else append(": ")
-                                    splitList.forEachIndexed { index, it ->
+                                    splitList.fastForEachIndexed { index, it ->
                                         append(
                                             "[[${it.substringBefore(MAGIC_SEP)}|${
                                                 it.substringAfter(MAGIC_SEP).replace(
@@ -592,7 +611,7 @@ fun String.toWikitextAnnotatedString(
                                 val splitList = curr.split('|').filterNot { it.startsWith('#') }
                                 withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
                                     append("See also: ")
-                                    splitList.forEachIndexed { index, it ->
+                                    splitList.fastForEachIndexed { index, it ->
                                         append(
                                             "[[${it.substringBefore(MAGIC_SEP)}|${
                                                 it.substringAfter((MAGIC_SEP)).replace("#", " § ")
@@ -636,7 +655,7 @@ fun String.toWikitextAnnotatedString(
                                     else curr.split('|')
                                 withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
                                     append("Not to be confused with ")
-                                    if (!textSpecified) splitList.forEachIndexed { index, it ->
+                                    if (!textSpecified) splitList.fastForEachIndexed { index, it ->
                                         append(
                                             "[[${it.substringBefore(MAGIC_SEP)}|${
                                                 it.substringAfter(
@@ -683,6 +702,13 @@ fun String.toWikitextAnnotatedString(
                                 val curr = currSubstring.substringAfter('|')
                                 withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
                                     append(curr.substringAfter('|').substringBefore('|').twas())
+                                }
+                            }
+
+                            currSubstring.startsWith("{{transliteration", true) -> {
+                                val curr = currSubstring.substringAfterLast('|', "")
+                                withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                                    append(curr.twas())
                                 }
                             }
 
@@ -787,7 +813,7 @@ fun String.toWikitextAnnotatedString(
                                 append(curr.substringBefore('|'))
                                 append(' ')
                                 var date = ""
-                                curr.substringAfter('|').split('|').forEach {
+                                curr.substringAfter('|').split('|').fastForEach {
                                     if (it.toIntOrNull() != null) {
                                         date += it
                                         date += '/'
@@ -826,7 +852,7 @@ fun String.toWikitextAnnotatedString(
                                 append(curr.twas())
                             }
 
-                            arrayOf("{{nowrap", "{{nobr", "{{nobreak", "{{nwr", "{{nbr").any {
+                            listOf("{{nowrap", "{{nobr", "{{nobreak", "{{nwr", "{{nbr").fastAny {
                                 currSubstring.startsWith(it, ignoreCase = true)
                             } -> {
                                 val curr = currSubstring.substringAfter('|')
@@ -861,6 +887,41 @@ fun String.toWikitextAnnotatedString(
                                 }
                             }
 
+                            listOf("{{birth date", "{{death date").fastAny {
+                                currSubstring.startsWith(it)
+                            } -> {
+                                val splitList = currSubstring
+                                    .substringAfter('|')
+                                    .splitNotInBraces('|')
+                                    .fastFilter { !it.contains("df|mf".toRegex()) }
+                                    .fastMap { it.substringAfter('=').trim() }
+
+                                append(
+                                    splitList
+                                        .take(min(splitList.size, 3))
+                                        .joinToString("/")
+                                        .twas()
+                                )
+                            }
+
+                            currSubstring.startsWith("{{unbulleted list") -> {
+                                val splitList = currSubstring
+                                    .substringAfter('|')
+                                    .splitNotInBraces('|')
+                                    .fastFilter { !it.contains('=') }
+                                    .fastMap { it.trim() }
+                                    .joinToString("\n")
+
+                                append(splitList.twas())
+                            }
+
+                            currSubstring.startsWith("{{Transcluded section", true) -> {
+                                val title =
+                                    currSubstring.split('|').filter { it.contains("source=") }
+                                        .joinToString().substringAfter('=')
+                                append("''This section is transcluded from [[$title]]''".twas())
+                            }
+
                             currSubstring.startsWith("{{Starbox begin", ignoreCase = true) -> {
                                 val templateLength = currSubstring.length
                                 i = input.indexOf(
@@ -883,6 +944,25 @@ fun String.toWikitextAnnotatedString(
                                         curr.subList(0, min(curr.size, 3)).joinToString("/").twas()
                                     } $ndash ${curr.subList(3, curr.size).joinToString("/")}"
                                 )
+                            }
+
+                            currSubstring.startsWith("{{reflist", true) -> {
+                                val reflist = refListIndex
+                                    .toSortedMap()
+                                    .map { "${it.key}.\t\t${it.value}" }
+
+                                reflist.fastForEach {
+                                    withStyle(
+                                        ParagraphStyle(
+                                            textIndent = TextIndent(restLine = 27.sp),
+                                            lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
+                                            lineHeightStyle = LineHeightStyle(
+                                                alignment = LineHeightStyle.Alignment.Center,
+                                                trim = LineHeightStyle.Trim.None
+                                            )
+                                        )
+                                    ) { append(it.twas()) }
+                                }
                             }
 
                             else -> {
@@ -1076,8 +1156,36 @@ fun String.buildRefList() {
     }
 }
 
+fun String.splitNotInBraces(delimiter: Char, open: Char = '[', close: Char = ']'): List<String> {
+    var stack = 0
+    val out = mutableListOf<String>()
+    var curr = ""
+
+    for (c in this) {
+        if (c == open) stack++
+        else if (c == close) stack--
+
+        if (c == delimiter && stack == 0) {
+            out.add(curr)
+            curr = ""
+        } else {
+            curr += c
+        }
+    }
+
+    if (curr.isNotEmpty()) {
+        out.add(curr)
+    }
+
+    return out
+}
+
 object ReferenceData {
     var refCount = 1
     val refList = mutableMapOf<String, String>()
+    val refListIndex = mutableMapOf<Int, String>()
     val refListCount = mutableMapOf<String, Int>()
+    var refTemplate = "{{cite"
+    val refTemplates = listOf("{{cite", "{{lien", "{{cita")
+    val infoboxTemplates = listOf("{{infobox", "{{taxobox", "{{Automatic taxobox")
 }

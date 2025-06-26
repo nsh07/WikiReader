@@ -67,8 +67,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -95,6 +97,7 @@ import kotlin.math.round
 fun SettingsScreen(
     preferencesState: PreferencesState,
     homeScreenState: HomeScreenState,
+    recentLangs: List<String>,
     languageSearchStr: String,
     languageSearchQuery: String,
     themeMap: Map<String, Pair<Int, String>>,
@@ -124,6 +127,7 @@ fun SettingsScreen(
 ) {
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
     val coroutineScope = rememberCoroutineScope()
 
     val appInfoIntent = remember {
@@ -228,7 +232,7 @@ fun SettingsScreen(
             ),
             SettingsSwitchItem(
                 preferencesState.searchHistory,
-                R.drawable.history,
+                R.drawable.search_history,
                 string.settingSearchHistory,
                 string.settingSearchHistoryDesc,
                 saveSearchHistory
@@ -259,6 +263,7 @@ fun SettingsScreen(
     if (showLanguageSheet)
         LanguageBottomSheet(
             lang = preferencesState.lang,
+            recentLangs = recentLangs,
             searchStr = languageSearchStr,
             searchQuery = languageSearchQuery,
             setShowSheet = setShowLanguageSheet,
@@ -468,11 +473,14 @@ fun SettingsScreen(
                     headlineContent = { Text(stringResource(string.settingFontSize)) },
                     supportingContent = {
                         Column {
-                            Text(round(fontSizeFloat).toInt().toString())
+                            val intSize = round(fontSizeFloat).toInt()
+                            Text(intSize.toString())
                             Slider(
                                 value = fontSizeAnimated,
                                 onValueChange = {
                                     animateFontSize = false
+                                    if (round(it).toInt() != intSize)
+                                        haptic.performHapticFeedback(HapticFeedbackType.SegmentTick)
                                     fontSizeFloat = it
                                 },
                                 valueRange = 10f..22f,
@@ -631,6 +639,7 @@ fun SettingsPreview() {
         SettingsScreen(
             preferencesState = PreferencesState(),
             homeScreenState = HomeScreenState(),
+            recentLangs = emptyList(),
             languageSearchStr = "",
             languageSearchQuery = "",
             themeMap = themeMap,

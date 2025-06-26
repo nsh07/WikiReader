@@ -28,7 +28,7 @@
     <string name="setAsDefault">Definir como padrão</string>
     <string name="settingDataSaver">Economizador de dados</string>
     <string name="articleDeleted">Artigo deletado</string>
-    <string name="articlesSize">%1$s artigos, %2$s total</string>
+    <string name="articlesSize">%1$s artigos, %2$s idiomas</string>
     <string name="author">Autor</string>
     <string name="chooseColorScheme">Escolher esquema de cores</string>
     <string name="chooseTheme">Escolher tema</string>
@@ -123,4 +123,16 @@
     <string name="supportMyWork">Apoie o meu trabalho</string>
     <string name="settingAppLanguage">Idioma do app</string>
     <string name="chooseAppLanguage">Escolher o idioma do app</string>
+    <string name="allHistoryDeleted">Todo o histórico foi deletado</string>
+    <string name="undo">Desfazer</string>
+    <string name="deletedFromHistory">\"%1$s\" foi deletado do histórico</string>
+    <string name="reference">Referência</string>
+    <string name="table">Tabela</string>
+    <string name="noHistoryItems">Nenhum item no histórico</string>
+    <string name="noHistoryItemsDesc">Os artigos abertos recentemente serão exibidos aqui</string>
+    <string name="recentLanguages">Idiomas recentes</string>
+    <string name="otherLanguages">Outros idiomas</string>
+    <string name="items">%1$s itens</string>
+    <string name="currentLanguage">Idioma atual</string>
+    <string name="infobox">Infocaixa</string>
 </resources>

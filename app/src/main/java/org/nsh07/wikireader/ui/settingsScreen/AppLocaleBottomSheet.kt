@@ -36,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFilter
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
@@ -137,7 +138,7 @@ fun AppLocaleBottomSheet(
                         Spacer(Modifier.height(12.dp))
                     }
                     itemsIndexed(
-                        supportedLocalesList.filter { it.name.contains(searchStr, true) },
+                        supportedLocalesList.fastFilter { it.name.contains(searchStr, true) },
                         key = { index: Int, it: WRLocale -> it.name }
                     ) { index, it ->
                         ListItem(

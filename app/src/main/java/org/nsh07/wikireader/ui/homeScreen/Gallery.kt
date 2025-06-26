@@ -41,6 +41,7 @@ import org.nsh07.wikireader.ui.image.FeedImage
 @Composable
 fun Gallery(
     text: String,
+    lang: String,
     fontSize: Int,
     background: Boolean,
     imageLoader: ImageLoader,
@@ -59,12 +60,12 @@ fun Gallery(
             .animateContentSize(motionScheme.defaultSpatialSpec())
     ) {
         val uriLow = remember(text) {
-            "https://commons.wikimedia.org/wiki/Special:FilePath/${
+            "https://$lang.wikipedia.org/wiki/Special:FilePath/${
                 content[it].substringBefore('|')
             }?width=720"
         }
         val uriHigh = remember(text) {
-            "https://commons.wikimedia.org/wiki/Special:FilePath/${
+            "https://$lang.wikipedia.org/wiki/Special:FilePath/${
                 content[it].substringBefore('|')
             }"
         }

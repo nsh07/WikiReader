@@ -43,6 +43,7 @@ import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.carousel.CarouselDefaults
 import androidx.compose.material3.carousel.CarouselState
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -66,6 +67,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 import androidx.core.text.parseAsHtml
 import androidx.window.core.layout.WindowSizeClass
 import coil3.ImageLoader
@@ -326,9 +328,11 @@ fun SharedTransitionScope.ArticleFeed(
                                     Row(
                                         modifier = Modifier
                                             .clip(
-                                                if (i == it * 5) topListItemShape
-                                                else if (i == it * 5 + 4) bottomListItemShape
-                                                else middleListItemShape
+                                                when (i) {
+                                                    it * 5 -> topListItemShape
+                                                    it * 5 + 4 -> bottomListItemShape
+                                                    else -> middleListItemShape
+                                                }
                                             )
                                             .background(colorScheme.surfaceContainer)
                                             .clickable(
@@ -363,6 +367,7 @@ fun SharedTransitionScope.ArticleFeed(
                                             Text(
                                                 feedState.mostReadArticles[i].description
                                                     ?: "",
+                                                style = typography.bodyMedium,
                                                 maxLines = 2,
                                                 overflow = TextOverflow.Ellipsis,
                                                 modifier = Modifier.sharedBounds(
@@ -376,7 +381,10 @@ fun SharedTransitionScope.ArticleFeed(
                                             )
                                             Row(
                                                 verticalAlignment = Alignment.CenterVertically,
-                                                modifier = Modifier.padding(bottom = 8.dp)
+                                                modifier = Modifier.padding(
+                                                    bottom = 8.dp,
+                                                    top = 4.dp
+                                                )
                                             ) {
                                                 ArticleViewsGraph(
                                                     remember {
@@ -393,7 +401,7 @@ fun SharedTransitionScope.ArticleFeed(
                                                 )
                                                 Text(
                                                     df.format(feedState.mostReadArticles[i].views),
-                                                    style = typography.titleSmall,
+                                                    style = typography.bodyMedium,
                                                     color = colorScheme.primary
                                                 )
                                             }
@@ -415,7 +423,7 @@ fun SharedTransitionScope.ArticleFeed(
                                                     )
                                                     .padding(16.dp)
                                                     .clip(shapes.large)
-                                                    .size(80.dp, 80.dp)
+                                                    .size(80.dp)
                                             )
                                     }
                                 }
@@ -563,6 +571,7 @@ fun SharedTransitionScope.ArticleFeed(
                     HorizontalMultiBrowseCarousel(
                         state = newsCarouselState!!,
                         itemSpacing = 8.dp,
+                        flingBehavior = CarouselDefaults.multiBrowseFlingBehavior(newsCarouselState),
                         modifier = if (!expanded)
                             Modifier
                                 .padding(16.dp)
@@ -622,7 +631,7 @@ fun SharedTransitionScope.ArticleFeed(
                                 ) {
                                     feedState.news[i].links
                                         ?.subList(0, min(3, feedState.news[i].links?.size ?: 0))
-                                        ?.forEach {
+                                        ?.fastForEach {
                                             OutlinedButton(
                                                 shapes = ButtonDefaults.shapes(),
                                                 border = BorderStroke(
@@ -668,6 +677,7 @@ fun SharedTransitionScope.ArticleFeed(
                     HorizontalMultiBrowseCarousel(
                         state = otdCarouselState!!,
                         itemSpacing = 8.dp,
+                        flingBehavior = CarouselDefaults.multiBrowseFlingBehavior(otdCarouselState),
                         modifier =
                             if (!expanded)
                                 Modifier
@@ -742,7 +752,7 @@ fun SharedTransitionScope.ArticleFeed(
                                                 0,
                                                 min(3, feedState.onThisDay[i].pages?.size ?: 0)
                                             )
-                                            ?.forEach {
+                                            ?.fastForEach {
                                                 OutlinedButton(
                                                     shapes = ButtonDefaults.shapes(),
                                                     border = BorderStroke(

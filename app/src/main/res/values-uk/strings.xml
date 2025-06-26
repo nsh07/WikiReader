@@ -101,7 +101,7 @@
     <string name="snackbarArticleSaved">Стаття збережена для читання без мережі</string>
     <string name="sharePage">Поділитися сторінкою</string>
     <string name="snackbarUnableToLoadFeed">Не вдається завантажити стрічку: %1$s</string>
-    <string name="articlesSize">%1$s статей, всього %2$s</string>
+    <string name="articlesSize">Статей: %1$s, мов: %2$s</string>
     <string name="translate">Перекласти</string>
     <string name="translateDesc">Допоможіть перекласти WikiReader вашою мовою</string>
     <string name="imageCounter">Зображення %1$s з %2$s</string>
@@ -123,4 +123,16 @@
     <string name="supportMyWork">Підтримайте мою роботу</string>
     <string name="settingAppLanguage">Мова програми</string>
     <string name="chooseAppLanguage">Виберіть мову програми</string>
+    <string name="deletedFromHistory">\"%1$s\" видалено з історії</string>
+    <string name="table">Стіл</string>
+    <string name="allHistoryDeleted">Вся історія видалена</string>
+    <string name="reference">Послання</string>
+    <string name="undo">Відмінити</string>
+    <string name="noHistoryItemsDesc">Нещодавно відкриті статті з\'являтимуться тут</string>
+    <string name="noHistoryItems">Немає елементів в історії</string>
+    <string name="recentLanguages">Нещодавні мови</string>
+    <string name="otherLanguages">Інші мови</string>
+    <string name="currentLanguage">Поточна мова</string>
+    <string name="items">%1$s предмети</string>
+    <string name="infobox">Інфобокс</string>
 </resources>
