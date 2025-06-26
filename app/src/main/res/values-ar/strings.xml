@@ -7,7 +7,7 @@
     <string name="about">حول</string>
     <string name="appTagline">اقرأ صفحات ويكيبيديا دون تشتيت انتباهك</string>
     <string name="articleDeleted">تم حذف المقال</string>
-    <string name="articlesSize">%1$s مقالات، %2$s إجمالي</string>
+    <string name="articlesSize">%1$s مقالات، %2$s اللغات</string>
     <string name="author">المؤلف</string>
     <string name="back">العودة</string>
     <string name="cancel">إلغاء</string>
@@ -123,4 +123,16 @@
     <string name="settingAppLanguage">لغة التطبيق</string>
     <string name="supportMyWork">ادعم عملي</string>
     <string name="chooseAppLanguage">اختر لغة التطبيق</string>
+    <string name="allHistoryDeleted">تم حذف السجل</string>
+    <string name="undo">التراجع</string>
+    <string name="deletedFromHistory">تم حذف \"%1$s\" من السجل</string>
+    <string name="reference">المرجع</string>
+    <string name="table">الجدول</string>
+    <string name="noHistoryItems">لا توجد عناصر في السجل</string>
+    <string name="noHistoryItemsDesc">ستظهر المقالات التي تم فتحها مؤخراً هنا</string>
+    <string name="currentLanguage">اللغة الحالية</string>
+    <string name="recentLanguages">اللغات الأخيرة</string>
+    <string name="otherLanguages">لغات أخرى</string>
+    <string name="items">%1$s من العناصر</string>
+    <string name="infobox">صندوق المعلومات</string>
 </resources>

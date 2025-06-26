@@ -102,7 +102,7 @@
     <string name="dialogDeleteHistoryItemDesc">Su historial de búsqueda será eliminado permanentemente.</string>
     <string name="information">Información</string>
     <string name="openInBrowser">Abrir en el navegador</string>
-    <string name="noSavedArticlesDesc">Haga clic en el botón de descarga en la barra de herramientas en la parte inferior mientras visualiza un artículo para comenzar.</string>
+    <string name="noSavedArticlesDesc">Haga clic en el botón de descarga en la barra de herramientas en la parte inferior mientras visualiza un artículo para comenzar</string>
     <string name="settingDataSaver">Ahorro de datos</string>
     <string name="snackbarUnableToLoadFeed">No se pudo cargar el feed: %1$s</string>
     <string name="selectedLabel">Seleccionado</string>
