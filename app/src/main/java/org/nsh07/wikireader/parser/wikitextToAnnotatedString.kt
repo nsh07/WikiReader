@@ -277,7 +277,7 @@ fun String.toWikitextAnnotatedString(
 
                         currSubstring.startsWith("<small>") -> {
                             val curr = currSubstring.substringBefore("</small>").substringAfter('>')
-                            withStyle(SpanStyle(fontSize = (fontSize - 2).sp)) {
+                            withStyle(SpanStyle(fontSize = (fontSize - 4).sp)) {
                                 append(curr.twasNoNewline())
                             }
                             i += 7 + curr.length + 7
@@ -1187,4 +1187,5 @@ object ReferenceData {
     val refListCount = mutableMapOf<String, Int>()
     var refTemplate = "{{cite"
     val refTemplates = listOf("{{cite", "{{lien", "{{cita")
+    val infoboxTemplates = listOf("{{infobox", "{{taxobox", "{{Automatic taxobox")
 }

@@ -9,6 +9,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.core.text.parseAsHtml
@@ -48,6 +49,7 @@ import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.parseSections
 import org.nsh07.wikireader.network.HostSelectionInterceptor
 import org.nsh07.wikireader.network.NetworkException
+import org.nsh07.wikireader.parser.ReferenceData.infoboxTemplates
 import org.nsh07.wikireader.parser.ReferenceData.refCount
 import org.nsh07.wikireader.parser.ReferenceData.refList
 import org.nsh07.wikireader.parser.ReferenceData.refListCount
@@ -773,8 +775,6 @@ class UiViewModel(
             interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
             return WRStatus.NETWORK_ERROR
         }
-
-        return WRStatus.OTHER
     }
 
     /**
@@ -1092,8 +1092,12 @@ class UiViewModel(
                         }
                     } else if (
                         stack < 2 && parsed.getOrNull(i + 1) == '{' &&
-                        parsed.substring(i, min(i + 12, parsed.length))
-                            .startsWith("{{Infobox", true)
+                        parsed.substring(i, min(i + 24, parsed.length))
+                            .let { subStr ->
+                                infoboxTemplates.fastAny {
+                                    subStr.startsWith(it, true)
+                                }
+                            }
                     ) {
                         val currSubstring = parsed.substringMatchingParen('{', '}', i)
                         out.add(
