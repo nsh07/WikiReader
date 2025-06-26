@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.baselineprofile)
@@ -15,8 +17,8 @@ android {
         applicationId = "org.nsh07.wikireader"
         minSdk = 26
         targetSdk = 36
-        versionCode = 42
-        versionName = "2.3.0"
+        versionCode = 44
+        versionName = "2.4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -41,8 +43,13 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17) // Use the enum for target JVM version
+        }
+    }
+    ksp {
+        arg("room.schemaLocation", "$projectDir/schemas")
     }
     buildFeatures {
         compose = true

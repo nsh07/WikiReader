@@ -42,6 +42,7 @@ class BaselineProfileGenerator {
             device.pressBack()
 
             navigateTo("Saved", device)
+            navigateTo("History", device)
             navigateTo("Settings", device)
             navigateTo("About", device)
         }
