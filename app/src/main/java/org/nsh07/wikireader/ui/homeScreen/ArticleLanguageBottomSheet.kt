@@ -151,9 +151,14 @@ fun ArticleLanguageBottomSheet(
                                 supportingContent = { Text(it.title) },
                                 modifier = Modifier
                                     .clip(
-                                        if (index == 0) topListItemShape
-                                        else if (index == articleLangs.first.size - 1) bottomListItemShape
-                                        else middleListItemShape
+                                        if (articleLangs.first.size == 1) shapes.large
+                                        else {
+                                            when (index) {
+                                                0 -> topListItemShape
+                                                articleLangs.first.size - 1 -> bottomListItemShape
+                                                else -> middleListItemShape
+                                            }
+                                        }
                                     )
                                     .clickable(
                                         onClick = {
@@ -201,9 +206,14 @@ fun ArticleLanguageBottomSheet(
                             supportingContent = { Text(it.title) },
                             modifier = Modifier
                                 .clip(
-                                    if (index == 0) topListItemShape
-                                    else if (index == articleLangs.second.size - 1) bottomListItemShape
-                                    else middleListItemShape
+                                    if (articleLangs.second.size == 1) shapes.large
+                                    else {
+                                        when (index) {
+                                            0 -> topListItemShape
+                                            articleLangs.second.size - 1 -> bottomListItemShape
+                                            else -> middleListItemShape
+                                        }
+                                    }
                                 )
                                 .clickable(
                                     onClick = {
