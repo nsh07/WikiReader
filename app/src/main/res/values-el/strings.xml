@@ -13,4 +13,9 @@
     <string name="chooseTheme">Επιλέξτε θέμα</string>
     <string name="chooseWikipediaLanguage">Επιλέξτε τη γλώσσα της Βικιπαίδειας</string>
     <string name="clear">Εκκαθάριση</string>
+    <string name="clearSearchField">Εκκαθάριση πεδίο αναζήτησης</string>
+    <string name="collapse_section">Σύμπτυξη τμήματος</string>
+    <string name="colorSchemeColor">Χρώμα</string>
+    <string name="colorSchemeDynamic">Δυναμικό</string>
+    <string name="delete">Διαγραφή</string>
 </resources>
