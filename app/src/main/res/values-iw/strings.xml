@@ -11,7 +11,7 @@
     <string name="deleteAllArticles">למחוק את כל המאמרים?</string>
     <string name="about">אודות</string>
     <string name="dialogDeleteHistoryItem">\"%1$s\" יימחק לצמיתות מהיסטוריית החיפוש שלך.</string>
-    <string name="articlesSize">%1$s מאמרים, %2$s סה\"כ</string>
+    <string name="articlesSize">%1$s מאמרים, %2$s שפות</string>
     <string name="app">אפלקציה</string>
     <string name="appTagline">קרא דפי ויקיפדיה ללא הסחות דעת</string>
     <string name="app_name">WikiReader</string>
@@ -123,4 +123,16 @@
     <string name="supportMyWork">תמוך בעבודה שלי</string>
     <string name="settingAppLanguage">שפת יישום</string>
     <string name="chooseAppLanguage">בחירת שפת היישום</string>
+    <string name="allHistoryDeleted">כל ההיסטוריה נמחקה</string>
+    <string name="undo">בטל</string>
+    <string name="deletedFromHistory">\"%1$s\" נמחק מההיסטוריה</string>
+    <string name="reference">איזכור</string>
+    <string name="table">טבלה</string>
+    <string name="noHistoryItems">אין פריטים בהיסטוריה</string>
+    <string name="noHistoryItemsDesc">מאמרים שנפתחו לאחרונה יופיעו כאן</string>
+    <string name="currentLanguage">שפה נוכחית</string>
+    <string name="recentLanguages">שפות אחרונות</string>
+    <string name="otherLanguages">שפות אחרות</string>
+    <string name="items">%1$s פריטים</string>
+    <string name="infobox">תיבת מידע</string>
 </resources>
