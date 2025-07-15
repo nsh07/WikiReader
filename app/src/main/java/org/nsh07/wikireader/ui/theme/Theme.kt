@@ -6,6 +6,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialExpressiveTheme
+import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -17,6 +18,8 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.materialkolor.dynamiccolor.ColorSpec
+import com.materialkolor.ktx.animateColorScheme
 import com.materialkolor.rememberDynamicColorScheme
 
 private val DarkColorScheme = darkColorScheme(
@@ -75,14 +78,19 @@ fun WikiReaderTheme(
             else -> seedColor
         },
         isDark = darkTheme,
+        specVersion = ColorSpec.SpecVersion.SPEC_2025,
         isAmoled = blackTheme
     )
 
+    val scheme = animateColorScheme(
+        if (seedColor == Color.White && !(blackTheme && darkTheme)) colorScheme
+        else dynamicColorScheme
+    )
+
     MaterialExpressiveTheme(
-        colorScheme =
-            if (seedColor == Color.White && !(blackTheme && darkTheme)) colorScheme
-            else dynamicColorScheme,
+        colorScheme = scheme,
         typography = Typography,
+        motionScheme = MotionScheme.expressive(),
         content = content
     )
 }
