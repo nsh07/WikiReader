@@ -25,6 +25,10 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
 import com.github.tomtung.latex2unicode.LaTeX2Unicode
+import org.nsh07.wikireader.data.LanguageData.alpha3CodeToAlpha2CodeMap
+import org.nsh07.wikireader.data.LanguageData.countryNameToAlpha2CodeMap
+import org.nsh07.wikireader.data.LanguageData.fifaCodeToAlpha3CodeMap
+import org.nsh07.wikireader.data.countryFlag
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.parser.ReferenceData.refCount
 import org.nsh07.wikireader.parser.ReferenceData.refList
@@ -343,177 +347,180 @@ fun String.toWikitextAnnotatedString(
                             } -> {
                                 val text =
                                     if (currSubstring.startsWith("$refTemplate book", true)) {
-                                    val params = mutableMapOf<String, String>()
+                                        val params = mutableMapOf<String, String>()
 
-                                    // Extract inside of {{Cite book ...}}
-                                    val content =
-                                        currSubstring.substringAfter('|').trim()
+                                        // Extract inside of {{Cite book ...}}
+                                        val content =
+                                            currSubstring.substringAfter('|').trim()
 
-                                    // Split by pipes, then split each param by '='
-                                    val parts = content.split("|")
-                                    for (part in parts) {
-                                        val (key, value) = part.split("=", limit = 2)
-                                            .map { it.trim() }.let {
-                                                if (it.size == 2) it[0] to it[1] else return@let null
-                                            } ?: continue
-                                        params[key.lowercase()] = value
-                                    }
+                                        // Split by pipes, then split each param by '='
+                                        val parts = content.split("|")
+                                        for (part in parts) {
+                                            val (key, value) = part.split("=", limit = 2)
+                                                .map { it.trim() }.let {
+                                                    if (it.size == 2) it[0] to it[1] else return@let null
+                                                } ?: continue
+                                            params[key.lowercase()] = value
+                                        }
 
-                                    // Build citation text
-                                    val first = params["first"]
-                                    val last = params["last"]
-                                    val author = listOfNotNull(last, first).joinToString().trim()
-                                    if (params["script-title"] != null) params["title"] =
-                                        params["script-title"] ?: ""
-                                    val title =
-                                        if (params["title"] != null)
-                                            "''${params["title"]}''" + if (params["edition"] != null) {
-                                                " (" + params["edition"]!! + " ed.)"
-                                            } else ""
-                                        else null
+                                        // Build citation text
+                                        val first = params["first"]
+                                        val last = params["last"]
+                                        val author =
+                                            listOfNotNull(last, first).joinToString().trim()
+                                        if (params["script-title"] != null) params["title"] =
+                                            params["script-title"] ?: ""
+                                        val title =
+                                            if (params["title"] != null)
+                                                "''${params["title"]}''" + if (params["edition"] != null) {
+                                                    " (" + params["edition"]!! + " ed.)"
+                                                } else ""
+                                            else null
 
-                                    listOfNotNull(
-                                        "$author (${
-                                            listOfNotNull(
-                                                params["date"],
-                                                params["year"]
-                                            ).joinToString()
-                                        })",
-                                        title,
-                                        params["publisher"],
-                                        params["isbn"]?.let { "[[ISBN]] $it" }
-                                    )
-                                        .fastFilter { it.isNotBlank() }
-                                        .joinToString(". ")
-                                        .plus(".")
-                                        .trim()
-                                        .twas()
-                                } else if (
+                                        listOfNotNull(
+                                            "$author (${
+                                                listOfNotNull(
+                                                    params["date"],
+                                                    params["year"]
+                                                ).joinToString()
+                                            })",
+                                            title,
+                                            params["publisher"],
+                                            params["isbn"]?.let { "[[ISBN]] $it" }
+                                        )
+                                            .fastFilter { it.isNotBlank() }
+                                            .joinToString(". ")
+                                            .plus(".")
+                                            .trim()
+                                            .twas()
+                                    } else if (
                                         currSubstring.startsWith("$refTemplate web", true) ||
                                         currSubstring.startsWith("$refTemplate news", true) ||
                                         currSubstring.startsWith("$refTemplate AV media", true) ||
                                         currSubstring.startsWith("$refTemplate press release", true)
-                                ) {
-                                    val params = mutableMapOf<String, String>()
+                                    ) {
+                                        val params = mutableMapOf<String, String>()
 
-                                    // Extract inside of {{Cite ...}}
-                                    val content =
-                                        currSubstring.substringAfter('|').trim()
+                                        // Extract inside of {{Cite ...}}
+                                        val content =
+                                            currSubstring.substringAfter('|').trim()
 
-                                    // Split by pipes, then split each param by '='
-                                    val parts = content.split("|")
-                                    for (part in parts) {
-                                        val (key, value) = part.split("=", limit = 2)
-                                            .map { it.trim() }.let {
-                                                if (it.size == 2) it[0] to it[1] else return@let null
-                                            } ?: continue
-                                        params[key.lowercase()] = value
-                                    }
-
-                                    // Build citation text
-                                    val first = params["first"]
-                                    val last = params["last"]
-                                    val author = listOfNotNull(last, first).joinToString().trim()
-                                    if (params["script-title"] != null) params["title"] =
-                                        params["script-title"] ?: ""
-                                    var title =
-                                        if (params["title"] != null)
-                                            "''${params["title"]}''" + if (params["edition"] != null) {
-                                                " (" + params["edition"]!! + " ed.)"
-                                            } else ""
-                                        else null
-                                    if (params["trans-title"] != null) title += " [${params["trans-title"]}]"
-
-                                    listOfNotNull(
-                                        "$author (${
-                                            listOfNotNull(
-                                                params["date"],
-                                                params["year"]
-                                            ).joinToString()
-                                        })".takeIf { it.trim('(', ')').isNotBlank() },
-                                        if (params["url"] == null) title.takeIf {
-                                            it?.trim('"')?.isNotBlank() == true
+                                        // Split by pipes, then split each param by '='
+                                        val parts = content.split("|")
+                                        for (part in parts) {
+                                            val (key, value) = part.split("=", limit = 2)
+                                                .map { it.trim() }.let {
+                                                    if (it.size == 2) it[0] to it[1] else return@let null
+                                                } ?: continue
+                                            params[key.lowercase()] = value
                                         }
-                                        else "[${params["url"]} $title]".takeIf {
-                                            it.trim('"').isNotBlank()
-                                        },
-                                        params["website"],
-                                        "''${params["work"] ?: ""}''".takeIf {
-                                            it.trim('\'').isNotBlank()
-                                        },
-                                        params["publisher"],
-                                        "[${params["archive-url"]} Archived] ${params["archive-date"]}".takeIf { params["archive-url"] != null },
-                                        "via ${params["via"]}".takeIf { params["via"] != null }
-                                    )
-                                        .fastFilter { it.isNotBlank() }
-                                        .joinToString(". ")
-                                        .plus(".")
-                                        .trim()
-                                        .twas()
+
+                                        // Build citation text
+                                        val first = params["first"]
+                                        val last = params["last"]
+                                        val author =
+                                            listOfNotNull(last, first).joinToString().trim()
+                                        if (params["script-title"] != null) params["title"] =
+                                            params["script-title"] ?: ""
+                                        var title =
+                                            if (params["title"] != null)
+                                                "''${params["title"]}''" + if (params["edition"] != null) {
+                                                    " (" + params["edition"]!! + " ed.)"
+                                                } else ""
+                                            else null
+                                        if (params["trans-title"] != null) title += " [${params["trans-title"]}]"
+
+                                        listOfNotNull(
+                                            "$author (${
+                                                listOfNotNull(
+                                                    params["date"],
+                                                    params["year"]
+                                                ).joinToString()
+                                            })".takeIf { it.trim('(', ')').isNotBlank() },
+                                            if (params["url"] == null) title.takeIf {
+                                                it?.trim('"')?.isNotBlank() == true
+                                            }
+                                            else "[${params["url"]} $title]".takeIf {
+                                                it.trim('"').isNotBlank()
+                                            },
+                                            params["website"],
+                                            "''${params["work"] ?: ""}''".takeIf {
+                                                it.trim('\'').isNotBlank()
+                                            },
+                                            params["publisher"],
+                                            "[${params["archive-url"]} Archived] ${params["archive-date"]}".takeIf { params["archive-url"] != null },
+                                            "via ${params["via"]}".takeIf { params["via"] != null }
+                                        )
+                                            .fastFilter { it.isNotBlank() }
+                                            .joinToString(". ")
+                                            .plus(".")
+                                            .trim()
+                                            .twas()
                                     } else if (currSubstring.startsWith(
                                             "$refTemplate journal",
                                             true
                                         )
                                     ) {
-                                    val params = mutableMapOf<String, String>()
+                                        val params = mutableMapOf<String, String>()
 
-                                    // Extract inside of {{Cite journal ...}}
-                                    val content =
-                                        currSubstring.substringAfter('|').trim()
+                                        // Extract inside of {{Cite journal ...}}
+                                        val content =
+                                            currSubstring.substringAfter('|').trim()
 
-                                    // Split by pipes, then split each param by '='
-                                    val parts = content.split("|")
-                                    for (part in parts) {
-                                        val (key, value) = part.split("=", limit = 2)
-                                            .map { it.trim() }.let {
-                                                if (it.size == 2) it[0] to it[1] else return@let null
-                                            } ?: continue
-                                        params[key.lowercase()] = value
-                                    }
-
-                                    // Build citation text
-                                    val first = params["first"]
-                                    val last = params["last"]
-                                    val author = listOfNotNull(last, first).joinToString().trim()
-                                    if (params["script-title"] != null) params["title"] =
-                                        params["script-title"] ?: ""
-                                    val title =
-                                        if (params["title"] != null)
-                                            "''${params["title"]}''" + if (params["edition"] != null) {
-                                                " (" + params["edition"]!! + " ed.)"
-                                            } else ""
-                                        else null
-                                    val volume =
-                                        "'''${params["volume"]}'''${" (${params["issue"]})".takeIf { params["issue"] != null } ?: ""}${": ${params["pages"]}".takeIf { params["pages"] != null } ?: ""}".takeIf { params["volume"] != null }
-
-                                    listOfNotNull(
-                                        "$author (${
-                                            listOfNotNull(
-                                                params["date"],
-                                                params["year"]
-                                            ).joinToString()
-                                        })",
-                                        if (params["url"] == null) title.takeIf {
-                                            it?.trim('"')?.isNotBlank() == true
+                                        // Split by pipes, then split each param by '='
+                                        val parts = content.split("|")
+                                        for (part in parts) {
+                                            val (key, value) = part.split("=", limit = 2)
+                                                .map { it.trim() }.let {
+                                                    if (it.size == 2) it[0] to it[1] else return@let null
+                                                } ?: continue
+                                            params[key.lowercase()] = value
                                         }
-                                        else "[${params["url"]} $title]".takeIf {
-                                            it.trim('"').isNotBlank()
-                                        },
-                                        "''${params["journal"]}''".takeIf { params["journal"] != null },
-                                        volume,
-                                        params["publisher"],
-                                        "[[ISSN]] ${params["issn"]}".takeIf { params["issn"] != null },
-                                        "[[Bibcode]]:${params["bibcode"]}".takeIf { params["bibcode"] != null },
-                                        "[[Doi_(identifier)|doi]]:${params["doi"]}".takeIf { params["doi"] != null },
-                                        "[[PMC]]:${params["PMC"]}".takeIf { params["PMC"] != null },
-                                        "[[PMID]]:${params["PMID"]}".takeIf { params["PMID"] != null },
-                                    )
-                                        .fastFilter { it.isNotBlank() }
-                                        .joinToString(". ")
-                                        .plus(".")
-                                        .trim()
-                                        .twas()
-                                } else AnnotatedString(currSubstring)
+
+                                        // Build citation text
+                                        val first = params["first"]
+                                        val last = params["last"]
+                                        val author =
+                                            listOfNotNull(last, first).joinToString().trim()
+                                        if (params["script-title"] != null) params["title"] =
+                                            params["script-title"] ?: ""
+                                        val title =
+                                            if (params["title"] != null)
+                                                "''${params["title"]}''" + if (params["edition"] != null) {
+                                                    " (" + params["edition"]!! + " ed.)"
+                                                } else ""
+                                            else null
+                                        val volume =
+                                            "'''${params["volume"]}'''${" (${params["issue"]})".takeIf { params["issue"] != null } ?: ""}${": ${params["pages"]}".takeIf { params["pages"] != null } ?: ""}".takeIf { params["volume"] != null }
+
+                                        listOfNotNull(
+                                            "$author (${
+                                                listOfNotNull(
+                                                    params["date"],
+                                                    params["year"]
+                                                ).joinToString()
+                                            })",
+                                            if (params["url"] == null) title.takeIf {
+                                                it?.trim('"')?.isNotBlank() == true
+                                            }
+                                            else "[${params["url"]} $title]".takeIf {
+                                                it.trim('"').isNotBlank()
+                                            },
+                                            "''${params["journal"]}''".takeIf { params["journal"] != null },
+                                            volume,
+                                            params["publisher"],
+                                            "[[ISSN]] ${params["issn"]}".takeIf { params["issn"] != null },
+                                            "[[Bibcode]]:${params["bibcode"]}".takeIf { params["bibcode"] != null },
+                                            "[[Doi_(identifier)|doi]]:${params["doi"]}".takeIf { params["doi"] != null },
+                                            "[[PMC]]:${params["PMC"]}".takeIf { params["PMC"] != null },
+                                            "[[PMID]]:${params["PMID"]}".takeIf { params["PMID"] != null },
+                                        )
+                                            .fastFilter { it.isNotBlank() }
+                                            .joinToString(". ")
+                                            .plus(".")
+                                            .trim()
+                                            .twas()
+                                    } else AnnotatedString(currSubstring)
                                 append(text)
                             }
 
@@ -844,6 +851,18 @@ fun String.toWikitextAnnotatedString(
                             currSubstring.startsWith("{{flagg", ignoreCase = true) -> {
                                 val curr = currSubstring.substringAfter('|').substringAfter('|')
                                     .substringBefore('|')
+
+                                when (curr.length) {
+                                    3 -> append(
+                                        countryFlag(alpha3CodeToAlpha2CodeMap[curr] ?: "")
+                                                + ' '
+                                    )
+
+                                    else -> append(
+                                        countryFlag(countryNameToAlpha2CodeMap[curr] ?: "")
+                                                + ' '
+                                    )
+                                }
                                 append(curr.twas())
                             }
 
@@ -920,6 +939,25 @@ fun String.toWikitextAnnotatedString(
                                     currSubstring.split('|').filter { it.contains("source=") }
                                         .joinToString().substringAfter('=')
                                 append("''This section is transcluded from [[$title]]''".twas())
+                            }
+
+                            currSubstring.startsWith("{{fb", true) -> {
+                                val country = currSubstring.substringAfter('|').substringBefore('|')
+
+                                when (country.length) {
+                                    3 -> append(
+                                        countryFlag(
+                                            alpha3CodeToAlpha2CodeMap[fifaCodeToAlpha3CodeMap[country.uppercase()]
+                                                ?: country] ?: ""
+                                        ) + " $country"
+                                    )
+
+                                    else -> append(
+                                        countryFlag(
+                                            countryNameToAlpha2CodeMap[country] ?: ""
+                                        ) + " $country"
+                                    )
+                                }
                             }
 
                             currSubstring.startsWith("{{Starbox begin", ignoreCase = true) -> {
