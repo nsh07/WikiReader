@@ -38,6 +38,7 @@ import org.nsh07.wikireader.parser.ReferenceData.refTemplate
 import org.nsh07.wikireader.parser.ReferenceData.refTemplates
 import kotlin.math.min
 import kotlin.text.Typography.bullet
+import kotlin.text.Typography.mdash
 import kotlin.text.Typography.nbsp
 import kotlin.text.Typography.ndash
 
@@ -982,6 +983,27 @@ fun String.toWikitextAnnotatedString(
                                         curr.subList(0, min(curr.size, 3)).joinToString("/").twas()
                                     } $ndash ${curr.subList(3, curr.size).joinToString("/")}"
                                 )
+                            }
+
+                            currSubstring.startsWith("{{siglo", true) -> {
+                                // Spanish/Catalan template for century
+                                val first = currSubstring.substringAfter("{{").substringBefore('|')
+                                val second = currSubstring.substringAfter('|').substringBefore('|')
+                                append("$first <small>$second</small>".twas())
+                            }
+
+                            currSubstring.startsWith("{{tracce", true) -> {
+                                // Italian template for music track lists
+                                val splitList = currSubstring.substringAfter('|')
+                                    .split('|')
+                                    .fastMap { it.substringAfter('=').trim() }
+                                    .chunked(2)
+
+                                withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                                    splitList.fastForEach {
+                                        append("${it.getOrNull(0)} $mdash ${it.getOrNull(1)}\n")
+                                    }
+                                }
                             }
 
                             currSubstring.startsWith("{{reflist", true) -> {
