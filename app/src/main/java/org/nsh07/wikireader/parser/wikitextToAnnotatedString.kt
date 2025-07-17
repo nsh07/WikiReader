@@ -961,6 +961,10 @@ fun String.toWikitextAnnotatedString(
                                 }
                             }
 
+                            currSubstring.startsWith("{{citation needed", true) -> {
+                                append("<sup>[citation needed]</sup>".twas())
+                            }
+
                             currSubstring.startsWith("{{Starbox begin", ignoreCase = true) -> {
                                 val templateLength = currSubstring.length
                                 i = input.indexOf(
@@ -1246,6 +1250,6 @@ object ReferenceData {
     val refListIndex = mutableMapOf<Int, String>()
     val refListCount = mutableMapOf<String, Int>()
     var refTemplate = "{{cite"
-    val refTemplates = listOf("{{cite", "{{lien", "{{cita")
+    val refTemplates = listOf("{{cite", "{{lien", "{{cita|")
     val infoboxTemplates = listOf("{{infobox", "{{taxobox", "{{Automatic taxobox")
 }
