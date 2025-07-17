@@ -114,6 +114,7 @@ fun SettingsScreen(
     saveDataSaver: (Boolean) -> Unit,
     saveFeedEnabled: (Boolean) -> Unit,
     saveExpandedSections: (Boolean) -> Unit,
+    saveHistory: (Boolean) -> Unit,
     saveImageBackground: (Boolean) -> Unit,
     saveImmersiveMode: (Boolean) -> Unit,
     saveRenderMath: (Boolean) -> Unit,
@@ -229,6 +230,13 @@ fun SettingsScreen(
                 string.settingRenderMath,
                 string.settingRenderMathDesc,
                 saveRenderMath
+            ),
+            SettingsSwitchItem(
+                preferencesState.browsingHistory,
+                R.drawable.manage_history,
+                string.history,
+                string.historyDesc,
+                saveHistory
             ),
             SettingsSwitchItem(
                 preferencesState.searchHistory,
@@ -529,9 +537,11 @@ fun SettingsScreen(
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .clip(
-                            if (index == 0) topListItemShape
-                            else if (index == switchItems.lastIndex - 1) bottomListItemShape
-                            else middleListItemShape
+                            when (index) {
+                                0 -> topListItemShape
+                                switchItems.lastIndex - 1 -> bottomListItemShape
+                                else -> middleListItemShape
+                            }
                         )
                 )
             }
@@ -656,6 +666,7 @@ fun SettingsPreview() {
             saveDataSaver = {},
             saveFeedEnabled = {},
             saveExpandedSections = {},
+            saveHistory = {},
             saveImageBackground = {},
             saveImmersiveMode = {},
             saveRenderMath = {},

@@ -73,6 +73,7 @@ fun AppNavigationDrawer(
     windowSizeClass: WindowSizeClass,
     backStackEntry: NavBackStackEntry?,
     modifier: Modifier = Modifier,
+    historyEnabled: Boolean,
     onAboutClick: () -> Unit,
     onHistoryClick: () -> Unit,
     onHomeClick: () -> Unit,
@@ -102,7 +103,8 @@ fun AppNavigationDrawer(
             painterResource(drawable.history),
             painterResource(drawable.history_selected),
             HistoryScreen::class,
-            onHistoryClick
+            onHistoryClick,
+            historyEnabled
         ),
         Item(
             string.settings,
@@ -258,6 +260,7 @@ private fun AppNavigationRailContent(
             val selected = backStackEntry?.destination?.hasRoute(item.route) == true
             WideNavigationRailItem(
                 selected = selected,
+                enabled = item.enabled,
                 onClick = {
                     scope.launch {
                         if (!expandedScreen) state.collapse()
@@ -371,5 +374,6 @@ private data class Item(
     val outlinedIcon: Painter,
     val filledIcon: Painter,
     val route: KClass<out Any>,
-    val onClick: () -> Unit
+    val onClick: () -> Unit,
+    val enabled: Boolean = true
 )

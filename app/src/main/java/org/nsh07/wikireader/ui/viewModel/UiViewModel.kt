@@ -149,6 +149,8 @@ class UiViewModel(
                 ?: appPreferencesRepository.saveBooleanPreference("immersive-mode", true)
             val renderMath = appPreferencesRepository.readBooleanPreference("render-math")
                 ?: appPreferencesRepository.saveBooleanPreference("render-math", true)
+            val browsingHistory = appPreferencesRepository.readBooleanPreference("browsing-history")
+                ?: appPreferencesRepository.saveBooleanPreference("browsing-history", true)
             val searchHistory = appPreferencesRepository.readBooleanPreference("search-history")
                 ?: appPreferencesRepository.saveBooleanPreference("search-history", true)
 
@@ -166,6 +168,7 @@ class UiViewModel(
                     lang = lang,
                     renderMath = renderMath,
                     searchHistory = searchHistory,
+                    browsingHistory = browsingHistory,
                     theme = theme
                 )
             }
@@ -447,7 +450,7 @@ class UiViewModel(
                     }
 
                     if (apiResponse != null)
-                        appDatabaseRepository.insertViewHistory(
+                        insertViewHistoryItem(
                             ViewHistoryItem(
                                 thumbnail = apiResponse.thumbnail?.source,
                                 title = apiResponse.title,
@@ -1116,11 +1119,11 @@ class UiViewModel(
         }
     }
 
-    fun insertViewHistoryItem(item: ViewHistoryItem) {
+    fun insertViewHistoryItem(item: ViewHistoryItem) =
         viewModelScope.launch(Dispatchers.IO) {
-            appDatabaseRepository.insertViewHistory(item)
+            if (preferencesState.value.browsingHistory)
+                appDatabaseRepository.insertViewHistory(item)
         }
-    }
 
     fun removeViewHistoryItem(item: ViewHistoryItem?) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -1220,6 +1223,15 @@ class UiViewModel(
             appPreferencesRepository.saveBooleanPreference("render-math", renderMath)
             _preferencesState.update { currentState ->
                 currentState.copy(renderMath = renderMath)
+            }
+        }
+    }
+
+    fun saveHistory(history: Boolean) {
+        viewModelScope.launch {
+            appPreferencesRepository.saveBooleanPreference("browsing-history", history)
+            _preferencesState.update { currentState ->
+                currentState.copy(browsingHistory = history)
             }
         }
     }
