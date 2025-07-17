@@ -227,6 +227,7 @@ fun AppScreen(
         feedListState = feedListState,
         windowSizeClass = windowSizeClass,
         backStackEntry = navBackStackEntry,
+        historyEnabled = preferencesState.browsingHistory,
         onAboutClick = {
             navController.navigate(AboutScreen) {
                 popUpTo(navController.graph.findStartDestination().id) {
@@ -634,6 +635,7 @@ fun AppScreen(
                     saveDataSaver = viewModel::saveDataSaver,
                     saveFeedEnabled = viewModel::saveFeedEnabled,
                     saveExpandedSections = viewModel::saveExpandedSections,
+                    saveHistory = viewModel::saveHistory,
                     saveImageBackground = viewModel::saveImageBackground,
                     saveImmersiveMode = viewModel::saveImmersiveMode,
                     saveRenderMath = viewModel::saveRenderMath,

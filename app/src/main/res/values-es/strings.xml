@@ -134,5 +134,5 @@
     <string name="settingAppLanguage">Idioma de la aplicación</string>
     <string name="chooseAppLanguage">Elegir idioma de la aplicación</string>
     <string name="otherLanguages">Otros idiomas</string>
-    <string name="infobox">Ficha</string>
+    <string name="infobox">Infobox</string>
 </resources>

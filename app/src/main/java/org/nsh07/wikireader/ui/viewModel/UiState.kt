@@ -56,6 +56,7 @@ data class PreferencesState(
     val imageBackground: Boolean = false,
     val immersiveMode: Boolean = true,
     val renderMath: Boolean = true,
+    val browsingHistory: Boolean = true,
     val searchHistory: Boolean = true
 )
 

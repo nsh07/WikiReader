@@ -1,0 +1,9 @@
+NOTE: If you are upgrading from version 2.3.x or earlier, you'll need to install version 2.4.0 BEFORE installing this version if you want to preserve your settings and saved articles
+
+New features:
+- New option to disable browsing history
+- Custom color themes now use the updated 2025 Material 3 color specification
+- Support for flags in articles
+
+Bug fixes:
+- Fixed various types of missing page content

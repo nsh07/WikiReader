@@ -1,15 +1,9 @@
-package org.nsh07.wikireader
+package org.nsh07.wikireader.data
 
 import androidx.compose.ui.graphics.Color
-import junit.framework.TestCase.assertEquals
-import org.junit.Assert.assertNotEquals
+import org.junit.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Test
-import org.nsh07.wikireader.data.LanguageData
-import org.nsh07.wikireader.data.bytesToHumanReadableSize
-import org.nsh07.wikireader.data.langCodeToName
-import org.nsh07.wikireader.data.langCodeToWikiName
-import org.nsh07.wikireader.data.parseSections
-import org.nsh07.wikireader.data.toColor
 import kotlin.math.pow
 
 class MiscKtTest {
@@ -17,35 +11,35 @@ class MiscKtTest {
     fun stringToColor_WhiteColorString_ReturnsWhite() {
         val colorStr = "Color(1.0, 1.0, 1.0, 1.0, sRGB IEC61966-2.1)"
         val color = colorStr.toColor()
-        assertEquals(Color.White, color)
+        assertEquals(Color.Companion.White, color)
     }
 
     @Test
     fun stringToColor_RedColorString_ReturnsRed() {
         val colorStr = "Color(1.0, 0.0, 0.0, 1.0, sRGB IEC61966-2.1)"
         val color = colorStr.toColor()
-        assertEquals(Color.Red, color)
+        assertEquals(Color.Companion.Red, color)
     }
 
     @Test
     fun stringToColor_GreenColorString_ReturnsGreen() {
         val colorStr = "Color(0.0, 1.0, 0.0, 1.0, sRGB IEC61966-2.1)"
         val color = colorStr.toColor()
-        assertEquals(Color.Green, color)
+        assertEquals(Color.Companion.Green, color)
     }
 
     @Test
     fun stringToColor_BlueColorString_ReturnsBlue() {
         val colorStr = "Color(0.0, 0.0, 1.0, 1.0, sRGB IEC61966-2.1)"
         val color = colorStr.toColor()
-        assertEquals(Color.Blue, color)
+        assertEquals(Color.Companion.Blue, color)
     }
 
     @Test
     fun stringToColor_BlackColorString_ReturnsBlack() {
         val colorStr = "Color(0.0, 0.0, 0.0, 1.0, sRGB IEC61966-2.1)"
         val color = colorStr.toColor()
-        assertEquals(Color.Black, color)
+        assertEquals(Color.Companion.Black, color)
     }
 
     @Test
@@ -82,7 +76,7 @@ class MiscKtTest {
 
         assertEquals("1 kB", humanReadableSizeMin)
         assertEquals("1024 kB", humanReadableSizeMax)
-        assertNotEquals("1024 kB", humanReadableSizeOverMax)
+        Assert.assertNotEquals("1024 kB", humanReadableSizeOverMax)
     }
 
     @Test
@@ -97,7 +91,7 @@ class MiscKtTest {
 
         assertEquals("1.0 MB", humanReadableSizeMin)
         assertEquals("1024.0 MB", humanReadableSizeMax)
-        assertNotEquals("1024.0 MB", humanReadableSizeOverMax) // Should not be equal
+        Assert.assertNotEquals("1024.0 MB", humanReadableSizeOverMax) // Should not be equal
     }
 
     @Test
@@ -131,5 +125,18 @@ class MiscKtTest {
         val langCode = "gibberish" // An unknown language code
         val wikiName = langCodeToName(langCode)
         assertEquals(langCode, wikiName)
+    }
+
+    @Test
+    fun countryFlag_countries_returnsCorrectFlags() {
+        assertEquals(countryFlag("in"), "🇮🇳")
+        assertEquals(countryFlag("us"), "🇺🇸")
+        assertEquals(countryFlag("gb"), "🇬🇧")
+        assertEquals(countryFlag("de"), "🇩🇪")
+    }
+
+    @Test
+    fun countryFlag_blankInput_returnsEmptyString() {
+        assertEquals(countryFlag(""), "")
     }
 }

@@ -93,7 +93,7 @@
     <string name="settingRenderMath">Render math expressions</string>
     <string name="settingRenderMathDesc">Requires small amounts of additional data. Turn off to improve performance at the cost of readability.</string>
     <string name="settingSearchHistory">Search history</string>
-    <string name="settingSearchHistoryDesc">Save search history. Existing history is unaffected by this option.</string>
+    <string name="settingSearchHistoryDesc">Save search history</string>
     <string name="settingTheme">Theme</string>
     <string name="settingWikipediaLanguage">Wikipedia language</string>
     <string name="settings">Settings</string>
@@ -135,4 +135,5 @@
     <string name="otherLanguages">Other languages</string>
     <string name="items">%1$s items</string>
     <string name="infobox">Infobox</string>
+    <string name="historyDesc">Save article browsing history</string>
 </resources>

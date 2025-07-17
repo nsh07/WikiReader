@@ -1,27 +1,26 @@
 [versions]
 activityCompose = "1.10.1"
 adaptive = "1.1.0"
-agp = "8.11.0"
+agp = "8.11.1"
 coil = "3.2.0"
 coilGif = "3.2.0"
-composeBom = "2025.06.01"
+composeBom = "2025.07.00"
 composeChartsVersion = "0.1.7"
 coreKtx = "1.16.0"
 coreSplashscreen = "1.0.1"
-datastorePreferences = "1.1.7"
 espressoCore = "3.6.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 kotlin = "2.2.0"
-kotlinxSerialization = "1.8.1"
+kotlinxSerialization = "1.9.0"
 ksp = "2.2.0-2.0.2"
 latex2unicode_xX3 = "0.3.2"
 lifecycleRuntimeKtx = "2.9.1"
-lifecycleViewmodelCompose = "2.9.1"
+lifecycleViewmodelCompose = "2.9.2"
 materialIconsCore = "1.7.8"
-materialKolor = "2.1.1"
-navigationCompose = "2.9.0"
-okhttp = "4.12.0"
+materialKolor = "3.0.0"
+navigationCompose = "2.9.2"
+okhttp = "5.1.0"
 retrofit = "3.0.0"
 retrofit2KotlinxSerializationConverter = "1.0.0"
 room = "2.7.2"
@@ -36,7 +35,6 @@ androidx-adaptive = { group = "androidx.compose.material3.adaptive", name = "ada
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom-alpha", version.ref = "composeBom" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
-androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }

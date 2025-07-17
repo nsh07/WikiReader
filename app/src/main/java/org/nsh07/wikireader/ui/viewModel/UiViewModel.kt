@@ -120,43 +120,7 @@ class UiViewModel(
     private var currentSection = 0
 
     init {
-        viewModelScope.launch(Dispatchers.IO) { // Run blocking to delay app startup until theme is determined
-            // Migrate old preferences stored in Preferences DataStore to Room database
-            mapOf(
-                "color-scheme" to appPreferencesRepository.readOldStringPreference("color-scheme"),
-                "font-style" to appPreferencesRepository.readOldStringPreference("font-style"),
-                "lang" to appPreferencesRepository.readOldStringPreference("lang"),
-                "theme" to appPreferencesRepository.readOldStringPreference("theme")
-            ).forEach {
-                if (it.value != null) {
-                    appPreferencesRepository.saveStringPreference(it.key, it.value!!)
-                    appPreferencesRepository.eraseOldStringPreference(it.key)
-                }
-            }
-            mapOf(
-                "font-size" to appPreferencesRepository.readOldIntPreference("font-size")
-            ).forEach {
-                if (it.value != null) {
-                    appPreferencesRepository.saveIntPreference(it.key, it.value!!)
-                    appPreferencesRepository.eraseOldIntPreference(it.key)
-                }
-            }
-            mapOf(
-                "black-theme" to appPreferencesRepository.readOldBooleanPreference("black-theme"),
-                "data-saver" to appPreferencesRepository.readOldBooleanPreference("data-saver"),
-                "feed-enabled" to appPreferencesRepository.readOldBooleanPreference("feed-enabled"),
-                "expanded-sections" to appPreferencesRepository.readOldBooleanPreference("expanded-sections"),
-                "image-background" to appPreferencesRepository.readOldBooleanPreference("image-background"),
-                "immersive-mode" to appPreferencesRepository.readOldBooleanPreference("immersive-mode"),
-                "render-math" to appPreferencesRepository.readOldBooleanPreference("render-math"),
-                "search-history" to appPreferencesRepository.readOldBooleanPreference("search-history")
-            ).forEach {
-                if (it.value != null) {
-                    appPreferencesRepository.saveBooleanPreference(it.key, it.value!!)
-                    appPreferencesRepository.eraseOldBooleanPreference(it.key)
-                }
-            }
-
+        viewModelScope.launch(Dispatchers.IO) {
             val colorScheme = appPreferencesRepository.readStringPreference("color-scheme")
                 ?: appPreferencesRepository.saveStringPreference(
                     "color-scheme",
@@ -185,6 +149,8 @@ class UiViewModel(
                 ?: appPreferencesRepository.saveBooleanPreference("immersive-mode", true)
             val renderMath = appPreferencesRepository.readBooleanPreference("render-math")
                 ?: appPreferencesRepository.saveBooleanPreference("render-math", true)
+            val browsingHistory = appPreferencesRepository.readBooleanPreference("browsing-history")
+                ?: appPreferencesRepository.saveBooleanPreference("browsing-history", true)
             val searchHistory = appPreferencesRepository.readBooleanPreference("search-history")
                 ?: appPreferencesRepository.saveBooleanPreference("search-history", true)
 
@@ -202,21 +168,9 @@ class UiViewModel(
                     lang = lang,
                     renderMath = renderMath,
                     searchHistory = searchHistory,
+                    browsingHistory = browsingHistory,
                     theme = theme
                 )
-            }
-
-            val oldHistory = appPreferencesRepository.readOldHistory()
-
-            if (oldHistory != null) {
-                val currTime = System.currentTimeMillis()
-                oldHistory.forEachIndexed { index, it ->
-                    val time = currTime - (oldHistory.size - index - 1)
-                    appDatabaseRepository.insertSearchHistory(
-                        SearchHistoryItem(time, it, preferencesState.value.lang), false
-                    )
-                }
-                appPreferencesRepository.eraseOldHistory()
             }
 
             appDatabaseRepository.deleteOldSearchHistory()
@@ -496,7 +450,7 @@ class UiViewModel(
                     }
 
                     if (apiResponse != null)
-                        appDatabaseRepository.insertViewHistory(
+                        insertViewHistoryItem(
                             ViewHistoryItem(
                                 thumbnail = apiResponse.thumbnail?.source,
                                 title = apiResponse.title,
@@ -1165,11 +1119,11 @@ class UiViewModel(
         }
     }
 
-    fun insertViewHistoryItem(item: ViewHistoryItem) {
+    fun insertViewHistoryItem(item: ViewHistoryItem) =
         viewModelScope.launch(Dispatchers.IO) {
-            appDatabaseRepository.insertViewHistory(item)
+            if (preferencesState.value.browsingHistory)
+                appDatabaseRepository.insertViewHistory(item)
         }
-    }
 
     fun removeViewHistoryItem(item: ViewHistoryItem?) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -1269,6 +1223,15 @@ class UiViewModel(
             appPreferencesRepository.saveBooleanPreference("render-math", renderMath)
             _preferencesState.update { currentState ->
                 currentState.copy(renderMath = renderMath)
+            }
+        }
+    }
+
+    fun saveHistory(history: Boolean) {
+        viewModelScope.launch {
+            appPreferencesRepository.saveBooleanPreference("browsing-history", history)
+            _preferencesState.update { currentState ->
+                currentState.copy(browsingHistory = history)
             }
         }
     }

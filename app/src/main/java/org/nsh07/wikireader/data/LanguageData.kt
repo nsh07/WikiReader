@@ -1,5 +1,7 @@
 package org.nsh07.wikireader.data
 
+import java.util.Locale
+
 object LanguageData {
     val langCodes = listOf(
         "ab",
@@ -1015,4 +1017,81 @@ object LanguageData {
         "Traditional Chinese : 粵文維基百科",
         "Wikipedia isiZulu"
     )
+
+    val fifaCodeToAlpha3CodeMap = mapOf(
+        "ALG" to "DZA",
+        "ASA" to "ASM",
+        "ANG" to "AGO",
+        "ARU" to "ABW",
+        "BAH" to "BHS",
+        "BAN" to "BGD",
+        "BER" to "BMU",
+        "BHU" to "BTN",
+        "BOT" to "BWA",
+        "BRU" to "BRN",
+        "BUL" to "BGR",
+        "CAM" to "KHM",
+        "CAY" to "CYM",
+        "CTA" to "CAF",
+        "CHA" to "TCD",
+        "CHI" to "CHL",
+        "CGO" to "COG",
+        "CRC" to "CRI",
+        "CRO" to "HRV",
+        "DEN" to "DNK",
+        "EQG" to "GNQ",
+        "TAH" to "PYF",
+        "GAM" to "GMB",
+        "GER" to "DEU",
+        "GRE" to "GRC",
+        "GRN" to "GRD",
+        "GUA" to "GTM",
+        "GUI" to "GIN",
+        "HAI" to "HTI",
+        "HON" to "HND",
+        "KUW" to "KWT",
+        "LES" to "LSO",
+        "MAD" to "MDG",
+        "MAS" to "MYS",
+        "MTN" to "MRT",
+        "MRI" to "MUS",
+        "MYA" to "MMR",
+        "NEP" to "NPL",
+        "NED" to "NLD",
+        "NCA" to "NIC",
+        "NIG" to "NER",
+        "OMA" to "OMN",
+        "PLE" to "PSE",
+        "PAR" to "PRY",
+        "PHI" to "PHL",
+        "POR" to "PRT",
+        "PUR" to "PRI",
+        "SKN" to "KNA",
+        "VIN" to "VCT",
+        "SAM" to "WSM",
+        "KSA" to "SAU",
+        "SEY" to "SYC",
+        "SIN" to "SGP",
+        "SOL" to "SLB",
+        "RSA" to "ZAF",
+        "SRI" to "LKA",
+        "SUI" to "CHE",
+        "TPE" to "TWN",
+        "TAN" to "TZA",
+        "TOG" to "TGO",
+        "TGA" to "TON",
+        "TRI" to "TTO",
+        "UAE" to "ARE",
+        "URU" to "URY",
+        "VAN" to "VUT",
+        "VIE" to "VNM",
+        "ZAM" to "ZMB",
+        "ZIM" to "ZWE"
+    )
+
+    val countryNameToAlpha2CodeMap = Locale.getISOCountries()
+        .associateBy { Locale.Builder().setRegion(it).build().displayCountry }
+
+    val alpha3CodeToAlpha2CodeMap = Locale.getISOCountries()
+        .associateBy { Locale.Builder().setRegion(it).build().isO3Country }
 }

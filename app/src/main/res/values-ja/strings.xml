@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="about">このアプリについて</string>
+    <string name="about">アプリについて</string>
     <string name="app_name">WikiReader</string>
     <string name="cancel">キャンセル</string>
     <string name="onThisDay">今日は何の日</string>
@@ -84,7 +84,7 @@
     <string name="chooseColorScheme">カラーを選ぶ</string>
     <string name="app">アプリ</string>
     <string name="articleDeleted">記事が削除されました</string>
-    <string name="articlesSize">%1$s本の記事、合計%2$s</string>
+    <string name="articlesSize">%1$s本の記事、%2$sつの言語</string>
     <string name="back">戻る</string>
     <string name="colorSchemeColor">カラー</string>
     <string name="deleteSavedArticle">保存した記事を削除しますか？</string>
@@ -112,9 +112,16 @@
     <string name="clearSearchField">検索フィールドをクリア</string>
     <string name="collapse_section">セクションを折りたたむ</string>
     <string name="deleteArticle">記事を削除する</string>
-    <string name="downloadArticle">記事を削除</string>
+    <string name="downloadArticle">記事を保存</string>
     <string name="resetSettingsIconDesc">設定を初期化</string>
     <string name="scroll_to_top">最上部に移動</string>
     <string name="shareLink">リンクを共有</string>
     <string name="sharePage">ページを共有</string>
+    <string name="allHistoryDeleted">すべての履歴が削除されました</string>
+    <string name="undo">元に戻す</string>
+    <string name="deletedFromHistory">「%1$s」が履歴から削除されました</string>
+    <string name="noHistoryItems">履歴はありません</string>
+    <string name="noHistoryItemsDesc">ここには最近開いた記事が表示されます</string>
+    <string name="currentLanguage">現在の言語</string>
+    <string name="items">%1$s本の記事</string>
 </resources>

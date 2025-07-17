@@ -112,3 +112,21 @@ fun langCodeToWikiName(langCode: String): String {
 fun isRtl(langCode: String): Boolean {
     return langCode in LanguageData.rtlLangCodes
 }
+
+/**
+ * Converts an ISO 3166-1 alpha-2 country code to a flag emoji. Taken from
+ * [Gist by asissuthar on GitHub](https://gist.github.com/asissuthar/cf8fcf0b3be968b1f341e537eb423163)
+ *
+ * @param code The ISO 3166-1 alpha-2 country code
+ * @return Flag emoji of the country specified by [code]
+ *
+ * ```kotlin
+ * countryFlag("in")
+ * ```
+ */
+fun countryFlag(code: String) = code
+    .uppercase()
+    .split("")
+    .filter { it.isNotBlank() }
+    .map { it.codePointAt(0) + 0x1F1A5 }
+    .joinToString("") { String(Character.toChars(it)) }
