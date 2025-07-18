@@ -36,7 +36,7 @@
     <string name="settingImmersiveMode">Режим занурення</string>
     <string name="settingFontStyle">Стиль шрифту</string>
     <string name="settingImmersiveModeDesc">Приховувати рядок пошуку та плавучі кнопки дій під час гортання. Типово ввімкнено на малих розмірах екрана.</string>
-    <string name="settingSearchHistoryDesc">Зберігати історію пошуку. Цей параметр не впливає на наявну історію.</string>
+    <string name="settingSearchHistoryDesc">Зберегти історію пошуку</string>
     <string name="about">Про застосунок</string>
     <string name="appTagline">Читайте сторінки Вікіпедії, не відволікаючись</string>
     <string name="articleDeleted">Статтю видалено</string>
@@ -135,4 +135,5 @@
     <string name="currentLanguage">Поточна мова</string>
     <string name="items">%1$s предмети</string>
     <string name="infobox">Інфобокс</string>
+    <string name="historyDesc">Зберегти історію перегляду статей</string>
 </resources>

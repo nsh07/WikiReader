@@ -72,7 +72,7 @@
     <string name="settingRenderMath">عرض التعابير الرياضية</string>
     <string name="settingRenderMathDesc">يتطلب كميات صغيرة من البيانات الإضافية. قم بإيقافه لتحسين الأداء على حساب القراءة.</string>
     <string name="settingSearchHistory">سجل البحث</string>
-    <string name="settingSearchHistoryDesc">حفظ سجل البحث. السجل الحالي لا يتأثر بهذا الخيار.</string>
+    <string name="settingSearchHistoryDesc">حفظ سجل البحث</string>
     <string name="settingTheme">المظهر</string>
     <string name="settingWikipediaLanguage">لغة ويكيبيديا</string>
     <string name="settings">الإعدادات</string>
@@ -135,4 +135,5 @@
     <string name="otherLanguages">لغات أخرى</string>
     <string name="items">%1$s من العناصر</string>
     <string name="infobox">صندوق المعلومات</string>
+    <string name="historyDesc">حفظ سجل تصفح المقالات</string>
 </resources>

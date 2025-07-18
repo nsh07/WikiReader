@@ -79,7 +79,7 @@
     <string name="resetSettingsDialog">Redefinir as configurações?</string>
     <string name="resetSettingsDialogDesc">Todas as configurações serão redefinidas para o padrão</string>
     <string name="settingBlackThemeDesc">Usar um tema preto escuro</string>
-    <string name="settingSearchHistoryDesc">Salvar o histórico de pesquisas. As pesquisas já realizadas não serão afetadas por esta opção.</string>
+    <string name="settingSearchHistoryDesc">Salvar o histórico de pesquisas</string>
     <string name="settingTheme">Tema</string>
     <string name="settingWikipediaLanguage">Idioma da Wikipédia</string>
     <string name="app">App</string>
@@ -135,4 +135,5 @@
     <string name="items">%1$s itens</string>
     <string name="currentLanguage">Idioma atual</string>
     <string name="infobox">Infocaixa</string>
+    <string name="historyDesc">Salvar o histórico de navegação de artigos</string>
 </resources>

@@ -89,7 +89,7 @@
     <string name="home">Strona główna</string>
     <string name="deleteSavedArticleDesc">\"%1$s\" zostanie trwałe usunięty z twojego urządzenia</string>
     <string name="onThisDay">W tym dniu</string>
-    <string name="settingSearchHistoryDesc">Zapisz historię wyszukiwania. Ta opcja nie ma wpływu na istniejącą historię.</string>
+    <string name="settingSearchHistoryDesc">Zapisz historię wyszukiwania</string>
     <string name="expand_section">Rozwiń sekcję</string>
     <string name="saved">Zapisano</string>
     <string name="license">Licencja</string>
@@ -135,4 +135,5 @@
     <string name="currentLanguage">Aktualny język</string>
     <string name="otherLanguages">Inne języki</string>
     <string name="recentLanguages">Ostatnie języki</string>
+    <string name="historyDesc">Zapisz historię przeglądanych artykułów</string>
 </resources>

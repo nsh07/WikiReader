@@ -62,7 +62,7 @@
     <string name="settingRenderMathDesc">See eeldab väikese koguse täiendavate andmete allalaadimist. Kui lülitad välja, siis parandab see jõudlust, aga seda loetavuse arvelt.</string>
     <string name="settingSearchHistory">Otsinguajalugu</string>
     <string name="settingWikipediaLanguage">Vikipeedia keel</string>
-    <string name="settingSearchHistoryDesc">Salvesta otsingute ajalugu. Seni kogutud ajalugu selle valiku muutmine ei mõjuta.</string>
+    <string name="settingSearchHistoryDesc">Salvesta otsingute ajalugu</string>
     <string name="snackbarArticleDeleted">Artikkel on kustutatud</string>
     <string name="snackbarArticleSaved">Artikkel on salvestatud lugemiseks vallasrežiimis</string>
     <string name="snackbarUnableToDelete">Artikli kustutamine ei õnnestu: %1$s</string>
@@ -135,4 +135,5 @@
     <string name="currentLanguage">Praegune keel</string>
     <string name="items">%1$s kirje(t)</string>
     <string name="infobox">Infobox</string>
+    <string name="historyDesc">Salvesta artiklite vaatamiste ajalugu</string>
 </resources>
