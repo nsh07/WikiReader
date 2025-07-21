@@ -134,6 +134,6 @@
     <string name="otherLanguages">Другие языки</string>
     <string name="items">%1$s записей</string>
     <string name="currentLanguage">Текущий язык</string>
-    <string name="infobox">Карточка</string>
-    <string name="historyDesc">Сохраняйте историю просмотра статей</string>
+    <string name="infobox">Инфобокс</string>
+    <string name="historyDesc">Сохранять историю просмотра статей</string>
 </resources>
