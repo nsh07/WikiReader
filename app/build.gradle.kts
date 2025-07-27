@@ -47,7 +47,7 @@ android {
     }
     kotlin {
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17) // Use the enum for target JVM version
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
     ksp {
