@@ -91,7 +91,6 @@ class UiViewModel(
     val textFieldState: TextFieldState = TextFieldState()
 
     val searchHistoryFlow = appDatabaseRepository.getSearchHistory().distinctUntilChanged()
-    val viewHistoryFlow = appDatabaseRepository.getViewHistory().distinctUntilChanged()
     val recentLangsFlow = appDatabaseRepository.getRecentLanguages().distinctUntilChanged()
     val savedArticleLangsFlow =
         appDatabaseRepository.getSavedArticleLanguages().distinctUntilChanged()
@@ -450,14 +449,17 @@ class UiViewModel(
                     }
 
                     if (apiResponse != null)
-                        insertViewHistoryItem(
-                            ViewHistoryItem(
-                                thumbnail = apiResponse.thumbnail?.source,
-                                title = apiResponse.title,
-                                description = apiResponse.description,
-                                lang = setLang
-                            )
-                        )
+                        viewModelScope.launch(Dispatchers.IO) {
+                            if (preferencesState.value.browsingHistory)
+                                appDatabaseRepository.insertViewHistory(
+                                    ViewHistoryItem(
+                                        thumbnail = apiResponse.thumbnail?.source,
+                                        title = apiResponse.title,
+                                        description = apiResponse.description,
+                                        lang = setLang
+                                    )
+                                )
+                        }
 
                     extract.forEachIndexed { index, it ->
                         currentSection = index + 1
@@ -1116,19 +1118,6 @@ class UiViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             if (item != null) appDatabaseRepository.deleteSearchHistory(item)
             else appDatabaseRepository.deleteAllSearchHistory()
-        }
-    }
-
-    fun insertViewHistoryItem(item: ViewHistoryItem) =
-        viewModelScope.launch(Dispatchers.IO) {
-            if (preferencesState.value.browsingHistory)
-                appDatabaseRepository.insertViewHistory(item)
-        }
-
-    fun removeViewHistoryItem(item: ViewHistoryItem?) {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (item != null) appDatabaseRepository.deleteViewHistory(item)
-            else appDatabaseRepository.deleteAllViewHistory()
         }
     }
 

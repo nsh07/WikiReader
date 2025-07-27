@@ -57,11 +57,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.ImageLoader
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.ViewHistoryItem
+import org.nsh07.wikireader.ui.historyScreen.viewModel.HistoryViewModel
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
@@ -72,6 +75,29 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
+@Composable
+fun HistoryScreenRoot(
+    imageLoader: ImageLoader,
+    imageBackground: Boolean,
+    openArticle: (String, String) -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: HistoryViewModel = viewModel(factory = HistoryViewModel.Factory)
+) {
+    val viewHistory by viewModel.viewHistoryFlow.collectAsStateWithLifecycle(emptyList())
+
+    HistoryScreen(
+        viewHistory = viewHistory,
+        imageLoader = imageLoader,
+        imageBackground = imageBackground,
+        openArticle = openArticle,
+        insertHistoryItem = viewModel::insertViewHistoryItem,
+        deleteHistoryItem = viewModel::removeViewHistoryItem,
+        deleteAllHistory = { viewModel.removeViewHistoryItem(null) },
+        onBack = onBack,
+        modifier = modifier
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -92,8 +118,8 @@ fun HistoryScreen(
     val zone = ZoneId.systemDefault()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    var lastDeleted: ViewHistoryItem? = null
-    var deletedItems: List<ViewHistoryItem>? = null
+    var lastDeleted: ViewHistoryItem?
+    var deletedItems: List<ViewHistoryItem>?
 
     val dtf = remember {
         DateTimeFormatter

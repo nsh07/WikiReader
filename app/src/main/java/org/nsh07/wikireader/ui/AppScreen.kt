@@ -91,7 +91,7 @@ import org.nsh07.wikireader.data.UserLanguage
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.ui.aboutScreen.AboutScreen
-import org.nsh07.wikireader.ui.historyScreen.HistoryScreen
+import org.nsh07.wikireader.ui.historyScreen.HistoryScreenRoot
 import org.nsh07.wikireader.ui.homeScreen.AppHomeScreen
 import org.nsh07.wikireader.ui.homeScreen.AppSearchBar
 import org.nsh07.wikireader.ui.image.FullScreenImage
@@ -119,7 +119,6 @@ fun AppScreen(
 
     val searchHistory by viewModel.searchHistoryFlow.collectAsState(emptyList())
     val savedArticles by viewModel.savedArticlesFlow.collectAsState(emptyList())
-    val viewHistory by viewModel.viewHistoryFlow.collectAsStateWithLifecycle(emptyList())
     val recentLangs by viewModel.recentLangsFlow.collectAsStateWithLifecycle(emptyList())
     val savedArticleLangs by viewModel.savedArticleLangsFlow.collectAsState(emptyList())
     val userLangs by viewModel.userLangsFlow.collectAsState(
@@ -599,17 +598,13 @@ fun AppScreen(
             }
 
             composable<HistoryScreen> {
-                HistoryScreen(
-                    viewHistory = viewHistory,
+                HistoryScreenRoot(
                     imageLoader = imageLoader,
                     imageBackground = preferencesState.imageBackground,
                     openArticle = { title, lang ->
                         viewModel.loadPage(title, lang)
                         navController.navigateUp()
                     },
-                    insertHistoryItem = viewModel::insertViewHistoryItem,
-                    deleteHistoryItem = viewModel::removeViewHistoryItem,
-                    deleteAllHistory = { viewModel.removeViewHistoryItem(null) },
                     onBack = navController::navigateUp
                 )
             }
