@@ -97,7 +97,7 @@ import org.nsh07.wikireader.ui.homeScreen.AppSearchBar
 import org.nsh07.wikireader.ui.image.FullScreenImage
 import org.nsh07.wikireader.ui.savedArticlesScreen.SavedArticlesScreenRoot
 import org.nsh07.wikireader.ui.settingsScreen.SettingsScreen
-import org.nsh07.wikireader.ui.viewModel.PreferencesState
+import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.viewModel.UiViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)

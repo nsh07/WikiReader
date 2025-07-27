@@ -57,6 +57,7 @@ import org.nsh07.wikireader.parser.buildRefList
 import org.nsh07.wikireader.parser.cleanUpWikitext
 import org.nsh07.wikireader.parser.substringMatchingParen
 import org.nsh07.wikireader.parser.toWikitextAnnotatedString
+import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
 import java.io.File
 import kotlin.io.path.listDirectoryEntries
 import kotlin.math.min

@@ -2,7 +2,6 @@ package org.nsh07.wikireader.ui.viewModel
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import org.nsh07.wikireader.data.FeedApiImage
 import org.nsh07.wikireader.data.FeedApiNews
@@ -40,24 +39,6 @@ data class HomeScreenState(
     val showRef: Boolean = false,
     val loadingProgress: Float? = null,
     val backStackSize: Int = 0
-)
-
-@Immutable
-data class PreferencesState(
-    val theme: String = "auto",
-    val lang: String = "en",
-    val fontStyle: String = "sans",
-    val colorScheme: String = Color.White.toString(),
-    val fontSize: Int = 16,
-    val blackTheme: Boolean = false,
-    val dataSaver: Boolean = false,
-    val feedEnabled: Boolean = true,
-    val expandedSections: Boolean = false,
-    val imageBackground: Boolean = false,
-    val immersiveMode: Boolean = true,
-    val renderMath: Boolean = true,
-    val browsingHistory: Boolean = true,
-    val searchHistory: Boolean = true
 )
 
 @Immutable

@@ -90,12 +90,12 @@ import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiLang
 import org.nsh07.wikireader.ui.image.ImageCard
 import org.nsh07.wikireader.ui.settingsScreen.LanguageBottomSheet
+import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.shimmer.AnimatedShimmer
 import org.nsh07.wikireader.ui.shimmer.FeedLoader
 import org.nsh07.wikireader.ui.theme.isDark
 import org.nsh07.wikireader.ui.viewModel.FeedState
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
-import org.nsh07.wikireader.ui.viewModel.PreferencesState
 
 /**
  * The app home screen composable.
