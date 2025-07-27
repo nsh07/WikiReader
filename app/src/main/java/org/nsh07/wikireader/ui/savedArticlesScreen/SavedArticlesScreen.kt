@@ -41,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -59,6 +60,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.ImageLoader
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
@@ -66,10 +68,36 @@ import org.nsh07.wikireader.data.ArticleInfo
 import org.nsh07.wikireader.data.LanguageInfo
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.ui.image.FeedImage
+import org.nsh07.wikireader.ui.savedArticlesScreen.viewModel.SavedArticlesViewModel
 import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
+
+@Composable
+fun SavedArticlesScreenRoot(
+    imageLoader: ImageLoader,
+    imageBackground: Boolean,
+    openSavedArticle: (Int, String) -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: SavedArticlesViewModel = viewModel(factory = SavedArticlesViewModel.Factory)
+) {
+    val savedArticles by viewModel.savedArticlesFlow.collectAsState(emptyList())
+    val savedArticleLangs by viewModel.savedArticleLangsFlow.collectAsState(emptyList())
+
+    SavedArticlesScreen(
+        savedArticles = savedArticles,
+        savedArticleLangs = savedArticleLangs,
+        imageLoader = imageLoader,
+        imageBackground = imageBackground,
+        openSavedArticle = openSavedArticle,
+        deleteArticle = viewModel::deleteArticle,
+        deleteAll = viewModel::deleteAllArticles,
+        onBack = onBack,
+        modifier = modifier
+    )
+}
 
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
@@ -125,7 +153,7 @@ fun SavedArticlesScreen(
                 articlesInfo = stringResource(
                     R.string.articlesSize,
                     savedArticles.size,
-                    remember { groupedArticles.size }
+                    remember(groupedArticles) { groupedArticles.size }
                 ),
                 scrollBehavior = scrollBehavior,
                 deleteEnabled = savedArticles.isNotEmpty(),

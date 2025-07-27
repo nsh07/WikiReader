@@ -92,9 +92,6 @@ class UiViewModel(
 
     val searchHistoryFlow = appDatabaseRepository.getSearchHistory().distinctUntilChanged()
     val recentLangsFlow = appDatabaseRepository.getRecentLanguages().distinctUntilChanged()
-    val savedArticleLangsFlow =
-        appDatabaseRepository.getSavedArticleLanguages().distinctUntilChanged()
-    val savedArticlesFlow = appDatabaseRepository.getSavedArticles().distinctUntilChanged()
     val userLangsFlow = appDatabaseRepository.getUserLanguages().distinctUntilChanged()
 
     @OptIn(FlowPreview::class)
@@ -804,13 +801,6 @@ class UiViewModel(
             }
         }
 
-        return WRStatus.SUCCESS
-    }
-
-    fun deleteAllArticles(): WRStatus {
-        viewModelScope.launch(Dispatchers.IO) {
-            appDatabaseRepository.deleteAllSavedArticles()
-        }
         return WRStatus.SUCCESS
     }
 

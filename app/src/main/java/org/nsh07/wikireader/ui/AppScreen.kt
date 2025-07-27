@@ -95,7 +95,7 @@ import org.nsh07.wikireader.ui.historyScreen.HistoryScreenRoot
 import org.nsh07.wikireader.ui.homeScreen.AppHomeScreen
 import org.nsh07.wikireader.ui.homeScreen.AppSearchBar
 import org.nsh07.wikireader.ui.image.FullScreenImage
-import org.nsh07.wikireader.ui.savedArticlesScreen.SavedArticlesScreen
+import org.nsh07.wikireader.ui.savedArticlesScreen.SavedArticlesScreenRoot
 import org.nsh07.wikireader.ui.settingsScreen.SettingsScreen
 import org.nsh07.wikireader.ui.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.viewModel.UiViewModel
@@ -118,9 +118,7 @@ fun AppScreen(
     val searchListState by viewModel.searchListState.collectAsStateWithLifecycle()
 
     val searchHistory by viewModel.searchHistoryFlow.collectAsState(emptyList())
-    val savedArticles by viewModel.savedArticlesFlow.collectAsState(emptyList())
     val recentLangs by viewModel.recentLangsFlow.collectAsStateWithLifecycle(emptyList())
-    val savedArticleLangs by viewModel.savedArticleLangsFlow.collectAsState(emptyList())
     val userLangs by viewModel.userLangsFlow.collectAsState(
         listOf(
             UserLanguage(
@@ -580,9 +578,7 @@ fun AppScreen(
             }
 
             composable<SavedArticlesScreen> {
-                SavedArticlesScreen(
-                    savedArticles = savedArticles,
-                    savedArticleLangs = savedArticleLangs,
+                SavedArticlesScreenRoot(
                     imageLoader = imageLoader,
                     imageBackground = preferencesState.imageBackground,
                     openSavedArticle = { pageId: Int, lang: String ->
@@ -591,8 +587,6 @@ fun AppScreen(
                             viewModel.loadSavedArticle(pageId, lang)
                         }
                     },
-                    deleteArticle = viewModel::deleteArticle,
-                    deleteAll = viewModel::deleteAllArticles,
                     onBack = navController::navigateUp
                 )
             }
