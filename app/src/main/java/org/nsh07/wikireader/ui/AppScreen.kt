@@ -83,7 +83,6 @@ import coil3.svg.SvgDecoder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import org.nsh07.wikireader.R
 import org.nsh07.wikireader.R.string
 import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.SearchHistoryItem
@@ -96,19 +95,21 @@ import org.nsh07.wikireader.ui.homeScreen.AppHomeScreen
 import org.nsh07.wikireader.ui.homeScreen.AppSearchBar
 import org.nsh07.wikireader.ui.image.FullScreenImage
 import org.nsh07.wikireader.ui.savedArticlesScreen.SavedArticlesScreenRoot
-import org.nsh07.wikireader.ui.settingsScreen.SettingsScreen
-import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
+import org.nsh07.wikireader.ui.settingsScreen.SettingsScreenRoot
+import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsViewModel
 import org.nsh07.wikireader.ui.viewModel.UiViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppScreen(
     viewModel: UiViewModel,
-    preferencesState: PreferencesState,
+    settingsViewModel: SettingsViewModel,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    val preferencesState by settingsViewModel.preferencesState.collectAsStateWithLifecycle()
 
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val appSearchBarState by viewModel.appSearchBarState.collectAsStateWithLifecycle()
@@ -137,43 +138,6 @@ fun AppScreen(
     val motionScheme = motionScheme
     var showArticleLanguageSheet by rememberSaveable { mutableStateOf(false) }
     var deepLinkHandled by rememberSaveable { mutableStateOf(false) }
-
-    // Used by the settings screen. These are hoisted here to make the settings screen faster
-    val themeMap: Map<String, Pair<Int, String>> = remember {
-        mapOf(
-            "auto" to Pair(
-                R.drawable.brightness_auto,
-                context.getString(string.themeSystemDefault)
-            ),
-            "light" to Pair(R.drawable.light_mode, context.getString(string.themeLight)),
-            "dark" to Pair(R.drawable.dark_mode, context.getString(string.themeDark))
-        )
-    }
-    val reverseThemeMap: Map<String, String> = remember {
-        mapOf(
-            context.getString(string.themeSystemDefault) to "auto",
-            context.getString(string.themeLight) to "light",
-            context.getString(string.themeDark) to "dark"
-        )
-    }
-    val fontStyleMap: Map<String, String> = remember {
-        mapOf(
-            "sans" to context.getString(string.fontStyleSansSerif),
-            "serif" to context.getString(string.fontStyleSerif)
-        )
-    }
-    val reverseFontStyleMap: Map<String, String> = remember {
-        mapOf(
-            context.getString(string.fontStyleSansSerif) to "sans",
-            context.getString(string.fontStyleSerif) to "serif"
-        )
-    }
-    val fontStyles = remember {
-        listOf(
-            context.getString(string.fontStyleSansSerif),
-            context.getString(string.fontStyleSerif)
-        )
-    }
 
     val searchBarScrollBehavior =
         if (
@@ -396,7 +360,7 @@ fun AppScreen(
                                     random = true
                                 )
                             },
-                            saveLang = viewModel::saveLang,
+                            saveLang = settingsViewModel::saveLang,
                             updateLanguageSearchStr = viewModel::updateLanguageSearchStr,
                             onExpandedChange = {
                                 scope.launch {
@@ -461,7 +425,7 @@ fun AppScreen(
                         onLinkClick = viewModel::loadPage,
                         refreshSearch = { viewModel.reloadPage(true) },
                         refreshFeed = viewModel::loadFeed,
-                        setLang = viewModel::saveLang,
+                        setLang = settingsViewModel::saveLang,
                         setSearchStr = viewModel::updateLanguageSearchStr,
                         setShowArticleLanguageSheet = { showArticleLanguageSheet = it },
                         enableScrollButton = if (homeScreenState.status != WRStatus.FEED_LOADED) index >= 1 else feedIndex >= 1,
@@ -604,36 +568,16 @@ fun AppScreen(
             }
 
             composable<SettingsScreen> {
-                SettingsScreen(
+                SettingsScreenRoot(
                     preferencesState = preferencesState,
                     homeScreenState = homeScreenState,
                     recentLangs = recentLangs,
                     languageSearchStr = languageSearchStr,
                     languageSearchQuery = languageSearchQuery,
-                    themeMap = themeMap,
-                    reverseThemeMap = reverseThemeMap,
-                    fontStyles = fontStyles,
-                    fontStyleMap = fontStyleMap,
-                    reverseFontStyleMap = reverseFontStyleMap,
-                    saveTheme = viewModel::saveTheme,
-                    saveColorScheme = viewModel::saveColorScheme,
-                    saveLang = viewModel::saveLang,
-                    saveFontStyle = viewModel::saveFontStyle,
-                    saveFontSize = viewModel::saveFontSize,
-                    saveBlackTheme = viewModel::saveBlackTheme,
-                    saveDataSaver = viewModel::saveDataSaver,
-                    saveFeedEnabled = viewModel::saveFeedEnabled,
-                    saveExpandedSections = viewModel::saveExpandedSections,
-                    saveHistory = viewModel::saveHistory,
-                    saveImageBackground = viewModel::saveImageBackground,
-                    saveImmersiveMode = viewModel::saveImmersiveMode,
-                    saveRenderMath = viewModel::saveRenderMath,
-                    saveSearchHistory = viewModel::saveSearchHistory,
                     updateLanguageSearchStr = viewModel::updateLanguageSearchStr,
                     loadFeed = viewModel::loadFeed,
                     reloadPage = viewModel::reloadPage,
-                    onBack = navController::navigateUp,
-                    onResetSettings = viewModel::resetSettings
+                    onBack = navController::navigateUp
                 )
             }
 

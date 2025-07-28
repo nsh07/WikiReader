@@ -76,6 +76,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.R.string
@@ -83,6 +84,7 @@ import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.toColor
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
+import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsViewModel
 import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
@@ -91,6 +93,92 @@ import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 import org.nsh07.wikireader.ui.viewModel.HomeScreenState
 import kotlin.math.round
+
+@Composable
+fun SettingsScreenRoot(
+    preferencesState: PreferencesState,
+    homeScreenState: HomeScreenState,
+    recentLangs: List<String>,
+    languageSearchStr: String,
+    languageSearchQuery: String,
+    updateLanguageSearchStr: (String) -> Unit,
+    loadFeed: () -> Unit,
+    reloadPage: () -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
+) {
+    val context = LocalContext.current
+
+    val themeMap: Map<String, Pair<Int, String>> = remember {
+        mapOf(
+            "auto" to Pair(
+                R.drawable.brightness_auto,
+                context.getString(string.themeSystemDefault)
+            ),
+            "light" to Pair(R.drawable.light_mode, context.getString(string.themeLight)),
+            "dark" to Pair(R.drawable.dark_mode, context.getString(string.themeDark))
+        )
+    }
+    val reverseThemeMap: Map<String, String> = remember {
+        mapOf(
+            context.getString(string.themeSystemDefault) to "auto",
+            context.getString(string.themeLight) to "light",
+            context.getString(string.themeDark) to "dark"
+        )
+    }
+    val fontStyleMap: Map<String, String> = remember {
+        mapOf(
+            "sans" to context.getString(string.fontStyleSansSerif),
+            "serif" to context.getString(string.fontStyleSerif)
+        )
+    }
+    val reverseFontStyleMap: Map<String, String> = remember {
+        mapOf(
+            context.getString(string.fontStyleSansSerif) to "sans",
+            context.getString(string.fontStyleSerif) to "serif"
+        )
+    }
+    val fontStyles = remember {
+        listOf(
+            context.getString(string.fontStyleSansSerif),
+            context.getString(string.fontStyleSerif)
+        )
+    }
+
+    SettingsScreen(
+        preferencesState = preferencesState,
+        homeScreenState = homeScreenState,
+        recentLangs = recentLangs,
+        languageSearchStr = languageSearchStr,
+        languageSearchQuery = languageSearchQuery,
+        themeMap = themeMap,
+        reverseThemeMap = reverseThemeMap,
+        fontStyles = fontStyles,
+        fontStyleMap = fontStyleMap,
+        reverseFontStyleMap = reverseFontStyleMap,
+        saveTheme = viewModel::saveTheme,
+        saveColorScheme = viewModel::saveColorScheme,
+        saveLang = viewModel::saveLang,
+        saveFontStyle = viewModel::saveFontStyle,
+        saveFontSize = viewModel::saveFontSize,
+        saveBlackTheme = viewModel::saveBlackTheme,
+        saveDataSaver = viewModel::saveDataSaver,
+        saveFeedEnabled = viewModel::saveFeedEnabled,
+        saveExpandedSections = viewModel::saveExpandedSections,
+        saveHistory = viewModel::saveHistory,
+        saveImageBackground = viewModel::saveImageBackground,
+        saveImmersiveMode = viewModel::saveImmersiveMode,
+        saveRenderMath = viewModel::saveRenderMath,
+        saveSearchHistory = viewModel::saveSearchHistory,
+        onResetSettings = viewModel::resetSettings,
+        updateLanguageSearchStr = updateLanguageSearchStr,
+        loadFeed = loadFeed,
+        reloadPage = reloadPage,
+        onBack = onBack,
+        modifier = modifier
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable

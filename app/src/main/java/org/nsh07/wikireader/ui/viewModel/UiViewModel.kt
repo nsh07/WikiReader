@@ -6,7 +6,6 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.util.fastAny
@@ -30,6 +29,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -37,6 +37,7 @@ import kotlinx.serialization.json.Json
 import org.nsh07.wikireader.WikiReaderApplication
 import org.nsh07.wikireader.data.AppDatabaseRepository
 import org.nsh07.wikireader.data.AppPreferencesRepository
+import org.nsh07.wikireader.data.AppStatus
 import org.nsh07.wikireader.data.SavedArticle
 import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.SearchHistoryItem
@@ -63,6 +64,8 @@ import kotlin.io.path.listDirectoryEntries
 import kotlin.math.min
 
 class UiViewModel(
+    private val appStatusFlow: MutableStateFlow<AppStatus>,
+    private val preferencesStateMutableFlow: MutableStateFlow<PreferencesState>,
     private val interceptor: HostSelectionInterceptor,
     private val wikipediaRepository: WikipediaRepository,
     private val appPreferencesRepository: AppPreferencesRepository,
@@ -74,6 +77,9 @@ class UiViewModel(
     private val _homeScreenState = MutableStateFlow(HomeScreenState())
     val homeScreenState: StateFlow<HomeScreenState> = _homeScreenState.asStateFlow()
 
+    private val preferencesState: StateFlow<PreferencesState> =
+        preferencesStateMutableFlow.asStateFlow()
+
     private val _feedState = MutableStateFlow(FeedState())
     val feedState: StateFlow<FeedState> = _feedState.asStateFlow()
 
@@ -82,9 +88,6 @@ class UiViewModel(
 
     private val _searchListState = MutableStateFlow(LazyListState(0, 0))
     val searchListState: StateFlow<LazyListState> = _searchListState.asStateFlow()
-
-    private val _preferencesState = MutableStateFlow(PreferencesState())
-    val preferencesState: StateFlow<PreferencesState> = _preferencesState.asStateFlow()
 
     private val _languageSearchStr = MutableStateFlow("")
     val languageSearchStr: StateFlow<String> = _languageSearchStr.asStateFlow()
@@ -111,76 +114,25 @@ class UiViewModel(
     private var typography: Typography = Typography()
     private var fromLink: Boolean = false
 
-    var isReady = false
+    val appStatus = appStatusFlow
 
     private var sections = 0
     private var currentSection = 0
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            val colorScheme = appPreferencesRepository.readStringPreference("color-scheme")
-                ?: appPreferencesRepository.saveStringPreference(
-                    "color-scheme",
-                    Color.White.toString()
-                )
-            val fontStyle = appPreferencesRepository.readStringPreference("font-style")
-                ?: appPreferencesRepository.saveStringPreference("font-style", "sans")
-            val lang = appPreferencesRepository.readStringPreference("lang")
-                ?: appPreferencesRepository.saveStringPreference("lang", "en")
-            val theme = appPreferencesRepository.readStringPreference("theme")
-                ?: appPreferencesRepository.saveStringPreference("theme", "auto")
-            val fontSize = appPreferencesRepository.readIntPreference("font-size")
-                ?: appPreferencesRepository.saveIntPreference("font-size", 16)
-            val blackTheme = appPreferencesRepository.readBooleanPreference("black-theme")
-                ?: appPreferencesRepository.saveBooleanPreference("black-theme", false)
-            val dataSaver = appPreferencesRepository.readBooleanPreference("data-saver")
-                ?: appPreferencesRepository.saveBooleanPreference("data-saver", false)
-            val feedEnabled = appPreferencesRepository.readBooleanPreference("feed-enabled")
-                ?: appPreferencesRepository.saveBooleanPreference("feed-enabled", true)
-            val expandedSections =
-                appPreferencesRepository.readBooleanPreference("expanded-sections")
-                    ?: appPreferencesRepository.saveBooleanPreference("expanded-sections", false)
-            val imageBackground = appPreferencesRepository.readBooleanPreference("image-background")
-                ?: appPreferencesRepository.saveBooleanPreference("image-background", false)
-            val immersiveMode = appPreferencesRepository.readBooleanPreference("immersive-mode")
-                ?: appPreferencesRepository.saveBooleanPreference("immersive-mode", true)
-            val renderMath = appPreferencesRepository.readBooleanPreference("render-math")
-                ?: appPreferencesRepository.saveBooleanPreference("render-math", true)
-            val browsingHistory = appPreferencesRepository.readBooleanPreference("browsing-history")
-                ?: appPreferencesRepository.saveBooleanPreference("browsing-history", true)
-            val searchHistory = appPreferencesRepository.readBooleanPreference("search-history")
-                ?: appPreferencesRepository.saveBooleanPreference("search-history", true)
-
-            _preferencesState.update { currentState ->
-                currentState.copy(
-                    blackTheme = blackTheme,
-                    colorScheme = colorScheme,
-                    dataSaver = dataSaver,
-                    feedEnabled = feedEnabled,
-                    expandedSections = expandedSections,
-                    fontSize = fontSize,
-                    fontStyle = fontStyle,
-                    imageBackground = imageBackground,
-                    immersiveMode = immersiveMode,
-                    lang = lang,
-                    renderMath = renderMath,
-                    searchHistory = searchHistory,
-                    browsingHistory = browsingHistory,
-                    theme = theme
-                )
-            }
-
-            appDatabaseRepository.deleteOldSearchHistory()
-            appDatabaseRepository.deleteOldViewHistory()
-
-            interceptor.setHost("$lang.wikipedia.org")
+            var collectAppStatus = true
 
             userLangsFlow.first().let {
                 if (it.isEmpty()) insertUserLanguage(UserLanguage("en", "English", true))
             }
 
-            isReady = true
-            loadFeed()
+            appStatus.takeWhile { collectAppStatus }.collect {
+                if (it == AppStatus.INITIALIZED) {
+                    loadFeed()
+                    collectAppStatus = false
+                }
+            }
         }
     }
 
@@ -525,7 +477,7 @@ class UiViewModel(
                 }
 
                 if (lang != null)
-                    _preferencesState.update { currentState ->
+                    preferencesStateMutableFlow.update { currentState ->
                         currentState.copy(lang = lang)
                     }
             } else {
@@ -848,7 +800,7 @@ class UiViewModel(
                     LazyListState(0, 0)
                 }
 
-                _preferencesState.update { currentState ->
+                preferencesStateMutableFlow.update { currentState ->
                     currentState.copy(
                         lang = savedArticle.lang
                     )
@@ -1131,147 +1083,12 @@ class UiViewModel(
             appDatabaseRepository.deselectAllUserLanguages()
             appDatabaseRepository.markUserLanguageSelected(lang)
         }
-        saveLang(lang)
-    }
-
-    fun saveTheme(theme: String) {
-        viewModelScope.launch {
-            _preferencesState.update { currentState ->
-                currentState.copy(theme = theme)
-            }
-            appPreferencesRepository.saveStringPreference("theme", theme)
-        }
-    }
-
-    fun saveFontStyle(fontStyle: String) {
-        viewModelScope.launch {
-            _preferencesState.update { currentState ->
-                currentState.copy(fontStyle = fontStyle)
-            }
-            appPreferencesRepository.saveStringPreference("font-style", fontStyle)
-        }
-    }
-
-    fun saveLang(lang: String) {
         interceptor.setHost("$lang.wikipedia.org")
-        _preferencesState.update { currentState ->
+        preferencesStateMutableFlow.update { currentState ->
             currentState.copy(lang = lang)
         }
         viewModelScope.launch {
             appPreferencesRepository.saveStringPreference("lang", lang)
-        }
-    }
-
-    fun saveColorScheme(colorScheme: String) {
-        viewModelScope.launch {
-            _preferencesState.update { currentState ->
-                currentState.copy(colorScheme = colorScheme)
-            }
-            appPreferencesRepository.saveStringPreference("color-scheme", colorScheme)
-        }
-    }
-
-    fun saveBlackTheme(blackTheme: Boolean) {
-        viewModelScope.launch {
-            _preferencesState.update { currentState ->
-                currentState.copy(blackTheme = blackTheme)
-            }
-            appPreferencesRepository.saveBooleanPreference("black-theme", blackTheme)
-        }
-    }
-
-    fun saveFontSize(fontSize: Int) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveIntPreference("font-size", fontSize)
-            _preferencesState.update { currentState ->
-                currentState.copy(fontSize = fontSize)
-            }
-        }
-    }
-
-    fun saveExpandedSections(expandedSections: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("expanded-sections", expandedSections)
-            _preferencesState.update { currentState ->
-                currentState.copy(expandedSections = expandedSections)
-            }
-        }
-    }
-
-    fun saveRenderMath(renderMath: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("render-math", renderMath)
-            _preferencesState.update { currentState ->
-                currentState.copy(renderMath = renderMath)
-            }
-        }
-    }
-
-    fun saveHistory(history: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("browsing-history", history)
-            _preferencesState.update { currentState ->
-                currentState.copy(browsingHistory = history)
-            }
-        }
-    }
-
-    fun saveSearchHistory(searchHistory: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("search-history", searchHistory)
-            _preferencesState.update { currentState ->
-                currentState.copy(searchHistory = searchHistory)
-            }
-        }
-    }
-
-    fun saveDataSaver(dataSaver: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("data-saver", dataSaver)
-            _preferencesState.update { currentState ->
-                currentState.copy(dataSaver = dataSaver)
-            }
-        }
-    }
-
-    fun saveFeedEnabled(feedEnabled: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("feed-enabled", feedEnabled)
-            _preferencesState.update { currentState ->
-                currentState.copy(feedEnabled = feedEnabled)
-            }
-        }
-    }
-
-    fun saveImageBackground(imageBackground: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("image-background", imageBackground)
-            _preferencesState.update { currentState ->
-                currentState.copy(imageBackground = imageBackground)
-            }
-        }
-    }
-
-    fun saveImmersiveMode(immersiveMode: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("immersive-mode", immersiveMode)
-            _preferencesState.update { currentState ->
-                currentState.copy(immersiveMode = immersiveMode)
-            }
-        }
-    }
-
-    fun resetSettings() {
-        viewModelScope.launch {
-            try {
-                appPreferencesRepository.resetSettings()
-                _preferencesState.update {
-                    PreferencesState()
-                }
-            } catch (e: Exception) {
-                Log.e("ViewModel", "Error in restoring settings: ${e.message}")
-                e.printStackTrace()
-            }
         }
     }
 
@@ -1285,11 +1102,15 @@ class UiViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = (this[APPLICATION_KEY] as WikiReaderApplication)
+                val appStatusFlow = application.container.appStatus
+                val preferencesStateMutableFlow = application.container.preferencesStateMutableFlow
                 val interceptor = application.container.interceptor
                 val wikipediaRepository = application.container.wikipediaRepository
                 val appPreferencesRepository = application.container.appPreferencesRepository
                 val appHistoryRepository = application.container.appDatabaseRepository
                 UiViewModel(
+                    appStatusFlow = appStatusFlow,
+                    preferencesStateMutableFlow = preferencesStateMutableFlow,
                     interceptor = interceptor,
                     wikipediaRepository = wikipediaRepository,
                     appPreferencesRepository = appPreferencesRepository,
