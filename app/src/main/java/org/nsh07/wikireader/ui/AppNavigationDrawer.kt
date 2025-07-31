@@ -57,7 +57,7 @@ import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R.drawable
 import org.nsh07.wikireader.R.string
 import org.nsh07.wikireader.data.WRStatus
-import org.nsh07.wikireader.ui.viewModel.FeedSection
+import org.nsh07.wikireader.ui.homeScreen.viewModel.FeedSection
 import kotlin.reflect.KClass
 
 

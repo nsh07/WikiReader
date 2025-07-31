@@ -1,4 +1,4 @@
-package org.nsh07.wikireader.ui.viewModel
+package org.nsh07.wikireader.ui.homeScreen.viewModel
 
 import android.util.Log
 import androidx.compose.foundation.lazy.LazyListState
@@ -63,7 +63,7 @@ import java.io.File
 import kotlin.io.path.listDirectoryEntries
 import kotlin.math.min
 
-class UiViewModel(
+class HomeScreenViewModel(
     private val appStatusFlow: MutableStateFlow<AppStatus>,
     private val preferencesStateMutableFlow: MutableStateFlow<PreferencesState>,
     private val interceptor: HostSelectionInterceptor,
@@ -1108,7 +1108,7 @@ class UiViewModel(
                 val wikipediaRepository = application.container.wikipediaRepository
                 val appPreferencesRepository = application.container.appPreferencesRepository
                 val appHistoryRepository = application.container.appDatabaseRepository
-                UiViewModel(
+                HomeScreenViewModel(
                     appStatusFlow = appStatusFlow,
                     preferencesStateMutableFlow = preferencesStateMutableFlow,
                     interceptor = interceptor,

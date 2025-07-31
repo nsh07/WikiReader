@@ -1,4 +1,4 @@
-package org.nsh07.wikireader.ui.viewModel
+package org.nsh07.wikireader.ui.homeScreen.viewModel
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.focus.FocusRequester

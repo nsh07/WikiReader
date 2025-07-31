@@ -93,16 +93,16 @@ import org.nsh07.wikireader.ui.aboutScreen.AboutScreen
 import org.nsh07.wikireader.ui.historyScreen.HistoryScreenRoot
 import org.nsh07.wikireader.ui.homeScreen.AppHomeScreen
 import org.nsh07.wikireader.ui.homeScreen.AppSearchBar
+import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeScreenViewModel
 import org.nsh07.wikireader.ui.image.FullScreenImage
 import org.nsh07.wikireader.ui.savedArticlesScreen.SavedArticlesScreenRoot
 import org.nsh07.wikireader.ui.settingsScreen.SettingsScreenRoot
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsViewModel
-import org.nsh07.wikireader.ui.viewModel.UiViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppScreen(
-    viewModel: UiViewModel,
+    viewModel: HomeScreenViewModel,
     settingsViewModel: SettingsViewModel,
     modifier: Modifier = Modifier
 ) {
