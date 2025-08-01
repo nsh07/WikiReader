@@ -64,6 +64,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.ViewHistoryItem
+import org.nsh07.wikireader.ui.historyScreen.viewModel.HistoryAction
 import org.nsh07.wikireader.ui.historyScreen.viewModel.HistoryViewModel
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
@@ -91,9 +92,7 @@ fun HistoryScreenRoot(
         imageLoader = imageLoader,
         imageBackground = imageBackground,
         openArticle = openArticle,
-        insertHistoryItem = viewModel::insertViewHistoryItem,
-        deleteHistoryItem = viewModel::removeViewHistoryItem,
-        deleteAllHistory = { viewModel.removeViewHistoryItem(null) },
+        onAction = viewModel::onAction,
         onBack = onBack,
         modifier = modifier
     )
@@ -106,9 +105,7 @@ fun HistoryScreen(
     imageLoader: ImageLoader,
     imageBackground: Boolean,
     openArticle: (String, String) -> Unit,
-    insertHistoryItem: (ViewHistoryItem) -> Unit,
-    deleteHistoryItem: (ViewHistoryItem?) -> Unit,
-    deleteAllHistory: () -> Unit,
+    onAction: (HistoryAction) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -160,7 +157,7 @@ fun HistoryScreen(
                     FilledTonalIconButton(
                         onClick = {
                             deletedItems = viewHistory
-                            deleteAllHistory()
+                            onAction(HistoryAction.RemoveAll)
                             scope.launch {
                                 val result = snackbarHostState.showSnackbar(
                                     message = context.getString(R.string.allHistoryDeleted),
@@ -168,7 +165,7 @@ fun HistoryScreen(
                                 )
                                 if (result == SnackbarResult.ActionPerformed) {
                                     deletedItems.fastForEach {
-                                        insertHistoryItem(it)
+                                        onAction(HistoryAction.InsertItem(it))
                                         delay(10)
                                     }
                                 }
@@ -263,7 +260,7 @@ fun HistoryScreen(
                                     onClick = { openArticle(it.title, it.lang) },
                                     onLongClick = {
                                         lastDeleted = it
-                                        deleteHistoryItem(it)
+                                        onAction(HistoryAction.RemoveItem(it))
                                         scope.launch {
                                             val result = snackbarHostState.showSnackbar(
                                                 message = context.getString(
@@ -274,7 +271,7 @@ fun HistoryScreen(
                                                 duration = SnackbarDuration.Long
                                             )
                                             if (result == SnackbarResult.ActionPerformed) {
-                                                insertHistoryItem(lastDeleted)
+                                                onAction(HistoryAction.InsertItem(lastDeleted))
                                             }
                                         }
                                     }

@@ -19,12 +19,20 @@ class HistoryViewModel(
 
     val viewHistoryFlow = appDatabaseRepository.getViewHistory().distinctUntilChanged()
 
-    fun insertViewHistoryItem(item: ViewHistoryItem) =
+    fun onAction(action: HistoryAction) {
+        when (action) {
+            is HistoryAction.InsertItem -> insertViewHistoryItem(action.item)
+            is HistoryAction.RemoveItem -> removeViewHistoryItem(action.item)
+            is HistoryAction.RemoveAll -> removeViewHistoryItem(null)
+        }
+    }
+
+    private fun insertViewHistoryItem(item: ViewHistoryItem) =
         viewModelScope.launch(Dispatchers.IO) {
             appDatabaseRepository.insertViewHistory(item)
         }
 
-    fun removeViewHistoryItem(item: ViewHistoryItem?) {
+    private fun removeViewHistoryItem(item: ViewHistoryItem?) {
         viewModelScope.launch(Dispatchers.IO) {
             if (item != null) appDatabaseRepository.deleteViewHistory(item)
             else appDatabaseRepository.deleteAllViewHistory()
