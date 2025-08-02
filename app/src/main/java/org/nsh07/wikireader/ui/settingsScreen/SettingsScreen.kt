@@ -86,6 +86,7 @@ import org.nsh07.wikireader.data.toColor
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeAction
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
+import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsAction
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsViewModel
 import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
@@ -156,21 +157,7 @@ fun SettingsScreenRoot(
         fontStyles = fontStyles,
         fontStyleMap = fontStyleMap,
         reverseFontStyleMap = reverseFontStyleMap,
-        saveTheme = viewModel::saveTheme,
-        saveColorScheme = viewModel::saveColorScheme,
-        saveLang = viewModel::saveLang,
-        saveFontStyle = viewModel::saveFontStyle,
-        saveFontSize = viewModel::saveFontSize,
-        saveBlackTheme = viewModel::saveBlackTheme,
-        saveDataSaver = viewModel::saveDataSaver,
-        saveFeedEnabled = viewModel::saveFeedEnabled,
-        saveExpandedSections = viewModel::saveExpandedSections,
-        saveHistory = viewModel::saveHistory,
-        saveImageBackground = viewModel::saveImageBackground,
-        saveImmersiveMode = viewModel::saveImmersiveMode,
-        saveRenderMath = viewModel::saveRenderMath,
-        saveSearchHistory = viewModel::saveSearchHistory,
-        onResetSettings = viewModel::resetSettings,
+        onAction = viewModel::onAction,
         onHomeAction = onHomeAction,
         onBack = onBack,
         modifier = modifier
@@ -190,23 +177,9 @@ fun SettingsScreen(
     fontStyles: List<String>,
     fontStyleMap: Map<String, String>,
     reverseFontStyleMap: Map<String, String>,
-    saveTheme: (String) -> Unit,
-    saveColorScheme: (String) -> Unit,
-    saveLang: (String) -> Unit,
-    saveFontStyle: (String) -> Unit,
-    saveFontSize: (Int) -> Unit,
-    saveBlackTheme: (Boolean) -> Unit,
-    saveDataSaver: (Boolean) -> Unit,
-    saveFeedEnabled: (Boolean) -> Unit,
-    saveExpandedSections: (Boolean) -> Unit,
-    saveHistory: (Boolean) -> Unit,
-    saveImageBackground: (Boolean) -> Unit,
-    saveImmersiveMode: (Boolean) -> Unit,
-    saveRenderMath: (Boolean) -> Unit,
-    saveSearchHistory: (Boolean) -> Unit,
+    onAction: (SettingsAction) -> Unit,
     onHomeAction: (HomeAction) -> Unit,
     onBack: () -> Unit,
-    onResetSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uriHandler = LocalUriHandler.current
@@ -269,21 +242,21 @@ fun SettingsScreen(
                 R.drawable.contrast,
                 string.settingBlackTheme,
                 string.settingBlackThemeDesc,
-                saveBlackTheme
+                SettingsAction::SaveBlackTheme
             ),
             SettingsSwitchItem(
                 preferencesState.dataSaver,
                 R.drawable.data_saver_on,
                 string.settingDataSaver,
                 string.settingDataSaverDesc,
-                saveDataSaver
+                SettingsAction::SaveDataSaver
             ),
             SettingsSwitchItem(
                 preferencesState.feedEnabled,
                 R.drawable.feed,
                 string.settingFeed,
                 string.settingFeedDesc,
-                saveFeedEnabled,
+                SettingsAction::SaveFeedEnabled,
                 enabled = !preferencesState.dataSaver
             ),
             SettingsSwitchItem(
@@ -291,42 +264,42 @@ fun SettingsScreen(
                 R.drawable.expand_all,
                 string.settingExpandSections,
                 string.settingExpandSectionsDesc,
-                saveExpandedSections
+                SettingsAction::SaveExpandedSections
             ),
             SettingsSwitchItem(
                 preferencesState.imageBackground,
                 R.drawable.texture,
                 string.settingImageBackground,
                 string.settingImageBackgroundDesc,
-                saveImageBackground
+                SettingsAction::SaveImageBackground
             ),
             SettingsSwitchItem(
                 preferencesState.immersiveMode,
                 R.drawable.open_in_full,
                 string.settingImmersiveMode,
                 string.settingImmersiveModeDesc,
-                saveImmersiveMode
+                SettingsAction::SaveImmersiveMode
             ),
             SettingsSwitchItem(
                 preferencesState.renderMath,
                 R.drawable.function,
                 string.settingRenderMath,
                 string.settingRenderMathDesc,
-                saveRenderMath
+                SettingsAction::SaveRenderMath
             ),
             SettingsSwitchItem(
                 preferencesState.browsingHistory,
                 R.drawable.manage_history,
                 string.history,
                 string.historyDesc,
-                saveHistory
+                SettingsAction::SaveHistory
             ),
             SettingsSwitchItem(
                 preferencesState.searchHistory,
                 R.drawable.search_history,
                 string.settingSearchHistory,
                 string.settingSearchHistoryDesc,
-                saveSearchHistory
+                SettingsAction::SaveSearchHistory
             )
         )
     }
@@ -337,17 +310,17 @@ fun SettingsScreen(
             reverseThemeMap = reverseThemeMap,
             theme = theme,
             setShowThemeDialog = setShowThemeDialog,
-            setTheme = saveTheme
+            setTheme = { onAction(SettingsAction.SaveTheme(it)) }
         )
     if (showColorSchemeDialog)
         ColorSchemePickerDialog(
             currentColor = color,
-            onColorChange = { saveColorScheme(it.toString()) },
+            onColorChange = { onAction(SettingsAction.SaveColorScheme(it.toString())) },
             setShowDialog = setShowColorSchemeDialog
         )
     if (showResetSettingsDialog)
         ResetSettingsDialog(
-            onResetSettings = onResetSettings,
+            onResetSettings = { onAction(SettingsAction.ResetSettings) },
             setShowResetSettingsDialog = setShowResetSettingsDialog,
             showSnackbar = { coroutineScope.launch { snackBarHostState.showSnackbar(it) } }
         )
@@ -359,7 +332,7 @@ fun SettingsScreen(
             searchQuery = languageSearchQuery,
             setShowSheet = setShowLanguageSheet,
             setLang = {
-                saveLang(it)
+                onAction(SettingsAction.SaveLang(it))
                 if (homeScreenState.status != WRStatus.FEED_NETWORK_ERROR &&
                     homeScreenState.status != WRStatus.FEED_LOADED
                 )
@@ -442,7 +415,7 @@ fun SettingsScreen(
                     trailingContent = {
                         Switch(
                             checked = switchItems[0].checked,
-                            onCheckedChange = { switchItems[0].onCheckedChange(it) },
+                            onCheckedChange = { onAction(switchItems[0].actionConstructor(it)) },
                             thumbContent = {
                                 if (switchItems[0].checked) {
                                     Icon(
@@ -518,8 +491,10 @@ fun SettingsScreen(
                                 ToggleButton(
                                     checked = label == fontStyleMap[fontStyle],
                                     onCheckedChange = {
-                                        saveFontStyle(
-                                            reverseFontStyleMap[label] ?: "sans"
+                                        onAction(
+                                            SettingsAction.SaveFontStyle(
+                                                reverseFontStyleMap[label] ?: "sans"
+                                            )
                                         )
                                     },
                                     modifier = Modifier
@@ -577,7 +552,7 @@ fun SettingsScreen(
                                 valueRange = 10f..22f,
                                 onValueChangeFinished = {
                                     animateFontSize = true
-                                    saveFontSize(round(fontSizeFloat).toInt())
+                                    onAction(SettingsAction.SaveFontSize(round(fontSizeFloat).toInt()))
                                     fontSizeFloat = round(fontSizeFloat)
                                 }
                             )
@@ -599,7 +574,7 @@ fun SettingsScreen(
                     trailingContent = {
                         Switch(
                             checked = item.checked && item.enabled,
-                            onCheckedChange = { item.onCheckedChange(it) },
+                            onCheckedChange = { onAction(item.actionConstructor(it)) },
                             thumbContent = {
                                 if (item.checked && item.enabled) {
                                     Icon(
@@ -740,23 +715,9 @@ fun SettingsPreview() {
             fontStyles = fontStyles,
             fontStyleMap = fontStyleMap,
             reverseFontStyleMap = reverseFontStyleMap,
-            saveTheme = {},
-            saveColorScheme = {},
-            saveLang = {},
-            saveFontStyle = {},
-            saveFontSize = {},
-            saveBlackTheme = {},
-            saveDataSaver = {},
-            saveFeedEnabled = {},
-            saveExpandedSections = {},
-            saveHistory = {},
-            saveImageBackground = {},
-            saveImmersiveMode = {},
-            saveRenderMath = {},
-            saveSearchHistory = {},
+            onAction = {},
             onHomeAction = {},
             onBack = {},
-            onResetSettings = {}
         )
     }
 }
@@ -766,6 +727,6 @@ data class SettingsSwitchItem(
     val icon: Int,
     val label: Int,
     val description: Int,
-    val onCheckedChange: (Boolean) -> Unit,
+    val actionConstructor: (Boolean) -> SettingsAction,
     val enabled: Boolean = true
 )

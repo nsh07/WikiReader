@@ -93,143 +93,120 @@ class SettingsViewModel(
         }
     }
 
-    fun saveTheme(theme: String) {
-        viewModelScope.launch {
-            preferencesStateMutableFlow.update { currentState ->
-                currentState.copy(theme = theme)
-            }
-            appPreferencesRepository.saveStringPreference("theme", theme)
-        }
-    }
-
-    fun saveFontStyle(fontStyle: String) {
-        viewModelScope.launch {
-            preferencesStateMutableFlow.update { currentState ->
-                currentState.copy(fontStyle = fontStyle)
-            }
-            appPreferencesRepository.saveStringPreference("font-style", fontStyle)
-        }
-    }
-
-    fun saveLang(lang: String) {
-        interceptor.setHost("$lang.wikipedia.org")
-        preferencesStateMutableFlow.update { currentState ->
-            currentState.copy(lang = lang)
-        }
-        viewModelScope.launch {
-            appPreferencesRepository.saveStringPreference("lang", lang)
-        }
-    }
-
-    fun saveColorScheme(colorScheme: String) {
-        viewModelScope.launch {
-            preferencesStateMutableFlow.update { currentState ->
-                currentState.copy(colorScheme = colorScheme)
-            }
-            appPreferencesRepository.saveStringPreference("color-scheme", colorScheme)
-        }
-    }
-
-    fun saveBlackTheme(blackTheme: Boolean) {
-        viewModelScope.launch {
-            preferencesStateMutableFlow.update { currentState ->
-                currentState.copy(blackTheme = blackTheme)
-            }
-            appPreferencesRepository.saveBooleanPreference("black-theme", blackTheme)
-        }
-    }
-
-    fun saveFontSize(fontSize: Int) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveIntPreference("font-size", fontSize)
-            preferencesStateMutableFlow.update { currentState ->
-                currentState.copy(fontSize = fontSize)
-            }
-        }
-    }
-
-    fun saveExpandedSections(expandedSections: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("expanded-sections", expandedSections)
-            preferencesStateMutableFlow.update { currentState ->
-                currentState.copy(expandedSections = expandedSections)
-            }
-        }
-    }
-
-    fun saveRenderMath(renderMath: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("render-math", renderMath)
-            preferencesStateMutableFlow.update { currentState ->
-                currentState.copy(renderMath = renderMath)
-            }
-        }
-    }
-
-    fun saveHistory(history: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("browsing-history", history)
-            preferencesStateMutableFlow.update { currentState ->
-                currentState.copy(browsingHistory = history)
-            }
-        }
-    }
-
-    fun saveSearchHistory(searchHistory: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("search-history", searchHistory)
-            preferencesStateMutableFlow.update { currentState ->
-                currentState.copy(searchHistory = searchHistory)
-            }
-        }
-    }
-
-    fun saveDataSaver(dataSaver: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("data-saver", dataSaver)
-            preferencesStateMutableFlow.update { currentState ->
-                currentState.copy(dataSaver = dataSaver)
-            }
-        }
-    }
-
-    fun saveFeedEnabled(feedEnabled: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("feed-enabled", feedEnabled)
-            preferencesStateMutableFlow.update { currentState ->
-                currentState.copy(feedEnabled = feedEnabled)
-            }
-        }
-    }
-
-    fun saveImageBackground(imageBackground: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("image-background", imageBackground)
-            preferencesStateMutableFlow.update { currentState ->
-                currentState.copy(imageBackground = imageBackground)
-            }
-        }
-    }
-
-    fun saveImmersiveMode(immersiveMode: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("immersive-mode", immersiveMode)
-            preferencesStateMutableFlow.update { currentState ->
-                currentState.copy(immersiveMode = immersiveMode)
-            }
-        }
-    }
-
-    fun resetSettings() {
-        viewModelScope.launch {
-            try {
-                appPreferencesRepository.resetSettings()
-                preferencesStateMutableFlow.update {
-                    PreferencesState()
+    fun onAction(action: SettingsAction) {
+        when (action) {
+            is SettingsAction.SaveTheme -> viewModelScope.launch {
+                preferencesStateMutableFlow.update { currentState ->
+                    currentState.copy(theme = action.value)
                 }
-            } catch (e: Exception) {
-                Log.e("ViewModel", "Error in restoring settings: ${e.message}")
-                e.printStackTrace()
+                appPreferencesRepository.saveStringPreference("theme", action.value)
+            }
+
+            is SettingsAction.SaveFontStyle -> viewModelScope.launch {
+                preferencesStateMutableFlow.update { currentState ->
+                    currentState.copy(fontStyle = action.value)
+                }
+                appPreferencesRepository.saveStringPreference("font-style", action.value)
+            }
+
+            is SettingsAction.SaveLang -> {
+                val lang = action.value
+                interceptor.setHost("$lang.wikipedia.org")
+                preferencesStateMutableFlow.update { currentState ->
+                    currentState.copy(lang = lang)
+                }
+                viewModelScope.launch {
+                    appPreferencesRepository.saveStringPreference("lang", lang)
+                }
+            }
+
+            is SettingsAction.SaveColorScheme -> viewModelScope.launch {
+                preferencesStateMutableFlow.update { currentState ->
+                    currentState.copy(colorScheme = action.value)
+                }
+                appPreferencesRepository.saveStringPreference("color-scheme", action.value)
+            }
+
+            is SettingsAction.SaveBlackTheme -> viewModelScope.launch {
+                preferencesStateMutableFlow.update { currentState ->
+                    currentState.copy(blackTheme = action.value)
+                }
+                appPreferencesRepository.saveBooleanPreference("black-theme", action.value)
+            }
+
+            is SettingsAction.SaveFontSize -> viewModelScope.launch {
+                appPreferencesRepository.saveIntPreference("font-size", action.value)
+                preferencesStateMutableFlow.update { currentState ->
+                    currentState.copy(fontSize = action.value)
+                }
+            }
+
+            is SettingsAction.SaveExpandedSections -> viewModelScope.launch {
+                appPreferencesRepository.saveBooleanPreference("expanded-sections", action.value)
+                preferencesStateMutableFlow.update { currentState ->
+                    currentState.copy(expandedSections = action.value)
+                }
+            }
+
+            is SettingsAction.SaveRenderMath -> viewModelScope.launch {
+                appPreferencesRepository.saveBooleanPreference("render-math", action.value)
+                preferencesStateMutableFlow.update { currentState ->
+                    currentState.copy(renderMath = action.value)
+                }
+            }
+
+            is SettingsAction.SaveHistory -> viewModelScope.launch {
+                appPreferencesRepository.saveBooleanPreference("browsing-history", action.value)
+                preferencesStateMutableFlow.update { currentState ->
+                    currentState.copy(browsingHistory = action.value)
+                }
+            }
+
+            is SettingsAction.SaveSearchHistory -> viewModelScope.launch {
+                appPreferencesRepository.saveBooleanPreference("search-history", action.value)
+                preferencesStateMutableFlow.update { currentState ->
+                    currentState.copy(searchHistory = action.value)
+                }
+            }
+
+            is SettingsAction.SaveDataSaver -> viewModelScope.launch {
+                appPreferencesRepository.saveBooleanPreference("data-saver", action.value)
+                preferencesStateMutableFlow.update { currentState ->
+                    currentState.copy(dataSaver = action.value)
+                }
+            }
+
+            is SettingsAction.SaveFeedEnabled -> viewModelScope.launch {
+                appPreferencesRepository.saveBooleanPreference("feed-enabled", action.value)
+                preferencesStateMutableFlow.update { currentState ->
+                    currentState.copy(feedEnabled = action.value)
+                }
+            }
+
+            is SettingsAction.SaveImageBackground -> viewModelScope.launch {
+                appPreferencesRepository.saveBooleanPreference("image-background", action.value)
+                preferencesStateMutableFlow.update { currentState ->
+                    currentState.copy(imageBackground = action.value)
+                }
+            }
+
+            is SettingsAction.SaveImmersiveMode -> viewModelScope.launch {
+                appPreferencesRepository.saveBooleanPreference("immersive-mode", action.value)
+                preferencesStateMutableFlow.update { currentState ->
+                    currentState.copy(immersiveMode = action.value)
+                }
+            }
+
+            is SettingsAction.ResetSettings -> viewModelScope.launch {
+                try {
+                    appPreferencesRepository.resetSettings()
+                    preferencesStateMutableFlow.update {
+                        PreferencesState()
+                    }
+                } catch (e: Exception) {
+                    Log.e("ViewModel", "Error in restoring settings: ${e.message}")
+                    e.printStackTrace()
+                }
             }
         }
     }

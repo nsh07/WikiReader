@@ -107,6 +107,7 @@ import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeAction
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.settingsScreen.LanguageBottomSheet
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
+import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsAction
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
@@ -133,8 +134,8 @@ fun AppSearchBar(
     languageSearchStr: String,
     languageSearchQuery: String,
     onAction: (HomeAction) -> Unit,
+    onSettingsAction: (SettingsAction) -> Unit,
     onSearchBarExpandedChange: (Boolean) -> Unit,
-    saveLang: (String) -> Unit,
     removeHistoryItem: (SearchHistoryItem) -> Unit,
     clearHistory: () -> Unit,
     onMenuIconClicked: () -> Unit,
@@ -309,7 +310,7 @@ fun AppSearchBar(
                 searchQuery = languageSearchQuery,
                 setShowSheet = setShowLanguageSheet,
                 setLang = {
-                    saveLang(it)
+                    onSettingsAction(SettingsAction.SaveLang(it))
                     onAction(HomeAction.LoadSearchResultsDebounced(textFieldState.text.toString()))
                 },
                 setSearchStr = { onAction(HomeAction.UpdateLanguageSearchStr(it)) },

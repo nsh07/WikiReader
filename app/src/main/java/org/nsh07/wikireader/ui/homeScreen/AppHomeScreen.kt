@@ -94,6 +94,7 @@ import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.image.ImageCard
 import org.nsh07.wikireader.ui.settingsScreen.LanguageBottomSheet
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
+import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsAction
 import org.nsh07.wikireader.ui.shimmer.AnimatedShimmer
 import org.nsh07.wikireader.ui.shimmer.FeedLoader
 import org.nsh07.wikireader.ui.theme.isDark
@@ -118,8 +119,8 @@ import org.nsh07.wikireader.ui.theme.isDark
  * @param onGalleryImageClick A lambda function to be invoked when an image in the gallery is clicked.
  * It takes the image URL and description as parameters.
  * @param setShowArticleLanguageSheet A lambda function to control the visibility of the article language bottom sheet.
- * @param setLang A lambda function to set the application language. It takes the language code as a parameter.
  * @param onAction A lambda function to dispatch [HomeAction] events to the ViewModel.
+ * @param onSettingsAction A lambda function to dispatch [SettingsAction] events to the SettingsViewModel.
  * @param insets The [PaddingValues] for handling system window insets.
  * @param windowSizeClass The [WindowSizeClass] for adapting the layout to different screen sizes.
  * @param modifier The [Modifier] to be applied to the root container of the home screen.
@@ -146,8 +147,8 @@ fun AppHomeScreen(
     onImageClick: () -> Unit,
     onGalleryImageClick: (String, String) -> Unit,
     setShowArticleLanguageSheet: (Boolean) -> Unit,
-    setLang: (String) -> Unit,
     onAction: (HomeAction) -> Unit,
+    onSettingsAction: (SettingsAction) -> Unit,
     insets: PaddingValues,
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier
@@ -198,7 +199,7 @@ fun AppHomeScreen(
             searchStr = languageSearchStr,
             searchQuery = languageSearchQuery,
             setShowSheet = setShowArticleLanguageSheet,
-            setLang = setLang,
+            setLang = { onSettingsAction(SettingsAction.SaveLang(it)) },
             loadPage = { onAction(HomeAction.LoadPage(it)) },
             setSearchStr = { onAction(HomeAction.UpdateLanguageSearchStr(it)) }
         )
@@ -210,7 +211,7 @@ fun AppHomeScreen(
             searchQuery = languageSearchQuery,
             setShowSheet = setShowArticleLanguageSheet,
             setLang = {
-                setLang(it)
+                onSettingsAction(SettingsAction.SaveLang(it))
                 if (homeScreenState.status in listOf(
                         WRStatus.FEED_LOADED,
                         WRStatus.FEED_NETWORK_ERROR

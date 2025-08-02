@@ -341,13 +341,13 @@ fun AppScreen(
                             languageSearchStr = languageSearchStr,
                             languageSearchQuery = languageSearchQuery,
                             onAction = viewModel::onAction,
+                            onSettingsAction = settingsViewModel::onAction,
                             onSearchBarExpandedChange = {
                                 scope.launch {
                                     if (it) searchBarState.animateToExpanded()
                                     else searchBarState.animateToCollapsed()
                                 }
                             },
-                            saveLang = settingsViewModel::saveLang,
                             clearHistory = {
                                 historyItem = null
                                 setShowDeleteDialog(true)
@@ -400,7 +400,7 @@ fun AppScreen(
                             navController.navigate(FullScreenImage(uri, desc))
                         },
                         onAction = viewModel::onAction,
-                        setLang = settingsViewModel::saveLang,
+                        onSettingsAction = settingsViewModel::onAction,
                         setShowArticleLanguageSheet = { showArticleLanguageSheet = it },
                         enableScrollButton = if (homeScreenState.status != WRStatus.FEED_LOADED) index >= 1 else feedIndex >= 1,
                         insets = insets,
