@@ -103,6 +103,7 @@ import org.nsh07.wikireader.data.UserLanguage
 import org.nsh07.wikireader.data.WikiPrefixSearchResult
 import org.nsh07.wikireader.data.WikiSearchResult
 import org.nsh07.wikireader.ui.homeScreen.viewModel.AppSearchBarState
+import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeAction
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.settingsScreen.LanguageBottomSheet
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
@@ -131,20 +132,12 @@ fun AppSearchBar(
     scrollBehavior: TopAppBarScrollBehavior?,
     languageSearchStr: String,
     languageSearchQuery: String,
+    onAction: (HomeAction) -> Unit,
+    onSearchBarExpandedChange: (Boolean) -> Unit,
     saveLang: (String) -> Unit,
-    updateLanguageSearchStr: (String) -> Unit,
-    loadSearch: (String) -> Unit,
-    loadSearchDebounced: (String) -> Unit,
-    loadPage: (String) -> Unit,
-    loadRandom: () -> Unit,
-    onExpandedChange: (Boolean) -> Unit,
-    setQuery: (String) -> Unit,
     removeHistoryItem: (SearchHistoryItem) -> Unit,
     clearHistory: () -> Unit,
     onMenuIconClicked: () -> Unit,
-    markUserLanguageSelected: (String) -> Unit,
-    insertUserLanguage: suspend (UserLanguage) -> Unit,
-    deleteUserLanguage: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = appSearchBarState.focusRequester
@@ -169,7 +162,7 @@ fun AppSearchBar(
     }
 
     LaunchedEffect(textFieldState.text) {
-        loadSearchDebounced(textFieldState.text.toString())
+        onAction(HomeAction.LoadSearchResultsDebounced(textFieldState.text.toString()))
     }
 
     val inputField =
@@ -177,7 +170,7 @@ fun AppSearchBar(
             SearchBarDefaults.InputField(
                 textFieldState = textFieldState,
                 searchBarState = searchBarState,
-                onSearch = loadSearch,
+                onSearch = { onAction(HomeAction.LoadSearch(it)) },
                 placeholder = {
                     val alignment by animateHorizontalAlignmentAsState(
                         if (searchBarState.targetValue == SearchBarValue.Expanded) -1f else 0f,
@@ -193,7 +186,7 @@ fun AppSearchBar(
                             IconButton(
                                 shapes = IconButtonDefaults.shapes(),
                                 onClick = {
-                                    setQuery("")
+                                    onAction(HomeAction.SetQuery(""))
                                     focusRequester.requestFocus()
                                 }
                             ) {
@@ -261,7 +254,7 @@ fun AppSearchBar(
                             shapes = IconButtonDefaults.shapes(),
                             onClick = {
                                 if (searchBarState.currentValue == SearchBarValue.Expanded)
-                                    loadSearch(textFieldState.text.toString())
+                                    onAction(HomeAction.LoadSearch(textFieldState.text.toString()))
                                 else
                                     focusRequester.requestFocus()
                             }
@@ -277,7 +270,7 @@ fun AppSearchBar(
         actions = {
             FilledTonalIconButton(
                 shapes = IconButtonDefaults.shapes(),
-                onClick = loadRandom,
+                onClick = { onAction(HomeAction.LoadRandom) },
                 modifier = Modifier.padding(
                     top = TopAppBarDefaults.windowInsets.asPaddingValues()
                         .calculateTopPadding(),
@@ -317,12 +310,12 @@ fun AppSearchBar(
                 setShowSheet = setShowLanguageSheet,
                 setLang = {
                     saveLang(it)
-                    loadSearchDebounced(textFieldState.text.toString())
+                    onAction(HomeAction.LoadSearchResultsDebounced(textFieldState.text.toString()))
                 },
-                setSearchStr = updateLanguageSearchStr,
+                setSearchStr = { onAction(HomeAction.UpdateLanguageSearchStr(it)) },
                 userLanguageSelectionMode = true,
-                insertUserLanguage = insertUserLanguage,
-                deleteUserLanguage = deleteUserLanguage
+                insertUserLanguage = { onAction(HomeAction.InsertUserLanguage(it)) },
+                deleteUserLanguage = { onAction(HomeAction.DeleteUserLanguage(it)) }
             )
 
         if (Build.VERSION.SDK_INT < 29) { // Workaround to fix the infinite search bar loop bug
@@ -336,8 +329,8 @@ fun AppSearchBar(
             }
         }
 
-        AnimatedContent(textFieldState.text.trim().isEmpty()) {
-            when (it) {
+        AnimatedContent(textFieldState.text.trim().isEmpty()) { targetState ->
+            when (targetState) {
                 true ->
                     if (preferencesState.searchHistory) {
                         LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -379,7 +372,7 @@ fun AppSearchBar(
                                     trailingContent = {
                                         IconButton(
                                             shapes = IconButtonDefaults.shapes(),
-                                            onClick = { setQuery(currentText) },
+                                            onClick = { onAction(HomeAction.SetQuery(currentText)) },
                                             modifier = Modifier.wrapContentSize()
                                         ) {
                                             Icon(
@@ -398,7 +391,7 @@ fun AppSearchBar(
                                         )
                                         .combinedClickable(
                                             onClick = {
-                                                loadSearch(currentText)
+                                                onAction(HomeAction.LoadSearch(currentText))
                                                 textFieldState.setTextAndPlaceCursorAtEnd(
                                                     currentText
                                                 )
@@ -458,14 +451,18 @@ fun AppSearchBar(
                                                         .combinedClickable(
                                                             onClick = {
                                                                 scope.launch {
-                                                                    markUserLanguageSelected(
-                                                                        filterOption.lang
+                                                                    onAction(
+                                                                        HomeAction.MarkUserLanguageSelected(
+                                                                            filterOption.lang
+                                                                        )
                                                                     )
                                                                     haptic.performHapticFeedback(
                                                                         HapticFeedbackType.ToggleOn
                                                                     )
-                                                                    loadSearchDebounced(
-                                                                        textFieldState.text.toString()
+                                                                    onAction(
+                                                                        HomeAction.LoadSearchResultsDebounced(
+                                                                            textFieldState.text.toString()
+                                                                        )
                                                                     )
                                                                 }
                                                             },
@@ -473,9 +470,12 @@ fun AppSearchBar(
                                                                 haptic.performHapticFeedback(
                                                                     HapticFeedbackType.LongPress
                                                                 )
-                                                                if (userLangs.size > 1) deleteUserLanguage(
-                                                                    filterOption.lang
-                                                                )
+                                                                if (userLangs.size > 1)
+                                                                    onAction(
+                                                                        HomeAction.DeleteUserLanguage(
+                                                                            filterOption.lang
+                                                                        )
+                                                                    )
                                                             },
                                                             interactionSource = filterChipInteractionSource,
                                                             indication = null,
@@ -539,8 +539,8 @@ fun AppSearchBar(
                                         .clip(shapes.large)
                                         .clickable(
                                             onClick = {
-                                                onExpandedChange(false)
-                                                loadPage(it.title)
+                                                onSearchBarExpandedChange(false)
+                                                onAction(HomeAction.LoadPage(it.title))
                                             }
                                         )
                                         .animateItem()
@@ -565,9 +565,7 @@ fun AppSearchBar(
                                     headlineContent = {
                                         Text(
                                             AnnotatedString.fromHtml(
-                                                if (it.titleSnippet.isNotEmpty())
-                                                    it.titleSnippet
-                                                else it.title
+                                                it.titleSnippet.ifEmpty { it.title }
                                             ),
                                             softWrap = false,
                                             overflow = TextOverflow.Ellipsis
@@ -603,8 +601,8 @@ fun AppSearchBar(
                                         .clip(shapes.large)
                                         .clickable(
                                             onClick = {
-                                                onExpandedChange(false)
-                                                loadPage(it.title)
+                                                onSearchBarExpandedChange(false)
+                                                onAction(HomeAction.LoadPage(it.title))
                                             }
                                         )
                                         .animateItem()
@@ -654,22 +652,31 @@ fun AppSearchBar(
                                                     .combinedClickable(
                                                         onClick = {
                                                             scope.launch {
-                                                                markUserLanguageSelected(
-                                                                    filterOption.lang
+                                                                onAction(
+                                                                    HomeAction.MarkUserLanguageSelected(
+                                                                        filterOption.lang
+                                                                    )
                                                                 )
                                                                 haptic.performHapticFeedback(
                                                                     HapticFeedbackType.ToggleOn
                                                                 )
-                                                                loadSearchDebounced(textFieldState.text.toString())
+                                                                onAction(
+                                                                    HomeAction.LoadSearchResultsDebounced(
+                                                                        textFieldState.text.toString()
+                                                                    )
+                                                                )
                                                             }
                                                         },
                                                         onLongClick = {
                                                             haptic.performHapticFeedback(
                                                                 HapticFeedbackType.LongPress
                                                             )
-                                                            if (userLangs.size > 1) deleteUserLanguage(
-                                                                filterOption.lang
-                                                            )
+                                                            if (userLangs.size > 1)
+                                                                onAction(
+                                                                    HomeAction.DeleteUserLanguage(
+                                                                        filterOption.lang
+                                                                    )
+                                                                )
                                                         },
                                                         interactionSource = filterChipInteractionSource,
                                                         indication = null,
@@ -745,8 +752,8 @@ fun AppSearchBar(
                                         )
                                         .clickable(
                                             onClick = {
-                                                onExpandedChange(false)
-                                                loadPage(it.title)
+                                                onSearchBarExpandedChange(false)
+                                                onAction(HomeAction.LoadPage(it.title))
                                             }
                                         )
                                         .animateItem()
@@ -782,9 +789,7 @@ fun AppSearchBar(
                                     headlineContent = {
                                         Text(
                                             AnnotatedString.fromHtml(
-                                                if (it.titleSnippet.isNotEmpty())
-                                                    it.titleSnippet
-                                                else it.title
+                                                it.titleSnippet.ifEmpty { it.title }
                                             ),
                                             softWrap = false,
                                             overflow = TextOverflow.Ellipsis
@@ -823,8 +828,8 @@ fun AppSearchBar(
                                         )
                                         .clickable(
                                             onClick = {
-                                                onExpandedChange(false)
-                                                loadPage(it.title)
+                                                onSearchBarExpandedChange(false)
+                                                onAction(HomeAction.LoadPage(it.title))
                                             }
                                         )
                                         .animateItem()

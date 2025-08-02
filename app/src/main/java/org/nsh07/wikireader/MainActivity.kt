@@ -34,7 +34,6 @@ class MainActivity : ComponentActivity() {
         installSplashScreen().setKeepOnScreenCondition { viewModel.appStatus.value != AppStatus.INITIALIZED }
 
         viewModel.setFilesDir(filesDir.path)
-        viewModel.migrateArticles()
 
         enableEdgeToEdge()
 

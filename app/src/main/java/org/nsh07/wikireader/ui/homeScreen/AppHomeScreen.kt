@@ -89,6 +89,7 @@ import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiLang
 import org.nsh07.wikireader.ui.homeScreen.viewModel.FeedState
+import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeAction
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.image.ImageCard
 import org.nsh07.wikireader.ui.settingsScreen.LanguageBottomSheet
@@ -98,23 +99,31 @@ import org.nsh07.wikireader.ui.shimmer.FeedLoader
 import org.nsh07.wikireader.ui.theme.isDark
 
 /**
- * The app home screen composable.
+ * The main composable function for the app's home screen.
  *
- * @param homeScreenState A [HomeScreenState] object provided by the app's ViewModel
- * @param listState A [LazyListState] object provided by the app's ViewModel
- * @param preferencesState A [PreferencesState] object provided by the app's ViewModel
- * @param imageLoader A [ImageLoader] object, used to load the page image
- * @param languageSearchStr A [String] used for the search string of the language search bar
- * @param languageSearchQuery A [String] used for the actual language search. This is generally a
- * debounced state flow.
- * @param onImageClick A lambda that is called when the image in the home screen is clicked
- * @param onLinkClick A lambda that is called when a page link is clicked
- * @param setLang A lambda that is called when the user picks a language from the language list
- * @param setSearchStr A lambda that is called when the user types in the language search bar
- * @param insets A [PaddingValues] object provided by the parent [androidx.compose.material3.Scaffold]
- * @param modifier Self explanatory
+ * @param homeScreenState The current state of the home screen, containing article data and UI status.
+ * @param listState The [LazyListState] for the main article content.
+ * @param preferencesState The current state of user preferences.
+ * @param feedState The current state of the article feed.
+ * @param recentLangs A list of recently used language codes.
+ * @param floatingToolbarScrollBehaviour The [FloatingToolbarScrollBehavior] for the floating action toolbar.
+ * @param feedListState The [LazyListState] for the article feed list.
+ * @param imageLoader The app-wide [ImageLoader] used for loading images.
+ * @param languageSearchStr The current search string for languages in the language bottom sheet.
+ * @param languageSearchQuery The current search query for languages after debouncing.
+ * @param showLanguageSheet A boolean indicating whether the language selection bottom sheet should be shown.
+ * @param enableScrollButton A boolean indicating whether the scroll-to-top button should be enabled.
+ * @param deepLinkHandled A boolean indicating if a deep link has been processed.
+ * @param onImageClick A lambda function to be invoked when the main article image is clicked.
+ * @param onGalleryImageClick A lambda function to be invoked when an image in the gallery is clicked.
+ * It takes the image URL and description as parameters.
+ * @param setShowArticleLanguageSheet A lambda function to control the visibility of the article language bottom sheet.
+ * @param setLang A lambda function to set the application language. It takes the language code as a parameter.
+ * @param onAction A lambda function to dispatch [HomeAction] events to the ViewModel.
+ * @param insets The [PaddingValues] for handling system window insets.
+ * @param windowSizeClass The [WindowSizeClass] for adapting the layout to different screen sizes.
+ * @param modifier The [Modifier] to be applied to the root container of the home screen.
  */
-
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class,
     ExperimentalSharedTransitionApi::class
@@ -133,21 +142,12 @@ fun AppHomeScreen(
     languageSearchQuery: String,
     showLanguageSheet: Boolean,
     enableScrollButton: Boolean,
+    deepLinkHandled: Boolean,
     onImageClick: () -> Unit,
     onGalleryImageClick: (String, String) -> Unit,
-    onLinkClick: (String) -> Unit,
-    refreshSearch: () -> Unit,
-    refreshFeed: () -> Unit,
-    setLang: (String) -> Unit,
-    setSearchStr: (String) -> Unit,
     setShowArticleLanguageSheet: (Boolean) -> Unit,
-    saveArticle: () -> Unit,
-    showFeedErrorSnackBar: () -> Unit,
-    onSearchButtonClick: () -> Unit,
-    loadRandom: () -> Unit,
-    scrollToTop: () -> Unit,
-    showRef: (String) -> Unit,
-    hideRef: () -> Unit,
+    setLang: (String) -> Unit,
+    onAction: (HomeAction) -> Unit,
     insets: PaddingValues,
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier
@@ -199,8 +199,8 @@ fun AppHomeScreen(
             searchQuery = languageSearchQuery,
             setShowSheet = setShowArticleLanguageSheet,
             setLang = setLang,
-            loadPage = onLinkClick,
-            setSearchStr = setSearchStr
+            loadPage = { onAction(HomeAction.LoadPage(it)) },
+            setSearchStr = { onAction(HomeAction.UpdateLanguageSearchStr(it)) }
         )
     else if (showLanguageSheet)
         LanguageBottomSheet(
@@ -216,16 +216,16 @@ fun AppHomeScreen(
                         WRStatus.FEED_NETWORK_ERROR
                     )
                 )
-                    refreshFeed()
+                    onAction(HomeAction.LoadFeed())
                 else
-                    refreshSearch()
+                    onAction(HomeAction.ReloadPage(true))
             },
-            setSearchStr = setSearchStr
+            setSearchStr = { onAction(HomeAction.UpdateLanguageSearchStr(it)) }
         )
 
     if (homeScreenState.showRef) // Reference bottom sheet
         ModalBottomSheet(
-            onDismissRequest = hideRef,
+            onDismissRequest = { onAction(HomeAction.HideRef) },
         ) {
             SelectionContainer {
                 Column(Modifier.padding(start = 24.dp, end = 24.dp, bottom = 24.dp)) {
@@ -312,9 +312,9 @@ fun AppHomeScreen(
                     state = pullToRefreshState,
                     onRefresh = {
                         if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR)
-                            refreshFeed()
+                            onAction(HomeAction.LoadFeed())
                         else
-                            refreshSearch()
+                            onAction(HomeAction.ReloadPage(true))
                         isRefreshing = true
                     },
                     indicator = {
@@ -403,9 +403,9 @@ fun AppHomeScreen(
                                         dataSaver = preferencesState.dataSaver,
                                         background = preferencesState.imageBackground,
                                         checkFirstImage = true,
-                                        onLinkClick = onLinkClick,
+                                        onLinkClick = { onAction(HomeAction.LoadPage(it)) },
                                         onGalleryImageClick = onGalleryImageClick,
-                                        showRef = showRef,
+                                        showRef = { onAction(HomeAction.UpdateRef(it)) },
                                         pageImageUri = homeScreenState.photo?.source
                                     )
                                 }
@@ -428,9 +428,9 @@ fun AppHomeScreen(
                                         dataSaver = preferencesState.dataSaver,
                                         renderMath = preferencesState.renderMath,
                                         imageBackground = preferencesState.imageBackground,
-                                        onLinkClick = onLinkClick,
+                                        onLinkClick = { onAction(HomeAction.LoadPage(it)) },
                                         onGalleryImageClick = onGalleryImageClick,
-                                        showRef = showRef
+                                        showRef = { onAction(HomeAction.UpdateRef(it)) }
                                     )
                                 }
                         }
@@ -478,8 +478,8 @@ fun AppHomeScreen(
                     otdCarouselState = otdCarouselState,
                     imageLoader = imageLoader,
                     insets = insets,
-                    loadPage = onLinkClick,
-                    refreshFeed = refreshFeed,
+                    loadPage = { onAction(HomeAction.LoadPage(it)) },
+                    refreshFeed = { onAction(HomeAction.LoadFeed()) },
                     onImageClick = onImageClick,
                     listState = feedListState,
                     windowSizeClass = windowSizeClass,
@@ -525,7 +525,7 @@ fun AppHomeScreen(
                         state = rememberTooltipState()
                     ) {
                         FloatingToolbarDefaults.VibrantFloatingActionButton(
-                            onClick = onSearchButtonClick
+                            onClick = { onAction(HomeAction.FocusSearchBar) }
                         ) {
                             Icon(Icons.Outlined.Search, stringResource(R.string.search))
                         }
@@ -601,7 +601,15 @@ fun AppHomeScreen(
                             disabledContainerColor = vibrantFloatingToolbarColors().toolbarContainerColor,
                             disabledContentColor = colorScheme.onPrimaryContainer.copy(alpha = 0.38f)
                         ),
-                        onCheckedChange = { saveArticle() }
+                        onCheckedChange = {
+                            onAction(
+                                HomeAction.SaveArticle(
+                                    preferencesState.lang,
+                                    context.getString(R.string.snackbarUnableToSave),
+                                    context.getString(R.string.snackbarUnableToDelete)
+                                )
+                            )
+                        }
                     ) {
                         AnimatedContent(
                             homeScreenState.savedStatus,
@@ -632,7 +640,7 @@ fun AppHomeScreen(
                     state = rememberTooltipState()
                 ) {
                     IconButton(
-                        onClick = scrollToTop,
+                        onClick = { onAction(HomeAction.ScrollToTop) },
                         enabled = enableScrollButton
                     ) {
                         Icon(
@@ -647,7 +655,7 @@ fun AppHomeScreen(
                     tooltip = { PlainTooltip { Text(stringResource(R.string.randomArticle)) } },
                     state = rememberTooltipState()
                 ) {
-                    IconButton(onClick = loadRandom) {
+                    IconButton(onClick = { onAction(HomeAction.LoadRandom) }) {
                         Icon(
                             painterResource(R.drawable.shuffle),
                             contentDescription = stringResource(R.string.randomArticle)
@@ -659,8 +667,11 @@ fun AppHomeScreen(
     }
 
     LaunchedEffect(homeScreenState.status) {
-        if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR)
-            showFeedErrorSnackBar()
+        if (homeScreenState.status == WRStatus.FEED_NETWORK_ERROR && !deepLinkHandled)
+            onAction(
+                HomeAction.ShowFeedErrorSnackBar(
+                    context.getString(R.string.snackbarUnableToLoadFeed)
+                )
+            )
     }
 }
-

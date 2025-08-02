@@ -3,14 +3,16 @@ package org.nsh07.wikireader.ui.homeScreen.viewModel
 import android.util.Log
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.util.fastAny
-import androidx.compose.ui.util.fastFilter
-import androidx.compose.ui.util.fastForEach
 import androidx.core.text.parseAsHtml
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -59,10 +61,9 @@ import org.nsh07.wikireader.parser.cleanUpWikitext
 import org.nsh07.wikireader.parser.substringMatchingParen
 import org.nsh07.wikireader.parser.toWikitextAnnotatedString
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
-import java.io.File
-import kotlin.io.path.listDirectoryEntries
 import kotlin.math.min
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 class HomeScreenViewModel(
     private val appStatusFlow: MutableStateFlow<AppStatus>,
     private val preferencesStateMutableFlow: MutableStateFlow<PreferencesState>,
@@ -83,16 +84,18 @@ class HomeScreenViewModel(
     private val _feedState = MutableStateFlow(FeedState())
     val feedState: StateFlow<FeedState> = _feedState.asStateFlow()
 
-    private val _articleListState = MutableStateFlow(LazyListState(0, 0))
-    val articleListState: StateFlow<LazyListState> = _articleListState.asStateFlow()
-
     private val _searchListState = MutableStateFlow(LazyListState(0, 0))
-    val searchListState: StateFlow<LazyListState> = _searchListState.asStateFlow()
 
+    val searchListState: StateFlow<LazyListState> = _searchListState.asStateFlow()
     private val _languageSearchStr = MutableStateFlow("")
+
     val languageSearchStr: StateFlow<String> = _languageSearchStr.asStateFlow()
 
     val textFieldState: TextFieldState = TextFieldState()
+    val snackBarHostState: SnackbarHostState = SnackbarHostState()
+
+    val articleListState = LazyListState(0, 0)
+    val feedListState = LazyListState(0, 0)
 
     val searchHistoryFlow = appDatabaseRepository.getSearchHistory().distinctUntilChanged()
     val recentLangsFlow = appDatabaseRepository.getRecentLanguages().distinctUntilChanged()
@@ -110,14 +113,15 @@ class HomeScreenViewModel(
             return field
         }
     private var searchDebounceJob: Job? = null
-    private var colorScheme: ColorScheme = lightColorScheme()
-    private var typography: Typography = Typography()
-    private var fromLink: Boolean = false
 
     val appStatus = appStatusFlow
 
     private var sections = 0
     private var currentSection = 0
+
+    private var colorScheme: ColorScheme = lightColorScheme()
+    private var typography: Typography = Typography()
+    private var fromLink: Boolean = false
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -143,6 +147,74 @@ class HomeScreenViewModel(
     fun setCompositionLocals(cs: ColorScheme, tg: Typography) {
         colorScheme = cs
         typography = tg
+    }
+
+    fun onAction(action: HomeAction) {
+        when (action) {
+            is HomeAction.DeleteUserLanguage -> deleteUserLanguage(action.lang)
+            is HomeAction.InsertUserLanguage -> viewModelScope.launch {
+                insertUserLanguage(action.userLanguage)
+            }
+
+            is HomeAction.LoadFeed -> loadFeed(action.fromBack)
+            is HomeAction.LoadPage -> loadPage(
+                title = action.title,
+                lang = action.lang,
+                random = action.random,
+                listStatePair = action.listStatePair
+            )
+
+            is HomeAction.LoadSavedArticle -> viewModelScope.launch {
+                loadSavedArticle(action.pageId, action.lang)
+            }
+
+            is HomeAction.LoadSearch -> loadSearch(action.query)
+            is HomeAction.LoadSearchResultsDebounced -> loadSearchResultsDebounced(action.query)
+            is HomeAction.MarkUserLanguageSelected -> markUserLanguageSelected(action.lang)
+            is HomeAction.ReloadPage -> reloadPage(action.persistLang)
+            is HomeAction.SaveArticle -> viewModelScope.launch {
+                if (homeScreenState.value.savedStatus == SavedStatus.NOT_SAVED) {
+                    val status = saveArticle()
+                    if (status != WRStatus.SUCCESS)
+                        snackBarHostState.showSnackbar(
+                            String.format(action.unableToSaveError, status.name)
+                        )
+                    delay(150L)
+                } else if (homeScreenState.value.savedStatus == SavedStatus.SAVED) {
+                    val status = deleteArticle(
+                        pageId = homeScreenState.value.pageId ?: 0,
+                        lang = preferencesState.value.lang
+                    )
+                    if (status != WRStatus.SUCCESS)
+                        snackBarHostState.showSnackbar(
+                            String.format(action.unableToDeleteError, status.name)
+                        )
+                }
+            }
+
+            is HomeAction.SetQuery -> textFieldState.setTextAndPlaceCursorAtEnd(action.text)
+            is HomeAction.UpdateLanguageSearchStr -> updateLanguageSearchStr(action.str)
+            is HomeAction.UpdateRef -> updateRef(action.ref)
+            is HomeAction.FocusSearchBar -> {
+                focusSearchBar()
+                textFieldState.setTextAndPlaceCursorAtEnd(textFieldState.text.toString())
+            }
+
+            is HomeAction.HideRef -> hideRef()
+            is HomeAction.LoadRandom -> loadPage(title = null, random = true)
+            is HomeAction.ScrollToTop -> viewModelScope.launch {
+                if (homeScreenState.value.status != WRStatus.FEED_LOADED)
+                    articleListState.scrollToItem(0)
+                else
+                    feedListState.scrollToItem(0)
+            }
+
+            is HomeAction.ShowFeedErrorSnackBar -> viewModelScope.launch {
+                snackBarHostState.showSnackbar(
+                    String.format(action.errorString, homeScreenState.value.status.name)
+                )
+            }
+        }
     }
 
     private fun pushBackstack(
@@ -215,7 +287,7 @@ class HomeScreenViewModel(
         }
     }
 
-    fun loadSearchResultsDebounced(query: String) {
+    private fun loadSearchResultsDebounced(query: String) {
         searchDebounceJob?.cancel()
         searchDebounceJob = viewModelScope.launch {
             delay(250)
@@ -223,7 +295,7 @@ class HomeScreenViewModel(
         }
     }
 
-    fun loadSearch(
+    private fun loadSearch(
         query: String?,
         lang: String? = null,
         random: Boolean = false,
@@ -311,7 +383,7 @@ class HomeScreenViewModel(
      *
      * @param title Page title
      */
-    fun loadPage(
+    private fun loadPage(
         title: String?,
         lang: String? = null,
         random: Boolean = false,
@@ -365,7 +437,7 @@ class HomeScreenViewModel(
                         homeScreenState.value.status != WRStatus.FEED_NETWORK_ERROR &&
                         homeScreenState.value.status != WRStatus.UNINITIALIZED
                     ) {
-                        val articleState = articleListState.value
+                        val articleState = articleListState
                         pushBackstack(
                             title = homeScreenState.value.title,
                             firstVisibleItemIndex = articleState.firstVisibleItemIndex,
@@ -373,9 +445,8 @@ class HomeScreenViewModel(
                         )
                     }
 
-                    _articleListState.update {
-                        LazyListState(0, 0)
-                    }
+                    if (homeScreenState.value.status == WRStatus.SUCCESS)
+                        articleListState.scrollToItem(0, 0)
 
                     sections = extract.size
                     var sectionIndex = 3
@@ -442,10 +513,8 @@ class HomeScreenViewModel(
                         currentState.copy(isLoading = false)
                     }
 
-                    if (listStatePair != null)
-                        _articleListState.update {
-                            LazyListState(listStatePair.first, listStatePair.second)
-                        }
+                    if (listStatePair != null && homeScreenState.value.status == WRStatus.SUCCESS)
+                        articleListState.scrollToItem(listStatePair.first, listStatePair.second)
                 } catch (e: Exception) {
                     Log.e("ViewModel", "Error in fetching results: ${e.message}")
                     e.printStackTrace()
@@ -500,7 +569,7 @@ class HomeScreenViewModel(
         }
     }
 
-    fun reloadPage(
+    private fun reloadPage(
         persistLang: Boolean = false
     ) {
         if (lastQuery != null) {
@@ -524,7 +593,7 @@ class HomeScreenViewModel(
      * If an error is encountered, app status is set to [WRStatus.FEED_NETWORK_ERROR] and home screen
      * text is updated to the error
      */
-    fun loadFeed(fromBack: Boolean = false) {
+    private fun loadFeed(fromBack: Boolean = false) {
         viewModelScope.launch(loaderJob) {
             if (!preferencesState.value.dataSaver && preferencesState.value.feedEnabled) {
                 _homeScreenState.update { currentState ->
@@ -623,7 +692,7 @@ class HomeScreenViewModel(
      *
      * @return A [WRStatus] enum value indicating the status of the save operation
      */
-    suspend fun saveArticle(
+    private suspend fun saveArticle(
         title: String? = null,
         lang: String? = null
     ): WRStatus {
@@ -684,64 +753,11 @@ class HomeScreenViewModel(
     }
 
     /**
-     * Migrates articles downloaded in the pre-2.4 format (raw files) to the new database.
-     * The old file corresponding to an article is only deleted when the new files
-     * have been successfully saved to the database, so accidental data loss is not a concern.
-     *
-     * It is recommended to run this function on every startup to ensure any pending migrations are
-     * completed
-     */
-    fun migrateArticles() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val articleList = listArticles(true)
-                val articlesDir = File(filesDir, "savedArticles")
-                val jsonInst = Json { ignoreUnknownKeys = true }
-
-                articleList.fastForEach {
-                    val apiFile = File(articlesDir, it)
-                    val contentFile = File(articlesDir, it.replace("-api", "-content"))
-
-                    val apiResponse = apiFile.readText()
-                    val pageData = jsonInst
-                        .decodeFromString<WikiApiPageData>(apiResponse)
-                        .query?.pages?.get(0)
-
-                    val pageId = it.substringAfter('.').substringBefore('-').toInt()
-                    val title = it.substringBefore('.')
-                    val lang = it.substringAfterLast('.')
-                    val langName = langCodeToName(lang)
-                    val pageContent = contentFile.readText()
-
-                    appDatabaseRepository.insertSavedArticle(
-                        SavedArticle(
-                            pageId = pageId,
-                            lang = lang,
-                            langName = langName,
-                            title = title,
-                            thumbnail = pageData?.thumbnail?.source,
-                            description = pageData?.description,
-                            apiResponse = apiResponse,
-                            pageContent = pageContent
-                        )
-                    )
-
-                    apiFile.delete()
-                    contentFile.delete()
-                }
-            } catch (e: Exception) {
-                Log.e("ViewModel", "Failed to load articles list: ${e.message}")
-                e.printStackTrace()
-            }
-        }
-    }
-
-    /**
      * Deletes the current article
      *
      * @return A [WRStatus] enum value indicating the status of the delete operation
      */
-    fun deleteArticle(pageId: Int, lang: String): WRStatus {
+    private fun deleteArticle(pageId: Int, lang: String): WRStatus {
         if (homeScreenState.value.status == WRStatus.UNINITIALIZED) {
             Log.e("ViewModel", "Cannot delete article, HomeScreenState is uninitialized")
             return WRStatus.OTHER
@@ -757,18 +773,7 @@ class HomeScreenViewModel(
         return WRStatus.SUCCESS
     }
 
-    fun listArticles(filter: Boolean = true): List<String> {
-        val articlesDir = File(filesDir, "savedArticles")
-        val directoryEntries = articlesDir.toPath().listDirectoryEntries()
-        val out = mutableListOf<String>()
-        directoryEntries.fastForEach {
-            out.add(it.fileName.toString())
-        }
-        out.sort()
-        return if (filter) out.fastFilter { it.contains("-api.") } else out
-    }
-
-    suspend fun loadSavedArticle(pageId: Int, lang: String): WRStatus =
+    private suspend fun loadSavedArticle(pageId: Int, lang: String): WRStatus =
         withContext(Dispatchers.IO) {
             _homeScreenState.update { currentState ->
                 currentState.copy(isLoading = true, loadingProgress = null)
@@ -790,15 +795,14 @@ class HomeScreenViewModel(
                 val articleSections = mutableListOf<Pair<Int, String>>()
                 val parsedExtract = mutableListOf<List<AnnotatedString>>()
 
-                val articleState = articleListState.value
+                val articleState = articleListState
                 pushBackstack(
                     title = homeScreenState.value.title,
                     firstVisibleItemIndex = articleState.firstVisibleItemIndex,
                     firstVisibleItemScrollOffset = articleState.firstVisibleItemScrollOffset
                 )
-                _articleListState.update {
-                    LazyListState(0, 0)
-                }
+                if (homeScreenState.value.status == WRStatus.SUCCESS)
+                    articleListState.scrollToItem(0, 0)
 
                 preferencesStateMutableFlow.update { currentState ->
                     currentState.copy(
@@ -867,7 +871,7 @@ class HomeScreenViewModel(
      *
      * @return A list of [AnnotatedString]s representing the page content
      */
-    suspend fun parseWikitext(wikitext: String): List<AnnotatedString> =
+    private suspend fun parseWikitext(wikitext: String): List<AnnotatedString> =
         withContext(Dispatchers.IO) {
             val parsed = cleanUpWikitext(wikitext)
             var curr = ""
@@ -1027,7 +1031,7 @@ class HomeScreenViewModel(
             out.toList()
         }
 
-    fun updateRef(ref: String) {
+    private fun updateRef(ref: String) {
         _homeScreenState.update { currentState ->
             currentState.copy(
                 ref = ref.toWikitextAnnotatedString(
@@ -1045,7 +1049,7 @@ class HomeScreenViewModel(
         }
     }
 
-    fun hideRef() {
+    private fun hideRef() {
         _homeScreenState.update { currentState ->
             currentState.copy(
                 showRef = false
@@ -1053,7 +1057,7 @@ class HomeScreenViewModel(
         }
     }
 
-    fun focusSearchBar() {
+    private fun focusSearchBar() {
         appSearchBarState.value.focusRequester.requestFocus()
     }
 
@@ -1064,7 +1068,7 @@ class HomeScreenViewModel(
         }
     }
 
-    suspend fun insertUserLanguage(userLanguage: UserLanguage) {
+    private suspend fun insertUserLanguage(userLanguage: UserLanguage) {
         if (userLanguage.selected) {
             appDatabaseRepository.deselectAllUserLanguages()
             appDatabaseRepository.insertUserLanguage(userLanguage)
@@ -1072,13 +1076,13 @@ class HomeScreenViewModel(
         } else appDatabaseRepository.insertUserLanguage(userLanguage)
     }
 
-    fun deleteUserLanguage(lang: String) {
+    private fun deleteUserLanguage(lang: String) {
         viewModelScope.launch(Dispatchers.IO) {
             appDatabaseRepository.deleteUserLanguage(lang)
         }
     }
 
-    fun markUserLanguageSelected(lang: String) {
+    private fun markUserLanguageSelected(lang: String) {
         viewModelScope.launch {
             appDatabaseRepository.deselectAllUserLanguages()
             appDatabaseRepository.markUserLanguageSelected(lang)
@@ -1092,7 +1096,7 @@ class HomeScreenViewModel(
         }
     }
 
-    fun updateLanguageSearchStr(str: String) {
+    private fun updateLanguageSearchStr(str: String) {
         _languageSearchStr.update {
             str
         }

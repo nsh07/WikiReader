@@ -83,6 +83,7 @@ import org.nsh07.wikireader.R.string
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.toColor
+import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeAction
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsViewModel
@@ -101,9 +102,7 @@ fun SettingsScreenRoot(
     recentLangs: List<String>,
     languageSearchStr: String,
     languageSearchQuery: String,
-    updateLanguageSearchStr: (String) -> Unit,
-    loadFeed: () -> Unit,
-    reloadPage: () -> Unit,
+    onHomeAction: (HomeAction) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
@@ -172,9 +171,7 @@ fun SettingsScreenRoot(
         saveRenderMath = viewModel::saveRenderMath,
         saveSearchHistory = viewModel::saveSearchHistory,
         onResetSettings = viewModel::resetSettings,
-        updateLanguageSearchStr = updateLanguageSearchStr,
-        loadFeed = loadFeed,
-        reloadPage = reloadPage,
+        onHomeAction = onHomeAction,
         onBack = onBack,
         modifier = modifier
     )
@@ -207,9 +204,7 @@ fun SettingsScreen(
     saveImmersiveMode: (Boolean) -> Unit,
     saveRenderMath: (Boolean) -> Unit,
     saveSearchHistory: (Boolean) -> Unit,
-    updateLanguageSearchStr: (String) -> Unit,
-    loadFeed: () -> Unit,
-    reloadPage: () -> Unit,
+    onHomeAction: (HomeAction) -> Unit,
     onBack: () -> Unit,
     onResetSettings: () -> Unit,
     modifier: Modifier = Modifier
@@ -368,17 +363,17 @@ fun SettingsScreen(
                 if (homeScreenState.status != WRStatus.FEED_NETWORK_ERROR &&
                     homeScreenState.status != WRStatus.FEED_LOADED
                 )
-                    reloadPage()
+                    onHomeAction(HomeAction.ReloadPage())
                 else
-                    loadFeed()
+                    onHomeAction(HomeAction.LoadFeed())
             },
-            setSearchStr = updateLanguageSearchStr
+            setSearchStr = { onHomeAction(HomeAction.UpdateLanguageSearchStr(it)) }
         )
     if (showAppLocaleSheet && currentLocales != null)
         AppLocaleBottomSheet(
             searchStr = languageSearchStr,
             currentLocales = currentLocales,
-            setSearchStr = updateLanguageSearchStr,
+            setSearchStr = { onHomeAction(HomeAction.UpdateLanguageSearchStr(it)) },
             setShowSheet = setShowAppLocaleSheet
         )
 
@@ -759,9 +754,7 @@ fun SettingsPreview() {
             saveImmersiveMode = {},
             saveRenderMath = {},
             saveSearchHistory = {},
-            updateLanguageSearchStr = {},
-            loadFeed = {},
-            reloadPage = {},
+            onHomeAction = {},
             onBack = {},
             onResetSettings = {}
         )
