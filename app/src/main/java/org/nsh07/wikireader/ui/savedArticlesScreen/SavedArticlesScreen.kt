@@ -68,6 +68,7 @@ import org.nsh07.wikireader.data.ArticleInfo
 import org.nsh07.wikireader.data.LanguageInfo
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.ui.image.FeedImage
+import org.nsh07.wikireader.ui.savedArticlesScreen.viewModel.SavedArticlesAction
 import org.nsh07.wikireader.ui.savedArticlesScreen.viewModel.SavedArticlesViewModel
 import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
@@ -92,8 +93,7 @@ fun SavedArticlesScreenRoot(
         imageLoader = imageLoader,
         imageBackground = imageBackground,
         openSavedArticle = openSavedArticle,
-        deleteArticle = viewModel::deleteArticle,
-        deleteAll = viewModel::deleteAllArticles,
+        onAction = viewModel::onAction,
         onBack = onBack,
         modifier = modifier
     )
@@ -110,8 +110,7 @@ fun SavedArticlesScreen(
     imageLoader: ImageLoader,
     imageBackground: Boolean,
     openSavedArticle: (Int, String) -> Unit,
-    deleteArticle: (Int, String) -> WRStatus,
-    deleteAll: () -> WRStatus,
+    onAction: (SavedArticlesAction) -> WRStatus,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -142,8 +141,10 @@ fun SavedArticlesScreen(
             lang = toDelete?.second,
             title = toDeleteTitle,
             setShowDeleteDialog = { showArticleDeleteDialog = it },
-            deleteArticle = deleteArticle,
-            deleteAll = deleteAll,
+            deleteArticle = { pageId, lang ->
+                onAction(SavedArticlesAction.Delete(pageId, lang))
+            },
+            deleteAll = { onAction(SavedArticlesAction.DeleteAll) },
             showSnackbar = { coroutineScope.launch { snackBarHostState.showSnackbar(it) } }
         )
 

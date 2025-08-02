@@ -21,12 +21,19 @@ class SavedArticlesViewModel(
         appDatabaseRepository.getSavedArticleLanguages().distinctUntilChanged()
     val savedArticlesFlow = appDatabaseRepository.getSavedArticles().distinctUntilChanged()
 
+    fun onAction(action: SavedArticlesAction): WRStatus {
+        return when (action) {
+            is SavedArticlesAction.Delete -> deleteArticle(action.pageId, action.lang)
+            is SavedArticlesAction.DeleteAll -> deleteAllArticles()
+        }
+    }
+
     /**
      * Deletes the current article
      *
      * @return A [WRStatus] enum value indicating the status of the delete operation
      */
-    fun deleteArticle(pageId: Int, lang: String): WRStatus {
+    private fun deleteArticle(pageId: Int, lang: String): WRStatus {
         viewModelScope.launch(Dispatchers.IO) {
             appDatabaseRepository.deleteSavedArticle(pageId, lang)
         }
@@ -34,7 +41,7 @@ class SavedArticlesViewModel(
         return WRStatus.SUCCESS
     }
 
-    fun deleteAllArticles(): WRStatus {
+    private fun deleteAllArticles(): WRStatus {
         viewModelScope.launch(Dispatchers.IO) {
             appDatabaseRepository.deleteAllSavedArticles()
         }
