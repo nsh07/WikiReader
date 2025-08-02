@@ -74,13 +74,13 @@ import coil3.ImageLoader
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.ui.homeScreen.viewModel.FeedState
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.theme.CustomTopBarColors.cardColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
-import org.nsh07.wikireader.ui.viewModel.FeedState
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle

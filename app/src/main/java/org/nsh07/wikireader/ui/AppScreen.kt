@@ -22,8 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ButtonDefaults
@@ -37,7 +35,6 @@ import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -83,45 +80,43 @@ import coil3.svg.SvgDecoder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import org.nsh07.wikireader.R
 import org.nsh07.wikireader.R.string
-import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.SearchHistoryItem
 import org.nsh07.wikireader.data.UserLanguage
 import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.ui.aboutScreen.AboutScreen
-import org.nsh07.wikireader.ui.historyScreen.HistoryScreen
+import org.nsh07.wikireader.ui.historyScreen.HistoryScreenRoot
 import org.nsh07.wikireader.ui.homeScreen.AppHomeScreen
 import org.nsh07.wikireader.ui.homeScreen.AppSearchBar
+import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeAction
+import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeScreenViewModel
 import org.nsh07.wikireader.ui.image.FullScreenImage
-import org.nsh07.wikireader.ui.savedArticlesScreen.SavedArticlesScreen
-import org.nsh07.wikireader.ui.settingsScreen.SettingsScreen
-import org.nsh07.wikireader.ui.viewModel.PreferencesState
-import org.nsh07.wikireader.ui.viewModel.UiViewModel
+import org.nsh07.wikireader.ui.savedArticlesScreen.SavedArticlesScreenRoot
+import org.nsh07.wikireader.ui.settingsScreen.SettingsScreenRoot
+import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppScreen(
-    viewModel: UiViewModel,
-    preferencesState: PreferencesState,
+    viewModel: HomeScreenViewModel,
+    settingsViewModel: SettingsViewModel,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    val preferencesState by settingsViewModel.preferencesState.collectAsStateWithLifecycle()
+
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val appSearchBarState by viewModel.appSearchBarState.collectAsStateWithLifecycle()
     val homeScreenState by viewModel.homeScreenState.collectAsStateWithLifecycle()
     val feedState by viewModel.feedState.collectAsStateWithLifecycle()
-    val listState by viewModel.articleListState.collectAsStateWithLifecycle()
+    val listState = viewModel.articleListState
     val searchListState by viewModel.searchListState.collectAsStateWithLifecycle()
 
     val searchHistory by viewModel.searchHistoryFlow.collectAsState(emptyList())
-    val savedArticles by viewModel.savedArticlesFlow.collectAsState(emptyList())
-    val viewHistory by viewModel.viewHistoryFlow.collectAsStateWithLifecycle(emptyList())
     val recentLangs by viewModel.recentLangsFlow.collectAsStateWithLifecycle(emptyList())
-    val savedArticleLangs by viewModel.savedArticleLangsFlow.collectAsState(emptyList())
     val userLangs by viewModel.userLangsFlow.collectAsState(
         listOf(
             UserLanguage(
@@ -133,50 +128,13 @@ fun AppScreen(
     )
 
     val searchBarState = rememberSearchBarState()
-    val feedListState = rememberLazyListState()
+    val feedListState = viewModel.feedListState
     val railState = rememberWideNavigationRailState()
     val languageSearchStr by viewModel.languageSearchStr.collectAsStateWithLifecycle()
     val languageSearchQuery by viewModel.languageSearchQuery.collectAsState("")
     val motionScheme = motionScheme
     var showArticleLanguageSheet by rememberSaveable { mutableStateOf(false) }
     var deepLinkHandled by rememberSaveable { mutableStateOf(false) }
-
-    // Used by the settings screen. These are hoisted here to make the settings screen faster
-    val themeMap: Map<String, Pair<Int, String>> = remember {
-        mapOf(
-            "auto" to Pair(
-                R.drawable.brightness_auto,
-                context.getString(string.themeSystemDefault)
-            ),
-            "light" to Pair(R.drawable.light_mode, context.getString(string.themeLight)),
-            "dark" to Pair(R.drawable.dark_mode, context.getString(string.themeDark))
-        )
-    }
-    val reverseThemeMap: Map<String, String> = remember {
-        mapOf(
-            context.getString(string.themeSystemDefault) to "auto",
-            context.getString(string.themeLight) to "light",
-            context.getString(string.themeDark) to "dark"
-        )
-    }
-    val fontStyleMap: Map<String, String> = remember {
-        mapOf(
-            "sans" to context.getString(string.fontStyleSansSerif),
-            "serif" to context.getString(string.fontStyleSerif)
-        )
-    }
-    val reverseFontStyleMap: Map<String, String> = remember {
-        mapOf(
-            context.getString(string.fontStyleSansSerif) to "sans",
-            context.getString(string.fontStyleSerif) to "serif"
-        )
-    }
-    val fontStyles = remember {
-        listOf(
-            context.getString(string.fontStyleSansSerif),
-            context.getString(string.fontStyleSerif)
-        )
-    }
 
     val searchBarScrollBehavior =
         if (
@@ -208,7 +166,7 @@ fun AppScreen(
             .build()
     }
 
-    val snackBarHostState = remember { SnackbarHostState() }
+    val snackBarHostState = viewModel.snackBarHostState
 
     val index by remember { derivedStateOf { listState.firstVisibleItemIndex } }
     val feedIndex by remember { derivedStateOf { feedListState.firstVisibleItemIndex } }
@@ -248,7 +206,7 @@ fun AppScreen(
         },
         onHomeClick = {
             if (navBackStackEntry?.destination?.hasRoute(HomeScreen::class) == true) {
-                viewModel.loadFeed(true)
+                viewModel.onAction(HomeAction.LoadFeed(true))
             } else {
                 navController.navigate(HomeScreen()) {
                     popUpTo(navController.graph.findStartDestination().id) {
@@ -342,10 +300,7 @@ fun AppScreen(
                         val lang = backStackEntry.arguments?.getString("lang")
                         viewModel.stopAll()
                         delay(500) // Avoids a race condition where the hostname might not get updated in time
-                        viewModel.loadPage(
-                            uriQuery,
-                            lang = lang
-                        )
+                        viewModel.onAction(HomeAction.LoadPage(uriQuery, lang = lang))
                     }
                 }
 
@@ -385,29 +340,14 @@ fun AppScreen(
                             windowSizeClass = windowSizeClass,
                             languageSearchStr = languageSearchStr,
                             languageSearchQuery = languageSearchQuery,
-                            loadSearch = {
-                                scope.launch {
-                                    searchBarState.animateToCollapsed()
-                                }
-                                viewModel.loadSearch(it)
-                            },
-                            loadSearchDebounced = viewModel::loadSearchResultsDebounced,
-                            loadPage = viewModel::loadPage,
-                            loadRandom = {
-                                viewModel.loadPage(
-                                    title = null,
-                                    random = true
-                                )
-                            },
-                            saveLang = viewModel::saveLang,
-                            updateLanguageSearchStr = viewModel::updateLanguageSearchStr,
-                            onExpandedChange = {
+                            onAction = viewModel::onAction,
+                            onSettingsAction = settingsViewModel::onAction,
+                            onSearchBarExpandedChange = {
                                 scope.launch {
                                     if (it) searchBarState.animateToExpanded()
                                     else searchBarState.animateToCollapsed()
                                 }
                             },
-                            setQuery = textFieldState::setTextAndPlaceCursorAtEnd,
                             clearHistory = {
                                 historyItem = null
                                 setShowDeleteDialog(true)
@@ -420,10 +360,7 @@ fun AppScreen(
                                 scope.launch {
                                     railState.expand()
                                 }
-                            },
-                            markUserLanguageSelected = viewModel::markUserLanguageSelected,
-                            insertUserLanguage = viewModel::insertUserLanguage,
-                            deleteUserLanguage = viewModel::deleteUserLanguage
+                            }
                         )
                     },
                     snackbarHost = { SnackbarHost(snackBarHostState) },
@@ -454,6 +391,7 @@ fun AppScreen(
                         languageSearchStr = languageSearchStr,
                         languageSearchQuery = languageSearchQuery,
                         showLanguageSheet = showArticleLanguageSheet,
+                        deepLinkHandled = deepLinkHandled,
                         onImageClick = {
                             if (homeScreenState.photo != null || homeScreenState.status == WRStatus.FEED_LOADED)
                                 navController.navigate(FullScreenImage())
@@ -461,72 +399,10 @@ fun AppScreen(
                         onGalleryImageClick = { uri, desc ->
                             navController.navigate(FullScreenImage(uri, desc))
                         },
-                        onLinkClick = viewModel::loadPage,
-                        refreshSearch = { viewModel.reloadPage(true) },
-                        refreshFeed = viewModel::loadFeed,
-                        setLang = viewModel::saveLang,
-                        setSearchStr = viewModel::updateLanguageSearchStr,
+                        onAction = viewModel::onAction,
+                        onSettingsAction = settingsViewModel::onAction,
                         setShowArticleLanguageSheet = { showArticleLanguageSheet = it },
                         enableScrollButton = if (homeScreenState.status != WRStatus.FEED_LOADED) index >= 1 else feedIndex >= 1,
-                        saveArticle = {
-                            scope.launch {
-                                if (homeScreenState.savedStatus == SavedStatus.NOT_SAVED) {
-                                    val status = viewModel.saveArticle()
-                                    if (status != WRStatus.SUCCESS)
-                                        snackBarHostState.showSnackbar(
-                                            context.getString(
-                                                string.snackbarUnableToSave,
-                                                status.name
-                                            )
-                                        )
-                                    delay(150L)
-                                } else if (homeScreenState.savedStatus == SavedStatus.SAVED) {
-                                    val status = viewModel.deleteArticle(
-                                        pageId = homeScreenState.pageId ?: 0,
-                                        lang = preferencesState.lang
-                                    )
-                                    if (status != WRStatus.SUCCESS)
-                                        snackBarHostState.showSnackbar(
-                                            context.getString(
-                                                string.snackbarUnableToDelete,
-                                                status.name
-                                            )
-                                        )
-                                }
-                            }
-                        },
-                        showFeedErrorSnackBar = {
-                            scope.launch {
-                                if (!deepLinkHandled)
-                                    snackBarHostState
-                                        .showSnackbar(
-                                            context.getString(
-                                                string.snackbarUnableToLoadFeed,
-                                                homeScreenState.status.name
-                                            )
-                                        )
-                            }
-                        },
-                        onSearchButtonClick = {
-                            viewModel.focusSearchBar()
-                            textFieldState.setTextAndPlaceCursorAtEnd(textFieldState.text.toString())
-                        },
-                        loadRandom = {
-                            viewModel.loadPage(
-                                title = null,
-                                random = true
-                            )
-                        },
-                        scrollToTop = {
-                            scope.launch {
-                                if (homeScreenState.status != WRStatus.FEED_LOADED)
-                                    listState.scrollToItem(0)
-                                else
-                                    feedListState.scrollToItem(0)
-                            }
-                        },
-                        showRef = viewModel::updateRef,
-                        hideRef = viewModel::hideRef,
                         insets = insets,
                         windowSizeClass = windowSizeClass,
                         modifier = Modifier.fillMaxSize()
@@ -581,70 +457,38 @@ fun AppScreen(
             }
 
             composable<SavedArticlesScreen> {
-                SavedArticlesScreen(
-                    savedArticles = savedArticles,
-                    savedArticleLangs = savedArticleLangs,
+                SavedArticlesScreenRoot(
                     imageLoader = imageLoader,
                     imageBackground = preferencesState.imageBackground,
                     openSavedArticle = { pageId: Int, lang: String ->
-                        scope.launch {
                             navController.navigateUp()
-                            viewModel.loadSavedArticle(pageId, lang)
-                        }
+                        viewModel.onAction(HomeAction.LoadSavedArticle(pageId, lang))
                     },
-                    deleteArticle = viewModel::deleteArticle,
-                    deleteAll = viewModel::deleteAllArticles,
                     onBack = navController::navigateUp
                 )
             }
 
             composable<HistoryScreen> {
-                HistoryScreen(
-                    viewHistory = viewHistory,
+                HistoryScreenRoot(
                     imageLoader = imageLoader,
                     imageBackground = preferencesState.imageBackground,
                     openArticle = { title, lang ->
-                        viewModel.loadPage(title, lang)
+                        viewModel.onAction(HomeAction.LoadPage(title, lang))
                         navController.navigateUp()
                     },
-                    insertHistoryItem = viewModel::insertViewHistoryItem,
-                    deleteHistoryItem = viewModel::removeViewHistoryItem,
-                    deleteAllHistory = { viewModel.removeViewHistoryItem(null) },
                     onBack = navController::navigateUp
                 )
             }
 
             composable<SettingsScreen> {
-                SettingsScreen(
+                SettingsScreenRoot(
                     preferencesState = preferencesState,
                     homeScreenState = homeScreenState,
                     recentLangs = recentLangs,
                     languageSearchStr = languageSearchStr,
                     languageSearchQuery = languageSearchQuery,
-                    themeMap = themeMap,
-                    reverseThemeMap = reverseThemeMap,
-                    fontStyles = fontStyles,
-                    fontStyleMap = fontStyleMap,
-                    reverseFontStyleMap = reverseFontStyleMap,
-                    saveTheme = viewModel::saveTheme,
-                    saveColorScheme = viewModel::saveColorScheme,
-                    saveLang = viewModel::saveLang,
-                    saveFontStyle = viewModel::saveFontStyle,
-                    saveFontSize = viewModel::saveFontSize,
-                    saveBlackTheme = viewModel::saveBlackTheme,
-                    saveDataSaver = viewModel::saveDataSaver,
-                    saveFeedEnabled = viewModel::saveFeedEnabled,
-                    saveExpandedSections = viewModel::saveExpandedSections,
-                    saveHistory = viewModel::saveHistory,
-                    saveImageBackground = viewModel::saveImageBackground,
-                    saveImmersiveMode = viewModel::saveImmersiveMode,
-                    saveRenderMath = viewModel::saveRenderMath,
-                    saveSearchHistory = viewModel::saveSearchHistory,
-                    updateLanguageSearchStr = viewModel::updateLanguageSearchStr,
-                    loadFeed = viewModel::loadFeed,
-                    reloadPage = viewModel::reloadPage,
-                    onBack = navController::navigateUp,
-                    onResetSettings = viewModel::resetSettings
+                    onHomeAction = viewModel::onAction,
+                    onBack = navController::navigateUp
                 )
             }
 

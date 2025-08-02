@@ -60,7 +60,7 @@ fun LanguageBottomSheet(
     setSearchStr: (String) -> Unit,
     modifier: Modifier = Modifier,
     userLanguageSelectionMode: Boolean = false,
-    insertUserLanguage: (suspend (UserLanguage) -> Unit)? = null,
+    insertUserLanguage: ((UserLanguage) -> Unit)? = null,
     deleteUserLanguage: ((String) -> Unit)? = null,
 ) {
     // Require that either user lang selection is disabled OR none of the user lang lambdas are null

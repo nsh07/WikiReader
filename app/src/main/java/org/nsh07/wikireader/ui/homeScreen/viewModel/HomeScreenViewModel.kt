@@ -1,17 +1,18 @@
-package org.nsh07.wikireader.ui.viewModel
+package org.nsh07.wikireader.ui.homeScreen.viewModel
 
 import android.util.Log
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.util.fastAny
-import androidx.compose.ui.util.fastFilter
-import androidx.compose.ui.util.fastForEach
 import androidx.core.text.parseAsHtml
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -30,6 +31,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -37,6 +39,7 @@ import kotlinx.serialization.json.Json
 import org.nsh07.wikireader.WikiReaderApplication
 import org.nsh07.wikireader.data.AppDatabaseRepository
 import org.nsh07.wikireader.data.AppPreferencesRepository
+import org.nsh07.wikireader.data.AppStatus
 import org.nsh07.wikireader.data.SavedArticle
 import org.nsh07.wikireader.data.SavedStatus
 import org.nsh07.wikireader.data.SearchHistoryItem
@@ -57,11 +60,13 @@ import org.nsh07.wikireader.parser.buildRefList
 import org.nsh07.wikireader.parser.cleanUpWikitext
 import org.nsh07.wikireader.parser.substringMatchingParen
 import org.nsh07.wikireader.parser.toWikitextAnnotatedString
-import java.io.File
-import kotlin.io.path.listDirectoryEntries
+import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
 import kotlin.math.min
 
-class UiViewModel(
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+class HomeScreenViewModel(
+    private val appStatusFlow: MutableStateFlow<AppStatus>,
+    private val preferencesStateMutableFlow: MutableStateFlow<PreferencesState>,
     private val interceptor: HostSelectionInterceptor,
     private val wikipediaRepository: WikipediaRepository,
     private val appPreferencesRepository: AppPreferencesRepository,
@@ -73,29 +78,27 @@ class UiViewModel(
     private val _homeScreenState = MutableStateFlow(HomeScreenState())
     val homeScreenState: StateFlow<HomeScreenState> = _homeScreenState.asStateFlow()
 
+    private val preferencesState: StateFlow<PreferencesState> =
+        preferencesStateMutableFlow.asStateFlow()
+
     private val _feedState = MutableStateFlow(FeedState())
     val feedState: StateFlow<FeedState> = _feedState.asStateFlow()
 
-    private val _articleListState = MutableStateFlow(LazyListState(0, 0))
-    val articleListState: StateFlow<LazyListState> = _articleListState.asStateFlow()
-
     private val _searchListState = MutableStateFlow(LazyListState(0, 0))
+
     val searchListState: StateFlow<LazyListState> = _searchListState.asStateFlow()
-
-    private val _preferencesState = MutableStateFlow(PreferencesState())
-    val preferencesState: StateFlow<PreferencesState> = _preferencesState.asStateFlow()
-
     private val _languageSearchStr = MutableStateFlow("")
+
     val languageSearchStr: StateFlow<String> = _languageSearchStr.asStateFlow()
 
     val textFieldState: TextFieldState = TextFieldState()
+    val snackBarHostState: SnackbarHostState = SnackbarHostState()
+
+    val articleListState = LazyListState(0, 0)
+    val feedListState = LazyListState(0, 0)
 
     val searchHistoryFlow = appDatabaseRepository.getSearchHistory().distinctUntilChanged()
-    val viewHistoryFlow = appDatabaseRepository.getViewHistory().distinctUntilChanged()
     val recentLangsFlow = appDatabaseRepository.getRecentLanguages().distinctUntilChanged()
-    val savedArticleLangsFlow =
-        appDatabaseRepository.getSavedArticleLanguages().distinctUntilChanged()
-    val savedArticlesFlow = appDatabaseRepository.getSavedArticles().distinctUntilChanged()
     val userLangsFlow = appDatabaseRepository.getUserLanguages().distinctUntilChanged()
 
     @OptIn(FlowPreview::class)
@@ -110,80 +113,30 @@ class UiViewModel(
             return field
         }
     private var searchDebounceJob: Job? = null
-    private var colorScheme: ColorScheme = lightColorScheme()
-    private var typography: Typography = Typography()
-    private var fromLink: Boolean = false
 
-    var isReady = false
+    val appStatus = appStatusFlow
 
     private var sections = 0
     private var currentSection = 0
 
+    private var colorScheme: ColorScheme = lightColorScheme()
+    private var typography: Typography = Typography()
+    private var fromLink: Boolean = false
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            val colorScheme = appPreferencesRepository.readStringPreference("color-scheme")
-                ?: appPreferencesRepository.saveStringPreference(
-                    "color-scheme",
-                    Color.White.toString()
-                )
-            val fontStyle = appPreferencesRepository.readStringPreference("font-style")
-                ?: appPreferencesRepository.saveStringPreference("font-style", "sans")
-            val lang = appPreferencesRepository.readStringPreference("lang")
-                ?: appPreferencesRepository.saveStringPreference("lang", "en")
-            val theme = appPreferencesRepository.readStringPreference("theme")
-                ?: appPreferencesRepository.saveStringPreference("theme", "auto")
-            val fontSize = appPreferencesRepository.readIntPreference("font-size")
-                ?: appPreferencesRepository.saveIntPreference("font-size", 16)
-            val blackTheme = appPreferencesRepository.readBooleanPreference("black-theme")
-                ?: appPreferencesRepository.saveBooleanPreference("black-theme", false)
-            val dataSaver = appPreferencesRepository.readBooleanPreference("data-saver")
-                ?: appPreferencesRepository.saveBooleanPreference("data-saver", false)
-            val feedEnabled = appPreferencesRepository.readBooleanPreference("feed-enabled")
-                ?: appPreferencesRepository.saveBooleanPreference("feed-enabled", true)
-            val expandedSections =
-                appPreferencesRepository.readBooleanPreference("expanded-sections")
-                    ?: appPreferencesRepository.saveBooleanPreference("expanded-sections", false)
-            val imageBackground = appPreferencesRepository.readBooleanPreference("image-background")
-                ?: appPreferencesRepository.saveBooleanPreference("image-background", false)
-            val immersiveMode = appPreferencesRepository.readBooleanPreference("immersive-mode")
-                ?: appPreferencesRepository.saveBooleanPreference("immersive-mode", true)
-            val renderMath = appPreferencesRepository.readBooleanPreference("render-math")
-                ?: appPreferencesRepository.saveBooleanPreference("render-math", true)
-            val browsingHistory = appPreferencesRepository.readBooleanPreference("browsing-history")
-                ?: appPreferencesRepository.saveBooleanPreference("browsing-history", true)
-            val searchHistory = appPreferencesRepository.readBooleanPreference("search-history")
-                ?: appPreferencesRepository.saveBooleanPreference("search-history", true)
-
-            _preferencesState.update { currentState ->
-                currentState.copy(
-                    blackTheme = blackTheme,
-                    colorScheme = colorScheme,
-                    dataSaver = dataSaver,
-                    feedEnabled = feedEnabled,
-                    expandedSections = expandedSections,
-                    fontSize = fontSize,
-                    fontStyle = fontStyle,
-                    imageBackground = imageBackground,
-                    immersiveMode = immersiveMode,
-                    lang = lang,
-                    renderMath = renderMath,
-                    searchHistory = searchHistory,
-                    browsingHistory = browsingHistory,
-                    theme = theme
-                )
-            }
-
-            appDatabaseRepository.deleteOldSearchHistory()
-            appDatabaseRepository.deleteOldViewHistory()
-
-            interceptor.setHost("$lang.wikipedia.org")
+            var collectAppStatus = true
 
             userLangsFlow.first().let {
                 if (it.isEmpty()) insertUserLanguage(UserLanguage("en", "English", true))
             }
 
-            isReady = true
-            loadFeed()
+            appStatus.takeWhile { collectAppStatus }.collect {
+                if (it == AppStatus.INITIALIZED) {
+                    loadFeed()
+                    collectAppStatus = false
+                }
+            }
         }
     }
 
@@ -194,6 +147,74 @@ class UiViewModel(
     fun setCompositionLocals(cs: ColorScheme, tg: Typography) {
         colorScheme = cs
         typography = tg
+    }
+
+    fun onAction(action: HomeAction) {
+        when (action) {
+            is HomeAction.DeleteUserLanguage -> deleteUserLanguage(action.lang)
+            is HomeAction.InsertUserLanguage -> viewModelScope.launch {
+                insertUserLanguage(action.userLanguage)
+            }
+
+            is HomeAction.LoadFeed -> loadFeed(action.fromBack)
+            is HomeAction.LoadPage -> loadPage(
+                title = action.title,
+                lang = action.lang,
+                random = action.random,
+                listStatePair = action.listStatePair
+            )
+
+            is HomeAction.LoadSavedArticle -> viewModelScope.launch {
+                loadSavedArticle(action.pageId, action.lang)
+            }
+
+            is HomeAction.LoadSearch -> loadSearch(action.query)
+            is HomeAction.LoadSearchResultsDebounced -> loadSearchResultsDebounced(action.query)
+            is HomeAction.MarkUserLanguageSelected -> markUserLanguageSelected(action.lang)
+            is HomeAction.ReloadPage -> reloadPage(action.persistLang)
+            is HomeAction.SaveArticle -> viewModelScope.launch {
+                if (homeScreenState.value.savedStatus == SavedStatus.NOT_SAVED) {
+                    val status = saveArticle()
+                    if (status != WRStatus.SUCCESS)
+                        snackBarHostState.showSnackbar(
+                            String.format(action.unableToSaveError, status.name)
+                        )
+                    delay(150L)
+                } else if (homeScreenState.value.savedStatus == SavedStatus.SAVED) {
+                    val status = deleteArticle(
+                        pageId = homeScreenState.value.pageId ?: 0,
+                        lang = preferencesState.value.lang
+                    )
+                    if (status != WRStatus.SUCCESS)
+                        snackBarHostState.showSnackbar(
+                            String.format(action.unableToDeleteError, status.name)
+                        )
+                }
+            }
+
+            is HomeAction.SetQuery -> textFieldState.setTextAndPlaceCursorAtEnd(action.text)
+            is HomeAction.UpdateLanguageSearchStr -> updateLanguageSearchStr(action.str)
+            is HomeAction.UpdateRef -> updateRef(action.ref)
+            is HomeAction.FocusSearchBar -> {
+                focusSearchBar()
+                textFieldState.setTextAndPlaceCursorAtEnd(textFieldState.text.toString())
+            }
+
+            is HomeAction.HideRef -> hideRef()
+            is HomeAction.LoadRandom -> loadPage(title = null, random = true)
+            is HomeAction.ScrollToTop -> viewModelScope.launch {
+                if (homeScreenState.value.status != WRStatus.FEED_LOADED)
+                    articleListState.scrollToItem(0)
+                else
+                    feedListState.scrollToItem(0)
+            }
+
+            is HomeAction.ShowFeedErrorSnackBar -> viewModelScope.launch {
+                snackBarHostState.showSnackbar(
+                    String.format(action.errorString, homeScreenState.value.status.name)
+                )
+            }
+        }
     }
 
     private fun pushBackstack(
@@ -266,7 +287,7 @@ class UiViewModel(
         }
     }
 
-    fun loadSearchResultsDebounced(query: String) {
+    private fun loadSearchResultsDebounced(query: String) {
         searchDebounceJob?.cancel()
         searchDebounceJob = viewModelScope.launch {
             delay(250)
@@ -274,7 +295,7 @@ class UiViewModel(
         }
     }
 
-    fun loadSearch(
+    private fun loadSearch(
         query: String?,
         lang: String? = null,
         random: Boolean = false,
@@ -362,7 +383,7 @@ class UiViewModel(
      *
      * @param title Page title
      */
-    fun loadPage(
+    private fun loadPage(
         title: String?,
         lang: String? = null,
         random: Boolean = false,
@@ -416,7 +437,7 @@ class UiViewModel(
                         homeScreenState.value.status != WRStatus.FEED_NETWORK_ERROR &&
                         homeScreenState.value.status != WRStatus.UNINITIALIZED
                     ) {
-                        val articleState = articleListState.value
+                        val articleState = articleListState
                         pushBackstack(
                             title = homeScreenState.value.title,
                             firstVisibleItemIndex = articleState.firstVisibleItemIndex,
@@ -424,9 +445,8 @@ class UiViewModel(
                         )
                     }
 
-                    _articleListState.update {
-                        LazyListState(0, 0)
-                    }
+                    if (homeScreenState.value.status == WRStatus.SUCCESS)
+                        articleListState.scrollToItem(0, 0)
 
                     sections = extract.size
                     var sectionIndex = 3
@@ -450,14 +470,17 @@ class UiViewModel(
                     }
 
                     if (apiResponse != null)
-                        insertViewHistoryItem(
-                            ViewHistoryItem(
-                                thumbnail = apiResponse.thumbnail?.source,
-                                title = apiResponse.title,
-                                description = apiResponse.description,
-                                lang = setLang
-                            )
-                        )
+                        viewModelScope.launch(Dispatchers.IO) {
+                            if (preferencesState.value.browsingHistory)
+                                appDatabaseRepository.insertViewHistory(
+                                    ViewHistoryItem(
+                                        thumbnail = apiResponse.thumbnail?.source,
+                                        title = apiResponse.title,
+                                        description = apiResponse.description,
+                                        lang = setLang
+                                    )
+                                )
+                        }
 
                     extract.forEachIndexed { index, it ->
                         currentSection = index + 1
@@ -490,10 +513,8 @@ class UiViewModel(
                         currentState.copy(isLoading = false)
                     }
 
-                    if (listStatePair != null)
-                        _articleListState.update {
-                            LazyListState(listStatePair.first, listStatePair.second)
-                        }
+                    if (listStatePair != null && homeScreenState.value.status == WRStatus.SUCCESS)
+                        articleListState.scrollToItem(listStatePair.first, listStatePair.second)
                 } catch (e: Exception) {
                     Log.e("ViewModel", "Error in fetching results: ${e.message}")
                     e.printStackTrace()
@@ -525,7 +546,7 @@ class UiViewModel(
                 }
 
                 if (lang != null)
-                    _preferencesState.update { currentState ->
+                    preferencesStateMutableFlow.update { currentState ->
                         currentState.copy(lang = lang)
                     }
             } else {
@@ -548,7 +569,7 @@ class UiViewModel(
         }
     }
 
-    fun reloadPage(
+    private fun reloadPage(
         persistLang: Boolean = false
     ) {
         if (lastQuery != null) {
@@ -572,7 +593,7 @@ class UiViewModel(
      * If an error is encountered, app status is set to [WRStatus.FEED_NETWORK_ERROR] and home screen
      * text is updated to the error
      */
-    fun loadFeed(fromBack: Boolean = false) {
+    private fun loadFeed(fromBack: Boolean = false) {
         viewModelScope.launch(loaderJob) {
             if (!preferencesState.value.dataSaver && preferencesState.value.feedEnabled) {
                 _homeScreenState.update { currentState ->
@@ -671,7 +692,7 @@ class UiViewModel(
      *
      * @return A [WRStatus] enum value indicating the status of the save operation
      */
-    suspend fun saveArticle(
+    private suspend fun saveArticle(
         title: String? = null,
         lang: String? = null
     ): WRStatus {
@@ -732,64 +753,11 @@ class UiViewModel(
     }
 
     /**
-     * Migrates articles downloaded in the pre-2.4 format (raw files) to the new database.
-     * The old file corresponding to an article is only deleted when the new files
-     * have been successfully saved to the database, so accidental data loss is not a concern.
-     *
-     * It is recommended to run this function on every startup to ensure any pending migrations are
-     * completed
-     */
-    fun migrateArticles() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val articleList = listArticles(true)
-                val articlesDir = File(filesDir, "savedArticles")
-                val jsonInst = Json { ignoreUnknownKeys = true }
-
-                articleList.fastForEach {
-                    val apiFile = File(articlesDir, it)
-                    val contentFile = File(articlesDir, it.replace("-api", "-content"))
-
-                    val apiResponse = apiFile.readText()
-                    val pageData = jsonInst
-                        .decodeFromString<WikiApiPageData>(apiResponse)
-                        .query?.pages?.get(0)
-
-                    val pageId = it.substringAfter('.').substringBefore('-').toInt()
-                    val title = it.substringBefore('.')
-                    val lang = it.substringAfterLast('.')
-                    val langName = langCodeToName(lang)
-                    val pageContent = contentFile.readText()
-
-                    appDatabaseRepository.insertSavedArticle(
-                        SavedArticle(
-                            pageId = pageId,
-                            lang = lang,
-                            langName = langName,
-                            title = title,
-                            thumbnail = pageData?.thumbnail?.source,
-                            description = pageData?.description,
-                            apiResponse = apiResponse,
-                            pageContent = pageContent
-                        )
-                    )
-
-                    apiFile.delete()
-                    contentFile.delete()
-                }
-            } catch (e: Exception) {
-                Log.e("ViewModel", "Failed to load articles list: ${e.message}")
-                e.printStackTrace()
-            }
-        }
-    }
-
-    /**
      * Deletes the current article
      *
      * @return A [WRStatus] enum value indicating the status of the delete operation
      */
-    fun deleteArticle(pageId: Int, lang: String): WRStatus {
+    private fun deleteArticle(pageId: Int, lang: String): WRStatus {
         if (homeScreenState.value.status == WRStatus.UNINITIALIZED) {
             Log.e("ViewModel", "Cannot delete article, HomeScreenState is uninitialized")
             return WRStatus.OTHER
@@ -805,25 +773,7 @@ class UiViewModel(
         return WRStatus.SUCCESS
     }
 
-    fun deleteAllArticles(): WRStatus {
-        viewModelScope.launch(Dispatchers.IO) {
-            appDatabaseRepository.deleteAllSavedArticles()
-        }
-        return WRStatus.SUCCESS
-    }
-
-    fun listArticles(filter: Boolean = true): List<String> {
-        val articlesDir = File(filesDir, "savedArticles")
-        val directoryEntries = articlesDir.toPath().listDirectoryEntries()
-        val out = mutableListOf<String>()
-        directoryEntries.fastForEach {
-            out.add(it.fileName.toString())
-        }
-        out.sort()
-        return if (filter) out.fastFilter { it.contains("-api.") } else out
-    }
-
-    suspend fun loadSavedArticle(pageId: Int, lang: String): WRStatus =
+    private suspend fun loadSavedArticle(pageId: Int, lang: String): WRStatus =
         withContext(Dispatchers.IO) {
             _homeScreenState.update { currentState ->
                 currentState.copy(isLoading = true, loadingProgress = null)
@@ -845,17 +795,16 @@ class UiViewModel(
                 val articleSections = mutableListOf<Pair<Int, String>>()
                 val parsedExtract = mutableListOf<List<AnnotatedString>>()
 
-                val articleState = articleListState.value
+                val articleState = articleListState
                 pushBackstack(
                     title = homeScreenState.value.title,
                     firstVisibleItemIndex = articleState.firstVisibleItemIndex,
                     firstVisibleItemScrollOffset = articleState.firstVisibleItemScrollOffset
                 )
-                _articleListState.update {
-                    LazyListState(0, 0)
-                }
+                if (homeScreenState.value.status == WRStatus.SUCCESS)
+                    articleListState.scrollToItem(0, 0)
 
-                _preferencesState.update { currentState ->
+                preferencesStateMutableFlow.update { currentState ->
                     currentState.copy(
                         lang = savedArticle.lang
                     )
@@ -922,7 +871,7 @@ class UiViewModel(
      *
      * @return A list of [AnnotatedString]s representing the page content
      */
-    suspend fun parseWikitext(wikitext: String): List<AnnotatedString> =
+    private suspend fun parseWikitext(wikitext: String): List<AnnotatedString> =
         withContext(Dispatchers.IO) {
             val parsed = cleanUpWikitext(wikitext)
             var curr = ""
@@ -1082,7 +1031,7 @@ class UiViewModel(
             out.toList()
         }
 
-    fun updateRef(ref: String) {
+    private fun updateRef(ref: String) {
         _homeScreenState.update { currentState ->
             currentState.copy(
                 ref = ref.toWikitextAnnotatedString(
@@ -1100,7 +1049,7 @@ class UiViewModel(
         }
     }
 
-    fun hideRef() {
+    private fun hideRef() {
         _homeScreenState.update { currentState ->
             currentState.copy(
                 showRef = false
@@ -1108,7 +1057,7 @@ class UiViewModel(
         }
     }
 
-    fun focusSearchBar() {
+    private fun focusSearchBar() {
         appSearchBarState.value.focusRequester.requestFocus()
     }
 
@@ -1119,20 +1068,7 @@ class UiViewModel(
         }
     }
 
-    fun insertViewHistoryItem(item: ViewHistoryItem) =
-        viewModelScope.launch(Dispatchers.IO) {
-            if (preferencesState.value.browsingHistory)
-                appDatabaseRepository.insertViewHistory(item)
-        }
-
-    fun removeViewHistoryItem(item: ViewHistoryItem?) {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (item != null) appDatabaseRepository.deleteViewHistory(item)
-            else appDatabaseRepository.deleteAllViewHistory()
-        }
-    }
-
-    suspend fun insertUserLanguage(userLanguage: UserLanguage) {
+    private suspend fun insertUserLanguage(userLanguage: UserLanguage) {
         if (userLanguage.selected) {
             appDatabaseRepository.deselectAllUserLanguages()
             appDatabaseRepository.insertUserLanguage(userLanguage)
@@ -1140,41 +1076,19 @@ class UiViewModel(
         } else appDatabaseRepository.insertUserLanguage(userLanguage)
     }
 
-    fun deleteUserLanguage(lang: String) {
+    private fun deleteUserLanguage(lang: String) {
         viewModelScope.launch(Dispatchers.IO) {
             appDatabaseRepository.deleteUserLanguage(lang)
         }
     }
 
-    fun markUserLanguageSelected(lang: String) {
+    private fun markUserLanguageSelected(lang: String) {
         viewModelScope.launch {
             appDatabaseRepository.deselectAllUserLanguages()
             appDatabaseRepository.markUserLanguageSelected(lang)
         }
-        saveLang(lang)
-    }
-
-    fun saveTheme(theme: String) {
-        viewModelScope.launch {
-            _preferencesState.update { currentState ->
-                currentState.copy(theme = theme)
-            }
-            appPreferencesRepository.saveStringPreference("theme", theme)
-        }
-    }
-
-    fun saveFontStyle(fontStyle: String) {
-        viewModelScope.launch {
-            _preferencesState.update { currentState ->
-                currentState.copy(fontStyle = fontStyle)
-            }
-            appPreferencesRepository.saveStringPreference("font-style", fontStyle)
-        }
-    }
-
-    fun saveLang(lang: String) {
         interceptor.setHost("$lang.wikipedia.org")
-        _preferencesState.update { currentState ->
+        preferencesStateMutableFlow.update { currentState ->
             currentState.copy(lang = lang)
         }
         viewModelScope.launch {
@@ -1182,120 +1096,7 @@ class UiViewModel(
         }
     }
 
-    fun saveColorScheme(colorScheme: String) {
-        viewModelScope.launch {
-            _preferencesState.update { currentState ->
-                currentState.copy(colorScheme = colorScheme)
-            }
-            appPreferencesRepository.saveStringPreference("color-scheme", colorScheme)
-        }
-    }
-
-    fun saveBlackTheme(blackTheme: Boolean) {
-        viewModelScope.launch {
-            _preferencesState.update { currentState ->
-                currentState.copy(blackTheme = blackTheme)
-            }
-            appPreferencesRepository.saveBooleanPreference("black-theme", blackTheme)
-        }
-    }
-
-    fun saveFontSize(fontSize: Int) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveIntPreference("font-size", fontSize)
-            _preferencesState.update { currentState ->
-                currentState.copy(fontSize = fontSize)
-            }
-        }
-    }
-
-    fun saveExpandedSections(expandedSections: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("expanded-sections", expandedSections)
-            _preferencesState.update { currentState ->
-                currentState.copy(expandedSections = expandedSections)
-            }
-        }
-    }
-
-    fun saveRenderMath(renderMath: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("render-math", renderMath)
-            _preferencesState.update { currentState ->
-                currentState.copy(renderMath = renderMath)
-            }
-        }
-    }
-
-    fun saveHistory(history: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("browsing-history", history)
-            _preferencesState.update { currentState ->
-                currentState.copy(browsingHistory = history)
-            }
-        }
-    }
-
-    fun saveSearchHistory(searchHistory: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("search-history", searchHistory)
-            _preferencesState.update { currentState ->
-                currentState.copy(searchHistory = searchHistory)
-            }
-        }
-    }
-
-    fun saveDataSaver(dataSaver: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("data-saver", dataSaver)
-            _preferencesState.update { currentState ->
-                currentState.copy(dataSaver = dataSaver)
-            }
-        }
-    }
-
-    fun saveFeedEnabled(feedEnabled: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("feed-enabled", feedEnabled)
-            _preferencesState.update { currentState ->
-                currentState.copy(feedEnabled = feedEnabled)
-            }
-        }
-    }
-
-    fun saveImageBackground(imageBackground: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("image-background", imageBackground)
-            _preferencesState.update { currentState ->
-                currentState.copy(imageBackground = imageBackground)
-            }
-        }
-    }
-
-    fun saveImmersiveMode(immersiveMode: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.saveBooleanPreference("immersive-mode", immersiveMode)
-            _preferencesState.update { currentState ->
-                currentState.copy(immersiveMode = immersiveMode)
-            }
-        }
-    }
-
-    fun resetSettings() {
-        viewModelScope.launch {
-            try {
-                appPreferencesRepository.resetSettings()
-                _preferencesState.update {
-                    PreferencesState()
-                }
-            } catch (e: Exception) {
-                Log.e("ViewModel", "Error in restoring settings: ${e.message}")
-                e.printStackTrace()
-            }
-        }
-    }
-
-    fun updateLanguageSearchStr(str: String) {
+    private fun updateLanguageSearchStr(str: String) {
         _languageSearchStr.update {
             str
         }
@@ -1305,11 +1106,15 @@ class UiViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = (this[APPLICATION_KEY] as WikiReaderApplication)
+                val appStatusFlow = application.container.appStatus
+                val preferencesStateMutableFlow = application.container.preferencesStateMutableFlow
                 val interceptor = application.container.interceptor
                 val wikipediaRepository = application.container.wikipediaRepository
                 val appPreferencesRepository = application.container.appPreferencesRepository
                 val appHistoryRepository = application.container.appDatabaseRepository
-                UiViewModel(
+                HomeScreenViewModel(
+                    appStatusFlow = appStatusFlow,
+                    preferencesStateMutableFlow = preferencesStateMutableFlow,
                     interceptor = interceptor,
                     wikipediaRepository = wikipediaRepository,
                     appPreferencesRepository = appPreferencesRepository,
