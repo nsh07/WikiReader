@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -105,7 +106,7 @@ fun ArticleLanguageBottomSheet(
                     ListItem(
                         headlineContent = { Text(langName ?: currentLang.lang) },
                         supportingContent = { Text(currentLang.title) },
-                        trailingContent = {
+                        leadingContent = {
                             Icon(
                                 Icons.Outlined.Check,
                                 contentDescription = stringResource(R.string.selectedLabel)
@@ -113,7 +114,7 @@ fun ArticleLanguageBottomSheet(
                         },
                         colors = ListItemDefaults.colors(containerColor = colorScheme.primaryContainer),
                         modifier = Modifier
-                            .clip(shapes.large)
+                            .clip(CircleShape)
                             .clickable(
                                 onClick = {
                                     scope

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -116,28 +117,34 @@ fun LanguageBottomSheet(
                     ) { index: Int, it: String ->
                         if (it.contains(searchQuery, ignoreCase = true)) {
                             val langName = remember(it) { langCodeToName(it) }
+                            val selected = selectedOption == langName
                             ListItem(
                                 headlineContent = {
                                     Text(langName)
                                 },
                                 supportingContent = { Text(remember(it) { langCodeToWikiName(it) }) },
-                                trailingContent = {
-                                    if (selectedOption == langName) Icon(
-                                        Icons.Outlined.Check,
-                                        contentDescription = stringResource(R.string.selectedLabel)
-                                    )
-                                },
+                                leadingContent = if (selected) {
+                                    {
+                                        Icon(
+                                            Icons.Outlined.Check,
+                                            contentDescription = stringResource(R.string.selectedLabel)
+                                        )
+                                    }
+                                } else null,
                                 colors =
-                                    if (selectedOption == langName) ListItemDefaults.colors(
+                                    if (selected) ListItemDefaults.colors(
                                         containerColor = colorScheme.primaryContainer
                                     )
                                     else ListItemDefaults.colors(),
                                 modifier = Modifier
                                     .clip(
-                                        if (recentLangs.size == 1) shapes.large
-                                        else if (index == 0) topListItemShape
-                                        else if (index == recentLangs.size - 1) bottomListItemShape
-                                        else middleListItemShape
+                                        if (selected) CircleShape
+                                        else {
+                                            if (recentLangs.size == 1) shapes.large
+                                            else if (index == 0) topListItemShape
+                                            else if (index == recentLangs.size - 1) bottomListItemShape
+                                            else middleListItemShape
+                                        }
                                     )
                                     .clickable(
                                         onClick = {
@@ -185,26 +192,32 @@ fun LanguageBottomSheet(
                     key = { _: Int, it: String -> it }
                 ) { index: Int, it: String ->
                     if (it.contains(searchQuery, ignoreCase = true)) {
+                        val selected = selectedOption == it
                         ListItem(
                             headlineContent = {
                                 Text(it)
                             },
                             supportingContent = { Text(wikipediaNames[index]) },
-                            trailingContent = {
-                                if (selectedOption == it) Icon(
-                                    Icons.Outlined.Check,
-                                    contentDescription = stringResource(R.string.selectedLabel)
-                                )
-                            },
+                            leadingContent = if (selected) {
+                                {
+                                    Icon(
+                                        Icons.Outlined.Check,
+                                        contentDescription = stringResource(R.string.selectedLabel)
+                                    )
+                                }
+                            } else null,
                             colors =
-                                if (selectedOption == it) ListItemDefaults.colors(containerColor = colorScheme.primaryContainer)
+                                if (selected) ListItemDefaults.colors(containerColor = colorScheme.primaryContainer)
                                 else ListItemDefaults.colors(),
                             modifier = Modifier
                                 .clip(
-                                    if (langNames.size == 1) shapes.large
-                                    else if (index == 0) topListItemShape
-                                    else if (index == langNames.size - 1) bottomListItemShape
-                                    else middleListItemShape
+                                    if (selected) CircleShape
+                                    else {
+                                        if (langNames.size == 1) shapes.large
+                                        else if (index == 0) topListItemShape
+                                        else if (index == langNames.size - 1) bottomListItemShape
+                                        else middleListItemShape
+                                    }
                                 )
                                 .clickable(
                                     onClick = {
