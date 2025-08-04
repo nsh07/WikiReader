@@ -11,6 +11,8 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -46,6 +48,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.PlainTooltip
@@ -141,6 +144,7 @@ fun AppHomeScreen(
 ) {
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
+    val motionScheme = motionScheme
 
     val sendIntent: Intent = remember(backStack.last(), preferencesState.lang) {
         Intent()
@@ -242,7 +246,19 @@ fun AppHomeScreen(
                 },
                 transitionSpec = { fadeIn().togetherWith(fadeOut()) },
                 popTransitionSpec = { fadeIn().togetherWith(fadeOut()) },
-                predictivePopTransitionSpec = { fadeIn().togetherWith(fadeOut()) },
+                predictivePopTransitionSpec = {
+                    if (backStack.size > 2)
+                        (slideInHorizontally(
+                            initialOffsetX = { -it / 4 },
+                            animationSpec = motionScheme.defaultSpatialSpec()
+                        ) + fadeIn(motionScheme.defaultEffectsSpec())).togetherWith(
+                            slideOutHorizontally(
+                                targetOffsetX = { it / 4 },
+                                animationSpec = motionScheme.fastSpatialSpec()
+                            ) + fadeOut(motionScheme.fastEffectsSpec())
+                        )
+                    else fadeIn().togetherWith(fadeOut())
+                },
                 entryProvider = entryProvider {
                     entry<HomeSubscreen.FeedLoader> {
                         FeedShimmer(insets = insets)
