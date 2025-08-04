@@ -10,7 +10,6 @@ sealed class HomeAction {
         val title: String?,
         val lang: String? = null,
         val random: Boolean = false,
-        val listStatePair: Pair<Int, Int>? = null
     ) : HomeAction()
 
     data class LoadSavedArticle(val pageId: Int, val lang: String) : HomeAction()

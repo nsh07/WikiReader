@@ -80,11 +80,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.R.string
-import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.toColor
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeAction
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeScreenState
+import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeSubscreen
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsAction
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsViewModel
@@ -100,6 +100,7 @@ import kotlin.math.round
 fun SettingsScreenRoot(
     preferencesState: PreferencesState,
     homeScreenState: HomeScreenState,
+    lastBackStackEntry: HomeSubscreen,
     recentLangs: List<String>,
     languageSearchStr: String,
     languageSearchQuery: String,
@@ -149,6 +150,7 @@ fun SettingsScreenRoot(
     SettingsScreen(
         preferencesState = preferencesState,
         homeScreenState = homeScreenState,
+        lastBackStackEntry = lastBackStackEntry,
         recentLangs = recentLangs,
         languageSearchStr = languageSearchStr,
         languageSearchQuery = languageSearchQuery,
@@ -169,6 +171,7 @@ fun SettingsScreenRoot(
 fun SettingsScreen(
     preferencesState: PreferencesState,
     homeScreenState: HomeScreenState,
+    lastBackStackEntry: HomeSubscreen,
     recentLangs: List<String>,
     languageSearchStr: String,
     languageSearchQuery: String,
@@ -333,9 +336,7 @@ fun SettingsScreen(
             setShowSheet = setShowLanguageSheet,
             setLang = {
                 onAction(SettingsAction.SaveLang(it))
-                if (homeScreenState.status != WRStatus.FEED_NETWORK_ERROR &&
-                    homeScreenState.status != WRStatus.FEED_LOADED
-                )
+                if (lastBackStackEntry is HomeSubscreen.Article)
                     onHomeAction(HomeAction.ReloadPage())
                 else
                     onHomeAction(HomeAction.LoadFeed())
@@ -707,6 +708,7 @@ fun SettingsPreview() {
         SettingsScreen(
             preferencesState = PreferencesState(),
             homeScreenState = HomeScreenState(),
+            lastBackStackEntry = HomeSubscreen.Logo,
             recentLangs = emptyList(),
             languageSearchStr = "",
             languageSearchQuery = "",
