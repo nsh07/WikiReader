@@ -24,11 +24,12 @@ sealed class HomeAction {
     ) : HomeAction()
 
     data class SetQuery(val text: String) : HomeAction()
+    data class ShowFeedErrorSnackBar(val errorString: String) : HomeAction()
     data class UpdateLanguageSearchStr(val str: String) : HomeAction()
     data class UpdateRef(val ref: String) : HomeAction()
     object FocusSearchBar : HomeAction()
     object HideRef : HomeAction()
     object LoadRandom : HomeAction()
     object ScrollToTop : HomeAction()
-    data class ShowFeedErrorSnackBar(val errorString: String) : HomeAction()
+    object StopAll : HomeAction()
 }

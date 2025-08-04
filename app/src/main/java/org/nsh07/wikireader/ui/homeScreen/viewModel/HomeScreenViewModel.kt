@@ -214,12 +214,15 @@ class HomeScreenViewModel(
                     action.errorString
                 )
             }
+
+            is HomeAction.StopAll -> stopAll()
         }
     }
 
-    fun stopAll() {
+    private fun stopAll() {
         loaderJob.cancel()
         fromLink = true
+        _homeScreenState.update { it.copy(isLoading = false) }
     }
 
     private suspend fun loadSearchResults(query: String) {

@@ -295,7 +295,7 @@ fun AppScreen(
                     if (uriQuery != null && !deepLinkHandled) {
                         deepLinkHandled = true
                         val lang = backStackEntry.arguments?.getString("lang")
-                        viewModel.stopAll()
+                        viewModel.onAction(HomeAction.StopAll)
                         delay(500) // Avoids a race condition where the hostname might not get updated in time
                         viewModel.onAction(HomeAction.LoadPage(uriQuery, lang = lang))
                     }

@@ -236,6 +236,10 @@ fun AppHomeScreen(
         SharedTransitionLayout {
             NavDisplay(
                 backStack = backStack,
+                onBack = {
+                    onAction(HomeAction.StopAll)
+                    repeat(it) { backStack.removeAt(backStack.lastIndex) }
+                },
                 transitionSpec = { fadeIn().togetherWith(fadeOut()) },
                 popTransitionSpec = { fadeIn().togetherWith(fadeOut()) },
                 predictivePopTransitionSpec = { fadeIn().togetherWith(fadeOut()) },
