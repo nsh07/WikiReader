@@ -416,18 +416,6 @@ class HomeScreenViewModel(
 
                     extractText.buildRefList() // Build refList for article
 
-                    backStack.add(
-                        HomeSubscreen.Article(
-                            title = apiResponse?.title ?: "Error",
-                            photo = apiResponse?.photo,
-                            photoDesc = apiResponse?.description,
-                            langs = apiResponse?.langs,
-                            currentLang = setLang,
-                            pageId = apiResponse?.pageId,
-                            savedStatus = saved
-                        )
-                    )
-
                     if (apiResponse != null)
                         viewModelScope.launch(Dispatchers.IO) {
                             if (preferencesState.value.browsingHistory)
@@ -454,17 +442,24 @@ class HomeScreenViewModel(
                             sectionIndex += 2
                         }
                         parsedExtract.add(parsed)
-                        if (backStack.last() is HomeSubscreen.Article) {
-                            backStack[backStack.lastIndex] =
-                                (backStack.last() as HomeSubscreen.Article).copy(
-                                    extract = parsedExtract,
-                                    sections = articleSections
-                                )
-                        }
                         _homeScreenState.update { currentState ->
                             currentState.copy(loadingProgress = currentSection.toFloat() / sections)
                         }
                     }
+
+                    backStack.add(
+                        HomeSubscreen.Article(
+                            title = apiResponse?.title ?: "Error",
+                            photo = apiResponse?.photo,
+                            photoDesc = apiResponse?.description,
+                            langs = apiResponse?.langs,
+                            currentLang = setLang,
+                            pageId = apiResponse?.pageId,
+                            savedStatus = saved,
+                            extract = parsedExtract,
+                            sections = articleSections
+                        )
+                    )
 
                     // Reset refList
                     refCount = 1
@@ -720,18 +715,6 @@ class HomeScreenViewModel(
 
                 extractText.buildRefList()
 
-                backStack.add(
-                    HomeSubscreen.Article(
-                        title = apiResponse?.title ?: "Error",
-                        photo = apiResponse?.photo,
-                        photoDesc = apiResponse?.description,
-                        langs = apiResponse?.langs,
-                        currentLang = preferencesState.value.lang,
-                        pageId = apiResponse?.pageId,
-                        savedStatus = SavedStatus.SAVED
-                    )
-                )
-
                 extract.forEachIndexed { index, it ->
                     currentSection = index + 1
                     val parsed = parseWikitext(it)
@@ -745,22 +728,24 @@ class HomeScreenViewModel(
                         sectionIndex += 2
                     }
                     parsedExtract.add(parsed)
-                    backStack[backStack.lastIndex] =
-                        HomeSubscreen.Article(
-                            title = apiResponse?.title ?: "Error",
-                            photo = apiResponse?.photo,
-                            photoDesc = apiResponse?.description,
-                            langs = apiResponse?.langs,
-                            currentLang = preferencesState.value.lang,
-                            pageId = apiResponse?.pageId,
-                            savedStatus = SavedStatus.SAVED,
-                            extract = parsedExtract,
-                            sections = articleSections
-                        )
                     _homeScreenState.update { currentState ->
                         currentState.copy(loadingProgress = currentSection.toFloat() / sections)
                     }
                 }
+
+                backStack.add(
+                    HomeSubscreen.Article(
+                        title = apiResponse?.title ?: "Error",
+                        photo = apiResponse?.photo,
+                        photoDesc = apiResponse?.description,
+                        langs = apiResponse?.langs,
+                        currentLang = preferencesState.value.lang,
+                        pageId = apiResponse?.pageId,
+                        savedStatus = SavedStatus.SAVED,
+                        extract = parsedExtract,
+                        sections = articleSections
+                    )
+                )
 
                 refCount = 1
                 refList.clear()
