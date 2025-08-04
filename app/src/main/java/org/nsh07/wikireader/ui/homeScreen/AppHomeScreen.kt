@@ -171,7 +171,7 @@ fun AppHomeScreen(
         ModalBottomSheet(
             onDismissRequest = { onAction(HomeAction.HideRef) },
         ) {
-            val content = (backStack.last() as HomeSubscreen.Article).ref
+            val content = homeScreenState.ref
             SelectionContainer {
                 Column(Modifier.padding(start = 24.dp, end = 24.dp, bottom = 24.dp)) {
                     Row(

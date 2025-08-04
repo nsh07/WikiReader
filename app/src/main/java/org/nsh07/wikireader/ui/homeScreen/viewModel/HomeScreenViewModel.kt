@@ -931,24 +931,20 @@ class HomeScreenViewModel(
         }
 
     private fun updateRef(ref: String) {
-        val lastIndex = backStack.lastIndex
-        if (backStack[lastIndex] is HomeSubscreen.Article) {
-            backStack[lastIndex] =
-                (backStack[lastIndex] as HomeSubscreen.Article).copy(
-                    ref = ref.toWikitextAnnotatedString(
-                        colorScheme = colorScheme,
-                        typography = typography,
-                        loadPage = {
-                            loadPage(it)
-                            hideRef()
-                        },
-                        fontSize = preferencesState.value.fontSize,
-                        showRef = ::updateRef
-                    )
+        _homeScreenState.update { currentState ->
+            currentState.copy(
+                showRef = true,
+                ref = ref.toWikitextAnnotatedString(
+                    colorScheme = colorScheme,
+                    typography = typography,
+                    loadPage = {
+                        loadPage(it)
+                        hideRef()
+                    },
+                    fontSize = preferencesState.value.fontSize,
+                    showRef = ::updateRef
                 )
-            _homeScreenState.update { currentState ->
-                currentState.copy(showRef = true)
-            }
+            )
         }
     }
 

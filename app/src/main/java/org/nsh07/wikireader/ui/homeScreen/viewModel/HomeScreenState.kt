@@ -26,13 +26,13 @@ data class AppSearchBarState(
 data class HomeScreenState(
     val isLoading: Boolean = false,
     val loadingProgress: Float? = null,
-    val showRef: Boolean = false
+    val showRef: Boolean = false,
+    val ref: AnnotatedString = AnnotatedString("")
 )
 
 sealed class HomeSubscreen {
     data class Article(
         val title: String = "",
-        val ref: AnnotatedString = AnnotatedString(""),
         val extract: List<List<AnnotatedString>> = emptyList(),
         val sections: List<Pair<Int, String>> = emptyList(),
         val listState: LazyListState = LazyListState(),

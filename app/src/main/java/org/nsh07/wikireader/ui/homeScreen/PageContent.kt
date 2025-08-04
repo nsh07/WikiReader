@@ -118,7 +118,7 @@ fun PageContent(
             modifier = modifier
                 .fillMaxSize()
         ) {
-            item { // Title + Image/description
+            item(key = content.title + "#--header--") { // Title + Image/description
                 with(sharedScope) {
                     SelectionContainer {
                         Column {
@@ -176,7 +176,7 @@ fun PageContent(
                     }
                 }
             }
-            item { // Main description
+            item(key = content.title + "#--desc--") { // Main description
                 if (content.extract.isNotEmpty())
                     SelectionContainer {
                         ParsedBodyText(
