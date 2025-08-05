@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -52,6 +51,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.carousel.rememberCarouselState
@@ -92,18 +92,15 @@ import org.nsh07.wikireader.ui.shimmer.FeedLoader
 /**
  * The main composable function for the app's home screen.
  *
+ * @param backStack The navigation back stack for the home screen, managing [HomeSubscreen]s.
  * @param homeScreenState The current state of the home screen, containing article data and UI status.
- * @param listState The [LazyListState] for the main article content.
  * @param preferencesState The current state of user preferences.
- * @param feedState The current state of the article feed.
  * @param recentLangs A list of recently used language codes.
  * @param floatingToolbarScrollBehaviour The [FloatingToolbarScrollBehavior] for the floating action toolbar.
- * @param feedListState The [LazyListState] for the article feed list.
  * @param imageLoader The app-wide [ImageLoader] used for loading images.
  * @param languageSearchStr The current search string for languages in the language bottom sheet.
  * @param languageSearchQuery The current search query for languages after debouncing.
  * @param showLanguageSheet A boolean indicating whether the language selection bottom sheet should be shown.
- * @param enableScrollButton A boolean indicating whether the scroll-to-top button should be enabled.
  * @param deepLinkHandled A boolean indicating if a deep link has been processed.
  * @param onImageClick A lambda function to be invoked when the main article image is clicked.
  * @param onGalleryImageClick A lambda function to be invoked when an image in the gallery is clicked.
@@ -352,7 +349,9 @@ fun AppHomeScreen(
             colors = FloatingToolbarDefaults.vibrantFloatingToolbarColors(),
             floatingActionButton = {
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                        TooltipAnchorPosition.Above
+                    ),
                     tooltip = { PlainTooltip { Text(stringResource(R.string.search)) } },
                     state = rememberTooltipState()
                 ) {
@@ -369,7 +368,9 @@ fun AppHomeScreen(
                 .offset(y = -(insets.calculateBottomPadding()))
         ) {
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                    TooltipAnchorPosition.Above
+                ),
                 tooltip = { PlainTooltip { Text(stringResource(R.string.settingWikipediaLanguage)) } },
                 state = rememberTooltipState()
             ) {
@@ -386,7 +387,9 @@ fun AppHomeScreen(
             }
 
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                    TooltipAnchorPosition.Above
+                ),
                 tooltip = { PlainTooltip { Text(stringResource(R.string.sharePage)) } },
                 state = rememberTooltipState()
             ) {
@@ -407,7 +410,9 @@ fun AppHomeScreen(
             }
 
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                    TooltipAnchorPosition.Above
+                ),
                 tooltip = {
                     PlainTooltip {
                         Text(
@@ -467,7 +472,9 @@ fun AppHomeScreen(
             }
 
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                    TooltipAnchorPosition.Above
+                ),
                 tooltip = { PlainTooltip { Text(stringResource(R.string.scroll_to_top)) } },
                 state = rememberTooltipState()
             ) {
@@ -483,7 +490,9 @@ fun AppHomeScreen(
             }
 
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                    TooltipAnchorPosition.Above
+                ),
                 tooltip = { PlainTooltip { Text(stringResource(R.string.randomArticle)) } },
                 state = rememberTooltipState()
             ) {
