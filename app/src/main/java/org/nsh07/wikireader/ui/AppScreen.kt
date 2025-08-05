@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ButtonDefaults
@@ -82,7 +81,6 @@ import kotlinx.serialization.Serializable
 import org.nsh07.wikireader.R.string
 import org.nsh07.wikireader.data.SearchHistoryItem
 import org.nsh07.wikireader.data.UserLanguage
-import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.ui.aboutScreen.AboutScreen
 import org.nsh07.wikireader.ui.historyScreen.HistoryScreenRoot
@@ -175,11 +173,7 @@ fun AppScreen(
 
     AppNavigationDrawer(
         state = railState,
-        feedSections = emptyList(),
-        homeScreenSections = emptyList(),
-        homeScreenStatus = WRStatus.FEED_LOADED,
-        listState = LazyListState(),
-        feedListState = LazyListState(),
+        homeBackStackEntry = backStack.last(),
         windowSizeClass = windowSizeClass,
         backStackEntry = navBackStackEntry,
         historyEnabled = preferencesState.browsingHistory,
