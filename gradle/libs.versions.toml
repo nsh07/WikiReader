@@ -1,5 +1,5 @@
 [versions]
-activityCompose = "1.10.1"
+activityCompose = "1.12.0-alpha01"
 adaptive = "1.1.0"
 agp = "8.11.1"
 coil = "3.2.0"
@@ -17,8 +17,8 @@ ksp = "2.2.0-2.0.2"
 latex2unicode_xX3 = "0.3.2"
 lifecycleRuntimeKtx = "2.9.1"
 lifecycleViewmodelCompose = "2.9.2"
-materialIconsCore = "1.7.8"
 materialKolor = "3.0.0"
+nav3Core = "1.0.0-alpha06"
 navigationCompose = "2.9.2"
 okhttp = "5.1.0"
 retrofit = "3.0.0"
@@ -39,9 +39,10 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
-androidx-material-icons-core = { module = "androidx.compose.material:material-icons-core", version.ref = "materialIconsCore" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
+androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }

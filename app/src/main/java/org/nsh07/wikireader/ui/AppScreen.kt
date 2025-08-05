@@ -1,7 +1,6 @@
 package org.nsh07.wikireader.ui
 
 import android.os.Build.VERSION.SDK_INT
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -45,7 +44,6 @@ import androidx.compose.material3.rememberWideNavigationRailState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -83,7 +81,6 @@ import kotlinx.serialization.Serializable
 import org.nsh07.wikireader.R.string
 import org.nsh07.wikireader.data.SearchHistoryItem
 import org.nsh07.wikireader.data.UserLanguage
-import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.ui.aboutScreen.AboutScreen
 import org.nsh07.wikireader.ui.historyScreen.HistoryScreenRoot
@@ -91,6 +88,7 @@ import org.nsh07.wikireader.ui.homeScreen.AppHomeScreen
 import org.nsh07.wikireader.ui.homeScreen.AppSearchBar
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeAction
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeScreenViewModel
+import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeSubscreen
 import org.nsh07.wikireader.ui.image.FullScreenImage
 import org.nsh07.wikireader.ui.savedArticlesScreen.SavedArticlesScreenRoot
 import org.nsh07.wikireader.ui.settingsScreen.SettingsScreenRoot
@@ -111,9 +109,9 @@ fun AppScreen(
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val appSearchBarState by viewModel.appSearchBarState.collectAsStateWithLifecycle()
     val homeScreenState by viewModel.homeScreenState.collectAsStateWithLifecycle()
-    val feedState by viewModel.feedState.collectAsStateWithLifecycle()
-    val listState = viewModel.articleListState
     val searchListState by viewModel.searchListState.collectAsStateWithLifecycle()
+
+    val backStack = viewModel.backStack
 
     val searchHistory by viewModel.searchHistoryFlow.collectAsState(emptyList())
     val recentLangs by viewModel.recentLangsFlow.collectAsStateWithLifecycle(emptyList())
@@ -128,7 +126,6 @@ fun AppScreen(
     )
 
     val searchBarState = rememberSearchBarState()
-    val feedListState = viewModel.feedListState
     val railState = rememberWideNavigationRailState()
     val languageSearchStr by viewModel.languageSearchStr.collectAsStateWithLifecycle()
     val languageSearchQuery by viewModel.languageSearchQuery.collectAsState("")
@@ -168,8 +165,6 @@ fun AppScreen(
 
     val snackBarHostState = viewModel.snackBarHostState
 
-    val index by remember { derivedStateOf { listState.firstVisibleItemIndex } }
-    val feedIndex by remember { derivedStateOf { feedListState.firstVisibleItemIndex } }
     val (showDeleteDialog, setShowDeleteDialog) = remember { mutableStateOf(false) }
     var historyItem: SearchHistoryItem? by remember { mutableStateOf(null) }
 
@@ -178,11 +173,7 @@ fun AppScreen(
 
     AppNavigationDrawer(
         state = railState,
-        feedSections = feedState.sections,
-        homeScreenSections = homeScreenState.sections,
-        homeScreenStatus = homeScreenState.status,
-        listState = listState,
-        feedListState = feedListState,
+        homeBackStackEntry = backStack.last(),
         windowSizeClass = windowSizeClass,
         backStackEntry = navBackStackEntry,
         historyEnabled = preferencesState.browsingHistory,
@@ -298,23 +289,11 @@ fun AppScreen(
                     if (uriQuery != null && !deepLinkHandled) {
                         deepLinkHandled = true
                         val lang = backStackEntry.arguments?.getString("lang")
-                        viewModel.stopAll()
+                        viewModel.onAction(HomeAction.StopAll)
                         delay(500) // Avoids a race condition where the hostname might not get updated in time
                         viewModel.onAction(HomeAction.LoadPage(uriQuery, lang = lang))
                     }
                 }
-
-                BackHandler(
-                    enabled = if (deepLinkHandled) {
-                        homeScreenState.backStackSize >= 1
-                    } else {
-                        homeScreenState.backStackSize != 0 ||
-                                (homeScreenState.status != WRStatus.FEED_LOADED &&
-                                        homeScreenState.status != WRStatus.FEED_NETWORK_ERROR &&
-                                        homeScreenState.status != WRStatus.UNINITIALIZED)
-                    },
-                    onBack = viewModel::loadPreviousPage
-                )
 
                 if (showDeleteDialog)
                     DeleteHistoryItemDialog(
@@ -380,29 +359,23 @@ fun AppScreen(
                             .nestedScroll(searchBarScrollBehavior.nestedScrollConnection)
                 ) { insets ->
                     AppHomeScreen(
+                        backStack = backStack,
                         homeScreenState = homeScreenState,
-                        listState = listState,
                         preferencesState = preferencesState,
-                        feedState = feedState,
                         recentLangs = recentLangs,
                         floatingToolbarScrollBehaviour = floatingToolbarScrollBehaviour,
-                        feedListState = feedListState,
                         imageLoader = imageLoader,
                         languageSearchStr = languageSearchStr,
                         languageSearchQuery = languageSearchQuery,
                         showLanguageSheet = showArticleLanguageSheet,
                         deepLinkHandled = deepLinkHandled,
-                        onImageClick = {
-                            if (homeScreenState.photo != null || homeScreenState.status == WRStatus.FEED_LOADED)
-                                navController.navigate(FullScreenImage())
-                        },
+                        onImageClick = { navController.navigate(FullScreenImage()) },
                         onGalleryImageClick = { uri, desc ->
                             navController.navigate(FullScreenImage(uri, desc))
                         },
                         onAction = viewModel::onAction,
                         onSettingsAction = settingsViewModel::onAction,
                         setShowArticleLanguageSheet = { showArticleLanguageSheet = it },
-                        enableScrollButton = if (homeScreenState.status != WRStatus.FEED_LOADED) index >= 1 else feedIndex >= 1,
                         insets = insets,
                         windowSizeClass = windowSizeClass,
                         modifier = Modifier.fillMaxSize()
@@ -417,29 +390,31 @@ fun AppScreen(
                 val description = it.toRoute<FullScreenImage>().description
 
                 if (uri == null) {
-                    if (homeScreenState.status != WRStatus.FEED_LOADED) {
-                        if (homeScreenState.photo == null) navController.navigateUp()
+                    if (backStack.last() is HomeSubscreen.Article) {
+                        val content = backStack.last() as HomeSubscreen.Article
+                        if (content.photo == null) navController.navigateUp()
                         FullScreenImage(
-                            photo = homeScreenState.photo,
-                            photoDesc = homeScreenState.photoDesc,
-                            title = homeScreenState.title,
+                            photo = content.photo,
+                            photoDesc = content.photoDesc,
+                            title = content.title,
                             imageLoader = imageLoader,
                             background = preferencesState.imageBackground,
-                            link = homeScreenState.photo?.source,
+                            link = content.photo?.source,
                             onBack = navController::navigateUp
                         )
-                    } else {
+                    } else if (backStack.last() is HomeSubscreen.Feed) {
+                        val content = backStack.last() as HomeSubscreen.Feed
                         FullScreenImage(
                             photo = WikiPhoto(
-                                source = feedState.image?.thumbnail?.source ?: "",
-                                width = feedState.image?.thumbnail?.width ?: 1,
-                                height = feedState.image?.thumbnail?.height ?: 1
+                                source = content.image?.thumbnail?.source ?: "",
+                                width = content.image?.thumbnail?.width ?: 1,
+                                height = content.image?.thumbnail?.height ?: 1
                             ),
-                            photoDesc = feedState.image?.description?.text?.parseAsHtml()
+                            photoDesc = content.image?.description?.text?.parseAsHtml()
                                 .toString(),
-                            title = feedState.image?.title ?: "",
+                            title = content.image?.title ?: "",
                             imageLoader = imageLoader,
-                            link = feedState.image?.filePage,
+                            link = content.image?.filePage,
                             background = preferencesState.imageBackground,
                             onBack = navController::navigateUp
                         )
@@ -484,6 +459,7 @@ fun AppScreen(
                 SettingsScreenRoot(
                     preferencesState = preferencesState,
                     homeScreenState = homeScreenState,
+                    lastBackStackEntry = backStack.last(),
                     recentLangs = recentLangs,
                     languageSearchStr = languageSearchStr,
                     languageSearchQuery = languageSearchQuery,

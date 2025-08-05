@@ -27,9 +27,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroupDefaults
@@ -80,11 +77,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.R.string
-import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.toColor
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeAction
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeScreenState
+import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeSubscreen
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsAction
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsViewModel
@@ -100,6 +97,7 @@ import kotlin.math.round
 fun SettingsScreenRoot(
     preferencesState: PreferencesState,
     homeScreenState: HomeScreenState,
+    lastBackStackEntry: HomeSubscreen,
     recentLangs: List<String>,
     languageSearchStr: String,
     languageSearchQuery: String,
@@ -149,6 +147,7 @@ fun SettingsScreenRoot(
     SettingsScreen(
         preferencesState = preferencesState,
         homeScreenState = homeScreenState,
+        lastBackStackEntry = lastBackStackEntry,
         recentLangs = recentLangs,
         languageSearchStr = languageSearchStr,
         languageSearchQuery = languageSearchQuery,
@@ -169,6 +168,7 @@ fun SettingsScreenRoot(
 fun SettingsScreen(
     preferencesState: PreferencesState,
     homeScreenState: HomeScreenState,
+    lastBackStackEntry: HomeSubscreen,
     recentLangs: List<String>,
     languageSearchStr: String,
     languageSearchQuery: String,
@@ -333,9 +333,7 @@ fun SettingsScreen(
             setShowSheet = setShowLanguageSheet,
             setLang = {
                 onAction(SettingsAction.SaveLang(it))
-                if (homeScreenState.status != WRStatus.FEED_NETWORK_ERROR &&
-                    homeScreenState.status != WRStatus.FEED_LOADED
-                )
+                if (lastBackStackEntry is HomeSubscreen.Article)
                     onHomeAction(HomeAction.ReloadPage())
                 else
                     onHomeAction(HomeAction.LoadFeed())
@@ -419,7 +417,7 @@ fun SettingsScreen(
                             thumbContent = {
                                 if (switchItems[0].checked) {
                                     Icon(
-                                        imageVector = Icons.Outlined.Check,
+                                        painter = painterResource(R.drawable.check),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
                                     )
@@ -516,7 +514,12 @@ fun SettingsScreen(
                                         exit = scaleOut(motionScheme.fastSpatialSpec()) +
                                                 shrinkHorizontally(motionScheme.fastSpatialSpec()) +
                                                 fadeOut(motionScheme.fastEffectsSpec())
-                                    ) { Icon(Icons.Outlined.Check, contentDescription = null) }
+                                    ) {
+                                        Icon(
+                                            painterResource(R.drawable.check),
+                                            contentDescription = null
+                                        )
+                                    }
                                     Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                                     Text(label)
                                 }
@@ -578,7 +581,7 @@ fun SettingsScreen(
                             thumbContent = {
                                 if (item.checked && item.enabled) {
                                     Icon(
-                                        imageVector = Icons.Outlined.Check,
+                                        painter = painterResource(R.drawable.check),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
                                     )
@@ -623,7 +626,7 @@ fun SettingsScreen(
                                     .size(24.dp)
                             )
                             Icon(
-                                Icons.Outlined.Info,
+                                painterResource(R.drawable.filled_info),
                                 tint = colorScheme.onSecondaryContainer,
                                 contentDescription = stringResource(string.information),
                                 modifier = Modifier.size(24.dp)
@@ -707,6 +710,7 @@ fun SettingsPreview() {
         SettingsScreen(
             preferencesState = PreferencesState(),
             homeScreenState = HomeScreenState(),
+            lastBackStackEntry = HomeSubscreen.Logo,
             recentLangs = emptyList(),
             languageSearchStr = "",
             languageSearchQuery = "",

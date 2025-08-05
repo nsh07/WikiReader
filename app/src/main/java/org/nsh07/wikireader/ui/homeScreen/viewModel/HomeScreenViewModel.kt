@@ -10,6 +10,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.util.fastAny
@@ -75,14 +76,13 @@ class HomeScreenViewModel(
     private val _appSearchBarState = MutableStateFlow(AppSearchBarState())
     val appSearchBarState: StateFlow<AppSearchBarState> = _appSearchBarState.asStateFlow()
 
+    val backStack = mutableStateListOf<HomeSubscreen>(HomeSubscreen.FeedLoader)
+
     private val _homeScreenState = MutableStateFlow(HomeScreenState())
     val homeScreenState: StateFlow<HomeScreenState> = _homeScreenState.asStateFlow()
 
     private val preferencesState: StateFlow<PreferencesState> =
         preferencesStateMutableFlow.asStateFlow()
-
-    private val _feedState = MutableStateFlow(FeedState())
-    val feedState: StateFlow<FeedState> = _feedState.asStateFlow()
 
     private val _searchListState = MutableStateFlow(LazyListState(0, 0))
 
@@ -94,9 +94,6 @@ class HomeScreenViewModel(
     val textFieldState: TextFieldState = TextFieldState()
     val snackBarHostState: SnackbarHostState = SnackbarHostState()
 
-    val articleListState = LazyListState(0, 0)
-    val feedListState = LazyListState(0, 0)
-
     val searchHistoryFlow = appDatabaseRepository.getSearchHistory().distinctUntilChanged()
     val recentLangsFlow = appDatabaseRepository.getRecentLanguages().distinctUntilChanged()
     val userLangsFlow = appDatabaseRepository.getUserLanguages().distinctUntilChanged()
@@ -104,7 +101,6 @@ class HomeScreenViewModel(
     @OptIn(FlowPreview::class)
     val languageSearchQuery = languageSearchStr.debounce(500L)
 
-    internal val backStack = ArrayDeque<Pair<String?, Pair<Int, Int>>>()
     var lastQuery: Pair<String, String>? = null
     private var filesDir: String = ""
     private var loaderJob = Job()
@@ -156,12 +152,11 @@ class HomeScreenViewModel(
                 insertUserLanguage(action.userLanguage)
             }
 
-            is HomeAction.LoadFeed -> loadFeed(action.fromBack)
+            is HomeAction.LoadFeed -> loadFeed()
             is HomeAction.LoadPage -> loadPage(
                 title = action.title,
                 lang = action.lang,
-                random = action.random,
-                listStatePair = action.listStatePair
+                random = action.random
             )
 
             is HomeAction.LoadSavedArticle -> viewModelScope.launch {
@@ -173,22 +168,25 @@ class HomeScreenViewModel(
             is HomeAction.MarkUserLanguageSelected -> markUserLanguageSelected(action.lang)
             is HomeAction.ReloadPage -> reloadPage(action.persistLang)
             is HomeAction.SaveArticle -> viewModelScope.launch {
-                if (homeScreenState.value.savedStatus == SavedStatus.NOT_SAVED) {
-                    val status = saveArticle()
-                    if (status != WRStatus.SUCCESS)
-                        snackBarHostState.showSnackbar(
-                            String.format(action.unableToSaveError, status.name)
+                if (backStack.last() is HomeSubscreen.Article) {
+                    val last = backStack.last() as HomeSubscreen.Article
+                    if (last.savedStatus == SavedStatus.NOT_SAVED) {
+                        val status = saveArticle()
+                        if (status != WRStatus.SUCCESS)
+                            snackBarHostState.showSnackbar(
+                                String.format(action.unableToSaveError, status.name)
+                            )
+                        delay(150L)
+                    } else if (last.savedStatus == SavedStatus.SAVED) {
+                        val status = deleteArticle(
+                            pageId = last.pageId ?: 0,
+                            lang = preferencesState.value.lang
                         )
-                    delay(150L)
-                } else if (homeScreenState.value.savedStatus == SavedStatus.SAVED) {
-                    val status = deleteArticle(
-                        pageId = homeScreenState.value.pageId ?: 0,
-                        lang = preferencesState.value.lang
-                    )
-                    if (status != WRStatus.SUCCESS)
-                        snackBarHostState.showSnackbar(
-                            String.format(action.unableToDeleteError, status.name)
-                        )
+                        if (status != WRStatus.SUCCESS)
+                            snackBarHostState.showSnackbar(
+                                String.format(action.unableToDeleteError, status.name)
+                            )
+                    }
                 }
             }
 
@@ -203,45 +201,28 @@ class HomeScreenViewModel(
             is HomeAction.HideRef -> hideRef()
             is HomeAction.LoadRandom -> loadPage(title = null, random = true)
             is HomeAction.ScrollToTop -> viewModelScope.launch {
-                if (homeScreenState.value.status != WRStatus.FEED_LOADED)
-                    articleListState.scrollToItem(0)
-                else
-                    feedListState.scrollToItem(0)
+                if (backStack.last() is HomeSubscreen.Article)
+                    (backStack[backStack.lastIndex] as HomeSubscreen.Article).listState.scrollToItem(
+                        0
+                    )
+                else if (backStack.last() is HomeSubscreen.Feed)
+                    (backStack[backStack.lastIndex] as HomeSubscreen.Feed).listState.scrollToItem(0)
             }
 
             is HomeAction.ShowFeedErrorSnackBar -> viewModelScope.launch {
                 snackBarHostState.showSnackbar(
-                    String.format(action.errorString, homeScreenState.value.status.name)
+                    action.errorString
                 )
             }
+
+            is HomeAction.StopAll -> stopAll()
         }
     }
 
-    private fun pushBackstack(
-        title: String?,
-        firstVisibleItemIndex: Int,
-        firstVisibleItemScrollOffset: Int
-    ) {
-        backStack.addLast(Pair(title, Pair(firstVisibleItemIndex, firstVisibleItemScrollOffset)))
-        if (backStack.size > 16) backStack.removeFirst()
-    }
-
-    fun stopAll() {
+    private fun stopAll() {
         loaderJob.cancel()
         fromLink = true
-    }
-
-    fun loadPreviousPage() {
-        val popped = backStack.removeLastOrNull()
-        if (popped?.first != null) {
-            loadPage(title = popped.first, listStatePair = popped.second)
-        } else {
-            backStack.clear()
-            loadFeed(true)
-            _homeScreenState.update { currentState ->
-                currentState.copy(backStackSize = 0)
-            }
-        }
+        _homeScreenState.update { it.copy(isLoading = false) }
     }
 
     private suspend fun loadSearchResults(query: String) {
@@ -328,16 +309,15 @@ class HomeScreenViewModel(
                                 title = if (appSearchBarState.value.prefixSearchResults!!.isEmpty())
                                     appSearchBarState.value.searchResults!![0].title
                                 else appSearchBarState.value.prefixSearchResults!![0].title,
-                                lang = setLang,
-                                listStatePair = listStatePair
+                                lang = setLang
                             )
                         else throw NetworkException()
                     } else
                         loadPage(title = null, random = true)
                 } catch (e: Exception) {
                     if (e is NetworkException) {
-                        _homeScreenState.update { currentState ->
-                            currentState.copy(
+                        backStack.add(
+                            HomeSubscreen.Article(
                                 title = "Error",
                                 extract = listOf(
                                     "An error occurred :(\n" +
@@ -347,16 +327,16 @@ class HomeScreenViewModel(
                                 photoDesc = null,
                                 langs = null,
                                 currentLang = setLang,
-                                status = WRStatus.NO_SEARCH_RESULT,
                                 pageId = null,
-                                isLoading = false,
-                                backStackSize = backStack.size,
                                 savedStatus = SavedStatus.NOT_SAVED
                             )
+                        )
+                        _homeScreenState.update { currentState ->
+                            currentState.copy(isLoading = false)
                         }
                     } else {
-                        _homeScreenState.update { currentState ->
-                            currentState.copy(
+                        backStack.add(
+                            HomeSubscreen.Article(
                                 title = "Error",
                                 extract = listOf("No search results found for $q").map {
                                     parseWikitext(it)
@@ -365,12 +345,12 @@ class HomeScreenViewModel(
                                 photoDesc = null,
                                 langs = null,
                                 currentLang = setLang,
-                                status = WRStatus.NO_SEARCH_RESULT,
                                 pageId = null,
-                                isLoading = false,
-                                backStackSize = backStack.size,
                                 savedStatus = SavedStatus.NOT_SAVED
                             )
+                        )
+                        _homeScreenState.update { currentState ->
+                            currentState.copy(isLoading = false)
                         }
                     }
                 }
@@ -386,8 +366,7 @@ class HomeScreenViewModel(
     private fun loadPage(
         title: String?,
         lang: String? = null,
-        random: Boolean = false,
-        listStatePair: Pair<Int, Int>? = null
+        random: Boolean = false
     ) {
         loaderJob.cancel()
         viewModelScope.launch(loaderJob) {
@@ -424,29 +403,11 @@ class HomeScreenViewModel(
                         wikipediaRepository.getPageContent(apiResponse.title)
                     else ""
                     val extract: List<String> = parseSections(extractText)
-                    val status: WRStatus = WRStatus.SUCCESS
 
                     val saved =
                         if (appDatabaseRepository.isArticleSaved(apiResponse?.pageId ?: 0, setLang))
                             SavedStatus.SAVED
                         else SavedStatus.NOT_SAVED
-
-                    if (
-                        listStatePair == null &&
-                        homeScreenState.value.status != WRStatus.FEED_LOADED &&
-                        homeScreenState.value.status != WRStatus.FEED_NETWORK_ERROR &&
-                        homeScreenState.value.status != WRStatus.UNINITIALIZED
-                    ) {
-                        val articleState = articleListState
-                        pushBackstack(
-                            title = homeScreenState.value.title,
-                            firstVisibleItemIndex = articleState.firstVisibleItemIndex,
-                            firstVisibleItemScrollOffset = articleState.firstVisibleItemScrollOffset
-                        )
-                    }
-
-                    if (homeScreenState.value.status == WRStatus.SUCCESS)
-                        articleListState.scrollToItem(0, 0)
 
                     sections = extract.size
                     var sectionIndex = 3
@@ -454,20 +415,6 @@ class HomeScreenViewModel(
                     val parsedExtract = mutableListOf<List<AnnotatedString>>()
 
                     extractText.buildRefList() // Build refList for article
-
-                    _homeScreenState.update { currentState ->
-                        currentState.copy(
-                            title = apiResponse?.title ?: "Error",
-                            photo = apiResponse?.photo,
-                            photoDesc = apiResponse?.description,
-                            langs = apiResponse?.langs,
-                            currentLang = setLang,
-                            status = status,
-                            pageId = apiResponse?.pageId,
-                            backStackSize = backStack.size,
-                            savedStatus = saved
-                        )
-                    }
 
                     if (apiResponse != null)
                         viewModelScope.launch(Dispatchers.IO) {
@@ -496,13 +443,23 @@ class HomeScreenViewModel(
                         }
                         parsedExtract.add(parsed)
                         _homeScreenState.update { currentState ->
-                            currentState.copy(
-                                loadingProgress = currentSection.toFloat() / sections,
-                                extract = parsedExtract,
-                                sections = articleSections
-                            )
+                            currentState.copy(loadingProgress = currentSection.toFloat() / sections)
                         }
                     }
+
+                    backStack.add(
+                        HomeSubscreen.Article(
+                            title = apiResponse?.title ?: "Error",
+                            photo = apiResponse?.photo,
+                            photoDesc = apiResponse?.description,
+                            langs = apiResponse?.langs,
+                            currentLang = setLang,
+                            pageId = apiResponse?.pageId,
+                            savedStatus = saved,
+                            extract = parsedExtract,
+                            sections = articleSections
+                        )
+                    )
 
                     // Reset refList
                     refCount = 1
@@ -512,14 +469,11 @@ class HomeScreenViewModel(
                     _homeScreenState.update { currentState ->
                         currentState.copy(isLoading = false)
                     }
-
-                    if (listStatePair != null && homeScreenState.value.status == WRStatus.SUCCESS)
-                        articleListState.scrollToItem(listStatePair.first, listStatePair.second)
                 } catch (e: Exception) {
                     Log.e("ViewModel", "Error in fetching results: ${e.message}")
                     e.printStackTrace()
-                    _homeScreenState.update { currentState ->
-                        currentState.copy(
+                    backStack.add(
+                        HomeSubscreen.Article(
                             title = "Error",
                             extract = if (e.message?.contains("404") == true) {
                                 listOf("No article with title $title")
@@ -537,12 +491,10 @@ class HomeScreenViewModel(
                             currentLang = null,
                             photo = null,
                             photoDesc = null,
-                            status = WRStatus.NETWORK_ERROR,
                             pageId = null,
-                            isLoading = false,
                             savedStatus = SavedStatus.NOT_SAVED
                         )
-                    }
+                    )
                 }
 
                 if (lang != null)
@@ -550,20 +502,20 @@ class HomeScreenViewModel(
                         currentState.copy(lang = lang)
                     }
             } else {
-                _homeScreenState.update { currentState ->
-                    currentState.copy(
+                backStack.add(
+                    HomeSubscreen.Article(
                         title = "Error",
                         extract = listOf("Null search query").map { parseWikitext(it) },
                         photo = null,
                         photoDesc = null,
                         langs = null,
                         currentLang = setLang,
-                        status = WRStatus.OTHER,
                         pageId = null,
-                        isLoading = false,
-                        backStackSize = backStack.size,
                         savedStatus = SavedStatus.NOT_SAVED
                     )
+                )
+                _homeScreenState.update { currentState ->
+                    currentState.copy(isLoading = false)
                 }
             }
         }
@@ -593,7 +545,7 @@ class HomeScreenViewModel(
      * If an error is encountered, app status is set to [WRStatus.FEED_NETWORK_ERROR] and home screen
      * text is updated to the error
      */
-    private fun loadFeed(fromBack: Boolean = false) {
+    private fun loadFeed() {
         viewModelScope.launch(loaderJob) {
             if (!preferencesState.value.dataSaver && preferencesState.value.feedEnabled) {
                 _homeScreenState.update { currentState ->
@@ -601,88 +553,55 @@ class HomeScreenViewModel(
                 }
 
                 try {
-                    val feed = wikipediaRepository.getFeed()
+                    val feedData = wikipediaRepository.getFeed()
                     val sections = mutableListOf<Pair<Int, FeedSection>>()
                     var currentSection = 0
 
-                    _feedState.update { currentState ->
-                        currentState.copy(
-                            tfa = feed.tfa,
-                            mostReadArticles = feed.mostRead?.articles?.sortedBy { it.rank },
-                            image = feed.image,
-                            news = feed.news,
-                            onThisDay = feed.onThisDay
-                        )
-                    }
+                    var feed = HomeSubscreen.Feed(
+                        tfa = feedData.tfa,
+                        mostReadArticles = feedData.mostRead?.articles?.sortedBy { it.rank },
+                        image = feedData.image,
+                        news = feedData.news,
+                        onThisDay = feedData.onThisDay
+                    )
 
-                    if (feedState.value.tfa != null) {
+                    if (feed.tfa != null) {
                         sections.add(Pair(currentSection, FeedSection.TFA))
                         currentSection++
                     }
-                    if (feedState.value.mostReadArticles != null) {
+                    if (feed.mostReadArticles != null) {
                         sections.add(Pair(currentSection, FeedSection.MOST_READ))
                         currentSection++
                     }
-                    if (feedState.value.image != null) {
+                    if (feed.image != null) {
                         sections.add(Pair(currentSection, FeedSection.IMAGE))
                         currentSection++
                     }
-                    if (feedState.value.news != null) {
+                    if (feed.news != null) {
                         sections.add(Pair(currentSection, FeedSection.NEWS))
                         currentSection++
                     }
-                    if (feedState.value.onThisDay != null) {
+                    if (feed.onThisDay != null) {
                         sections.add(Pair(currentSection, FeedSection.ON_THIS_DAY))
                     }
 
-                    _feedState.update { currentState ->
-                        currentState.copy(sections = sections)
-                    }
+                    feed = feed.copy(sections = sections)
 
-                    if (!listOf(
-                            WRStatus.SUCCESS,
-                            WRStatus.NO_SEARCH_RESULT,
-                            WRStatus.NETWORK_ERROR
-                        ).contains(homeScreenState.value.status) || fromBack
-                    ) _homeScreenState.update { currentState ->
-                        currentState.copy(
-                            isLoading = false,
-                            status = WRStatus.FEED_LOADED
-                        )
-                    }
-                    else _homeScreenState.update { currentState ->
+                    backStack[0] = feed
+                    if (backStack.size > 1) backStack.removeRange(1, backStack.size)
+
+                    _homeScreenState.update { currentState ->
                         currentState.copy(isLoading = false)
                     }
                 } catch (e: Exception) {
                     Log.e("ViewModel", "Error in loading feed: ${e.message}")
+                    backStack[0] = HomeSubscreen.Logo
                     _homeScreenState.update { currentState ->
-                        currentState.copy(
-                            title = "Error",
-                            extract = listOf(
-                                listOf(
-                                    buildAnnotatedString {
-                                        append(
-                                            "An error occurred, feed could not be loaded :(\nPlease " +
-                                                    "check your internet connection"
-                                        )
-                                    }
-                                )
-                            ),
-                            langs = null,
-                            currentLang = null,
-                            photo = null,
-                            photoDesc = null,
-                            status = WRStatus.FEED_NETWORK_ERROR,
-                            pageId = null,
-                            isLoading = false,
-                            savedStatus = SavedStatus.NOT_SAVED
-                        )
+                        currentState.copy(isLoading = false)
                     }
                 }
             } else {
-                _homeScreenState.update { currentState ->
-                    currentState.copy(status = WRStatus.UNINITIALIZED)
-                }
+                backStack[0] = HomeSubscreen.Logo
             }
         }
     }
@@ -696,19 +615,18 @@ class HomeScreenViewModel(
         title: String? = null,
         lang: String? = null
     ): WRStatus {
-        if (homeScreenState.value.status == WRStatus.UNINITIALIZED && title == null) {
-            Log.e("ViewModel", "Cannot save article, HomeScreenState not initialized")
-            return WRStatus.OTHER
-        }
-
         val currentLang = lang ?: preferencesState.value.lang
         interceptor.setHost("${currentLang}.wikipedia.org")
 
         try {
-            _homeScreenState.update { currentState ->
-                currentState.copy(savedStatus = SavedStatus.SAVING)
-            }
-            val pageTitle = title ?: homeScreenState.value.title
+            val lastIndex = backStack.lastIndex
+
+            if (backStack[lastIndex] !is HomeSubscreen.Article) throw TypeCastException("BackStack entry is not an article")
+
+            backStack[lastIndex] =
+                (backStack[lastIndex] as HomeSubscreen.Article).copy(savedStatus = SavedStatus.SAVING)
+
+            val pageTitle = title ?: (backStack[lastIndex] as HomeSubscreen.Article).title
             val apiResponse = wikipediaRepository
                 .getPageData(pageTitle)
 
@@ -737,16 +655,15 @@ class HomeScreenViewModel(
                 )
             )
 
-            if (title == null) _homeScreenState.update { currentState ->
-                currentState.copy(savedStatus = SavedStatus.SAVED)
-            }
+            backStack[lastIndex] =
+                (backStack[lastIndex] as HomeSubscreen.Article).copy(savedStatus = SavedStatus.SAVED)
+
             return WRStatus.SUCCESS
         } catch (e: Exception) {
             Log.e("ViewModel", "Cannot save article, network error")
             e.printStackTrace()
-            _homeScreenState.update { currentState ->
-                currentState.copy(savedStatus = SavedStatus.NOT_SAVED)
-            }
+            if (e !is TypeCastException) backStack[backStack.lastIndex] =
+                (backStack.last() as HomeSubscreen.Article).copy(savedStatus = SavedStatus.NOT_SAVED)
             interceptor.setHost("${preferencesState.value.lang}.wikipedia.org")
             return WRStatus.NETWORK_ERROR
         }
@@ -758,16 +675,11 @@ class HomeScreenViewModel(
      * @return A [WRStatus] enum value indicating the status of the delete operation
      */
     private fun deleteArticle(pageId: Int, lang: String): WRStatus {
-        if (homeScreenState.value.status == WRStatus.UNINITIALIZED) {
-            Log.e("ViewModel", "Cannot delete article, HomeScreenState is uninitialized")
-            return WRStatus.OTHER
-        }
-
         viewModelScope.launch(Dispatchers.IO) {
             appDatabaseRepository.deleteSavedArticle(pageId, lang)
-            _homeScreenState.update { currentState ->
-                currentState.copy(savedStatus = SavedStatus.NOT_SAVED)
-            }
+            val lastIndex = backStack.lastIndex
+            if (backStack[lastIndex] is HomeSubscreen.Article) backStack[lastIndex] =
+                (backStack[lastIndex] as HomeSubscreen.Article).copy(savedStatus = SavedStatus.NOT_SAVED)
         }
 
         return WRStatus.SUCCESS
@@ -795,15 +707,6 @@ class HomeScreenViewModel(
                 val articleSections = mutableListOf<Pair<Int, String>>()
                 val parsedExtract = mutableListOf<List<AnnotatedString>>()
 
-                val articleState = articleListState
-                pushBackstack(
-                    title = homeScreenState.value.title,
-                    firstVisibleItemIndex = articleState.firstVisibleItemIndex,
-                    firstVisibleItemScrollOffset = articleState.firstVisibleItemScrollOffset
-                )
-                if (homeScreenState.value.status == WRStatus.SUCCESS)
-                    articleListState.scrollToItem(0, 0)
-
                 preferencesStateMutableFlow.update { currentState ->
                     currentState.copy(
                         lang = savedArticle.lang
@@ -811,20 +714,6 @@ class HomeScreenViewModel(
                 }
 
                 extractText.buildRefList()
-
-                _homeScreenState.update { currentState ->
-                    currentState.copy(
-                        title = apiResponse?.title ?: "Error",
-                        photo = apiResponse?.photo,
-                        photoDesc = apiResponse?.description,
-                        langs = apiResponse?.langs,
-                        currentLang = preferencesState.value.lang,
-                        pageId = apiResponse?.pageId,
-                        backStackSize = backStack.size,
-                        status = WRStatus.SUCCESS,
-                        savedStatus = SavedStatus.SAVED
-                    )
-                }
 
                 extract.forEachIndexed { index, it ->
                     currentSection = index + 1
@@ -840,13 +729,23 @@ class HomeScreenViewModel(
                     }
                     parsedExtract.add(parsed)
                     _homeScreenState.update { currentState ->
-                        currentState.copy(
-                            loadingProgress = currentSection.toFloat() / sections,
-                            extract = parsedExtract,
-                            sections = articleSections
-                        )
+                        currentState.copy(loadingProgress = currentSection.toFloat() / sections)
                     }
                 }
+
+                backStack.add(
+                    HomeSubscreen.Article(
+                        title = apiResponse?.title ?: "Error",
+                        photo = apiResponse?.photo,
+                        photoDesc = apiResponse?.description,
+                        langs = apiResponse?.langs,
+                        currentLang = preferencesState.value.lang,
+                        pageId = apiResponse?.pageId,
+                        savedStatus = SavedStatus.SAVED,
+                        extract = parsedExtract,
+                        sections = articleSections
+                    )
+                )
 
                 refCount = 1
                 refList.clear()
@@ -1034,6 +933,7 @@ class HomeScreenViewModel(
     private fun updateRef(ref: String) {
         _homeScreenState.update { currentState ->
             currentState.copy(
+                showRef = true,
                 ref = ref.toWikitextAnnotatedString(
                     colorScheme = colorScheme,
                     typography = typography,
@@ -1043,8 +943,7 @@ class HomeScreenViewModel(
                     },
                     fontSize = preferencesState.value.fontSize,
                     showRef = ::updateRef
-                ),
-                showRef = true
+                )
             )
         }
     }

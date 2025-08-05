@@ -1,8 +1,6 @@
 package org.nsh07.wikireader.ui.image
 
 import android.content.Intent
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -66,7 +64,7 @@ fun FullScreenImageTopBar(
         navigationIcon = {
             IconButton(shapes = IconButtonDefaults.shapes(), onClick = onBack) {
                 Icon(
-                    Icons.AutoMirrored.Outlined.ArrowBack,
+                    painterResource(R.drawable.arrow_back),
                     contentDescription = stringResource(R.string.back)
                 )
             }

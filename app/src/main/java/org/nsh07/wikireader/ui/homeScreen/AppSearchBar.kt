@@ -36,11 +36,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.Clear
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExpandedFullScreenSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -182,7 +177,7 @@ fun AppSearchBar(
                     }
                 },
                 trailingIcon =
-                    if (textFieldState.text != "") {
+                    if (textFieldState.text.isNotEmpty()) {
                         {
                             IconButton(
                                 shapes = IconButtonDefaults.shapes(),
@@ -192,7 +187,7 @@ fun AppSearchBar(
                                 }
                             ) {
                                 Icon(
-                                    Icons.Outlined.Clear,
+                                    painterResource(R.drawable.clear),
                                     contentDescription = stringResource(R.string.clearSearchField)
                                 )
                             }
@@ -261,7 +256,7 @@ fun AppSearchBar(
                             }
                         ) {
                             Icon(
-                                Icons.Outlined.Search,
+                                painterResource(R.drawable.search),
                                 contentDescription = null
                             )
                         }
@@ -439,7 +434,7 @@ fun AppSearchBar(
                                                         if (filterOption.selected) {
                                                             {
                                                                 Icon(
-                                                                    Icons.Outlined.Check,
+                                                                    painterResource(R.drawable.check),
                                                                     contentDescription = null
                                                                 )
                                                             }
@@ -488,7 +483,10 @@ fun AppSearchBar(
                                             onClick = { setShowLanguageSheet(true) },
                                             label = {},
                                             leadingIcon = {
-                                                Icon(Icons.Outlined.Add, "Add language")
+                                                Icon(
+                                                    painterResource(R.drawable.add),
+                                                    "Add language"
+                                                )
                                             },
                                             selected = false,
                                             modifier = Modifier.width(40.dp)
@@ -640,7 +638,7 @@ fun AppSearchBar(
                                                     if (filterOption.selected) {
                                                         {
                                                             Icon(
-                                                                Icons.Outlined.Check,
+                                                                painterResource(R.drawable.check),
                                                                 contentDescription = null
                                                             )
                                                         }
@@ -689,7 +687,7 @@ fun AppSearchBar(
                                         onClick = { setShowLanguageSheet(true) },
                                         label = {},
                                         leadingIcon = {
-                                            Icon(Icons.Outlined.Add, "Add language")
+                                            Icon(painterResource(R.drawable.add), "Add language")
                                         },
                                         selected = false,
                                         modifier = Modifier.width(40.dp)

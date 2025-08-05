@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -111,7 +109,7 @@ fun AboutScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     ListItem(
                         leadingContent = {
-                            Icon(Icons.Outlined.Info, null)
+                            Icon(painterResource(R.drawable.outline_info), null)
                         },
                         headlineContent = { Text(stringResource(R.string.version)) },
                         supportingContent = { Text(BuildConfig.VERSION_NAME) },

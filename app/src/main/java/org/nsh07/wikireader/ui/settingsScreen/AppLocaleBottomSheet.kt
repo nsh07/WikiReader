@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -34,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFilter
@@ -110,7 +109,7 @@ fun AppLocaleBottomSheet(
                             trailingContent = {
                                 if (currentLocales.isEmpty)
                                     Icon(
-                                        Icons.Outlined.Check,
+                                        painterResource(R.drawable.check),
                                         contentDescription = stringResource(R.string.selectedLabel)
                                     )
                             },
@@ -148,7 +147,7 @@ fun AppLocaleBottomSheet(
                             trailingContent = {
                                 if (!currentLocales.isEmpty && it.locale == currentLocales.get(0))
                                     Icon(
-                                        Icons.Outlined.Check,
+                                        painterResource(R.drawable.check),
                                         tint = colorScheme.primary,
                                         contentDescription = stringResource(R.string.selectedLabel)
                                     )

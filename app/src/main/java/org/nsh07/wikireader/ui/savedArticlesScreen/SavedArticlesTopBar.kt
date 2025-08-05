@@ -1,7 +1,5 @@
 package org.nsh07.wikireader.ui.savedArticlesScreen
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalIconButton
@@ -35,7 +33,7 @@ fun SavedArticlesTopBar(
                 onClick = onBack
             ) {
                 Icon(
-                    Icons.AutoMirrored.Outlined.ArrowBack,
+                    painterResource(R.drawable.arrow_back),
                     contentDescription = stringResource(R.string.back)
                 )
             }
