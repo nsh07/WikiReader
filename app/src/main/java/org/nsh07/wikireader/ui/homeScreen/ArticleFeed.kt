@@ -25,9 +25,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -61,6 +58,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
@@ -457,7 +455,7 @@ fun ArticleFeed(
                                     enabled = pagerState.currentPage != 0
                                 ) {
                                     Icon(
-                                        Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
+                                        painterResource(R.drawable.keyboard_arrow_left),
                                         contentDescription = stringResource(R.string.scrollLeft)
                                     )
                                 }
@@ -480,7 +478,7 @@ fun ArticleFeed(
                                     enabled = pagerState.currentPage != pagerState.pageCount - 1
                                 ) {
                                     Icon(
-                                        Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                                        painterResource(R.drawable.keyboard_arrow_right),
                                         contentDescription = stringResource(R.string.scrollRight)
                                     )
                                 }

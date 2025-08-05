@@ -27,9 +27,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroupDefaults
@@ -420,7 +417,7 @@ fun SettingsScreen(
                             thumbContent = {
                                 if (switchItems[0].checked) {
                                     Icon(
-                                        imageVector = Icons.Outlined.Check,
+                                        painter = painterResource(R.drawable.check),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
                                     )
@@ -517,7 +514,12 @@ fun SettingsScreen(
                                         exit = scaleOut(motionScheme.fastSpatialSpec()) +
                                                 shrinkHorizontally(motionScheme.fastSpatialSpec()) +
                                                 fadeOut(motionScheme.fastEffectsSpec())
-                                    ) { Icon(Icons.Outlined.Check, contentDescription = null) }
+                                    ) {
+                                        Icon(
+                                            painterResource(R.drawable.check),
+                                            contentDescription = null
+                                        )
+                                    }
                                     Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                                     Text(label)
                                 }
@@ -579,7 +581,7 @@ fun SettingsScreen(
                             thumbContent = {
                                 if (item.checked && item.enabled) {
                                     Icon(
-                                        imageVector = Icons.Outlined.Check,
+                                        painter = painterResource(R.drawable.check),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
                                     )
@@ -624,7 +626,7 @@ fun SettingsScreen(
                                     .size(24.dp)
                             )
                             Icon(
-                                Icons.Outlined.Info,
+                                painterResource(R.drawable.filled_info),
                                 tint = colorScheme.onSecondaryContainer,
                                 contentDescription = stringResource(string.information),
                                 modifier = Modifier.size(24.dp)

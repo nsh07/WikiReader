@@ -9,8 +9,6 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -29,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
@@ -82,7 +81,7 @@ fun ExpandableSection(
                 .clickable(onClick = { expanded = !expanded })
         ) {
             Icon(
-                Icons.Outlined.KeyboardArrowDown,
+                painterResource(R.drawable.keyboard_arrow_down),
                 contentDescription =
                     if (expanded) stringResource(R.string.collapse_section)
                     else stringResource(R.string.expand_section),

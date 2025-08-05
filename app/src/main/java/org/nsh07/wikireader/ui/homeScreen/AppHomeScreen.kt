@@ -32,8 +32,6 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalIconToggleButton
@@ -361,7 +359,7 @@ fun AppHomeScreen(
                     FloatingToolbarDefaults.VibrantFloatingActionButton(
                         onClick = { onAction(HomeAction.FocusSearchBar) }
                     ) {
-                        Icon(Icons.Outlined.Search, stringResource(R.string.search))
+                        Icon(painterResource(R.drawable.search), stringResource(R.string.search))
                     }
                 }
             },

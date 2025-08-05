@@ -18,8 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -291,7 +289,7 @@ private fun AppNavigationRailContent(
                             },
                             icon = {
                                 Icon(
-                                    Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                                    painterResource(drawable.keyboard_arrow_right),
                                     contentDescription = null
                                 )
                             },
@@ -322,7 +320,7 @@ private fun AppNavigationRailContent(
                             },
                             icon = {
                                 Icon(
-                                    Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                                    painterResource(drawable.keyboard_arrow_right),
                                     contentDescription = null
                                 )
                             },

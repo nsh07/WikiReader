@@ -13,9 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
-import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,6 +36,7 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -104,9 +102,9 @@ fun AsyncWikitable(
                 modifier = Modifier.padding(8.dp)
             ) {
                 if (!expanded)
-                    Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = null)
+                    Icon(painterResource(R.drawable.keyboard_arrow_down), contentDescription = null)
                 else
-                    Icon(Icons.Outlined.KeyboardArrowUp, contentDescription = null)
+                    Icon(painterResource(R.drawable.keyboard_arrow_up), contentDescription = null)
             }
             Text(
                 rows.first.ifEmpty { tableTitle },

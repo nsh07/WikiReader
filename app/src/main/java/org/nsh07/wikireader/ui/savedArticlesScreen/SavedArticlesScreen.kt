@@ -23,8 +23,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
@@ -197,7 +195,7 @@ fun SavedArticlesScreen(
                                         if (filterOption.selected) {
                                             {
                                                 Icon(
-                                                    Icons.Outlined.Check,
+                                                    painterResource(R.drawable.check),
                                                     contentDescription = null
                                                 )
                                             }

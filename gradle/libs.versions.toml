@@ -17,10 +17,8 @@ ksp = "2.2.0-2.0.2"
 latex2unicode_xX3 = "0.3.2"
 lifecycleRuntimeKtx = "2.9.1"
 lifecycleViewmodelCompose = "2.9.2"
-materialIconsCore = "1.7.8"
 materialKolor = "3.0.0"
 nav3Core = "1.0.0-alpha06"
-lifecycleViewmodelNav3 = "1.0.0-alpha04"
 navigationCompose = "2.9.2"
 okhttp = "5.1.0"
 retrofit = "3.0.0"
@@ -41,8 +39,6 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
-androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
-androidx-material-icons-core = { module = "androidx.compose.material:material-icons-core", version.ref = "materialIconsCore" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
