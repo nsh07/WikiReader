@@ -1,0 +1,19 @@
+<p>A lightweight Android app for reading Wikipedia articles distraction-free. Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia languages, with a customisable simple interface</p>
+
+<p>Features</p>
+<ul>
+    <li><b>Rýchle načítavanie:</b> The article text is loaded before anything else, so you can get to reading, quick</li>
+    <li><b>Feed:</b> Read the article of the day, find trending articles and get up to speed on the news with the Wikipedia Feed</li>
+    <li><b>Obrázok k článku:</b> View an image of the topic from its Wikipedia page. Click on it to enlarge it and view in full-screen</li>
+    <li><b>Náhodný článok:</b> Feeling lucky? Click the random article button to read a random article</li>
+    <li><b>Vyber si svoj jazyk: Vyber si jeden 300 jazykov dostupných na Wikipedii</b></li>
+    <li><b>Ulož si články:</b> Stiahni a ulož si články do svojho zariadenia pre offline čítanie</li>
+    <li><b>Používanie jednou rukou:</b> Use the floating action buttons at the bottom for a complete one-handed experience</li>
+    <li><b>Lightweight:</b> The app starts instantly, and works smoothly</li>
+    <li><b>Material Design 3:</b> Designed according to the latest Material Design 3 guidelines</li>
+    <li><b>Plynulé animácie:</b> Hladké a plynulé animácie</li>
+    <li><b>Nastaviteľné farby:</b> Choose from light/dark themes and customize the Material 3 color palette</li>
+    <li><b>Nastaviteľný font:</b> Vyber si veľkosť a font písma</li>
+    <li><b>Šetrič dát:</b> Save your limited data plan by loa ding text only</li>
+    <li><b>Math expressions:</b> View properly rendered mathematical expressions for easily reading mathematical articles</li>
+</ul>

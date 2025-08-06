@@ -4,7 +4,7 @@
     <string name="expand_section">Abschnitt aufklappen</string>
     <string name="deleteSavedArticle">Gespeicherten Artikel löschen?</string>
     <string name="dialogDeleteHistoryItem">\"%1$s\" wird dauerhaft von deinem Suchverlauf gelöscht.</string>
-    <string name="articlesSize">%1$s Artikel, %2$s total</string>
+    <string name="articlesSize">%1$s Artikel, %2$s Sprachen</string>
     <string name="colorSchemeColor">Farbe</string>
     <string name="app_name">WikiReader</string>
     <string name="clear">Löschen</string>
@@ -19,7 +19,7 @@
     <string name="clearSearchField">Eingabefeld entleeren</string>
     <string name="colorSchemeDynamic">Dynamisch</string>
     <string name="delete">Löschen</string>
-    <string name="deleteArticle">Lösche heruntergeladenen Artikel</string>
+    <string name="deleteArticle">Lösche Artikel</string>
     <string name="deleteSavedArticleDesc">\"%1$s\" wird dauerhaft von deinem Gerät gelöscht</string>
     <string name="dialogDeleteHistoryItemDesc">Dein Suchverlauf wird dauerhaft gelöscht.</string>
     <string name="dialogDeleteSearchHistory">Suche von deinem Verlauf löschen?</string>
@@ -71,7 +71,7 @@
     <string name="settingImmersiveModeDesc">Suchleiste und schwebende Aktionsschaltflächen beim Scrollen ausblenden. Standardmäßig auf kleinen Bildschirmen aktiviert.</string>
     <string name="settingRenderMath">Mathematische Ausdrücke ausgeben</string>
     <string name="settingSearchHistory">Suchverlauf</string>
-    <string name="settingSearchHistoryDesc">Suchverlauf speichern. Der vorhandene Verlauf bleibt von dieser Option unberührt.</string>
+    <string name="settingSearchHistoryDesc">Suchverlauf speichern</string>
     <string name="settingWikipediaLanguage">Wikipedia-Sprache</string>
     <string name="settings">Einstellungen</string>
     <string name="settingsRestored">Standardeinstellungen wiederhergestellt</string>
@@ -120,4 +120,12 @@
     <string name="sourceCode">Quellcode</string>
     <string name="supportWikipedia">Wikipedia unterstützen</string>
     <string name="donate">Spenden</string>
+    <string name="settingAppLanguage">App Sprache</string>
+    <string name="chooseAppLanguage">App Sprache auswählen</string>
+    <string name="reference">Referenz</string>
+    <string name="noHistoryItemsDesc">Zuletzt geöffnete Artikel werden hier angezeigt</string>
+    <string name="currentLanguage">Aktuelle Sprache</string>
+    <string name="otherLanguages">Andere Sprachen</string>
+    <string name="items">%1$s Objekte</string>
+    <string name="deletedFromHistory">\"%1$s\" vom Verlauf löschen</string>
 </resources>
