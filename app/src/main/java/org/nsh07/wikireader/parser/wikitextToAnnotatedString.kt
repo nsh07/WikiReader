@@ -926,7 +926,7 @@ fun String.toWikitextAnnotatedString(
 
                             currSubstring.startsWith("{{unbulleted list") -> {
                                 val splitList = currSubstring
-                                    .substringAfter('|')
+                                    .substringAfter('|', "")
                                     .splitNotInBraces('|')
                                     .fastFilter { !it.contains('=') }
                                     .fastMap { it.trim() }

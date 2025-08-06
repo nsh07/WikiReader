@@ -315,6 +315,10 @@ fun AppHomeScreen(
                     }
 
                     entry<HomeSubscreen.Article> { entry ->
+                        LaunchedEffect(entry.currentLang) {
+                            if (entry.currentLang != null)
+                                onSettingsAction(SettingsAction.SaveLang(entry.currentLang))
+                        }
                         PageContent(
                             content = entry,
                             sharedScope = this@SharedTransitionLayout,
