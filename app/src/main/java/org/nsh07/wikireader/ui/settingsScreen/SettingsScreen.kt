@@ -80,7 +80,6 @@ import org.nsh07.wikireader.R.string
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.toColor
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeAction
-import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeSubscreen
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsAction
@@ -96,7 +95,6 @@ import kotlin.math.round
 @Composable
 fun SettingsScreenRoot(
     preferencesState: PreferencesState,
-    homeScreenState: HomeScreenState,
     lastBackStackEntry: HomeSubscreen,
     recentLangs: List<String>,
     languageSearchStr: String,
@@ -146,7 +144,6 @@ fun SettingsScreenRoot(
 
     SettingsScreen(
         preferencesState = preferencesState,
-        homeScreenState = homeScreenState,
         lastBackStackEntry = lastBackStackEntry,
         recentLangs = recentLangs,
         languageSearchStr = languageSearchStr,
@@ -167,7 +164,6 @@ fun SettingsScreenRoot(
 @Composable
 fun SettingsScreen(
     preferencesState: PreferencesState,
-    homeScreenState: HomeScreenState,
     lastBackStackEntry: HomeSubscreen,
     recentLangs: List<String>,
     languageSearchStr: String,
@@ -510,10 +506,10 @@ fun SettingsScreen(
                                         label == fontStyleMap[fontStyle],
                                         enter = scaleIn(motionScheme.fastSpatialSpec()) +
                                                 expandHorizontally(motionScheme.fastSpatialSpec()) +
-                                                fadeIn(motionScheme.fastEffectsSpec()),
+                                                fadeIn(),
                                         exit = scaleOut(motionScheme.fastSpatialSpec()) +
                                                 shrinkHorizontally(motionScheme.fastSpatialSpec()) +
-                                                fadeOut(motionScheme.fastEffectsSpec())
+                                                fadeOut()
                                     ) {
                                         Icon(
                                             painterResource(R.drawable.check),
@@ -709,7 +705,6 @@ fun SettingsPreview() {
     WikiReaderTheme {
         SettingsScreen(
             preferencesState = PreferencesState(),
-            homeScreenState = HomeScreenState(),
             lastBackStackEntry = HomeSubscreen.Logo,
             recentLangs = emptyList(),
             languageSearchStr = "",

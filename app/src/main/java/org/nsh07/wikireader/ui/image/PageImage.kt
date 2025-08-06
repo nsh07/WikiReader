@@ -1,5 +1,7 @@
 package org.nsh07.wikireader.ui.image
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -19,13 +21,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import coil3.compose.AsyncImagePainter
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WikiPhoto
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-fun PageImage(
+fun SharedTransitionScope.PageImage(
     photo: WikiPhoto,
     photoDesc: String,
     painter: AsyncImagePainter,
@@ -40,7 +43,12 @@ fun PageImage(
                 painter = painter,
                 contentDescription = photoDesc,
                 contentScale = contentScale,
-                modifier = modifier
+                modifier = Modifier
+                    .sharedBounds(
+                        sharedContentState = rememberSharedContentState(photo.source),
+                        animatedVisibilityScope = LocalNavAnimatedContentScope.current
+                    )
+                    .then(modifier)
                     .aspectRatio(photo.width.toFloat() / photo.height.toFloat())
                     .background(if (background) Color.White else Color.Transparent)
             )
@@ -81,9 +89,10 @@ fun PageImage(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-fun PageImage(
+fun SharedTransitionScope.PageImage(
+    uri: String,
     description: String,
     background: Boolean,
     painter: AsyncImagePainter,
@@ -91,35 +100,47 @@ fun PageImage(
     contentScale: ContentScale,
     modifier: Modifier = Modifier
 ) {
-    if (painterState is AsyncImagePainter.State.Success) {
-        Image(
-            painter = painter,
-            contentDescription = description,
-            contentScale = contentScale,
-            modifier = modifier.background(if (background) Color.White else Color.Transparent)
-        )
-    } else if (painterState is AsyncImagePainter.State.Loading) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            CircularWavyProgressIndicator()
-        }
-    } else {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Icon(
-                painterResource(R.drawable.error),
-                contentDescription = stringResource(R.string.errorLoadingImage),
+    when (painterState) {
+        is AsyncImagePainter.State.Success -> {
+            Image(
+                painter = painter,
+                contentDescription = description,
+                contentScale = contentScale,
                 modifier = Modifier
-                    .padding(vertical = 16.dp)
-                    .size(64.dp),
-                tint = colorScheme.error
+                    .sharedBounds(
+                        sharedContentState = rememberSharedContentState(uri),
+                        animatedVisibilityScope = LocalNavAnimatedContentScope.current
+                    )
+                    .then(modifier)
+                    .background(if (background) Color.White else Color.Transparent)
             )
+        }
+
+        is AsyncImagePainter.State.Loading -> {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                CircularWavyProgressIndicator()
+            }
+        }
+
+        else -> {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Icon(
+                    painterResource(R.drawable.error),
+                    contentDescription = stringResource(R.string.errorLoadingImage),
+                    modifier = Modifier
+                        .padding(vertical = 16.dp)
+                        .size(64.dp),
+                    tint = colorScheme.error
+                )
+            }
         }
     }
 }

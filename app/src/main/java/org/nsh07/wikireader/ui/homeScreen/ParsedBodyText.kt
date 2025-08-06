@@ -1,5 +1,7 @@
 package org.nsh07.wikireader.ui.homeScreen
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,6 +25,7 @@ import com.github.tomtung.latex2unicode.LaTeX2Unicode
 import org.nsh07.wikireader.parser.ReferenceData.infoboxTemplates
 import kotlin.text.Typography.nbsp
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun ParsedBodyText(
     body: List<AnnotatedString>,
@@ -30,6 +33,7 @@ fun ParsedBodyText(
     fontSize: Int,
     fontFamily: FontFamily,
     imageLoader: ImageLoader,
+    sharedScope: SharedTransitionScope,
     background: Boolean,
     renderMath: Boolean,
     darkTheme: Boolean,
@@ -48,18 +52,20 @@ fun ParsedBodyText(
         body.fastForEach {
             if (it.startsWith("[[File:")) {
                 if (!dataSaver) {
-                    ImageWithCaption(
-                        text = it.toString(),
-                        lang = lang,
-                        fontSize = fontSize,
-                        imageLoader = imageLoader,
-                        onLinkClick = onLinkClick,
-                        onClick = onGalleryImageClick,
-                        darkTheme = darkTheme,
-                        background = background,
-                        checkFirstImage = checkFirstImage,
-                        pageImageUri = pageImageUri
-                    )
+                    with(sharedScope) {
+                        ImageWithCaption(
+                            text = it.toString(),
+                            lang = lang,
+                            fontSize = fontSize,
+                            imageLoader = imageLoader,
+                            onLinkClick = onLinkClick,
+                            onClick = onGalleryImageClick,
+                            darkTheme = darkTheme,
+                            background = background,
+                            checkFirstImage = checkFirstImage,
+                            pageImageUri = pageImageUri
+                        )
+                    }
                 }
             } else if (it.startsWith("<gallery")) {
                 if (!dataSaver) {

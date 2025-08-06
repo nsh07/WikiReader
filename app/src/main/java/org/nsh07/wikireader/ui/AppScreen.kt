@@ -238,7 +238,7 @@ fun AppScreen(
                     slideInHorizontally(
                         initialOffsetX = { it / 4 },
                         animationSpec = motionScheme.defaultSpatialSpec()
-                    ) + fadeIn(motionScheme.defaultEffectsSpec())
+                    ) + fadeIn()
                 else
                     fadeIn(animationSpec = tween(220, delayMillis = 90)) +
                             scaleIn(
@@ -251,7 +251,7 @@ fun AppScreen(
                     slideOutHorizontally(
                         targetOffsetX = { -it / 4 },
                         animationSpec = motionScheme.fastSpatialSpec()
-                    ) + fadeOut(motionScheme.fastEffectsSpec())
+                    ) + fadeOut()
                 else
                     fadeOut(animationSpec = tween(90))
             },
@@ -260,7 +260,7 @@ fun AppScreen(
                     slideInHorizontally(
                         initialOffsetX = { -it / 4 },
                         animationSpec = motionScheme.defaultSpatialSpec()
-                    ) + fadeIn(motionScheme.defaultEffectsSpec())
+                    ) + fadeIn()
                 else
                     fadeIn(animationSpec = tween(220, delayMillis = 90)) +
                             scaleIn(
@@ -273,7 +273,7 @@ fun AppScreen(
                     slideOutHorizontally(
                         targetOffsetX = { it / 4 },
                         animationSpec = motionScheme.fastSpatialSpec()
-                    ) + fadeOut(motionScheme.fastEffectsSpec())
+                    ) + fadeOut()
                 else
                     fadeOut(animationSpec = tween(90))
             }
@@ -310,7 +310,7 @@ fun AppScreen(
                                 motionScheme.defaultSpatialSpec(),
                                 initialOffsetY = { -it }
                             ) + expandVertically(motionScheme.defaultSpatialSpec()),
-                            exit = fadeOut(motionScheme.fastEffectsSpec())
+                            exit = fadeOut()
                         ) {
                             AppSearchBar(
                                 appSearchBarState = appSearchBarState,
@@ -388,8 +388,8 @@ fun AppScreen(
 
                     AnimatedVisibility(
                         backStack.last() !is HomeSubscreen.Image,
-                        enter = fadeIn(motionScheme.slowEffectsSpec()),
-                        exit = fadeOut(motionScheme.fastEffectsSpec())
+                        enter = fadeIn(),
+                        exit = fadeOut()
                     ) {
                         StatusBarProtection()
                     }
@@ -423,7 +423,6 @@ fun AppScreen(
             composable<SettingsScreen> {
                 SettingsScreenRoot(
                     preferencesState = preferencesState,
-                    homeScreenState = homeScreenState,
                     lastBackStackEntry = backStack.last(),
                     recentLangs = recentLangs,
                     languageSearchStr = languageSearchStr,

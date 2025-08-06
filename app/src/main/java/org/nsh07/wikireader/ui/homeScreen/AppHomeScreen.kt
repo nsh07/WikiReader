@@ -108,14 +108,12 @@ import org.nsh07.wikireader.ui.shimmer.FeedLoader
  * @param languageSearchStr The current search string for languages in the language bottom sheet.
  * @param languageSearchQuery The current search query for languages after debouncing.
  * @param showLanguageSheet A boolean indicating whether the language selection bottom sheet should be shown.
- * @param deepLinkHandled A boolean indicating if a deep link has been processed.
- * @param onImageClick A lambda function to be invoked when the main article image is clicked.
- * @param onGalleryImageClick A lambda function to be invoked when an image in the gallery is clicked.
- * It takes the image URL and description as parameters.
+ * @param deepLinkHandled A boolean indicating if a deep link has been processed for the initial feed load.
  * @param setShowArticleLanguageSheet A lambda function to control the visibility of the article language bottom sheet.
  * @param onAction A lambda function to dispatch [HomeAction] events to the ViewModel.
  * @param onSettingsAction A lambda function to dispatch [SettingsAction] events to the SettingsViewModel.
  * @param insets The [PaddingValues] for handling system window insets.
+ * This is used to adjust UI elements to avoid overlapping with system bars.
  * @param windowSizeClass The [WindowSizeClass] for adapting the layout to different screen sizes.
  * @param modifier The [Modifier] to be applied to the root container of the home screen.
  */
@@ -245,20 +243,20 @@ fun AppHomeScreen(
                     onAction(HomeAction.StopAll)
                     repeat(it) { backStack.removeAt(backStack.lastIndex) }
                 },
-                transitionSpec = { fadeIn(motionScheme.defaultEffectsSpec()).togetherWith(fadeOut()) },
-                popTransitionSpec = { fadeIn(motionScheme.defaultEffectsSpec()).togetherWith(fadeOut()) },
+                transitionSpec = { fadeIn().togetherWith(fadeOut()) },
+                popTransitionSpec = { fadeIn().togetherWith(fadeOut()) },
                 predictivePopTransitionSpec = {
-                    if (backStack.size > 2)
+                    if (backStack.size > 2 && backStack.last() !is HomeSubscreen.Image)
                         (slideInHorizontally(
                             initialOffsetX = { -it / 4 },
                             animationSpec = motionScheme.defaultSpatialSpec()
-                        ) + fadeIn(motionScheme.defaultEffectsSpec())).togetherWith(
+                        ) + fadeIn()).togetherWith(
                             slideOutHorizontally(
                                 targetOffsetX = { it / 4 },
                                 animationSpec = motionScheme.fastSpatialSpec()
-                            ) + fadeOut(motionScheme.fastEffectsSpec())
+                            ) + fadeOut()
                         )
-                    else fadeIn(motionScheme.defaultEffectsSpec()).togetherWith(fadeOut())
+                    else fadeIn().togetherWith(fadeOut())
                 },
                 entryProvider = entryProvider {
                     entry<HomeSubscreen.Logo> {
@@ -364,6 +362,7 @@ fun AppHomeScreen(
                         FullScreenImage(
                             photo = it.photo,
                             photoDesc = it.photoDesc,
+                            sharedScope = this@SharedTransitionLayout,
                             title = it.title,
                             background = it.background,
                             imageLoader = it.imageLoader,
@@ -376,6 +375,7 @@ fun AppHomeScreen(
                         FullScreenArticleImage(
                             uri = it.uri,
                             description = it.description,
+                            sharedScope = this@SharedTransitionLayout,
                             imageLoader = it.imageLoader,
                             background = it.background,
                             link = it.link,

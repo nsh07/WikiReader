@@ -1,6 +1,9 @@
 package org.nsh07.wikireader.ui.homeScreen
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -41,7 +44,7 @@ import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun ExpandableSection(
     title: List<AnnotatedString>,
@@ -50,6 +53,7 @@ fun ExpandableSection(
     fontSize: Int,
     fontFamily: FontFamily,
     imageLoader: ImageLoader,
+    sharedScope: SharedTransitionScope,
     expanded: Boolean,
     renderMath: Boolean,
     darkTheme: Boolean,
@@ -118,6 +122,7 @@ fun ExpandableSection(
             ParsedBodyText(
                 body = body,
                 lang = lang,
+                sharedScope = sharedScope,
                 fontSize = fontSize,
                 fontFamily = fontFamily,
                 renderMath = renderMath,
@@ -133,25 +138,29 @@ fun ExpandableSection(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
 fun ExpandableSectionPreview() {
     WikiReaderTheme {
-        ExpandableSection(
-            title = listOf(buildAnnotatedString { append("Title") }),
-            body = listOf(buildAnnotatedString { append("Lorem\nIpsum\nBig\nHonking\nBody\nText") }),
-            lang = "en",
-            fontSize = 16,
-            fontFamily = FontFamily.SansSerif,
-            imageLoader = ImageLoader(context = LocalContext.current),
-            expanded = false,
-            renderMath = true,
-            darkTheme = false,
-            false,
-            false,
-            onLinkClick = {},
-            onGalleryImageClick = { _, _ -> },
-            showRef = {}
-        )
+        SharedTransitionLayout {
+            ExpandableSection(
+                title = listOf(buildAnnotatedString { append("Title") }),
+                body = listOf(buildAnnotatedString { append("Lorem\nIpsum\nBig\nHonking\nBody\nText") }),
+                lang = "en",
+                fontSize = 16,
+                fontFamily = FontFamily.SansSerif,
+                imageLoader = ImageLoader(context = LocalContext.current),
+                sharedScope = this@SharedTransitionLayout,
+                expanded = false,
+                renderMath = true,
+                darkTheme = false,
+                dataSaver = false,
+                imageBackground = false,
+                onLinkClick = {},
+                onGalleryImageClick = { _, _ -> },
+                showRef = {}
+            )
+        }
     }
 }

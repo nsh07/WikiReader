@@ -1,5 +1,7 @@
 package org.nsh07.wikireader.ui.homeScreen
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
@@ -18,13 +20,15 @@ import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import coil3.ImageLoader
 import org.nsh07.wikireader.parser.toWikitextAnnotatedString
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.theme.ColorConstants.colorMatrixInvert
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun ImageWithCaption(
+fun SharedTransitionScope.ImageWithCaption(
     text: String,
     fontSize: Int,
     lang: String,
@@ -64,6 +68,10 @@ fun ImageWithCaption(
             else null,
             background = background,
             modifier = modifier
+                .sharedBounds(
+                    sharedContentState = rememberSharedContentState(uriHigh),
+                    animatedVisibilityScope = LocalNavAnimatedContentScope.current
+                )
                 .padding(horizontal = 16.dp)
                 .padding(top = 8.dp)
                 .clip(shape)
@@ -85,6 +93,10 @@ fun ImageWithCaption(
                 textAlign = TextAlign.Center,
                 color = colorScheme.onSurfaceVariant,
                 modifier = Modifier
+                    .sharedBounds(
+                        sharedContentState = rememberSharedContentState(description),
+                        animatedVisibilityScope = LocalNavAnimatedContentScope.current
+                    )
                     .padding(horizontal = 16.dp)
                     .padding(vertical = 8.dp)
             )
