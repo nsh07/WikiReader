@@ -66,6 +66,7 @@ fun AppNavigationDrawer(
     windowSizeClass: WindowSizeClass,
     backStackEntry: NavBackStackEntry?,
     historyEnabled: Boolean,
+    isImageView: Boolean,
     onAboutClick: () -> Unit,
     onHistoryClick: () -> Unit,
     onHomeClick: () -> Unit,
@@ -131,7 +132,7 @@ fun AppNavigationDrawer(
 
     Row(modifier = modifier) {
         AnimatedVisibility(
-            backStackEntry?.destination?.hasRoute(FullScreenImage::class) != true,
+            visible = !isImageView,
             enter = expandHorizontally(animationSpec = motionScheme.defaultSpatialSpec()),
             exit = shrinkHorizontally(animationSpec = motionScheme.defaultSpatialSpec())
         ) {

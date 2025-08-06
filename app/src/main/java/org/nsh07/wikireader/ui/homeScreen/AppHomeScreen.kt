@@ -12,7 +12,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -68,10 +70,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
+import androidx.core.text.parseAsHtml
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
@@ -80,9 +84,12 @@ import coil3.ImageLoader
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.SavedStatus
+import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeAction
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeScreenState
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeSubscreen
+import org.nsh07.wikireader.ui.image.FullScreenArticleImage
+import org.nsh07.wikireader.ui.image.FullScreenImage
 import org.nsh07.wikireader.ui.settingsScreen.LanguageBottomSheet
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsAction
@@ -128,8 +135,6 @@ fun AppHomeScreen(
     languageSearchQuery: String,
     showLanguageSheet: Boolean,
     deepLinkHandled: Boolean,
-    onImageClick: () -> Unit,
-    onGalleryImageClick: (String, String) -> Unit,
     setShowArticleLanguageSheet: (Boolean) -> Unit,
     onAction: (HomeAction) -> Unit,
     onSettingsAction: (SettingsAction) -> Unit,
@@ -138,6 +143,7 @@ fun AppHomeScreen(
     modifier: Modifier = Modifier
 ) {
     val clipboard = LocalClipboard.current
+    val density = LocalDensity.current
     val scope = rememberCoroutineScope()
     val motionScheme = motionScheme
 
@@ -239,8 +245,8 @@ fun AppHomeScreen(
                     onAction(HomeAction.StopAll)
                     repeat(it) { backStack.removeAt(backStack.lastIndex) }
                 },
-                transitionSpec = { fadeIn().togetherWith(fadeOut()) },
-                popTransitionSpec = { fadeIn().togetherWith(fadeOut()) },
+                transitionSpec = { fadeIn(motionScheme.defaultEffectsSpec()).togetherWith(fadeOut()) },
+                popTransitionSpec = { fadeIn(motionScheme.defaultEffectsSpec()).togetherWith(fadeOut()) },
                 predictivePopTransitionSpec = {
                     if (backStack.size > 2)
                         (slideInHorizontally(
@@ -252,15 +258,15 @@ fun AppHomeScreen(
                                 animationSpec = motionScheme.fastSpatialSpec()
                             ) + fadeOut(motionScheme.fastEffectsSpec())
                         )
-                    else fadeIn().togetherWith(fadeOut())
+                    else fadeIn(motionScheme.defaultEffectsSpec()).togetherWith(fadeOut())
                 },
                 entryProvider = entryProvider {
-                    entry<HomeSubscreen.FeedLoader> {
-                        FeedShimmer(insets = insets)
-                    }
-
                     entry<HomeSubscreen.Logo> {
                         Logo()
+                    }
+
+                    entry<HomeSubscreen.FeedLoader> {
+                        FeedShimmer(insets = insets)
                     }
 
                     entry<HomeSubscreen.Feed> { entry ->
@@ -286,7 +292,24 @@ fun AppHomeScreen(
                             insets = insets,
                             loadPage = { onAction(HomeAction.LoadPage(it)) },
                             refreshFeed = { onAction(HomeAction.LoadFeed()) },
-                            onImageClick = onImageClick,
+                            onImageClick = {
+                                backStack.add(
+                                    HomeSubscreen.Image.FullScreenImage(
+                                        photo = WikiPhoto(
+                                            source = entry.image?.thumbnail?.source ?: "",
+                                            width = entry.image?.thumbnail?.width ?: 1,
+                                            height = entry.image?.thumbnail?.height ?: 1
+                                        ),
+                                        photoDesc = entry.image?.description?.text?.parseAsHtml()
+                                            .toString(),
+                                        title = entry.image?.title ?: "",
+                                        imageLoader = imageLoader,
+                                        link = entry.image?.filePage,
+                                        background = preferencesState.imageBackground,
+                                        onBack = backStack::removeLastOrNull
+                                    )
+                                )
+                            },
                             windowSizeClass = windowSizeClass,
                             sharedScope = this@SharedTransitionLayout,
                             imageBackground = preferencesState.imageBackground
@@ -307,10 +330,56 @@ fun AppHomeScreen(
                             setShowArticleLanguageSheet = setShowArticleLanguageSheet,
                             setLang = { onSettingsAction(SettingsAction.SaveLang(it)) },
                             loadPage = { onAction(HomeAction.LoadPage(it)) },
-                            onImageClick = onImageClick,
-                            onGalleryImageClick = onGalleryImageClick,
+                            onImageClick = {
+                                backStack.add(
+                                    HomeSubscreen.Image.FullScreenImage(
+                                        photo = entry.photo,
+                                        photoDesc = entry.photoDesc,
+                                        title = entry.title,
+                                        imageLoader = imageLoader,
+                                        background = preferencesState.imageBackground,
+                                        link = entry.photo?.source,
+                                        onBack = backStack::removeLastOrNull
+                                    )
+                                )
+                            },
+                            onGalleryImageClick = { uri, description ->
+                                backStack.add(
+                                    HomeSubscreen.Image.FullScreenArticleImage(
+                                        uri = uri,
+                                        description = description,
+                                        imageLoader = imageLoader,
+                                        link = uri,
+                                        background = preferencesState.imageBackground,
+                                        onBack = backStack::removeLastOrNull
+                                    )
+                                )
+                            },
                             setSearchStr = { onAction(HomeAction.UpdateLanguageSearchStr(it)) },
                             onAction = onAction
+                        )
+                    }
+
+                    entry<HomeSubscreen.Image.FullScreenImage> {
+                        FullScreenImage(
+                            photo = it.photo,
+                            photoDesc = it.photoDesc,
+                            title = it.title,
+                            background = it.background,
+                            imageLoader = it.imageLoader,
+                            link = it.link,
+                            onBack = it.onBack
+                        )
+                    }
+
+                    entry<HomeSubscreen.Image.FullScreenArticleImage> {
+                        FullScreenArticleImage(
+                            uri = it.uri,
+                            description = it.description,
+                            imageLoader = it.imageLoader,
+                            background = it.background,
+                            link = it.link,
+                            onBack = it.onBack
                         )
                     }
                 }
@@ -343,164 +412,187 @@ fun AppHomeScreen(
             }
         }
 
-        HorizontalFloatingToolbar(
-            expanded = true,
-            scrollBehavior = floatingToolbarScrollBehaviour,
-            colors = FloatingToolbarDefaults.vibrantFloatingToolbarColors(),
-            floatingActionButton = {
+        AnimatedVisibility(
+            backStack.last() !is HomeSubscreen.Image,
+            enter = slideInVertically(
+                motionScheme.defaultSpatialSpec(),
+                initialOffsetY = {
+                    with(density) {
+                        it + insets.calculateBottomPadding().roundToPx() + 1
+                    }
+                }
+            ),
+            exit = slideOutVertically(
+                motionScheme.defaultSpatialSpec(),
+                targetOffsetY = {
+                    with(density) {
+                        it + insets.calculateBottomPadding().roundToPx() + 1
+                    }
+                }
+            ),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            HorizontalFloatingToolbar(
+                expanded = true,
+                scrollBehavior = floatingToolbarScrollBehaviour,
+                colors = FloatingToolbarDefaults.vibrantFloatingToolbarColors(),
+                floatingActionButton = {
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                            TooltipAnchorPosition.Above
+                        ),
+                        tooltip = { PlainTooltip { Text(stringResource(R.string.search)) } },
+                        state = rememberTooltipState()
+                    ) {
+                        FloatingToolbarDefaults.VibrantFloatingActionButton(
+                            onClick = { onAction(HomeAction.FocusSearchBar) }
+                        ) {
+                            Icon(
+                                painterResource(R.drawable.search),
+                                stringResource(R.string.search)
+                            )
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .offset(y = -(insets.calculateBottomPadding()))
+            ) {
                 TooltipBox(
                     positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
                         TooltipAnchorPosition.Above
                     ),
-                    tooltip = { PlainTooltip { Text(stringResource(R.string.search)) } },
+                    tooltip = { PlainTooltip { Text(stringResource(R.string.settingWikipediaLanguage)) } },
                     state = rememberTooltipState()
                 ) {
-                    FloatingToolbarDefaults.VibrantFloatingActionButton(
-                        onClick = { onAction(HomeAction.FocusSearchBar) }
+                    IconButton(
+                        onClick = { setShowArticleLanguageSheet(true) },
+                        enabled = backStack.last() is HomeSubscreen.Feed ||
+                                (backStack.last() is HomeSubscreen.Article && (backStack.last() as HomeSubscreen.Article).langs?.isEmpty() == false)
                     ) {
-                        Icon(painterResource(R.drawable.search), stringResource(R.string.search))
-                    }
-                }
-            },
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(horizontal = 16.dp)
-                .offset(y = -(insets.calculateBottomPadding()))
-        ) {
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
-                    TooltipAnchorPosition.Above
-                ),
-                tooltip = { PlainTooltip { Text(stringResource(R.string.settingWikipediaLanguage)) } },
-                state = rememberTooltipState()
-            ) {
-                IconButton(
-                    onClick = { setShowArticleLanguageSheet(true) },
-                    enabled = backStack.last() is HomeSubscreen.Feed ||
-                            (backStack.last() is HomeSubscreen.Article && (backStack.last() as HomeSubscreen.Article).langs?.isEmpty() == false)
-                ) {
-                    Icon(
-                        painterResource(R.drawable.translate),
-                        stringResource(R.string.settingWikipediaLanguage)
-                    )
-                }
-            }
-
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
-                    TooltipAnchorPosition.Above
-                ),
-                tooltip = { PlainTooltip { Text(stringResource(R.string.sharePage)) } },
-                state = rememberTooltipState()
-            ) {
-                IconButton(
-                    enabled = backStack.last() is HomeSubscreen.Article,
-                    onClick = remember(
-                        backStack.last(),
-                        preferencesState.lang
-                    ) {
-                        { context.startActivity(shareIntent) }
-                    }
-                ) {
-                    Icon(
-                        painterResource(R.drawable.share),
-                        contentDescription = stringResource(R.string.sharePage)
-                    )
-                }
-            }
-
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
-                    TooltipAnchorPosition.Above
-                ),
-                tooltip = {
-                    PlainTooltip {
-                        Text(
-                            when ((backStack.last() as HomeSubscreen.Article).savedStatus) {
-                                SavedStatus.SAVED -> stringResource(R.string.deleteArticle)
-                                else -> stringResource(R.string.downloadArticle)
-                            }
+                        Icon(
+                            painterResource(R.drawable.translate),
+                            stringResource(R.string.settingWikipediaLanguage)
                         )
                     }
-                },
-                state = rememberTooltipState()
-            ) {
-                FilledTonalIconToggleButton(
-                    checked = backStack.last() is HomeSubscreen.Article && (backStack.last() as HomeSubscreen.Article).savedStatus == SavedStatus.SAVED,
-                    enabled = backStack.last() is HomeSubscreen.Article,
-                    colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
-                        containerColor = vibrantFloatingToolbarColors().toolbarContainerColor,
-                        contentColor = vibrantFloatingToolbarColors().toolbarContentColor,
-                        checkedContainerColor = colorScheme.surfaceContainer,
-                        checkedContentColor = colorScheme.onSurface,
-                        disabledContainerColor = vibrantFloatingToolbarColors().toolbarContainerColor,
-                        disabledContentColor = colorScheme.onPrimaryContainer.copy(alpha = 0.38f)
+                }
+
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                        TooltipAnchorPosition.Above
                     ),
-                    onCheckedChange = {
-                        onAction(
-                            HomeAction.SaveArticle(
-                                preferencesState.lang,
-                                context.getString(R.string.snackbarUnableToSave),
-                                context.getString(R.string.snackbarUnableToDelete)
-                            )
+                    tooltip = { PlainTooltip { Text(stringResource(R.string.sharePage)) } },
+                    state = rememberTooltipState()
+                ) {
+                    IconButton(
+                        enabled = backStack.last() is HomeSubscreen.Article,
+                        onClick = remember(
+                            backStack.last(),
+                            preferencesState.lang
+                        ) {
+                            { context.startActivity(shareIntent) }
+                        }
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.share),
+                            contentDescription = stringResource(R.string.sharePage)
                         )
                     }
+                }
+
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                        TooltipAnchorPosition.Above
+                    ),
+                    tooltip = {
+                        PlainTooltip {
+                            Text(
+                                when ((backStack.last() as HomeSubscreen.Article).savedStatus) {
+                                    SavedStatus.SAVED -> stringResource(R.string.deleteArticle)
+                                    else -> stringResource(R.string.downloadArticle)
+                                }
+                            )
+                        }
+                    },
+                    state = rememberTooltipState()
                 ) {
-                    AnimatedContent(
-                        if (backStack.last() is HomeSubscreen.Article)
-                            (backStack.last() as HomeSubscreen.Article).savedStatus
-                        else SavedStatus.NOT_SAVED,
-                        label = "saveAnimation"
-                    ) { saved ->
-                        when (saved) {
-                            SavedStatus.SAVED ->
-                                Icon(
-                                    painterResource(R.drawable.download_done),
-                                    contentDescription = stringResource(R.string.deleteArticle)
+                    FilledTonalIconToggleButton(
+                        checked = backStack.last() is HomeSubscreen.Article && (backStack.last() as HomeSubscreen.Article).savedStatus == SavedStatus.SAVED,
+                        enabled = backStack.last() is HomeSubscreen.Article,
+                        colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
+                            containerColor = vibrantFloatingToolbarColors().toolbarContainerColor,
+                            contentColor = vibrantFloatingToolbarColors().toolbarContentColor,
+                            checkedContainerColor = colorScheme.surfaceContainer,
+                            checkedContentColor = colorScheme.onSurface,
+                            disabledContainerColor = vibrantFloatingToolbarColors().toolbarContainerColor,
+                            disabledContentColor = colorScheme.onPrimaryContainer.copy(alpha = 0.38f)
+                        ),
+                        onCheckedChange = {
+                            onAction(
+                                HomeAction.SaveArticle(
+                                    preferencesState.lang,
+                                    context.getString(R.string.snackbarUnableToSave),
+                                    context.getString(R.string.snackbarUnableToDelete)
                                 )
+                            )
+                        }
+                    ) {
+                        AnimatedContent(
+                            if (backStack.last() is HomeSubscreen.Article)
+                                (backStack.last() as HomeSubscreen.Article).savedStatus
+                            else SavedStatus.NOT_SAVED,
+                            label = "saveAnimation"
+                        ) { saved ->
+                            when (saved) {
+                                SavedStatus.SAVED ->
+                                    Icon(
+                                        painterResource(R.drawable.download_done),
+                                        contentDescription = stringResource(R.string.deleteArticle)
+                                    )
 
-                            SavedStatus.SAVING -> LoadingIndicator()
+                                SavedStatus.SAVING -> LoadingIndicator()
 
-                            else ->
-                                Icon(
-                                    painterResource(R.drawable.download),
-                                    contentDescription = stringResource(R.string.downloadArticle)
-                                )
+                                else ->
+                                    Icon(
+                                        painterResource(R.drawable.download),
+                                        contentDescription = stringResource(R.string.downloadArticle)
+                                    )
+                            }
                         }
                     }
                 }
-            }
 
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
-                    TooltipAnchorPosition.Above
-                ),
-                tooltip = { PlainTooltip { Text(stringResource(R.string.scroll_to_top)) } },
-                state = rememberTooltipState()
-            ) {
-                IconButton(
-                    onClick = { onAction(HomeAction.ScrollToTop) },
-                    enabled = true
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                        TooltipAnchorPosition.Above
+                    ),
+                    tooltip = { PlainTooltip { Text(stringResource(R.string.scroll_to_top)) } },
+                    state = rememberTooltipState()
                 ) {
-                    Icon(
-                        painterResource(R.drawable.upward),
-                        contentDescription = stringResource(R.string.scroll_to_top)
-                    )
+                    IconButton(
+                        onClick = { onAction(HomeAction.ScrollToTop) },
+                        enabled = true
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.upward),
+                            contentDescription = stringResource(R.string.scroll_to_top)
+                        )
+                    }
                 }
-            }
 
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
-                    TooltipAnchorPosition.Above
-                ),
-                tooltip = { PlainTooltip { Text(stringResource(R.string.randomArticle)) } },
-                state = rememberTooltipState()
-            ) {
-                IconButton(onClick = { onAction(HomeAction.LoadRandom) }) {
-                    Icon(
-                        painterResource(R.drawable.shuffle),
-                        contentDescription = stringResource(R.string.randomArticle)
-                    )
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                        TooltipAnchorPosition.Above
+                    ),
+                    tooltip = { PlainTooltip { Text(stringResource(R.string.randomArticle)) } },
+                    state = rememberTooltipState()
+                ) {
+                    IconButton(onClick = { onAction(HomeAction.LoadRandom) }) {
+                        Icon(
+                            painterResource(R.drawable.shuffle),
+                            contentDescription = stringResource(R.string.randomArticle)
+                        )
+                    }
                 }
             }
         }

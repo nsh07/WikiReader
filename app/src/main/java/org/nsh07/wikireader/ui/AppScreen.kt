@@ -1,11 +1,14 @@
 package org.nsh07.wikireader.ui
 
 import android.os.Build.VERSION.SDK_INT
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -60,7 +63,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.text.parseAsHtml
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -69,7 +71,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
-import androidx.navigation.toRoute
 import androidx.window.core.layout.WindowSizeClass
 import coil3.ImageLoader
 import coil3.gif.AnimatedImageDecoder
@@ -81,7 +82,6 @@ import kotlinx.serialization.Serializable
 import org.nsh07.wikireader.R.string
 import org.nsh07.wikireader.data.SearchHistoryItem
 import org.nsh07.wikireader.data.UserLanguage
-import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.ui.aboutScreen.AboutScreen
 import org.nsh07.wikireader.ui.historyScreen.HistoryScreenRoot
 import org.nsh07.wikireader.ui.homeScreen.AppHomeScreen
@@ -89,7 +89,6 @@ import org.nsh07.wikireader.ui.homeScreen.AppSearchBar
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeAction
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeScreenViewModel
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeSubscreen
-import org.nsh07.wikireader.ui.image.FullScreenImage
 import org.nsh07.wikireader.ui.savedArticlesScreen.SavedArticlesScreenRoot
 import org.nsh07.wikireader.ui.settingsScreen.SettingsScreenRoot
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsViewModel
@@ -177,6 +176,7 @@ fun AppScreen(
         windowSizeClass = windowSizeClass,
         backStackEntry = navBackStackEntry,
         historyEnabled = preferencesState.browsingHistory,
+        isImageView = backStack.last() is HomeSubscreen.Image,
         onAboutClick = {
             navController.navigate(AboutScreen) {
                 popUpTo(navController.graph.findStartDestination().id) {
@@ -304,43 +304,52 @@ fun AppScreen(
 
                 Scaffold(
                     topBar = {
-                        AppSearchBar(
-                            appSearchBarState = appSearchBarState,
-                            searchBarState = searchBarState,
-                            preferencesState = preferencesState,
-                            textFieldState = textFieldState,
-                            userLangs = userLangs,
-                            recentLangs = recentLangs,
-                            searchHistory = searchHistory,
-                            scrollBehavior = searchBarScrollBehavior,
-                            searchBarEnabled = !showArticleLanguageSheet,
-                            imageLoader = imageLoader,
-                            searchListState = searchListState,
-                            windowSizeClass = windowSizeClass,
-                            languageSearchStr = languageSearchStr,
-                            languageSearchQuery = languageSearchQuery,
-                            onAction = viewModel::onAction,
-                            onSettingsAction = settingsViewModel::onAction,
-                            onSearchBarExpandedChange = {
-                                scope.launch {
-                                    if (it) searchBarState.animateToExpanded()
-                                    else searchBarState.animateToCollapsed()
+                        AnimatedVisibility(
+                            backStack.last() !is HomeSubscreen.Image,
+                            enter = slideInVertically(
+                                motionScheme.defaultSpatialSpec(),
+                                initialOffsetY = { -it }
+                            ) + expandVertically(motionScheme.defaultSpatialSpec()),
+                            exit = fadeOut(motionScheme.fastEffectsSpec())
+                        ) {
+                            AppSearchBar(
+                                appSearchBarState = appSearchBarState,
+                                searchBarState = searchBarState,
+                                preferencesState = preferencesState,
+                                textFieldState = textFieldState,
+                                userLangs = userLangs,
+                                recentLangs = recentLangs,
+                                searchHistory = searchHistory,
+                                scrollBehavior = searchBarScrollBehavior,
+                                searchBarEnabled = !showArticleLanguageSheet,
+                                imageLoader = imageLoader,
+                                searchListState = searchListState,
+                                windowSizeClass = windowSizeClass,
+                                languageSearchStr = languageSearchStr,
+                                languageSearchQuery = languageSearchQuery,
+                                onAction = viewModel::onAction,
+                                onSettingsAction = settingsViewModel::onAction,
+                                onSearchBarExpandedChange = {
+                                    scope.launch {
+                                        if (it) searchBarState.animateToExpanded()
+                                        else searchBarState.animateToCollapsed()
+                                    }
+                                },
+                                clearHistory = {
+                                    historyItem = null
+                                    setShowDeleteDialog(true)
+                                },
+                                removeHistoryItem = {
+                                    historyItem = it
+                                    setShowDeleteDialog(true)
+                                },
+                                onMenuIconClicked = {
+                                    scope.launch {
+                                        railState.expand()
+                                    }
                                 }
-                            },
-                            clearHistory = {
-                                historyItem = null
-                                setShowDeleteDialog(true)
-                            },
-                            removeHistoryItem = {
-                                historyItem = it
-                                setShowDeleteDialog(true)
-                            },
-                            onMenuIconClicked = {
-                                scope.launch {
-                                    railState.expand()
-                                }
-                            }
-                        )
+                            )
+                        }
                     },
                     snackbarHost = { SnackbarHost(snackBarHostState) },
                     contentWindowInsets =
@@ -369,10 +378,6 @@ fun AppScreen(
                         languageSearchQuery = languageSearchQuery,
                         showLanguageSheet = showArticleLanguageSheet,
                         deepLinkHandled = deepLinkHandled,
-                        onImageClick = { navController.navigate(FullScreenImage()) },
-                        onGalleryImageClick = { uri, desc ->
-                            navController.navigate(FullScreenImage(uri, desc))
-                        },
                         onAction = viewModel::onAction,
                         onSettingsAction = settingsViewModel::onAction,
                         setShowArticleLanguageSheet = { showArticleLanguageSheet = it },
@@ -381,53 +386,13 @@ fun AppScreen(
                         modifier = Modifier.fillMaxSize()
                     )
 
-                    StatusBarProtection()
-                }
-            }
-
-            composable<FullScreenImage> {
-                val uri = it.toRoute<FullScreenImage>().uri
-                val description = it.toRoute<FullScreenImage>().description
-
-                if (uri == null) {
-                    if (backStack.last() is HomeSubscreen.Article) {
-                        val content = backStack.last() as HomeSubscreen.Article
-                        if (content.photo == null) navController.navigateUp()
-                        FullScreenImage(
-                            photo = content.photo,
-                            photoDesc = content.photoDesc,
-                            title = content.title,
-                            imageLoader = imageLoader,
-                            background = preferencesState.imageBackground,
-                            link = content.photo?.source,
-                            onBack = navController::navigateUp
-                        )
-                    } else if (backStack.last() is HomeSubscreen.Feed) {
-                        val content = backStack.last() as HomeSubscreen.Feed
-                        FullScreenImage(
-                            photo = WikiPhoto(
-                                source = content.image?.thumbnail?.source ?: "",
-                                width = content.image?.thumbnail?.width ?: 1,
-                                height = content.image?.thumbnail?.height ?: 1
-                            ),
-                            photoDesc = content.image?.description?.text?.parseAsHtml()
-                                .toString(),
-                            title = content.image?.title ?: "",
-                            imageLoader = imageLoader,
-                            link = content.image?.filePage,
-                            background = preferencesState.imageBackground,
-                            onBack = navController::navigateUp
-                        )
+                    AnimatedVisibility(
+                        backStack.last() !is HomeSubscreen.Image,
+                        enter = fadeIn(motionScheme.slowEffectsSpec()),
+                        exit = fadeOut(motionScheme.fastEffectsSpec())
+                    ) {
+                        StatusBarProtection()
                     }
-                } else {
-                    FullScreenImage(
-                        uri = uri,
-                        description = description ?: "",
-                        imageLoader = imageLoader,
-                        link = uri,
-                        background = preferencesState.imageBackground,
-                        onBack = navController::navigateUp
-                    )
                 }
             }
 
@@ -436,7 +401,7 @@ fun AppScreen(
                     imageLoader = imageLoader,
                     imageBackground = preferencesState.imageBackground,
                     openSavedArticle = { pageId: Int, lang: String ->
-                            navController.navigateUp()
+                        navController.navigateUp()
                         viewModel.onAction(HomeAction.LoadSavedArticle(pageId, lang))
                     },
                     onBack = navController::navigateUp
@@ -562,12 +527,6 @@ fun calculateGradientHeight(): () -> Float {
 data class HomeScreen(
     val lang: String? = null,
     val query: String? = null
-)
-
-@Serializable
-data class FullScreenImage(
-    val uri: String? = null,
-    val description: String? = null
 )
 
 @Serializable

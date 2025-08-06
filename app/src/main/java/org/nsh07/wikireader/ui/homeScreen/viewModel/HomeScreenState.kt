@@ -2,8 +2,10 @@ package org.nsh07.wikireader.ui.homeScreen.viewModel
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.AnnotatedString
+import coil3.ImageLoader
 import org.nsh07.wikireader.data.FeedApiImage
 import org.nsh07.wikireader.data.FeedApiNews
 import org.nsh07.wikireader.data.FeedApiOTD
@@ -53,6 +55,29 @@ sealed class HomeSubscreen {
         val sections: List<Pair<Int, FeedSection>> = emptyList(),
         val listState: LazyListState = LazyListState()
     ) : HomeSubscreen()
+
+    sealed class Image : HomeSubscreen() {
+        data class FullScreenImage(
+            val photo: WikiPhoto?,
+            val photoDesc: String?,
+            val title: String,
+            val background: Boolean,
+            val imageLoader: ImageLoader,
+            val modifier: Modifier = Modifier,
+            val link: String? = null,
+            val onBack: () -> Unit,
+        ) : Image()
+
+        data class FullScreenArticleImage(
+            val uri: String,
+            val description: String,
+            val imageLoader: ImageLoader,
+            val modifier: Modifier = Modifier,
+            val link: String? = null,
+            val background: Boolean,
+            val onBack: () -> Unit,
+        ) : Image()
+    }
 
     object FeedLoader : HomeSubscreen()
     object Logo : HomeSubscreen()

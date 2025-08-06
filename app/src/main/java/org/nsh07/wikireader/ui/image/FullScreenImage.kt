@@ -234,7 +234,7 @@ fun FullScreenImage(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun FullScreenImage(
+fun FullScreenArticleImage(
     uri: String,
     description: String,
     imageLoader: ImageLoader,
