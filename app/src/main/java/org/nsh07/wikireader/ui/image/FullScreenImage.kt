@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -58,12 +60,13 @@ import coil3.request.crossfade
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.data.WikiPhoto
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalSharedTransitionApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun FullScreenImage(
     photo: WikiPhoto?,
     photoDesc: String?,
+    sharedScope: SharedTransitionScope,
     title: String,
     background: Boolean,
     imageLoader: ImageLoader,
@@ -123,120 +126,123 @@ fun FullScreenImage(
         }
     }
 
-    Scaffold(
-        topBar = {
-            AnimatedVisibility(
-                showTopBar,
-                enter = slideInVertically(motionScheme.defaultSpatialSpec()) { -it },
-                exit = slideOutVertically(motionScheme.defaultSpatialSpec()) { -it }
-            ) {
-                FullScreenImageTopBar(
-                    description = title,
-                    link = link,
-                    onBack = onBack
-                )
-            }
-        },
-        containerColor = Color.Black,
-        modifier = modifier
-    ) { _ ->
-        var scale by remember { mutableFloatStateOf(1f) }
-        var offset by remember { mutableStateOf(Offset.Zero) }
-        var size by remember { mutableStateOf(IntSize.Zero) }
-        val borderRadius by animateDpAsState(
-            if (showTopBar) 16.dp else 0.dp,
-            animationSpec = motionScheme.defaultSpatialSpec()
-        )
-
-        // Zoom/Offset logic. Also prevents image from going out of bounds
-        val state = rememberTransformableState { scaleChange, offsetChange, _ ->
-            val maxX = (size.width * (scale - 1) / 2f)
-            val maxY = (size.height * (scale - 1) / 2f)
-
-            scale = (scale * scaleChange).coerceIn(1f..8f)
-
-            offset += offsetChange.times(scale)
-            offset = Offset(
-                offset.x.coerceIn(-maxX, maxX),
-                offset.y.coerceIn(-maxY, maxY)
+    with(sharedScope) {
+        Scaffold(
+            topBar = {
+                AnimatedVisibility(
+                    showTopBar,
+                    enter = slideInVertically(motionScheme.defaultSpatialSpec()) { -it },
+                    exit = slideOutVertically(motionScheme.defaultSpatialSpec()) { -it }
+                ) {
+                    FullScreenImageTopBar(
+                        description = title,
+                        link = link,
+                        onBack = onBack
+                    )
+                }
+            },
+            containerColor = Color.Black,
+            modifier = modifier
+        ) { _ ->
+            var scale by remember { mutableFloatStateOf(1f) }
+            var offset by remember { mutableStateOf(Offset.Zero) }
+            var size by remember { mutableStateOf(IntSize.Zero) }
+            val borderRadius by animateDpAsState(
+                if (showTopBar) 16.dp else 0.dp,
+                animationSpec = motionScheme.defaultSpatialSpec()
             )
 
-            showTopBar = if (scale > 1.1f) false else true
-        }
+            // Zoom/Offset logic. Also prevents image from going out of bounds
+            val state = rememberTransformableState { scaleChange, offsetChange, _ ->
+                val maxX = (size.width * (scale - 1) / 2f)
+                val maxY = (size.height * (scale - 1) / 2f)
 
-        val coroutineScope = rememberCoroutineScope()
-        val painterState by painter.state.collectAsStateWithLifecycle()
+                scale = (scale * scaleChange).coerceIn(1f..8f)
 
-        if (photo != null && photoDesc != null)
-            Box(contentAlignment = Alignment.Center) {
-                AnimatedVisibility(
-                    painterState is AsyncImagePainter.State.Success && showTopBar && Build.VERSION.SDK_INT >= 31,
-                    enter = fadeIn(motionScheme.defaultEffectsSpec()),
-                    exit = fadeOut(motionScheme.defaultEffectsSpec())
-                ) {
-                    Image(
-                        painter = painter,
-                        contentDescription = null,
-                        contentScale = contentScale,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .blur(32.dp)
-                            .alpha(0.3f)
-                    )
-                }
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                    PageImage(
-                        photo = photo,
-                        photoDesc = photoDesc,
-                        painter = painter,
-                        painterState = painterState,
-                        contentScale = contentScale,
-                        background = background,
-                        modifier = Modifier
-                            .onSizeChanged { size = it }
-                            .graphicsLayer(
-                                scaleX = scale,
-                                scaleY = scale,
-                                translationX = offset.x,
-                                translationY = offset.y
-                            )
-                            .transformable(state = state)
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onTap = {
-                                        showTopBar = !showTopBar
-                                    },
-                                    onDoubleTap = {
-                                        coroutineScope.launch {
-                                            if (scale == 1f) // Zoom in only if the image is zoomed out
-                                                state.animateZoomBy(
-                                                    4f,
-                                                    motionScheme.defaultSpatialSpec()
-                                                )
-                                            else
-                                                state.animateZoomBy(
-                                                    0.25f,
-                                                    motionScheme.defaultEffectsSpec()
-                                                )
-                                        }
-                                    }
-                                )
-                            }
-                            .fillMaxSize()
-                            .padding(borderRadius.coerceAtLeast(0.dp))
-                            .clip(RoundedCornerShape(borderRadius.coerceAtLeast(0.dp)))
-                    )
-                }
+                offset += offsetChange.times(scale)
+                offset = Offset(
+                    offset.x.coerceIn(-maxX, maxX),
+                    offset.y.coerceIn(-maxY, maxY)
+                )
+
+                showTopBar = scale <= 1.1f
             }
+
+            val coroutineScope = rememberCoroutineScope()
+            val painterState by painter.state.collectAsStateWithLifecycle()
+
+            if (photo != null && photoDesc != null)
+                Box(contentAlignment = Alignment.Center) {
+                    AnimatedVisibility(
+                        painterState is AsyncImagePainter.State.Success && showTopBar && Build.VERSION.SDK_INT >= 31,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        Image(
+                            painter = painter,
+                            contentDescription = null,
+                            contentScale = contentScale,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .blur(32.dp)
+                                .alpha(0.3f)
+                        )
+                    }
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                        PageImage(
+                            photo = photo,
+                            photoDesc = photoDesc,
+                            painter = painter,
+                            painterState = painterState,
+                            contentScale = contentScale,
+                            background = background,
+                            modifier = Modifier
+                                .onSizeChanged { size = it }
+                                .graphicsLayer(
+                                    scaleX = scale,
+                                    scaleY = scale,
+                                    translationX = offset.x,
+                                    translationY = offset.y
+                                )
+                                .transformable(state = state)
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onTap = {
+                                            showTopBar = !showTopBar
+                                        },
+                                        onDoubleTap = {
+                                            coroutineScope.launch {
+                                                if (scale == 1f) // Zoom in only if the image is zoomed out
+                                                    state.animateZoomBy(
+                                                        4f,
+                                                        motionScheme.defaultSpatialSpec()
+                                                    )
+                                                else
+                                                    state.animateZoomBy(
+                                                        0.25f,
+                                                        motionScheme.defaultEffectsSpec()
+                                                    )
+                                            }
+                                        }
+                                    )
+                                }
+                                .fillMaxSize()
+                                .padding(borderRadius.coerceAtLeast(0.dp))
+                                .clip(RoundedCornerShape(borderRadius.coerceAtLeast(0.dp)))
+                        )
+                    }
+                }
+        }
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalSharedTransitionApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun FullScreenImage(
+fun FullScreenArticleImage(
     uri: String,
     description: String,
+    sharedScope: SharedTransitionScope,
     imageLoader: ImageLoader,
     modifier: Modifier = Modifier,
     link: String? = null,
@@ -296,99 +302,102 @@ fun FullScreenImage(
         }
     }
 
-    Scaffold(
-        topBar = {
-            AnimatedVisibility(
-                showTopBar,
-                enter = slideInVertically(motionScheme.defaultSpatialSpec()) { -it },
-                exit = slideOutVertically(motionScheme.defaultSpatialSpec()) { -it }
-            ) {
-                FullScreenImageTopBar(
-                    description = description,
-                    link = link,
-                    onBack = onBack
-                )
-            }
-        },
-        containerColor = Color.Black,
-        modifier = modifier
-    ) { _ ->
-        var scale by remember { mutableFloatStateOf(1f) }
-        var offset by remember { mutableStateOf(Offset.Zero) }
-        var size by remember { mutableStateOf(IntSize.Zero) }
-        val borderRadius by animateDpAsState(
-            if (showTopBar) 16.dp else 0.dp,
-            animationSpec = motionScheme.defaultSpatialSpec()
-        )
-
-        // Zoom/Offset logic. Also prevents image from going out of bounds
-        val state = rememberTransformableState { scaleChange, offsetChange, _ ->
-            val maxX = (size.width * (scale - 1) / 2f)
-            val maxY = (size.height * (scale - 1) / 2f)
-
-            scale = (scale * scaleChange).coerceIn(1f..8f)
-
-            offset += offsetChange.times(scale)
-            offset = Offset(
-                offset.x.coerceIn(-maxX, maxX),
-                offset.y.coerceIn(-maxY, maxY)
+    with(sharedScope) {
+        Scaffold(
+            topBar = {
+                AnimatedVisibility(
+                    showTopBar,
+                    enter = slideInVertically(motionScheme.defaultSpatialSpec()) { -it },
+                    exit = slideOutVertically(motionScheme.defaultSpatialSpec()) { -it }
+                ) {
+                    FullScreenImageTopBar(
+                        description = description,
+                        link = link,
+                        onBack = onBack
+                    )
+                }
+            },
+            containerColor = Color.Black,
+            modifier = modifier
+        ) { _ ->
+            var scale by remember { mutableFloatStateOf(1f) }
+            var offset by remember { mutableStateOf(Offset.Zero) }
+            var size by remember { mutableStateOf(IntSize.Zero) }
+            val borderRadius by animateDpAsState(
+                if (showTopBar) 16.dp else 0.dp,
+                animationSpec = motionScheme.defaultSpatialSpec()
             )
 
-            showTopBar = if (scale > 1.1f) false else true
-        }
+            // Zoom/Offset logic. Also prevents image from going out of bounds
+            val state = rememberTransformableState { scaleChange, offsetChange, _ ->
+                val maxX = (size.width * (scale - 1) / 2f)
+                val maxY = (size.height * (scale - 1) / 2f)
 
-        val painterState by painter.state.collectAsStateWithLifecycle()
+                scale = (scale * scaleChange).coerceIn(1f..8f)
 
-        Box(contentAlignment = Alignment.Center) {
-            AnimatedVisibility(
-                painterState is AsyncImagePainter.State.Success && showTopBar && Build.VERSION.SDK_INT >= 31,
-                enter = fadeIn(motionScheme.defaultEffectsSpec()),
-                exit = fadeOut(motionScheme.defaultEffectsSpec())
-            ) {
-                Image(
-                    painter = painter,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .blur(32.dp)
-                        .alpha(0.3f)
+                offset += offsetChange.times(scale)
+                offset = Offset(
+                    offset.x.coerceIn(-maxX, maxX),
+                    offset.y.coerceIn(-maxY, maxY)
                 )
+
+                showTopBar = if (scale > 1.1f) false else true
             }
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                PageImage(
-                    description = description,
-                    painter = painter,
-                    painterState = painterState,
-                    contentScale = contentScale,
-                    background = background,
-                    modifier = Modifier
-                        .onSizeChanged { size = it }
-                        .graphicsLayer(
-                            scaleX = scale,
-                            scaleY = scale,
-                            translationX = offset.x,
-                            translationY = offset.y
-                        )
-                        .transformable(state = state)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = {
-                                    showTopBar = !showTopBar
-                                },
-                                onDoubleTap = {
-                                    scope.launch {
-                                        if (scale == 1f) // Zoom in only if the image is zoomed out
-                                            state.animateZoomBy(4f)
-                                        else
-                                            state.animateZoomBy(0.25f)
-                                    }
-                                }
+
+            val painterState by painter.state.collectAsStateWithLifecycle()
+
+            Box(contentAlignment = Alignment.Center) {
+                AnimatedVisibility(
+                    painterState is AsyncImagePainter.State.Success && showTopBar && Build.VERSION.SDK_INT >= 31,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    Image(
+                        painter = painter,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .blur(32.dp)
+                            .alpha(0.3f)
+                    )
+                }
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                    PageImage(
+                        uri = uri,
+                        description = description,
+                        painter = painter,
+                        painterState = painterState,
+                        contentScale = contentScale,
+                        background = background,
+                        modifier = Modifier
+                            .onSizeChanged { size = it }
+                            .graphicsLayer(
+                                scaleX = scale,
+                                scaleY = scale,
+                                translationX = offset.x,
+                                translationY = offset.y
                             )
-                        }
-                        .padding(borderRadius.coerceAtLeast(0.dp))
-                        .clip(RoundedCornerShape(borderRadius.coerceAtLeast(0.dp)))
-                )
+                            .transformable(state = state)
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onTap = {
+                                        showTopBar = !showTopBar
+                                    },
+                                    onDoubleTap = {
+                                        scope.launch {
+                                            if (scale == 1f) // Zoom in only if the image is zoomed out
+                                                state.animateZoomBy(4f)
+                                            else
+                                                state.animateZoomBy(0.25f)
+                                        }
+                                    }
+                                )
+                            }
+                            .padding(borderRadius.coerceAtLeast(0.dp))
+                            .clip(RoundedCornerShape(borderRadius.coerceAtLeast(0.dp)))
+                    )
+                }
             }
         }
     }

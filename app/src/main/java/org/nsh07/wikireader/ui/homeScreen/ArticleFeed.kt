@@ -489,78 +489,91 @@ fun ArticleFeed(
             }
             if (feedContent.image != null) {
                 item {
-                    Text(
-                        stringResource(R.string.picOfTheDay),
-                        style = typography.titleLarge,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .padding(top = 32.dp)
-                    )
-                    Card(
-                        onClick = onImageClick,
-                        shape = cardShape,
-                        colors = cardColors,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        if (!expanded) {
-                            FeedImage(
-                                source = feedContent.image.thumbnail?.source,
-                                description = feedContent.image.description?.text,
-                                width = feedContent.image.thumbnail?.width ?: 1,
-                                height = feedContent.image.thumbnail?.height ?: 1,
-                                imageLoader = imageLoader,
-                                background = imageBackground,
-                                loadingIndicator = false,
-                                modifier = Modifier.clip(cardShape)
-                            )
-                            Text(
-                                feedContent.image.description?.text?.parseAsHtml().toString(),
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .padding(top = 16.dp)
-                            )
-                            Text(
-                                (feedContent.image.artist?.name
-                                    ?: feedContent.image.artist?.text)?.substringBefore('\n') +
-                                        " (" + feedContent.image.credit?.text?.substringBefore(';') + ")",
-                                style = typography.bodyMedium,
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .padding(top = 8.dp, bottom = 16.dp)
-                            )
-                        } else {
-                            Row {
+                    with(sharedScope) {
+                        Text(
+                            stringResource(R.string.picOfTheDay),
+                            style = typography.titleLarge,
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .padding(top = 32.dp)
+                        )
+                        Card(
+                            onClick = onImageClick,
+                            shape = cardShape,
+                            colors = cardColors,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            if (!expanded) {
                                 FeedImage(
-                                    source = feedContent.image.image?.source,
+                                    source = feedContent.image.thumbnail?.source,
                                     description = feedContent.image.description?.text,
-                                    width = feedContent.image.image?.width ?: 1,
-                                    height = feedContent.image.image?.height ?: 1,
+                                    width = feedContent.image.thumbnail?.width ?: 1,
+                                    height = feedContent.image.thumbnail?.height ?: 1,
                                     imageLoader = imageLoader,
                                     background = imageBackground,
                                     loadingIndicator = false,
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier
+                                        .sharedBounds(
+                                            sharedContentState = rememberSharedContentState(
+                                                feedContent.image.thumbnail?.source ?: "imgsrc"
+                                            ),
+                                            animatedVisibilityScope = LocalNavAnimatedContentScope.current
+                                        )
+                                        .clip(cardShape)
                                 )
-                                Column(Modifier.weight(1f)) {
-                                    Text(
-                                        feedContent.image.description?.text?.parseAsHtml()
-                                            .toString(),
-                                        modifier = Modifier
-                                            .padding(horizontal = 16.dp)
-                                            .padding(top = 16.dp)
+                                Text(
+                                    feedContent.image.description?.text?.parseAsHtml().toString(),
+                                    modifier = Modifier
+                                        .padding(horizontal = 16.dp)
+                                        .padding(top = 16.dp)
+                                )
+                                Text(
+                                    (feedContent.image.artist?.name
+                                        ?: feedContent.image.artist?.text)?.substringBefore('\n') +
+                                            " (" + feedContent.image.credit?.text?.substringBefore(
+                                        ';'
+                                    ) + ")",
+                                    style = typography.bodyMedium,
+                                    modifier = Modifier
+                                        .padding(horizontal = 16.dp)
+                                        .padding(top = 8.dp, bottom = 16.dp)
+                                )
+                            } else {
+                                Row {
+                                    FeedImage(
+                                        source = feedContent.image.image?.source,
+                                        description = feedContent.image.description?.text,
+                                        width = feedContent.image.image?.width ?: 1,
+                                        height = feedContent.image.image?.height ?: 1,
+                                        imageLoader = imageLoader,
+                                        background = imageBackground,
+                                        loadingIndicator = false,
+                                        modifier = Modifier.weight(1f)
                                     )
-                                    Text(
-                                        (feedContent.image.artist?.name
-                                            ?: feedContent.image.artist?.text)?.substringBefore('\n') +
-                                                " (" + feedContent.image.credit?.text?.substringBefore(
-                                            ';'
-                                        ) + ")",
-                                        style = typography.bodyMedium,
-                                        modifier = Modifier
-                                            .padding(horizontal = 16.dp)
-                                            .padding(top = 8.dp, bottom = 16.dp)
-                                    )
+                                    Column(Modifier.weight(1f)) {
+                                        Text(
+                                            feedContent.image.description?.text?.parseAsHtml()
+                                                .toString(),
+                                            modifier = Modifier
+                                                .padding(horizontal = 16.dp)
+                                                .padding(top = 16.dp)
+                                        )
+                                        Text(
+                                            (feedContent.image.artist?.name
+                                                ?: feedContent.image.artist?.text)?.substringBefore(
+                                                '\n'
+                                            ) +
+                                                    " (" + feedContent.image.credit?.text?.substringBefore(
+                                                ';'
+                                            ) + ")",
+                                            style = typography.bodyMedium,
+                                            modifier = Modifier
+                                                .padding(horizontal = 16.dp)
+                                                .padding(top = 8.dp, bottom = 16.dp)
+                                        )
+                                    }
                                 }
                             }
                         }

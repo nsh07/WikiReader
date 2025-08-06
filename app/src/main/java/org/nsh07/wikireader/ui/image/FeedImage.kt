@@ -55,54 +55,60 @@ fun FeedImage(
 
     val painterState by painter.state.collectAsStateWithLifecycle()
 
-    if (painterState is AsyncImagePainter.State.Success) {
-        Image(
-            painter = painter,
-            contentDescription = description,
-            contentScale = contentScale,
-            colorFilter = colorFilter,
-            modifier =
-                if (width != null && height != null)
-                    modifier
-                        .fillMaxWidth()
-                        .aspectRatio(width.toFloat() / height.toFloat())
-                        .background(if (background) Color.White else Color.Transparent)
-                else
-                    modifier
-                        .fillMaxSize()
-                        .background(if (background) Color.White else Color.Transparent)
-        )
-    } else if (painterState is AsyncImagePainter.State.Loading) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier =
-                if (width != null && height != null)
-                    modifier
-                        .fillMaxWidth()
-                        .aspectRatio(width.toFloat() / height.toFloat())
-                else
-                    modifier
-                        .fillMaxSize()
-        ) {
-            if (loadingIndicator) LoadingIndicator()
-            else CircularWavyProgressIndicator()
-        }
-    } else {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier =
-                if (width != null && height != null)
-                    modifier
-                        .fillMaxWidth()
-                        .aspectRatio(width.toFloat() / height.toFloat())
-                else
-                    modifier.fillMaxSize()
-        ) {
-            Icon(
-                painterResource(R.drawable.error),
-                contentDescription = stringResource(R.string.errorLoadingImage),
-                tint = colorScheme.error
+    when (painterState) {
+        is AsyncImagePainter.State.Success -> {
+            Image(
+                painter = painter,
+                contentDescription = description,
+                contentScale = contentScale,
+                colorFilter = colorFilter,
+                modifier =
+                    if (width != null && height != null)
+                        modifier
+                            .fillMaxWidth()
+                            .aspectRatio(width.toFloat() / height.toFloat())
+                            .background(if (background) Color.White else Color.Transparent)
+                    else
+                        modifier
+                            .fillMaxSize()
+                            .background(if (background) Color.White else Color.Transparent)
             )
+        }
+
+        is AsyncImagePainter.State.Loading -> {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier =
+                    if (width != null && height != null)
+                        modifier
+                            .fillMaxWidth()
+                            .aspectRatio(width.toFloat() / height.toFloat())
+                    else
+                        modifier
+                            .fillMaxSize()
+            ) {
+                if (loadingIndicator) LoadingIndicator()
+                else CircularWavyProgressIndicator()
+            }
+        }
+
+        else -> {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier =
+                    if (width != null && height != null)
+                        modifier
+                            .fillMaxWidth()
+                            .aspectRatio(width.toFloat() / height.toFloat())
+                    else
+                        modifier.fillMaxSize()
+            ) {
+                Icon(
+                    painterResource(R.drawable.error),
+                    contentDescription = stringResource(R.string.errorLoadingImage),
+                    tint = colorScheme.error
+                )
+            }
         }
     }
 }
