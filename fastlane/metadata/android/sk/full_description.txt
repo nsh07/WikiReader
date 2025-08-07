@@ -3,7 +3,7 @@
 <p>Features</p>
 <ul>
     <li><b>Rýchle načítavanie:</b> The article text is loaded before anything else, so you can get to reading, quick</li>
-    <li><b>Feed:</b> Read the article of the day, find trending articles and get up to speed on the news with the Wikipedia Feed</li>
+    <li><b>Prehľad:</b> Read the article of the day, find trending articles and get up to speed on the news with the Wikipedia Feed</li>
     <li><b>Obrázok k článku:</b> View an image of the topic from its Wikipedia page. Click on it to enlarge it and view in full-screen</li>
     <li><b>Náhodný článok:</b> Feeling lucky? Click the random article button to read a random article</li>
     <li><b>Vyber si svoj jazyk: Vyber si jeden 300 jazykov dostupných na Wikipedii</b></li>
@@ -14,6 +14,6 @@
     <li><b>Plynulé animácie:</b> Hladké a plynulé animácie</li>
     <li><b>Nastaviteľné farby:</b> Choose from light/dark themes and customize the Material 3 color palette</li>
     <li><b>Nastaviteľný font:</b> Vyber si veľkosť a font písma</li>
-    <li><b>Šetrič dát:</b> Save your limited data plan by loa ding text only</li>
-    <li><b>Math expressions:</b> View properly rendered mathematical expressions for easily reading mathematical articles</li>
+    <li><b>Šetrič dát:</b> Míňaj menej dát tým, že sa zobrazí iba text</li>
+    <li><b>Matematické rovnice:</b> Správne zobrazuje matematické rovnice pre lepšiu čitateľnosť matematických článkov.</li>
 </ul>
