@@ -284,7 +284,7 @@ class HomeScreenViewModel(
     ) {
         val q = query?.trim() ?: " "
         if (q != "") {
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 var setLang = preferencesState.value.lang
                 try {
                     if (lang != null) {
@@ -369,7 +369,7 @@ class HomeScreenViewModel(
         random: Boolean = false
     ) {
         loaderJob.cancel()
-        viewModelScope.launch(loaderJob) {
+        viewModelScope.launch(loaderJob + Dispatchers.IO) {
             var setLang = preferencesState.value.lang
             if (title != null || random) {
                 try {
@@ -540,13 +540,12 @@ class HomeScreenViewModel(
     }
 
     /**
-     * Loads feed, updates the [FeedState] and sets the app status to [WRStatus.FEED_LOADED]
+     * Loads feed and updates the back stack
      *
-     * If an error is encountered, app status is set to [WRStatus.FEED_NETWORK_ERROR] and home screen
-     * text is updated to the error
+     * If an error is encountered, back stack is set to display the logo instead
      */
     private fun loadFeed() {
-        viewModelScope.launch(loaderJob) {
+        viewModelScope.launch(loaderJob + Dispatchers.IO) {
             if (!preferencesState.value.dataSaver && preferencesState.value.feedEnabled) {
                 _homeScreenState.update { currentState ->
                     currentState.copy(isLoading = true, loadingProgress = null)
