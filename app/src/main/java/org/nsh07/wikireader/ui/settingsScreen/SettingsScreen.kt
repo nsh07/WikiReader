@@ -417,6 +417,12 @@ fun SettingsScreen(
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
                                     )
+                                } else {
+                                    Icon(
+                                        painter = painterResource(R.drawable.clear),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                    )
                                 }
                             },
                             enabled = switchItems[0].enabled
@@ -578,6 +584,12 @@ fun SettingsScreen(
                                 if (item.checked && item.enabled) {
                                     Icon(
                                         painter = painterResource(R.drawable.check),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                    )
+                                } else {
+                                    Icon(
+                                        painter = painterResource(R.drawable.clear),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
                                     )

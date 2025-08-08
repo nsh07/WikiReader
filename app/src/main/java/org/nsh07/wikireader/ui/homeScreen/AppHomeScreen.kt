@@ -18,7 +18,6 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -260,7 +259,13 @@ fun AppHomeScreen(
                 },
                 entryProvider = entryProvider {
                     entry<HomeSubscreen.Logo> {
-                        Logo()
+                        Icon(
+                            painterResource(R.drawable.ic_launcher_monochrome),
+                            contentDescription = null,
+                            modifier = modifier
+                                .size(400.dp)
+                                .align(Alignment.Center)
+                        )
                     }
 
                     entry<HomeSubscreen.FeedLoader> {
@@ -620,15 +625,4 @@ fun FeedShimmer(
     AnimatedShimmer {
         FeedLoader(brush = it, insets = insets, modifier = modifier)
     }
-}
-
-@Composable
-fun BoxScope.Logo(modifier: Modifier = Modifier) {
-    Icon(
-        painterResource(R.drawable.ic_launcher_monochrome),
-        contentDescription = null,
-        modifier = modifier
-            .size(400.dp)
-            .align(Alignment.Center)
-    )
 }
