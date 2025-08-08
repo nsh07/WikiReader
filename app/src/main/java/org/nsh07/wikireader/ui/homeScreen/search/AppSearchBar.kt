@@ -1,4 +1,4 @@
-package org.nsh07.wikireader.ui.homeScreen
+package org.nsh07.wikireader.ui.homeScreen.search
 
 import android.os.Build
 import androidx.activity.compose.BackHandler
@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -103,9 +102,6 @@ import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.settingsScreen.LanguageBottomSheet
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsAction
-import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
-import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
-import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -166,7 +162,10 @@ fun AppSearchBar(
             SearchBarDefaults.InputField(
                 textFieldState = textFieldState,
                 searchBarState = searchBarState,
-                onSearch = { onAction(HomeAction.LoadSearch(it)) },
+                onSearch = {
+                    onSearchBarExpandedChange(false)
+                    onAction(HomeAction.LoadSearch(it))
+                },
                 placeholder = {
                     val alignment by animateHorizontalAlignmentAsState(
                         if (searchBarState.targetValue == SearchBarValue.Expanded) -1f else 0f,
@@ -249,8 +248,10 @@ fun AppSearchBar(
                         IconButton(
                             shapes = IconButtonDefaults.shapes(),
                             onClick = {
-                                if (searchBarState.currentValue == SearchBarValue.Expanded)
+                                if (searchBarState.currentValue == SearchBarValue.Expanded) {
+                                    onSearchBarExpandedChange(false)
                                     onAction(HomeAction.LoadSearch(textFieldState.text.toString()))
+                                }
                                 else
                                     focusRequester.requestFocus()
                             }
@@ -350,56 +351,18 @@ fun AppSearchBar(
                                 }
                             }
                             items(size, key = { searchHistory[it].time }) {
-                                val currentText = searchHistory[it].query
-                                ListItem(
-                                    leadingContent = {
-                                        Icon(
-                                            painterResource(R.drawable.history),
-                                            contentDescription = null
-                                        )
-                                    },
-                                    headlineContent = {
-                                        Text(
-                                            currentText,
-                                            softWrap = false,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    },
-                                    trailingContent = {
-                                        IconButton(
-                                            shapes = IconButtonDefaults.shapes(),
-                                            onClick = { onAction(HomeAction.SetQuery(currentText)) },
-                                            modifier = Modifier.wrapContentSize()
-                                        ) {
-                                            Icon(
-                                                painterResource(R.drawable.north_west),
-                                                contentDescription = null
-                                            )
-                                        }
-                                    },
-                                    modifier = Modifier
-                                        .padding(horizontal = 16.dp)
-                                        .clip(
-                                            if (size == 1) shapes.large
-                                            else if (it == 0) topListItemShape
-                                            else if (it == size - 1) bottomListItemShape
-                                            else middleListItemShape
-                                        )
-                                        .combinedClickable(
-                                            onClick = {
-                                                onAction(HomeAction.LoadSearch(currentText))
-                                                textFieldState.setTextAndPlaceCursorAtEnd(
-                                                    currentText
-                                                )
-                                            },
-                                            onLongClick = {
-                                                haptic.performHapticFeedback(
-                                                    HapticFeedbackType.LongPress
-                                                )
-                                                removeHistoryItem(searchHistory[it])
-                                            }
-                                        )
-                                        .animateItem()
+                                SearchHistoryListItem(
+                                    index = it,
+                                    items = size,
+                                    currentItem = searchHistory[it],
+                                    haptic = haptic,
+                                    onAction = onAction,
+                                    removeHistoryItem = removeHistoryItem,
+                                    onClick = {
+                                        textFieldState.setTextAndPlaceCursorAtEnd(searchHistory[it].query)
+                                        onSearchBarExpandedChange(false)
+                                        onAction(HomeAction.LoadSearch(searchHistory[it].query))
+                                    }
                                 )
                             }
                             item {
@@ -708,54 +671,15 @@ fun AppSearchBar(
                                 appSearchBarState.prefixSearchResults ?: emptyList(),
                                 key = { index: Int, it: WikiPrefixSearchResult -> "${it.title}-prefix" }
                             ) { index: Int, it: WikiPrefixSearchResult ->
-                                ListItem(
-                                    headlineContent = {
-                                        Text(
-                                            it.title,
-                                            softWrap = false,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    },
-                                    supportingContent = if (it.terms != null) {
-                                        {
-                                            Text(
-                                                it.terms.description[0],
-                                                softWrap = true,
-                                                maxLines = 2,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
-                                        }
-                                    } else null,
-                                    trailingContent = {
-                                        if (it.thumbnail != null && !preferencesState.dataSaver)
-                                            FeedImage(
-                                                source = it.thumbnail.source,
-                                                imageLoader = imageLoader,
-                                                contentScale = ContentScale.Crop,
-                                                loadingIndicator = true,
-                                                background = preferencesState.imageBackground,
-                                                modifier = Modifier
-                                                    .padding(vertical = 4.dp)
-                                                    .size(56.dp)
-                                                    .clip(shapes.large)
-                                            )
-                                        else null
-                                    },
-                                    modifier = Modifier
-                                        .padding(horizontal = 16.dp)
-                                        .clip(
-                                            if (appSearchBarState.prefixSearchResults?.size == 1) shapes.large
-                                            else if (index == 0) topListItemShape
-                                            else if (index == appSearchBarState.prefixSearchResults?.lastIndex) bottomListItemShape
-                                            else middleListItemShape
-                                        )
-                                        .clickable(
-                                            onClick = {
-                                                onSearchBarExpandedChange(false)
-                                                onAction(HomeAction.LoadPage(it.title))
-                                            }
-                                        )
-                                        .animateItem()
+                                PrefixSearchResultListItem(
+                                    item = it,
+                                    dataSaver = preferencesState.dataSaver,
+                                    imageBackground = preferencesState.imageBackground,
+                                    imageLoader = imageLoader,
+                                    onSearchBarExpandedChange = onSearchBarExpandedChange,
+                                    onAction = onAction,
+                                    items = appSearchBarState.prefixSearchResults?.size ?: 0,
+                                    index = index
                                 )
                             }
                             item {
@@ -772,66 +696,15 @@ fun AppSearchBar(
                                 appSearchBarState.searchResults ?: emptyList(),
                                 key = { index: Int, it: WikiSearchResult -> "${it.title}-search" }
                             ) { index: Int, it: WikiSearchResult ->
-                                ListItem(
-                                    overlineContent = if (it.redirectTitle != null) {
-                                        {
-                                            Text(
-                                                stringResource(
-                                                    R.string.redirectedFrom,
-                                                    it.redirectTitle
-                                                ),
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
-                                        }
-                                    } else null,
-                                    headlineContent = {
-                                        Text(
-                                            AnnotatedString.fromHtml(
-                                                it.titleSnippet.ifEmpty { it.title }
-                                            ),
-                                            softWrap = false,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    },
-                                    supportingContent = {
-                                        Text(
-                                            AnnotatedString.fromHtml(it.snippet),
-                                            softWrap = true,
-                                            maxLines = 2,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    },
-                                    trailingContent = {
-                                        if (it.thumbnail != null && !preferencesState.dataSaver)
-                                            FeedImage(
-                                                source = it.thumbnail.source,
-                                                imageLoader = imageLoader,
-                                                contentScale = ContentScale.Crop,
-                                                loadingIndicator = true,
-                                                background = preferencesState.imageBackground,
-                                                modifier = Modifier
-                                                    .padding(vertical = 4.dp)
-                                                    .size(56.dp)
-                                                    .clip(shapes.large)
-                                            )
-                                        else null
-                                    },
-                                    modifier = Modifier
-                                        .padding(horizontal = 16.dp)
-                                        .clip(
-                                            if (appSearchBarState.searchResults?.size == 1) shapes.large
-                                            else if (index == 0) topListItemShape
-                                            else if (index == appSearchBarState.searchResults?.lastIndex) bottomListItemShape
-                                            else middleListItemShape
-                                        )
-                                        .clickable(
-                                            onClick = {
-                                                onSearchBarExpandedChange(false)
-                                                onAction(HomeAction.LoadPage(it.title))
-                                            }
-                                        )
-                                        .animateItem()
+                                SearchResultListItem(
+                                    it = it,
+                                    index = index,
+                                    items = appSearchBarState.searchResults?.size ?: 0,
+                                    dataSaver = preferencesState.dataSaver,
+                                    imageBackground = preferencesState.imageBackground,
+                                    imageLoader = imageLoader,
+                                    onSearchBarExpandedChange = onSearchBarExpandedChange,
+                                    onAction = onAction
                                 )
                             }
                             item {
