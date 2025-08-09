@@ -29,6 +29,7 @@ import org.nsh07.wikireader.data.LanguageData.alpha3CodeToAlpha2CodeMap
 import org.nsh07.wikireader.data.LanguageData.countryNameToAlpha2CodeMap
 import org.nsh07.wikireader.data.LanguageData.fifaCodeToAlpha3CodeMap
 import org.nsh07.wikireader.data.countryFlag
+import org.nsh07.wikireader.data.formatToHumanReadable
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.parser.ReferenceData.refCount
 import org.nsh07.wikireader.parser.ReferenceData.refList
@@ -704,6 +705,15 @@ fun String.toWikitextAnnotatedString(
                                 append('.')
                             }
 
+                            currSubstring.startsWith("{{format price", true) -> {
+                                val curr = currSubstring.substringAfter('|').substringBefore('|')
+                                append(
+                                    if (curr.contains('.')) curr.toDoubleOrNull()
+                                        ?.formatToHumanReadable() ?: curr.twas()
+                                    else curr.toLongOrNull()?.formatToHumanReadable() ?: curr.twas()
+                                )
+                            }
+
                             currSubstring.startsWith("{{for", true) -> {
                                 val splitList = currSubstring.substringAfter('|').split('|')
                                 if (splitList.size > 1) {
@@ -725,6 +735,13 @@ fun String.toWikitextAnnotatedString(
                                         }
                                     append('.')
                                 }
+                            }
+
+                            currSubstring.startsWith("{{US$", true) -> {
+                                if (currSubstring.contains('|')) {
+                                    val curr = currSubstring.substringAfter('|')
+                                    append("US$${curr.twas()}")
+                                } else append("US$")
                             }
 
                             currSubstring.startsWith("{{hatnote", ignoreCase = true) -> {
@@ -971,7 +988,7 @@ fun String.toWikitextAnnotatedString(
                                 )
                             }
 
-                            currSubstring.startsWith("{{unbulleted list") -> {
+                            currSubstring.startsWith("{{unbulleted list", true) -> {
                                 val splitList = currSubstring
                                     .substringAfter('|', "")
                                     .splitNotInBraces('|')
@@ -980,6 +997,30 @@ fun String.toWikitextAnnotatedString(
                                     .joinToString("\n")
 
                                 append(splitList.twas())
+                            }
+
+                            listOf(
+                                "{{bulleted list",
+                                "{{ulist",
+                                "{{blist",
+                                "{{bulleted",
+                                "{{unordered list"
+                            ).fastAny {
+                                currSubstring.startsWith(it, true)
+                            } -> {
+                                val splitList = currSubstring
+                                    .substringAfter('|', "")
+                                    .splitNotInBraces('|')
+                                    .fastMap {
+                                        if (it.trim()
+                                                .matches("\\d+=.+".toRegex(RegexOption.DOT_MATCHES_ALL))
+                                        )
+                                            it.substringAfter('=').trim()
+                                        else it.trim()
+                                    }
+                                    .joinToString("\n* ")
+
+                                append("* $splitList".twas())
                             }
 
                             currSubstring.startsWith("{{Transcluded section", true) -> {
@@ -1043,11 +1084,19 @@ fun String.toWikitextAnnotatedString(
                                 )
                             }
 
-                            currSubstring.startsWith("{{siglo", true) -> {
+                            listOf("{{siglo", "{{segle").fastAny {
+                                currSubstring.startsWith(it, true)
+                            } -> {
                                 // Spanish/Catalan template for century
                                 val first = currSubstring.substringAfter("{{").substringBefore('|')
                                 val second = currSubstring.substringAfter('|').substringBefore('|')
                                 append("$first <small>$second</small>".twas())
+                            }
+
+                            currSubstring.startsWith("{{romanes", true) -> {
+                                // Spanish/Catalan template for roman numerals
+                                val second = currSubstring.substringAfter('|').substringBefore('|')
+                                append("<small>$second</small>".twas())
                             }
 
                             currSubstring.startsWith("{{tracce", true) -> {
@@ -1304,5 +1353,5 @@ object ReferenceData {
     val refListCount = mutableMapOf<String, Int>()
     var refTemplate = "{{cite"
     val refTemplates = listOf("{{cite", "{{lien", "{{cita|")
-    val infoboxTemplates = listOf("{{infobox", "{{taxobox", "{{Automatic taxobox")
+    val infoboxTemplates = listOf("{{infobox", "{{taxobox", "{{Automatic taxobox", "{{Картка")
 }
