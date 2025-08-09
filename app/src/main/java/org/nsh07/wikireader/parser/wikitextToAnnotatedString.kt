@@ -61,6 +61,9 @@ fun String.toWikitextAnnotatedString(
     var i = 0
     var number = 1 // Count for numbered lists
 
+    var italic = false
+    var bold = false
+
     val twas: String.() -> AnnotatedString = {
         this.toWikitextAnnotatedString(
             colorScheme,
@@ -680,8 +683,52 @@ fun String.toWikitextAnnotatedString(
                                 }
                             }
 
+                            currSubstring.startsWith("{{redirect-distinguish", true) -> {
+                                val splitList = currSubstring.substringAfter('|').split('|')
+                                append("\"${splitList.getOrNull(0)}\" redirects here; not to be confused with ")
+                                splitList.subList(1, splitList.size)
+                                    .fastForEachIndexed { index: Int, it: String ->
+                                        append(
+                                            "[[${it.substringBefore(MAGIC_SEP)}|${
+                                                it.substringAfter(
+                                                    MAGIC_SEP
+                                                )
+                                            }]]".twas()
+                                        )
+
+                                        if (index == splitList.size - 2 && splitList.size > 2) append(
+                                            ", or "
+                                        )
+                                        else if (index < splitList.size - 2) append(", ")
+                                    }
+                                append('.')
+                            }
+
+                            currSubstring.startsWith("{{for", true) -> {
+                                val splitList = currSubstring.substringAfter('|').split('|')
+                                if (splitList.size > 1) {
+                                    append("For ${splitList[0]}, see ")
+                                    splitList.subList(1, splitList.size)
+                                        .fastForEachIndexed { index: Int, it: String ->
+                                            append(
+                                                "[[${it.substringBefore(MAGIC_SEP)}|${
+                                                    it.substringAfter(
+                                                        MAGIC_SEP
+                                                    )
+                                                }]]".twas()
+                                            )
+
+                                            if (index == splitList.size - 2 && splitList.size > 2) append(
+                                                ", and "
+                                            )
+                                            else if (index < splitList.size - 2) append(", ")
+                                        }
+                                    append('.')
+                                }
+                            }
+
                             currSubstring.startsWith("{{hatnote", ignoreCase = true) -> {
-                                val curr = currSubstring.substringAfter('|')
+                                val curr = currSubstring.substringAfter('|').replace('\n', ' ')
                                 append("''$curr''".twas())
                             }
 
@@ -965,6 +1012,13 @@ fun String.toWikitextAnnotatedString(
                                 append("<sup>[citation needed]</sup>".twas())
                             }
 
+                            currSubstring.startsWith("{{url", true) -> {
+                                val curr = currSubstring.substringAfter('|', "")
+                                if (curr.matches(".+://.+".toRegex()))
+                                    append("[$curr ${curr.substringAfter("//")}]".twas())
+                                else append("[https://$curr $curr]".twas())
+                            }
+
                             currSubstring.startsWith("{{Starbox begin", ignoreCase = true) -> {
                                 val templateLength = currSubstring.length
                                 i = input.indexOf(
@@ -1118,24 +1172,23 @@ fun String.toWikitextAnnotatedString(
 
                 '\'' ->
                     if (input.getOrNull(i + 1) == '\'' && input.getOrNull(i + 2) == '\'') {
-                        val subs = input.substring(i + 3)
-                        val curr = subs.substring(
-                            0,
-                            min(
-                                subs.length,
-                                ("'''(?!')".toRegex().find(subs)?.range?.start ?: subs.length) + 2
-                            )
-                        )
-                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(curr.twas())
+                        if (!bold) {
+                            pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                            bold = true
+                        } else {
+                            pop()
+                            bold = false
                         }
-                        i += curr.length + 3
+                        i += 2
                     } else if (input.getOrNull(i + 1) == '\'') {
-                        val curr = input.substring(i + 2).substringBefore("''")
-                        withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
-                            append(curr.twas())
+                        if (!italic) {
+                            pushStyle(SpanStyle(fontStyle = FontStyle.Italic))
+                            italic = true
+                        } else {
+                            pop()
+                            italic = false
                         }
-                        i += 1 + curr.length + 2
+                        i += 1
                     } else append(input[i])
 
                 '[' ->
@@ -1170,7 +1223,7 @@ fun String.toWikitextAnnotatedString(
                         ) {
                             append(
                                 (linkText.substringAfter(' ').removeSuffix("]")
-                                    .trim() + "\uD83D\uDD17")
+                                    .trim() + " \uD83D\uDD17")
                             )
                         }
                         i += linkText.length - 1

@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -81,7 +82,7 @@ fun AsyncInfobox(
         }
     }
 
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
 
     SharedTransitionLayout {
         Card(
@@ -180,8 +181,7 @@ fun AsyncInfobox(
                                         onLinkClick = onLinkClick,
                                         onClick = onImageClick,
                                         showCaption = false,
-                                        modifier = Modifier
-                                            .weight(2f)
+                                        modifier = Modifier.weight(2f)
                                     )
                                 } else {
                                     Text(
