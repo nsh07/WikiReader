@@ -1,8 +1,8 @@
 package org.nsh07.wikireader.ui.image
 
 import android.content.Intent
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -15,18 +15,23 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.parser.toWikitextAnnotatedString
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class,
+    ExperimentalSharedTransitionApi::class
+)
 @Composable
-fun FullScreenImageTopBar(
+fun SharedTransitionScope.FullScreenImageTopBar(
     description: String,
     link: String? = null,
     onBack: () -> Unit,
@@ -49,24 +54,30 @@ fun FullScreenImageTopBar(
     TopAppBar(
         title = { Text(stringResource(R.string.image)) },
         subtitle = {
+            val text = remember(description) {
+                description.toWikitextAnnotatedString(
+                    colorScheme = colorScheme,
+                    typography = typography,
+                    loadPage = {},
+                    fontSize = 1,
+                    showRef = {}
+                ).toString()
+            }
             Text(
-                remember(description) {
-                    description.toWikitextAnnotatedString(
-                        colorScheme = colorScheme,
-                        typography = typography,
-                        loadPage = {},
-                        fontSize = 1,
-                        showRef = {}
-                    ).toString()
-                },
+                text,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.sharedBounds(
+                    sharedContentState = rememberSharedContentState(description),
+                    animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                    zIndexInOverlay = 1f
+                )
             )
         },
         navigationIcon = {
             IconButton(shapes = IconButtonDefaults.shapes(), onClick = onBack) {
                 Icon(
-                    Icons.AutoMirrored.Outlined.ArrowBack,
+                    painterResource(R.drawable.arrow_back),
                     contentDescription = stringResource(R.string.back)
                 )
             }

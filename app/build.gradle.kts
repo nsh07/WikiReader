@@ -19,8 +19,8 @@ android {
         applicationId = "org.nsh07.wikireader"
         minSdk = 26
         targetSdk = 36
-        versionCode = 45
-        versionName = "2.4.1"
+        versionCode = 48
+        versionName = "2.5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -47,7 +47,7 @@ android {
     }
     kotlin {
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17) // Use the enum for target JVM version
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
     ksp {
@@ -81,7 +81,6 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.adaptive)
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.material.icons.core)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -91,6 +90,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
 
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)

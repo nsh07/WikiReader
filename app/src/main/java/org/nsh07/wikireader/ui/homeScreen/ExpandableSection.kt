@@ -1,6 +1,9 @@
 package org.nsh07.wikireader.ui.homeScreen
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -9,8 +12,6 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -29,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
@@ -42,7 +44,7 @@ import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun ExpandableSection(
     title: List<AnnotatedString>,
@@ -51,6 +53,7 @@ fun ExpandableSection(
     fontSize: Int,
     fontFamily: FontFamily,
     imageLoader: ImageLoader,
+    sharedScope: SharedTransitionScope,
     expanded: Boolean,
     renderMath: Boolean,
     darkTheme: Boolean,
@@ -82,7 +85,7 @@ fun ExpandableSection(
                 .clickable(onClick = { expanded = !expanded })
         ) {
             Icon(
-                Icons.Outlined.KeyboardArrowDown,
+                painterResource(R.drawable.keyboard_arrow_down),
                 contentDescription =
                     if (expanded) stringResource(R.string.collapse_section)
                     else stringResource(R.string.expand_section),
@@ -119,6 +122,7 @@ fun ExpandableSection(
             ParsedBodyText(
                 body = body,
                 lang = lang,
+                sharedScope = sharedScope,
                 fontSize = fontSize,
                 fontFamily = fontFamily,
                 renderMath = renderMath,
@@ -134,25 +138,29 @@ fun ExpandableSection(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
 fun ExpandableSectionPreview() {
     WikiReaderTheme {
-        ExpandableSection(
-            title = listOf(buildAnnotatedString { append("Title") }),
-            body = listOf(buildAnnotatedString { append("Lorem\nIpsum\nBig\nHonking\nBody\nText") }),
-            lang = "en",
-            fontSize = 16,
-            fontFamily = FontFamily.SansSerif,
-            imageLoader = ImageLoader(context = LocalContext.current),
-            expanded = false,
-            renderMath = true,
-            darkTheme = false,
-            false,
-            false,
-            onLinkClick = {},
-            onGalleryImageClick = { _, _ -> },
-            showRef = {}
-        )
+        SharedTransitionLayout {
+            ExpandableSection(
+                title = listOf(buildAnnotatedString { append("Title") }),
+                body = listOf(buildAnnotatedString { append("Lorem\nIpsum\nBig\nHonking\nBody\nText") }),
+                lang = "en",
+                fontSize = 16,
+                fontFamily = FontFamily.SansSerif,
+                imageLoader = ImageLoader(context = LocalContext.current),
+                sharedScope = this@SharedTransitionLayout,
+                expanded = false,
+                renderMath = true,
+                darkTheme = false,
+                dataSaver = false,
+                imageBackground = false,
+                onLinkClick = {},
+                onGalleryImageClick = { _, _ -> },
+                showRef = {}
+            )
+        }
     }
 }

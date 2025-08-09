@@ -3,15 +3,19 @@ package org.nsh07.wikireader.data
 import android.content.Context
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import org.nsh07.wikireader.network.HostSelectionInterceptor
 import org.nsh07.wikireader.network.WikipediaApiService
+import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
 import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
 
 interface AppContainer {
+    val appStatus: MutableStateFlow<AppStatus>
+    val preferencesStateMutableFlow: MutableStateFlow<PreferencesState>
     val interceptor: HostSelectionInterceptor
     val wikipediaRepository: WikipediaRepository
     val appPreferencesRepository: AppPreferencesRepository
@@ -23,6 +27,9 @@ class DefaultAppContainer(context: Context) : AppContainer {
     private val json = Json { ignoreUnknownKeys = true }
 
     override val interceptor = HostSelectionInterceptor()
+
+    override val appStatus = MutableStateFlow(AppStatus.NOT_INITIALIZED)
+    override val preferencesStateMutableFlow = MutableStateFlow(PreferencesState())
 
     private val okHttpClient by lazy {
         OkHttpClient.Builder()

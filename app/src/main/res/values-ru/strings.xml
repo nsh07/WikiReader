@@ -66,7 +66,7 @@
     <string name="settingImmersiveModeDesc">Скрыть поисковую строку и плавающие кнопки действий при прокрутке. Включено по умолчанию на маленьких экранах.</string>
     <string name="settingRenderMath">Отображать математические формулы</string>
     <string name="settingSearchHistory">История поиска</string>
-    <string name="settingSearchHistoryDesc">Сохранять историю поиска. Не влияет на существующую историю.</string>
+    <string name="settingSearchHistoryDesc">Сохранить историю поиска</string>
     <string name="settings">Настройки</string>
     <string name="shareLink">Поделиться ссылкой</string>
     <string name="snackbarArticleDeleted">Статья удалена</string>
@@ -134,5 +134,6 @@
     <string name="otherLanguages">Другие языки</string>
     <string name="items">%1$s записей</string>
     <string name="currentLanguage">Текущий язык</string>
-    <string name="infobox">Карточка</string>
+    <string name="infobox">Инфобокс</string>
+    <string name="historyDesc">Сохранять историю просмотра статей</string>
 </resources>

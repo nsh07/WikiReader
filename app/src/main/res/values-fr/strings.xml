@@ -99,7 +99,7 @@
     <string name="snackbarUnableToDelete">Impossible de supprimer : %1$s</string>
     <string name="snackbarUnableToLoadFeed">Impossible de charger le fil : %1$s</string>
     <string name="snackbarUnableToSave">Impossible de sauvegarder l\'article : %1$s</string>
-    <string name="settingSearchHistoryDesc">Sauvegarder l\'historique de recherche. L\'historique existant n\'est pas affecté par cette option.</string>
+    <string name="settingSearchHistoryDesc">Enregistrer l’historique de recherche</string>
     <string name="sourceCode">Code source</string>
     <string name="supportWikipedia">Soutenir Wikipédia</string>
     <string name="themeDark">Sombre</string>
@@ -135,4 +135,5 @@
     <string name="items">%1$s articles</string>
     <string name="infobox">Infobox</string>
     <string name="currentLanguage">Langue actuelle</string>
+    <string name="historyDesc">Enregistrer l’historique de navigation des articles</string>
 </resources>

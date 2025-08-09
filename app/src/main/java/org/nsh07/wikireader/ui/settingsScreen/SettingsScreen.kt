@@ -27,9 +27,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroupDefaults
@@ -76,27 +73,98 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.R.string
-import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.toColor
+import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeAction
+import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeSubscreen
+import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
+import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsAction
+import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsViewModel
 import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
-import org.nsh07.wikireader.ui.viewModel.HomeScreenState
-import org.nsh07.wikireader.ui.viewModel.PreferencesState
 import kotlin.math.round
+
+@Composable
+fun SettingsScreenRoot(
+    preferencesState: PreferencesState,
+    lastBackStackEntry: HomeSubscreen,
+    recentLangs: List<String>,
+    languageSearchStr: String,
+    languageSearchQuery: String,
+    onHomeAction: (HomeAction) -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
+) {
+    val context = LocalContext.current
+
+    val themeMap: Map<String, Pair<Int, String>> = remember {
+        mapOf(
+            "auto" to Pair(
+                R.drawable.brightness_auto,
+                context.getString(string.themeSystemDefault)
+            ),
+            "light" to Pair(R.drawable.light_mode, context.getString(string.themeLight)),
+            "dark" to Pair(R.drawable.dark_mode, context.getString(string.themeDark))
+        )
+    }
+    val reverseThemeMap: Map<String, String> = remember {
+        mapOf(
+            context.getString(string.themeSystemDefault) to "auto",
+            context.getString(string.themeLight) to "light",
+            context.getString(string.themeDark) to "dark"
+        )
+    }
+    val fontStyleMap: Map<String, String> = remember {
+        mapOf(
+            "sans" to context.getString(string.fontStyleSansSerif),
+            "serif" to context.getString(string.fontStyleSerif)
+        )
+    }
+    val reverseFontStyleMap: Map<String, String> = remember {
+        mapOf(
+            context.getString(string.fontStyleSansSerif) to "sans",
+            context.getString(string.fontStyleSerif) to "serif"
+        )
+    }
+    val fontStyles = remember {
+        listOf(
+            context.getString(string.fontStyleSansSerif),
+            context.getString(string.fontStyleSerif)
+        )
+    }
+
+    SettingsScreen(
+        preferencesState = preferencesState,
+        lastBackStackEntry = lastBackStackEntry,
+        recentLangs = recentLangs,
+        languageSearchStr = languageSearchStr,
+        languageSearchQuery = languageSearchQuery,
+        themeMap = themeMap,
+        reverseThemeMap = reverseThemeMap,
+        fontStyles = fontStyles,
+        fontStyleMap = fontStyleMap,
+        reverseFontStyleMap = reverseFontStyleMap,
+        onAction = viewModel::onAction,
+        onHomeAction = onHomeAction,
+        onBack = onBack,
+        modifier = modifier
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsScreen(
     preferencesState: PreferencesState,
-    homeScreenState: HomeScreenState,
+    lastBackStackEntry: HomeSubscreen,
     recentLangs: List<String>,
     languageSearchStr: String,
     languageSearchQuery: String,
@@ -105,25 +173,9 @@ fun SettingsScreen(
     fontStyles: List<String>,
     fontStyleMap: Map<String, String>,
     reverseFontStyleMap: Map<String, String>,
-    saveTheme: (String) -> Unit,
-    saveColorScheme: (String) -> Unit,
-    saveLang: (String) -> Unit,
-    saveFontStyle: (String) -> Unit,
-    saveFontSize: (Int) -> Unit,
-    saveBlackTheme: (Boolean) -> Unit,
-    saveDataSaver: (Boolean) -> Unit,
-    saveFeedEnabled: (Boolean) -> Unit,
-    saveExpandedSections: (Boolean) -> Unit,
-    saveHistory: (Boolean) -> Unit,
-    saveImageBackground: (Boolean) -> Unit,
-    saveImmersiveMode: (Boolean) -> Unit,
-    saveRenderMath: (Boolean) -> Unit,
-    saveSearchHistory: (Boolean) -> Unit,
-    updateLanguageSearchStr: (String) -> Unit,
-    loadFeed: () -> Unit,
-    reloadPage: () -> Unit,
+    onAction: (SettingsAction) -> Unit,
+    onHomeAction: (HomeAction) -> Unit,
     onBack: () -> Unit,
-    onResetSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uriHandler = LocalUriHandler.current
@@ -186,21 +238,21 @@ fun SettingsScreen(
                 R.drawable.contrast,
                 string.settingBlackTheme,
                 string.settingBlackThemeDesc,
-                saveBlackTheme
+                SettingsAction::SaveBlackTheme
             ),
             SettingsSwitchItem(
                 preferencesState.dataSaver,
                 R.drawable.data_saver_on,
                 string.settingDataSaver,
                 string.settingDataSaverDesc,
-                saveDataSaver
+                SettingsAction::SaveDataSaver
             ),
             SettingsSwitchItem(
                 preferencesState.feedEnabled,
                 R.drawable.feed,
                 string.settingFeed,
                 string.settingFeedDesc,
-                saveFeedEnabled,
+                SettingsAction::SaveFeedEnabled,
                 enabled = !preferencesState.dataSaver
             ),
             SettingsSwitchItem(
@@ -208,42 +260,42 @@ fun SettingsScreen(
                 R.drawable.expand_all,
                 string.settingExpandSections,
                 string.settingExpandSectionsDesc,
-                saveExpandedSections
+                SettingsAction::SaveExpandedSections
             ),
             SettingsSwitchItem(
                 preferencesState.imageBackground,
                 R.drawable.texture,
                 string.settingImageBackground,
                 string.settingImageBackgroundDesc,
-                saveImageBackground
+                SettingsAction::SaveImageBackground
             ),
             SettingsSwitchItem(
                 preferencesState.immersiveMode,
                 R.drawable.open_in_full,
                 string.settingImmersiveMode,
                 string.settingImmersiveModeDesc,
-                saveImmersiveMode
+                SettingsAction::SaveImmersiveMode
             ),
             SettingsSwitchItem(
                 preferencesState.renderMath,
                 R.drawable.function,
                 string.settingRenderMath,
                 string.settingRenderMathDesc,
-                saveRenderMath
+                SettingsAction::SaveRenderMath
             ),
             SettingsSwitchItem(
                 preferencesState.browsingHistory,
                 R.drawable.manage_history,
                 string.history,
                 string.historyDesc,
-                saveHistory
+                SettingsAction::SaveHistory
             ),
             SettingsSwitchItem(
                 preferencesState.searchHistory,
                 R.drawable.search_history,
                 string.settingSearchHistory,
                 string.settingSearchHistoryDesc,
-                saveSearchHistory
+                SettingsAction::SaveSearchHistory
             )
         )
     }
@@ -254,17 +306,17 @@ fun SettingsScreen(
             reverseThemeMap = reverseThemeMap,
             theme = theme,
             setShowThemeDialog = setShowThemeDialog,
-            setTheme = saveTheme
+            setTheme = { onAction(SettingsAction.SaveTheme(it)) }
         )
     if (showColorSchemeDialog)
         ColorSchemePickerDialog(
             currentColor = color,
-            onColorChange = { saveColorScheme(it.toString()) },
+            onColorChange = { onAction(SettingsAction.SaveColorScheme(it.toString())) },
             setShowDialog = setShowColorSchemeDialog
         )
     if (showResetSettingsDialog)
         ResetSettingsDialog(
-            onResetSettings = onResetSettings,
+            onResetSettings = { onAction(SettingsAction.ResetSettings) },
             setShowResetSettingsDialog = setShowResetSettingsDialog,
             showSnackbar = { coroutineScope.launch { snackBarHostState.showSnackbar(it) } }
         )
@@ -276,21 +328,19 @@ fun SettingsScreen(
             searchQuery = languageSearchQuery,
             setShowSheet = setShowLanguageSheet,
             setLang = {
-                saveLang(it)
-                if (homeScreenState.status != WRStatus.FEED_NETWORK_ERROR &&
-                    homeScreenState.status != WRStatus.FEED_LOADED
-                )
-                    reloadPage()
+                onAction(SettingsAction.SaveLang(it))
+                if (lastBackStackEntry is HomeSubscreen.Article)
+                    onHomeAction(HomeAction.ReloadPage())
                 else
-                    loadFeed()
+                    onHomeAction(HomeAction.LoadFeed())
             },
-            setSearchStr = updateLanguageSearchStr
+            setSearchStr = { onHomeAction(HomeAction.UpdateLanguageSearchStr(it)) }
         )
     if (showAppLocaleSheet && currentLocales != null)
         AppLocaleBottomSheet(
             searchStr = languageSearchStr,
             currentLocales = currentLocales,
-            setSearchStr = updateLanguageSearchStr,
+            setSearchStr = { onHomeAction(HomeAction.UpdateLanguageSearchStr(it)) },
             setShowSheet = setShowAppLocaleSheet
         )
 
@@ -359,11 +409,17 @@ fun SettingsScreen(
                     trailingContent = {
                         Switch(
                             checked = switchItems[0].checked,
-                            onCheckedChange = { switchItems[0].onCheckedChange(it) },
+                            onCheckedChange = { onAction(switchItems[0].actionConstructor(it)) },
                             thumbContent = {
                                 if (switchItems[0].checked) {
                                     Icon(
-                                        imageVector = Icons.Outlined.Check,
+                                        painter = painterResource(R.drawable.check),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                    )
+                                } else {
+                                    Icon(
+                                        painter = painterResource(R.drawable.clear),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
                                     )
@@ -435,8 +491,10 @@ fun SettingsScreen(
                                 ToggleButton(
                                     checked = label == fontStyleMap[fontStyle],
                                     onCheckedChange = {
-                                        saveFontStyle(
-                                            reverseFontStyleMap[label] ?: "sans"
+                                        onAction(
+                                            SettingsAction.SaveFontStyle(
+                                                reverseFontStyleMap[label] ?: "sans"
+                                            )
                                         )
                                     },
                                     modifier = Modifier
@@ -454,11 +512,16 @@ fun SettingsScreen(
                                         label == fontStyleMap[fontStyle],
                                         enter = scaleIn(motionScheme.fastSpatialSpec()) +
                                                 expandHorizontally(motionScheme.fastSpatialSpec()) +
-                                                fadeIn(motionScheme.fastEffectsSpec()),
+                                                fadeIn(),
                                         exit = scaleOut(motionScheme.fastSpatialSpec()) +
                                                 shrinkHorizontally(motionScheme.fastSpatialSpec()) +
-                                                fadeOut(motionScheme.fastEffectsSpec())
-                                    ) { Icon(Icons.Outlined.Check, contentDescription = null) }
+                                                fadeOut()
+                                    ) {
+                                        Icon(
+                                            painterResource(R.drawable.check),
+                                            contentDescription = null
+                                        )
+                                    }
                                     Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                                     Text(label)
                                 }
@@ -494,7 +557,7 @@ fun SettingsScreen(
                                 valueRange = 10f..22f,
                                 onValueChangeFinished = {
                                     animateFontSize = true
-                                    saveFontSize(round(fontSizeFloat).toInt())
+                                    onAction(SettingsAction.SaveFontSize(round(fontSizeFloat).toInt()))
                                     fontSizeFloat = round(fontSizeFloat)
                                 }
                             )
@@ -516,11 +579,17 @@ fun SettingsScreen(
                     trailingContent = {
                         Switch(
                             checked = item.checked && item.enabled,
-                            onCheckedChange = { item.onCheckedChange(it) },
+                            onCheckedChange = { onAction(item.actionConstructor(it)) },
                             thumbContent = {
                                 if (item.checked && item.enabled) {
                                     Icon(
-                                        imageVector = Icons.Outlined.Check,
+                                        painter = painterResource(R.drawable.check),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                    )
+                                } else {
+                                    Icon(
+                                        painter = painterResource(R.drawable.clear),
                                         contentDescription = null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize),
                                     )
@@ -565,7 +634,7 @@ fun SettingsScreen(
                                     .size(24.dp)
                             )
                             Icon(
-                                Icons.Outlined.Info,
+                                painterResource(R.drawable.filled_info),
                                 tint = colorScheme.onSecondaryContainer,
                                 contentDescription = stringResource(string.information),
                                 modifier = Modifier.size(24.dp)
@@ -648,7 +717,7 @@ fun SettingsPreview() {
     WikiReaderTheme {
         SettingsScreen(
             preferencesState = PreferencesState(),
-            homeScreenState = HomeScreenState(),
+            lastBackStackEntry = HomeSubscreen.Logo,
             recentLangs = emptyList(),
             languageSearchStr = "",
             languageSearchQuery = "",
@@ -657,25 +726,9 @@ fun SettingsPreview() {
             fontStyles = fontStyles,
             fontStyleMap = fontStyleMap,
             reverseFontStyleMap = reverseFontStyleMap,
-            saveTheme = {},
-            saveColorScheme = {},
-            saveLang = {},
-            saveFontStyle = {},
-            saveFontSize = {},
-            saveBlackTheme = {},
-            saveDataSaver = {},
-            saveFeedEnabled = {},
-            saveExpandedSections = {},
-            saveHistory = {},
-            saveImageBackground = {},
-            saveImmersiveMode = {},
-            saveRenderMath = {},
-            saveSearchHistory = {},
-            updateLanguageSearchStr = {},
-            loadFeed = {},
-            reloadPage = {},
+            onAction = {},
+            onHomeAction = {},
             onBack = {},
-            onResetSettings = {}
         )
     }
 }
@@ -685,6 +738,6 @@ data class SettingsSwitchItem(
     val icon: Int,
     val label: Int,
     val description: Int,
-    val onCheckedChange: (Boolean) -> Unit,
+    val actionConstructor: (Boolean) -> SettingsAction,
     val enabled: Boolean = true
 )

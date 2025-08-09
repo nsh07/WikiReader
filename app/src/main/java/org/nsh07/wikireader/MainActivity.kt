@@ -16,27 +16,29 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.nsh07.wikireader.data.AppStatus
 import org.nsh07.wikireader.data.isRtl
 import org.nsh07.wikireader.data.toColor
 import org.nsh07.wikireader.ui.AppScreen
+import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeScreenViewModel
+import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsViewModel
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
-import org.nsh07.wikireader.ui.viewModel.UiViewModel
 
 class MainActivity : ComponentActivity() {
 
-    val viewModel: UiViewModel by viewModels<UiViewModel>(factoryProducer = { UiViewModel.Factory })
+    val viewModel: HomeScreenViewModel by viewModels<HomeScreenViewModel>(factoryProducer = { HomeScreenViewModel.Factory })
+    val settingsViewModel: SettingsViewModel by viewModels<SettingsViewModel>(factoryProducer = { SettingsViewModel.Factory })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        installSplashScreen().setKeepOnScreenCondition { !viewModel.isReady }
+        installSplashScreen().setKeepOnScreenCondition { viewModel.appStatus.value != AppStatus.INITIALIZED }
 
         viewModel.setFilesDir(filesDir.path)
-        viewModel.migrateArticles()
 
         enableEdgeToEdge()
 
         setContent {
-            val preferencesState by viewModel.preferencesState.collectAsStateWithLifecycle()
+            val preferencesState by settingsViewModel.preferencesState.collectAsStateWithLifecycle()
 
             val darkTheme = when (preferencesState.theme) {
                 "dark" -> true
@@ -62,7 +64,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     AppScreen(
                         viewModel = viewModel,
-                        preferencesState = preferencesState,
+                        settingsViewModel = settingsViewModel,
                         modifier = Modifier.fillMaxSize()
                     )
                 }

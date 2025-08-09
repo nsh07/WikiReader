@@ -1,7 +1,5 @@
 package org.nsh07.wikireader.ui.settingsScreen
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -9,6 +7,7 @@ import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import org.nsh07.wikireader.R
 
@@ -30,7 +29,7 @@ fun LanguageSearchBar(
                 placeholder = { Text(stringResource(R.string.searchLanguages)) },
                 leadingIcon = {
                     Icon(
-                        Icons.Outlined.Search,
+                        painterResource(R.drawable.search),
                         contentDescription = stringResource(R.string.search)
                     )
                 },

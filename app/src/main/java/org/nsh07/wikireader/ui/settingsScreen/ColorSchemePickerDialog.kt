@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ButtonDefaults
@@ -55,7 +53,11 @@ fun ColorPickerButton(
     ) {
         AnimatedContent(isSelected) { isSelected ->
             when (isSelected) {
-                true -> Icon(Icons.Outlined.Check, tint = Color.Black, contentDescription = null)
+                true -> Icon(
+                    painterResource(R.drawable.check),
+                    tint = Color.Black,
+                    contentDescription = null
+                )
                 else ->
                     if (color == Color.White) Icon(
                         painterResource(R.drawable.colors),

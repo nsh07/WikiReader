@@ -75,7 +75,7 @@
     <string name="settingRenderMath">渲染數學表達式</string>
     <string name="settingRenderMathDesc">需要少量額外數據，關閉可以提高性能，但可讀性會降低。</string>
     <string name="settingSearchHistory">搜尋紀錄</string>
-    <string name="settingSearchHistoryDesc">儲存搜尋紀錄，現有的歷史紀錄不受此選項影響。</string>
+    <string name="settingSearchHistoryDesc">儲存搜尋紀錄</string>
     <string name="settingTheme">主題</string>
     <string name="settingWikipediaLanguage">維基百科語言</string>
     <string name="settings">設定</string>
@@ -135,4 +135,5 @@
     <string name="otherLanguages">其他語言</string>
     <string name="items">%1$s 個條目</string>
     <string name="infobox">資訊框</string>
+    <string name="historyDesc">儲存條目瀏覽記錄</string>
 </resources>

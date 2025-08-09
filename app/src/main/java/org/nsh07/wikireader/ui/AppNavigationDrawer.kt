@@ -16,11 +16,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -56,8 +53,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R.drawable
 import org.nsh07.wikireader.R.string
-import org.nsh07.wikireader.data.WRStatus
-import org.nsh07.wikireader.ui.viewModel.FeedSection
+import org.nsh07.wikireader.ui.homeScreen.viewModel.FeedSection
+import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeSubscreen
 import kotlin.reflect.KClass
 
 
@@ -65,20 +62,17 @@ import kotlin.reflect.KClass
 @Composable
 fun AppNavigationDrawer(
     state: WideNavigationRailState,
-    feedSections: List<Pair<Int, FeedSection>>,
-    homeScreenStatus: WRStatus,
-    homeScreenSections: List<Pair<Int, String>>,
-    listState: LazyListState,
-    feedListState: LazyListState,
+    homeBackStackEntry: HomeSubscreen,
     windowSizeClass: WindowSizeClass,
     backStackEntry: NavBackStackEntry?,
-    modifier: Modifier = Modifier,
     historyEnabled: Boolean,
+    isImageView: Boolean,
     onAboutClick: () -> Unit,
     onHistoryClick: () -> Unit,
     onHomeClick: () -> Unit,
     onSavedArticlesClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -138,7 +132,7 @@ fun AppNavigationDrawer(
 
     Row(modifier = modifier) {
         AnimatedVisibility(
-            backStackEntry?.destination?.hasRoute(FullScreenImage::class) != true,
+            visible = !isImageView,
             enter = expandHorizontally(animationSpec = motionScheme.defaultSpatialSpec()),
             exit = shrinkHorizontally(animationSpec = motionScheme.defaultSpatialSpec())
         ) {
@@ -149,16 +143,12 @@ fun AppNavigationDrawer(
                     hideOnCollapse = true
                 ) {
                     AppNavigationRailContent(
-                        feedSections = feedSections,
-                        homeScreenStatus = homeScreenStatus,
-                        homeScreenSections = homeScreenSections,
                         backStackEntry = backStackEntry,
+                        homeBackStackEntry = homeBackStackEntry,
                         items = items,
                         state = state,
                         scope = scope,
                         expandedScreen = expandedScreen,
-                        feedListState = feedListState,
-                        listState = listState,
                         boxWidth = boxWidth
                     )
                 }
@@ -204,16 +194,12 @@ fun AppNavigationDrawer(
                     }
                 ) {
                     AppNavigationRailContent(
-                        feedSections = feedSections,
-                        homeScreenStatus = homeScreenStatus,
-                        homeScreenSections = homeScreenSections,
                         backStackEntry = backStackEntry,
+                        homeBackStackEntry = homeBackStackEntry,
                         items = items,
                         state = state,
                         scope = scope,
                         expandedScreen = expandedScreen,
-                        feedListState = feedListState,
-                        listState = listState,
                         boxWidth = boxWidth
                     )
                 }
@@ -227,12 +213,8 @@ fun AppNavigationDrawer(
 @Composable
 private fun AppNavigationRailContent(
     state: WideNavigationRailState,
-    feedSections: List<Pair<Int, FeedSection>>,
-    feedListState: LazyListState,
-    homeScreenStatus: WRStatus,
-    homeScreenSections: List<Pair<Int, String>>,
-    listState: LazyListState,
     scope: CoroutineScope,
+    homeBackStackEntry: HomeSubscreen,
     backStackEntry: NavBackStackEntry?,
     expandedScreen: Boolean,
     boxWidth: Dp,
@@ -286,9 +268,9 @@ private fun AppNavigationRailContent(
                 modifier = Modifier
                     .padding(start = 36.dp, top = 12.dp, bottom = 8.dp)
             )
-            when (homeScreenStatus) {
-                WRStatus.FEED_LOADED -> {
-                    feedSections.fastForEach { section ->
+            when (homeBackStackEntry) {
+                is HomeSubscreen.Feed -> {
+                    homeBackStackEntry.sections.fastForEach { section ->
                         WideNavigationRailItem(
                             railExpanded = true,
                             label = {
@@ -299,16 +281,16 @@ private fun AppNavigationRailContent(
                                     modifier = Modifier.widthIn(max = boxWidth - 96.dp)
                                 )
                             },
-                            selected = feedListState.firstVisibleItemIndex == section.first,
+                            selected = homeBackStackEntry.listState.firstVisibleItemIndex == section.first,
                             onClick = {
                                 scope.launch {
                                     if (!expandedScreen) state.collapse()
-                                    feedListState.scrollToItem(section.first)
+                                    homeBackStackEntry.listState.scrollToItem(section.first)
                                 }
                             },
                             icon = {
                                 Icon(
-                                    Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                                    painterResource(drawable.keyboard_arrow_right),
                                     contentDescription = null
                                 )
                             },
@@ -317,8 +299,8 @@ private fun AppNavigationRailContent(
                     }
                 }
 
-                WRStatus.SUCCESS -> {
-                    homeScreenSections.fastForEach { section ->
+                is HomeSubscreen.Article -> {
+                    homeBackStackEntry.sections.fastForEach { section ->
                         WideNavigationRailItem(
                             railExpanded = true,
                             label = {
@@ -329,16 +311,17 @@ private fun AppNavigationRailContent(
                                     modifier = Modifier.widthIn(max = boxWidth - 96.dp)
                                 )
                             },
-                            selected = listState.firstVisibleItemIndex == section.first || listState.firstVisibleItemIndex == section.first + 1,
+                            selected = homeBackStackEntry.listState.firstVisibleItemIndex == section.first ||
+                                    homeBackStackEntry.listState.firstVisibleItemIndex == section.first + 1,
                             onClick = {
                                 scope.launch {
                                     if (!expandedScreen) state.collapse()
-                                    listState.scrollToItem(section.first)
+                                    homeBackStackEntry.listState.scrollToItem(section.first)
                                 }
                             },
                             icon = {
                                 Icon(
-                                    Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                                    painterResource(drawable.keyboard_arrow_right),
                                     contentDescription = null
                                 )
                             },

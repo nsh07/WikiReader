@@ -1,6 +1,7 @@
 package org.nsh07.wikireader.data
 
 import androidx.compose.ui.graphics.Color
+import java.util.Locale
 
 /**
  * Extension function for [String] to convert it to a [Color]
@@ -77,6 +78,36 @@ fun bytesToHumanReadableSize(bytes: Double) = when {
     bytes >= 1 shl 20 -> "%.1f MB".format(bytes / (1 shl 20))
     bytes >= 1 shl 10 -> "%.0f kB".format(bytes / (1 shl 10))
     else -> "$bytes bytes"
+}
+
+fun Double.formatToHumanReadable(): String {
+    return when {
+        this >= 1000000000000000 -> String.format(
+            Locale.US,
+            "%.2f quadrillion",
+            this / 1000000000000000.0
+        )
+
+        this >= 1000000000000 -> String.format(Locale.US, "%.2f trillion", this / 1000000000000.0)
+        this >= 1000000000 -> String.format(Locale.US, "%.2f billion", this / 1000000000.0)
+        this >= 1000000 -> String.format(Locale.US, "%.2f million", this / 1000000.0)
+        else -> this.toString()
+    }
+}
+
+fun Long.formatToHumanReadable(): String {
+    return when {
+        this >= 1000000000000000 -> String.format(
+            Locale.US,
+            "%.2f quadrillion",
+            this / 1000000000000000.0
+        )
+
+        this >= 1000000000000 -> String.format(Locale.US, "%.2f trillion", this / 1000000000000.0)
+        this >= 1000000000 -> String.format(Locale.US, "%.2f billion", this / 1000000000.0)
+        this >= 1000000 -> String.format(Locale.US, "%.2f million", this / 1000000.0)
+        else -> this.toString()
+    }
 }
 
 /**

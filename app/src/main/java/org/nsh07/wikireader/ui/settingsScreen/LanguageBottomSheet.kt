@@ -1,6 +1,5 @@
 package org.nsh07.wikireader.ui.settingsScreen
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,13 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.ModalBottomSheet
@@ -43,9 +36,7 @@ import org.nsh07.wikireader.data.LanguageData.wikipediaNames
 import org.nsh07.wikireader.data.UserLanguage
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.data.langCodeToWikiName
-import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
-import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
-import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
+import org.nsh07.wikireader.ui.homeScreen.LanguageListItem
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,7 +51,7 @@ fun LanguageBottomSheet(
     setSearchStr: (String) -> Unit,
     modifier: Modifier = Modifier,
     userLanguageSelectionMode: Boolean = false,
-    insertUserLanguage: (suspend (UserLanguage) -> Unit)? = null,
+    insertUserLanguage: ((UserLanguage) -> Unit)? = null,
     deleteUserLanguage: ((String) -> Unit)? = null,
 ) {
     // Require that either user lang selection is disabled OR none of the user lang lambdas are null
@@ -116,54 +107,37 @@ fun LanguageBottomSheet(
                     ) { index: Int, it: String ->
                         if (it.contains(searchQuery, ignoreCase = true)) {
                             val langName = remember(it) { langCodeToName(it) }
-                            ListItem(
+                            val selected = selectedOption == langName
+                            LanguageListItem(
                                 headlineContent = {
                                     Text(langName)
                                 },
                                 supportingContent = { Text(remember(it) { langCodeToWikiName(it) }) },
-                                trailingContent = {
-                                    if (selectedOption == langName) Icon(
-                                        Icons.Outlined.Check,
-                                        contentDescription = stringResource(R.string.selectedLabel)
-                                    )
-                                },
-                                colors =
-                                    if (selectedOption == langName) ListItemDefaults.colors(
-                                        containerColor = colorScheme.primaryContainer
-                                    )
-                                    else ListItemDefaults.colors(),
-                                modifier = Modifier
-                                    .clip(
-                                        if (recentLangs.size == 1) shapes.large
-                                        else if (index == 0) topListItemShape
-                                        else if (index == recentLangs.size - 1) bottomListItemShape
-                                        else middleListItemShape
-                                    )
-                                    .clickable(
-                                        onClick = {
-                                            setLang(it)
-                                            scope
-                                                .launch {
-                                                    if (userLanguageSelectionMode) {
-                                                        insertUserLanguage?.invoke(
-                                                            UserLanguage(
-                                                                it,
-                                                                langName,
-                                                                true
-                                                            )
-                                                        )
-                                                    }
-                                                    bottomSheetState.hide()
-                                                }
-                                                .invokeOnCompletion {
-                                                    if (!bottomSheetState.isVisible) {
-                                                        setShowSheet(false)
-                                                        setSearchStr("")
-                                                    }
-                                                }
+                                selected = selected,
+                                items = recentLangs.size,
+                                index = index
+                            ) {
+                                setLang(it)
+                                scope
+                                    .launch {
+                                        if (userLanguageSelectionMode) {
+                                            insertUserLanguage?.invoke(
+                                                UserLanguage(
+                                                    it,
+                                                    langName,
+                                                    true
+                                                )
+                                            )
                                         }
-                                    )
-                            )
+                                        bottomSheetState.hide()
+                                    }
+                                    .invokeOnCompletion {
+                                        if (!bottomSheetState.isVisible) {
+                                            setShowSheet(false)
+                                            setSearchStr("")
+                                        }
+                                    }
+                            }
                             Spacer(Modifier.height(2.dp))
                         }
                     }
@@ -185,52 +159,37 @@ fun LanguageBottomSheet(
                     key = { _: Int, it: String -> it }
                 ) { index: Int, it: String ->
                     if (it.contains(searchQuery, ignoreCase = true)) {
-                        ListItem(
+                        val selected = selectedOption == it
+                        LanguageListItem(
                             headlineContent = {
                                 Text(it)
                             },
                             supportingContent = { Text(wikipediaNames[index]) },
-                            trailingContent = {
-                                if (selectedOption == it) Icon(
-                                    Icons.Outlined.Check,
-                                    contentDescription = stringResource(R.string.selectedLabel)
-                                )
-                            },
-                            colors =
-                                if (selectedOption == it) ListItemDefaults.colors(containerColor = colorScheme.primaryContainer)
-                                else ListItemDefaults.colors(),
-                            modifier = Modifier
-                                .clip(
-                                    if (langNames.size == 1) shapes.large
-                                    else if (index == 0) topListItemShape
-                                    else if (index == langNames.size - 1) bottomListItemShape
-                                    else middleListItemShape
-                                )
-                                .clickable(
-                                    onClick = {
-                                        setLang(langCodes[index])
-                                        scope
-                                            .launch {
-                                                if (userLanguageSelectionMode) {
-                                                    insertUserLanguage?.invoke(
-                                                        UserLanguage(
-                                                            langCodes[index],
-                                                            it,
-                                                            true
-                                                        )
-                                                    )
-                                                }
-                                                bottomSheetState.hide()
-                                            }
-                                            .invokeOnCompletion {
-                                                if (!bottomSheetState.isVisible) {
-                                                    setShowSheet(false)
-                                                    setSearchStr("")
-                                                }
-                                            }
+                            selected = selected,
+                            items = langNames.size,
+                            index = index
+                        ) {
+                            setLang(langCodes[index])
+                            scope
+                                .launch {
+                                    if (userLanguageSelectionMode) {
+                                        insertUserLanguage?.invoke(
+                                            UserLanguage(
+                                                langCodes[index],
+                                                it,
+                                                true
+                                            )
+                                        )
                                     }
-                                )
-                        )
+                                    bottomSheetState.hide()
+                                }
+                                .invokeOnCompletion {
+                                    if (!bottomSheetState.isVisible) {
+                                        setShowSheet(false)
+                                        setSearchStr("")
+                                    }
+                                }
+                        }
                         Spacer(Modifier.height(2.dp))
                     }
                 }

@@ -1,7 +1,6 @@
 package org.nsh07.wikireader.ui.homeScreen
 
 import android.util.Log
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,13 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.ModalBottomSheet
@@ -36,9 +29,6 @@ import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.WikiLang
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.ui.settingsScreen.LanguageSearchBar
-import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
-import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
-import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,30 +92,20 @@ fun ArticleLanguageBottomSheet(
                         Log.e("Language", "Language not found: ${currentLang.lang}")
                         null
                     }
-                    ListItem(
+                    LanguageListItem(
                         headlineContent = { Text(langName ?: currentLang.lang) },
                         supportingContent = { Text(currentLang.title) },
-                        trailingContent = {
-                            Icon(
-                                Icons.Outlined.Check,
-                                contentDescription = stringResource(R.string.selectedLabel)
-                            )
-                        },
-                        colors = ListItemDefaults.colors(containerColor = colorScheme.primaryContainer),
-                        modifier = Modifier
-                            .clip(shapes.large)
-                            .clickable(
-                                onClick = {
-                                    scope
-                                        .launch { bottomSheetState.hide() }
-                                        .invokeOnCompletion {
-                                            if (!bottomSheetState.isVisible) {
-                                                setShowSheet(false)
-                                            }
-                                        }
+                        selected = true,
+                        items = 1,
+                        index = 0
+                    ) {
+                        scope.launch { bottomSheetState.hide() }
+                            .invokeOnCompletion {
+                                if (!bottomSheetState.isVisible) {
+                                    setShowSheet(false)
                                 }
-                            )
-                    )
+                            }
+                    }
                 }
                 if (articleLangs.first.isNotEmpty()) {
                     item {
@@ -146,35 +126,24 @@ fun ArticleLanguageBottomSheet(
                             null
                         }
                         if (langName != null && langName.contains(searchQuery, ignoreCase = true)) {
-                            ListItem(
+                            LanguageListItem(
                                 headlineContent = { Text(langName) },
                                 supportingContent = { Text(it.title) },
-                                modifier = Modifier
-                                    .clip(
-                                        if (articleLangs.first.size == 1) shapes.large
-                                        else {
-                                            when (index) {
-                                                0 -> topListItemShape
-                                                articleLangs.first.size - 1 -> bottomListItemShape
-                                                else -> middleListItemShape
-                                            }
+                                selected = false,
+                                items = articleLangs.first.size,
+                                index = index
+                            ) {
+                                setLang(it.lang)
+                                loadPage(it.title)
+                                scope
+                                    .launch { bottomSheetState.hide() }
+                                    .invokeOnCompletion {
+                                        if (!bottomSheetState.isVisible) {
+                                            setShowSheet(false)
+                                            setSearchStr("")
                                         }
-                                    )
-                                    .clickable(
-                                        onClick = {
-                                            setLang(it.lang)
-                                            loadPage(it.title)
-                                            scope
-                                                .launch { bottomSheetState.hide() }
-                                                .invokeOnCompletion {
-                                                    if (!bottomSheetState.isVisible) {
-                                                        setShowSheet(false)
-                                                        setSearchStr("")
-                                                    }
-                                                }
-                                        }
-                                    )
-                            )
+                                    }
+                            }
                             Spacer(Modifier.height(2.dp))
                         }
                     }
@@ -201,35 +170,24 @@ fun ArticleLanguageBottomSheet(
                         null
                     }
                     if (langName != null && langName.contains(searchQuery, ignoreCase = true)) {
-                        ListItem(
+                        LanguageListItem(
                             headlineContent = { Text(langName) },
                             supportingContent = { Text(it.title) },
-                            modifier = Modifier
-                                .clip(
-                                    if (articleLangs.second.size == 1) shapes.large
-                                    else {
-                                        when (index) {
-                                            0 -> topListItemShape
-                                            articleLangs.second.size - 1 -> bottomListItemShape
-                                            else -> middleListItemShape
-                                        }
+                            selected = false,
+                            items = articleLangs.second.size,
+                            index = index
+                        ) {
+                            setLang(it.lang)
+                            loadPage(it.title)
+                            scope
+                                .launch { bottomSheetState.hide() }
+                                .invokeOnCompletion {
+                                    if (!bottomSheetState.isVisible) {
+                                        setShowSheet(false)
+                                        setSearchStr("")
                                     }
-                                )
-                                .clickable(
-                                    onClick = {
-                                        setLang(it.lang)
-                                        loadPage(it.title)
-                                        scope
-                                            .launch { bottomSheetState.hide() }
-                                            .invokeOnCompletion {
-                                                if (!bottomSheetState.isVisible) {
-                                                    setShowSheet(false)
-                                                    setSearchStr("")
-                                                }
-                                            }
-                                    }
-                                )
-                        )
+                                }
+                        }
                         Spacer(Modifier.height(2.dp))
                     }
                 }
