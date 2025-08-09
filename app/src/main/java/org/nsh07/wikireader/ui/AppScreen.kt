@@ -238,7 +238,7 @@ fun AppScreen(
                     slideInHorizontally(
                         initialOffsetX = { it / 4 },
                         animationSpec = motionScheme.defaultSpatialSpec()
-                    ) + fadeIn()
+                    ) + fadeIn(motionScheme.defaultEffectsSpec())
                 else
                     fadeIn(animationSpec = tween(220, delayMillis = 90)) +
                             scaleIn(
@@ -251,7 +251,7 @@ fun AppScreen(
                     slideOutHorizontally(
                         targetOffsetX = { -it / 4 },
                         animationSpec = motionScheme.fastSpatialSpec()
-                    ) + fadeOut()
+                    ) + fadeOut(motionScheme.fastEffectsSpec())
                 else
                     fadeOut(animationSpec = tween(90))
             },
@@ -260,7 +260,7 @@ fun AppScreen(
                     slideInHorizontally(
                         initialOffsetX = { -it / 4 },
                         animationSpec = motionScheme.defaultSpatialSpec()
-                    ) + fadeIn()
+                    ) + fadeIn(motionScheme.defaultEffectsSpec())
                 else
                     fadeIn(animationSpec = tween(220, delayMillis = 90)) +
                             scaleIn(
@@ -273,7 +273,7 @@ fun AppScreen(
                     slideOutHorizontally(
                         targetOffsetX = { it / 4 },
                         animationSpec = motionScheme.fastSpatialSpec()
-                    ) + fadeOut()
+                    ) + fadeOut(motionScheme.fastEffectsSpec())
                 else
                     fadeOut(animationSpec = tween(90))
             }
@@ -388,8 +388,8 @@ fun AppScreen(
 
                     AnimatedVisibility(
                         backStack.last() !is HomeSubscreen.Image,
-                        enter = fadeIn(),
-                        exit = fadeOut()
+                        enter = fadeIn(motionScheme.slowEffectsSpec()),
+                        exit = fadeOut(motionScheme.fastEffectsSpec())
                     ) {
                         StatusBarProtection()
                     }

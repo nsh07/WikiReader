@@ -19,7 +19,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import com.materialkolor.dynamiccolor.ColorSpec
-import com.materialkolor.ktx.animateColorScheme
 import com.materialkolor.rememberDynamicColorScheme
 
 private val DarkColorScheme = darkColorScheme(
@@ -70,7 +69,7 @@ fun WikiReaderTheme(
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
-    CustomTopBarColors.black = blackTheme
+    CustomTopBarColors.black = blackTheme && darkTheme
 
     val dynamicColorScheme = rememberDynamicColorScheme(
         seedColor = when (seedColor) {
@@ -78,14 +77,13 @@ fun WikiReaderTheme(
             else -> seedColor
         },
         isDark = darkTheme,
-        specVersion = ColorSpec.SpecVersion.SPEC_2025,
-        isAmoled = blackTheme
+        specVersion = if (blackTheme && darkTheme) ColorSpec.SpecVersion.SPEC_2021 else ColorSpec.SpecVersion.SPEC_2025,
+        isAmoled = blackTheme && darkTheme
     )
 
-    val scheme = animateColorScheme(
+    val scheme =
         if (seedColor == Color.White && !(blackTheme && darkTheme)) colorScheme
         else dynamicColorScheme
-    )
 
     MaterialExpressiveTheme(
         colorScheme = scheme,
