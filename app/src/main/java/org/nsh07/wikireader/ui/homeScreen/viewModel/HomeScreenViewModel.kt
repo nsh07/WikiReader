@@ -366,7 +366,8 @@ class HomeScreenViewModel(
     private fun loadPage(
         title: String?,
         lang: String? = null,
-        random: Boolean = false
+        random: Boolean = false,
+        replaceBackstackEntry: Boolean = false
     ) {
         loaderJob.cancel()
         viewModelScope.launch(loaderJob + Dispatchers.IO) {
@@ -447,7 +448,7 @@ class HomeScreenViewModel(
                         }
                     }
 
-                    backStack.add(
+                    if (!replaceBackstackEntry) backStack.add(
                         HomeSubscreen.Article(
                             title = apiResponse?.title ?: "Error",
                             photo = apiResponse?.photo,
@@ -460,6 +461,18 @@ class HomeScreenViewModel(
                             sections = articleSections
                         )
                     )
+                    else
+                        backStack[backStack.lastIndex] = HomeSubscreen.Article(
+                            title = apiResponse?.title ?: "Error",
+                            photo = apiResponse?.photo,
+                            photoDesc = apiResponse?.description,
+                            langs = apiResponse?.langs,
+                            currentLang = setLang,
+                            pageId = apiResponse?.pageId,
+                            savedStatus = saved,
+                            extract = parsedExtract,
+                            sections = articleSections
+                        )
 
                     // Reset refList
                     refCount = 1
@@ -529,12 +542,14 @@ class HomeScreenViewModel(
                 loadPage(
                     lastQuery?.first,
                     lang = lastQuery?.second,
-                    random = false
+                    random = false,
+                    replaceBackstackEntry = true
                 )
             else
                 loadPage(
                     lastQuery?.first,
-                    random = false
+                    random = false,
+                    replaceBackstackEntry = true
                 )
         }
     }
