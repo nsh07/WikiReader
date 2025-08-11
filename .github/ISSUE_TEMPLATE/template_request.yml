@@ -1,0 +1,94 @@
+name: Template request
+description: Request a template / multiple related templates
+title: "[TEMPLATE]: "
+labels: ["template"]
+assignees: nsh07
+body:
+  - type: textarea
+    id: template-name
+    attributes:
+      label: Requested template(s)
+      description: |
+        To find the template(s) used by a Wikipedia article,
+        1. Go to it's Edit page at the section that fails to render in WikiReader
+        2. Find the affected template(s) (they will be surrounded by `{{ }}` brackets)
+        3. Find your template(s) in the Article's Info page:
+           Tools
+           - Page information
+             - Page properties
+               - Transcluded templates;
+           Then, copy the template link(s) below
+      placeholder: |
+        - https://en.wikipedia.org/wiki/Template:<insert_first_template_name_here>
+        - https://en.wikipedia.org/wiki/Template:<insert_second_template_name_here>
+        - etc.
+      value: |
+        - Link 1
+        - Link 2
+        - etc.
+    validations:
+      required: true
+  - type: textarea
+    id: article
+    attributes:
+      label: Affected article(s)
+      description: Please provide one / a few examples of articles where the template(s) appear
+      placeholder: |
+        - https://en.wikipedia.org/wiki/<insert_first_article_name_here>
+        - https://en.wikipedia.org/wiki/<insert_second_article_name_here>
+        - etc.
+      value: |
+        - Link 1
+        - Link 2
+        - etc.
+    validations:
+      required: true
+  - type: textarea
+    id: article-screenshots
+    attributes:
+      label: Article screenshots
+      description: |
+        If possible please include some screenshots of the WikiReader app where it fails to render missing templates,
+        as well as the original Wikipedia article website rendering for reference.
+      placeholder: |
+        - 1st screenshot in WikiReader
+          (image)
+        - 1st screenshot in Wikipedia
+          (image)
+        - etc.
+      value: |
+        - 1st screenshot in WikiReader's description
+          (image)
+        - 1st screenshot in Wikipedia's description
+          (image)
+        - etc.
+  - type: textarea
+    id: article-source-code
+    attributes:
+      label: Article source code 
+      description: |
+        Please copy and paste the relevant Wikipedia articles' source code snippet (found in the Edit page) here.
+        This will be automatically formatted into code, so no need for backticks.
+      value: |
+        Insert source code here (delete this text first)
+      render: mediawiki
+    validations:
+      required: false
+  - type: checkboxes
+    id: template-criteria
+    attributes:
+      label: "Inclusion criteria"
+      description: |
+        Considering the huge amount of existing templates on Wikipedia, some of which have very niche syntax,
+        some inclusion criteria must be met by the template(s) to be included in WikiReader.
+        To be included the template(s) must:
+        1. Have atleast around 25000 total transclusions (combined for multiple templates) on either:
+           - [Toolforge Link Count](https://linkcount.toolforge.org)
+           - [Bruce Myers' Bambots' Template Parameters tool](https://bambots.brucemyers.com/TemplateParam.php)
+        2. Not have been already requested within the repository's [issue tracker](https://github.com/nsh07/WikiReader/issues?q=is%3Aissue%20label%3Atemplate)
+      options:
+        - label: The template(s) reach(es) around 25000 transclusions
+        - label: I have searched the issue tracker for similar issues
+        - label: I am using the latest version of WikiReader
+    validations:
+      required: true
