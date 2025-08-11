@@ -78,7 +78,7 @@
     <string name="settingImmersiveModeDesc">הסתר את סרגל החיפוש וכפתורי הפעולה הצפים בזמן גלילה. מופעל כברירת מחדל במסכים קטנים.</string>
     <string name="settingRenderMath">עיבוד ביטויים מתמטיים</string>
     <string name="settingSearchHistory">היסטורית חיפוש</string>
-    <string name="settingSearchHistoryDesc">שמור היסטוריית חיפושים. היסטוריה קיימת אינה מושפעת מאפשרות זו.</string>
+    <string name="settingSearchHistoryDesc">שמירת היסטוריית החיפוש</string>
     <string name="settings">הגדרות</string>
     <string name="shareLink">שתף קישור</string>
     <string name="sharePage">שתף דף</string>
@@ -135,4 +135,5 @@
     <string name="otherLanguages">שפות אחרות</string>
     <string name="items">%1$s פריטים</string>
     <string name="infobox">תיבת מידע</string>
+    <string name="historyDesc">שמירת היסטוריית גלישה במאמרים</string>
 </resources>
