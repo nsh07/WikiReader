@@ -1,0 +1,8 @@
+New features:
+- Navigating back to the previous page is now instant (thanks to a revamped page loading system)
+- Images and other text now animate while navigating between pages
+- List items now morph and change shapes depending on the interaction and state (M3 Expressive)
+- The app now uses a rounded icon style
+- Switches now follow a Material 3 Expressive style
+
+And general performance improvements and bug fixes
