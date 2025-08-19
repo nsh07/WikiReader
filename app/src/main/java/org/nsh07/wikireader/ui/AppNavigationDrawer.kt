@@ -2,6 +2,7 @@ package org.nsh07.wikireader.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandHorizontally
@@ -226,10 +227,28 @@ private fun AppNavigationRailContent(
         animationSpec = motionScheme.defaultSpatialSpec()
     )
 
+    val navigationItemSelectedTextColor by animateColorAsState(
+        if (!expanded) colorScheme.secondary else colorScheme.onSecondaryContainer,
+        animationSpec = motionScheme.defaultSpatialSpec(),
+    )
+    val navigationColors = WideNavigationRailItemDefaults.colors(
+        unselectedIconColor = colorScheme.onSurfaceVariant,
+        unselectedTextColor = colorScheme.onSurfaceVariant,
+        selectedIconColor = colorScheme.onSecondaryContainer,
+        selectedTextColor = navigationItemSelectedTextColor,
+        selectedIndicatorColor = colorScheme.secondaryContainer,
+    )
+
+    val sectionItemSelectedTextColor by animateColorAsState(
+        if (!expanded) colorScheme.onSurface else colorScheme.onSurface,
+        animationSpec = motionScheme.defaultSpatialSpec(),
+    )
     val sectionColors = WideNavigationRailItemDefaults.colors(
-        selectedIconColor = colorScheme.onTertiaryContainer,
-        selectedTextColor = colorScheme.tertiary,
-        selectedIndicatorColor = colorScheme.tertiaryContainer
+        unselectedIconColor = colorScheme.onSurfaceVariant,
+        unselectedTextColor = colorScheme.onSurfaceVariant,
+        selectedIconColor = colorScheme.onSurface,
+        selectedTextColor = sectionItemSelectedTextColor,
+        selectedIndicatorColor = colorScheme.surfaceContainerHighest,
     )
 
     Column(
@@ -258,7 +277,8 @@ private fun AppNavigationRailContent(
                     }
                 },
                 label = { Text(stringResource(item.labelId)) },
-                railExpanded = expanded
+                railExpanded = expanded,
+                colors = navigationColors
             )
         }
         if (expanded && backStackEntry?.destination?.hasRoute(HomeScreen::class) == true) {
