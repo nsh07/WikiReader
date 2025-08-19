@@ -239,15 +239,11 @@ private fun AppNavigationRailContent(
         selectedIndicatorColor = colorScheme.secondaryContainer,
     )
 
-    val sectionItemSelectedTextColor by animateColorAsState(
-        if (!expanded) colorScheme.onSurface else colorScheme.onSurface,
-        animationSpec = motionScheme.defaultSpatialSpec(),
-    )
     val sectionColors = WideNavigationRailItemDefaults.colors(
         unselectedIconColor = colorScheme.onSurfaceVariant,
         unselectedTextColor = colorScheme.onSurfaceVariant,
         selectedIconColor = colorScheme.onSurface,
-        selectedTextColor = sectionItemSelectedTextColor,
+        selectedTextColor = colorScheme.onSurface,
         selectedIndicatorColor = colorScheme.surfaceContainerHighest,
     )
 
