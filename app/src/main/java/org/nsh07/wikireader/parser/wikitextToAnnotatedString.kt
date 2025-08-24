@@ -935,6 +935,7 @@ fun String.toWikitextAnnotatedString(
 
                             currSubstring.startsWith("{{further", ignoreCase = true) -> {
                                 val curr = currSubstring.substringAfter('|')
+                                val splitList = curr.split('|').fastFilter { !it.contains('=') }
                                 val topic = curr.substringAfter("topic=", "").substringBefore('|')
                                 withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
                                     append("Further")
@@ -949,10 +950,7 @@ fun String.toWikitextAnnotatedString(
                                     } else {
                                         append(" reading")
                                         append(
-                                            ": [[${
-                                                curr.substringAfter('|').substringBefore('|')
-                                                    .substringBefore('#')
-                                            }]]\n".twas()
+                                            ": [[${splitList.getOrNull(0)}]]\n".twas()
                                         )
                                     }
                                 }
