@@ -11,8 +11,8 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.WikiReader.Starting"
-        android:enableOnBackInvokedCallback="true"
-        tools:targetApi="35">
+        android:enableOnBackInvokedCallback="false"
+        tools:targetApi="36">
         <activity
             android:name="org.nsh07.wikireader.MainActivity"
             android:exported="true"
