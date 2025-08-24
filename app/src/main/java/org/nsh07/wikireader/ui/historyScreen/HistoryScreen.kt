@@ -205,7 +205,7 @@ fun HistoryScreen(
                         key = { index: Int, it: ViewHistoryItem -> it.time }
                     ) { index, it ->
                         ListItem(
-                            leadingContent = if (it.description != null) {
+                            leadingContent = if (it.thumbnail != null) {
                                 {
                                     FeedImage(
                                         source = it.thumbnail,
@@ -220,7 +220,7 @@ fun HistoryScreen(
                                 }
                             } else {
                                 {
-                                    Spacer(Modifier.width(56.dp))
+                                    Spacer(Modifier.width(64.dp))
                                 }
                             },
                             headlineContent = {

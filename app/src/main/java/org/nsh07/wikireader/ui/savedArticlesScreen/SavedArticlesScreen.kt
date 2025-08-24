@@ -219,7 +219,7 @@ fun SavedArticlesScreen(
                         key = { index: Int, it: ArticleInfo -> it.pageId.toString() + it.lang }
                     ) { index: Int, it: ArticleInfo ->
                         ListItem(
-                            leadingContent = if (it.description != null) {
+                            leadingContent = if (it.thumbnail != null) {
                                 {
                                     FeedImage(
                                         source = it.thumbnail,
@@ -234,7 +234,7 @@ fun SavedArticlesScreen(
                                 }
                             } else {
                                 {
-                                    Spacer(Modifier.width(56.dp))
+                                    Spacer(Modifier.width(64.dp))
                                 }
                             },
                             headlineContent = {
