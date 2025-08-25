@@ -21,6 +21,7 @@ interface AppContainer {
     val wikipediaRepository: WikipediaRepository
     val appPreferencesRepository: AppPreferencesRepository
     val appDatabaseRepository: AppDatabaseRepository
+    val userAgentString: String
 }
 
 class DefaultAppContainer(context: Context) : AppContainer {
@@ -31,6 +32,8 @@ class DefaultAppContainer(context: Context) : AppContainer {
 
     override val appStatus = MutableStateFlow(AppStatus.NOT_INITIALIZED)
     override val preferencesStateMutableFlow = MutableStateFlow(PreferencesState())
+    override val userAgentString: String =
+        "WikiReader/${BuildConfig.VERSION_NAME} (https://github.com/nsh07/wikireader; nishant.28@outlook.com) okhttp/5.1.0 retrofit/3.0.0"
 
     private val okHttpClient by lazy {
         OkHttpClient.Builder()
@@ -40,7 +43,7 @@ class DefaultAppContainer(context: Context) : AppContainer {
                         .newBuilder()
                         .header(
                             "User-Agent",
-                            "WikiReader/${BuildConfig.VERSION_NAME} (https://github.com/nsh07/wikireader; nishant.28@outlook.com) okhttp/5.1.0 retrofit/3.0.0"
+                            userAgentString
                         )
                         .build()
                 )

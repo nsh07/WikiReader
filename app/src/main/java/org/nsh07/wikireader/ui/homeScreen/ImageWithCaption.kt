@@ -21,7 +21,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
-import coil3.ImageLoader
 import org.nsh07.wikireader.parser.toWikitextAnnotatedString
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.theme.ColorConstants.colorMatrixInvert
@@ -35,7 +34,6 @@ fun SharedTransitionScope.ImageWithCaption(
     darkTheme: Boolean,
     background: Boolean,
     checkFirstImage: Boolean,
-    imageLoader: ImageLoader,
     onLinkClick: (String) -> Unit,
     onClick: (String, String) -> Unit,
     modifier: Modifier = Modifier,
@@ -61,7 +59,6 @@ fun SharedTransitionScope.ImageWithCaption(
         FeedImage(
             source = uriLow,
             description = description,
-            imageLoader = imageLoader,
             loadingIndicator = false,
             colorFilter = if (invert && darkTheme && !background) // Invert colors in dark theme
                 ColorFilter.colorMatrix(ColorMatrix(colorMatrixInvert))

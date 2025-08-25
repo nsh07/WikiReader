@@ -22,7 +22,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.ImageLoader
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
@@ -37,7 +36,6 @@ fun FeedImage(
     description: String? = null,
     width: Int? = null,
     height: Int? = null,
-    imageLoader: ImageLoader,
     loadingIndicator: Boolean,
     background: Boolean,
     colorFilter: ColorFilter? = null,
@@ -49,7 +47,6 @@ fun FeedImage(
             .data(source)
             .crossfade(true)
             .build(),
-        imageLoader = imageLoader,
         contentScale = contentScale,
     )
 

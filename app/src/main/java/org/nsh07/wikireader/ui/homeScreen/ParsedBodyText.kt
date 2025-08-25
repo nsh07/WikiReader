@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
-import coil3.ImageLoader
 import com.github.tomtung.latex2unicode.LaTeX2Unicode
 import org.nsh07.wikireader.parser.ReferenceData.infoboxTemplates
 import kotlin.text.Typography.nbsp
@@ -32,7 +31,6 @@ fun ParsedBodyText(
     lang: String,
     fontSize: Int,
     fontFamily: FontFamily,
-    imageLoader: ImageLoader,
     sharedScope: SharedTransitionScope,
     background: Boolean,
     renderMath: Boolean,
@@ -57,7 +55,6 @@ fun ParsedBodyText(
                             text = it.toString(),
                             lang = lang,
                             fontSize = fontSize,
-                            imageLoader = imageLoader,
                             onLinkClick = onLinkClick,
                             onClick = onGalleryImageClick,
                             darkTheme = darkTheme,
@@ -73,7 +70,6 @@ fun ParsedBodyText(
                         text = it.toString(),
                         lang = lang,
                         fontSize = fontSize,
-                        imageLoader = imageLoader,
                         onClick = onGalleryImageClick,
                         onLinkClick = onLinkClick,
                         background = background
@@ -115,7 +111,6 @@ fun ParsedBodyText(
                     fontSize = fontSize,
                     darkTheme = darkTheme,
                     background = background,
-                    imageLoader = imageLoader,
                     onImageClick = onGalleryImageClick,
                     onLinkClick = onLinkClick,
                     showRef = showRef

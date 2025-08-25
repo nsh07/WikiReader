@@ -5,7 +5,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.AnnotatedString
-import coil3.ImageLoader
 import org.nsh07.wikireader.data.FeedApiImage
 import org.nsh07.wikireader.data.FeedApiNews
 import org.nsh07.wikireader.data.FeedApiOTD
@@ -62,7 +61,6 @@ sealed class HomeSubscreen {
             val photoDesc: String?,
             val title: String,
             val background: Boolean,
-            val imageLoader: ImageLoader,
             val modifier: Modifier = Modifier,
             val link: String? = null,
             val onBack: () -> Unit,
@@ -71,7 +69,6 @@ sealed class HomeSubscreen {
         data class FullScreenArticleImage(
             val uri: String,
             val description: String,
-            val imageLoader: ImageLoader,
             val modifier: Modifier = Modifier,
             val link: String? = null,
             val background: Boolean,

@@ -67,7 +67,6 @@ import androidx.compose.ui.util.fastForEach
 import androidx.core.text.parseAsHtml
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.window.core.layout.WindowSizeClass
-import coil3.ImageLoader
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
@@ -95,7 +94,6 @@ fun ArticleFeed(
     pagerState: PagerState?,
     newsCarouselState: CarouselState?,
     otdCarouselState: CarouselState?,
-    imageLoader: ImageLoader,
     insets: PaddingValues,
     windowSizeClass: WindowSizeClass,
     imageBackground: Boolean,
@@ -181,7 +179,6 @@ fun ArticleFeed(
                                     description = feedContent.tfa.titles?.normalized,
                                     width = feedContent.tfa.originalImage?.width ?: 1,
                                     height = feedContent.tfa.originalImage?.height ?: 1,
-                                    imageLoader = imageLoader,
                                     background = imageBackground,
                                     loadingIndicator = false,
                                     modifier = Modifier
@@ -237,7 +234,6 @@ fun ArticleFeed(
                                         description = feedContent.tfa.titles?.normalized,
                                         width = feedContent.tfa.originalImage?.width ?: 1,
                                         height = feedContent.tfa.originalImage?.height ?: 1,
-                                        imageLoader = imageLoader,
                                         background = imageBackground,
                                         loadingIndicator = false,
                                         modifier = Modifier
@@ -319,21 +315,21 @@ fun ArticleFeed(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .animateContentSize(motionScheme.defaultSpatialSpec())
-                        ) {
+                        ) { page ->
                             Column(
                                 verticalArrangement = Arrangement.spacedBy(2.dp),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(16.dp)
                             ) {
-                                for (i in it * 5..it * 5 + 4) {
+                                for (i in page * 5..page * 5 + 4) {
                                     key(i) {
                                         Row(
                                             modifier = Modifier
                                                 .clip(
                                                     when (i) {
-                                                        it * 5 -> topListItemShape
-                                                        it * 5 + 4 -> bottomListItemShape
+                                                        page * 5 -> topListItemShape
+                                                        page * 5 + 4 -> bottomListItemShape
                                                         else -> middleListItemShape
                                                     }
                                                 )
@@ -413,7 +409,6 @@ fun ArticleFeed(
                                                 FeedImage(
                                                     source = feedContent.mostReadArticles[i].thumbnail?.source,
                                                     description = feedContent.mostReadArticles[i].titles?.normalized,
-                                                    imageLoader = imageLoader,
                                                     loadingIndicator = true,
                                                     background = imageBackground,
                                                     modifier = Modifier
@@ -511,7 +506,6 @@ fun ArticleFeed(
                                     description = feedContent.image.description?.text,
                                     width = feedContent.image.thumbnail?.width ?: 1,
                                     height = feedContent.image.thumbnail?.height ?: 1,
-                                    imageLoader = imageLoader,
                                     background = imageBackground,
                                     loadingIndicator = false,
                                     modifier = Modifier
@@ -547,7 +541,6 @@ fun ArticleFeed(
                                         description = feedContent.image.description?.text,
                                         width = feedContent.image.image?.width ?: 1,
                                         height = feedContent.image.image?.height ?: 1,
-                                        imageLoader = imageLoader,
                                         background = imageBackground,
                                         loadingIndicator = false,
                                         modifier = Modifier.weight(1f)
@@ -612,7 +605,6 @@ fun ArticleFeed(
                                         ?.find { it.thumbnail != null }
                                         ?.thumbnail?.source,
                                     description = null,
-                                    imageLoader = imageLoader,
                                     loadingIndicator = false,
                                     background = imageBackground,
                                     modifier = Modifier
@@ -737,7 +729,6 @@ fun ArticleFeed(
                                             ?.find { it.thumbnail != null }
                                             ?.thumbnail?.source,
                                         description = null,
-                                        imageLoader = imageLoader,
                                         loadingIndicator = false,
                                         background = imageBackground,
                                         modifier = Modifier

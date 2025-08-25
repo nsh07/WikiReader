@@ -47,7 +47,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
-import coil3.ImageLoader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
@@ -62,7 +61,6 @@ fun AsyncInfobox(
     fontSize: Int,
     darkTheme: Boolean,
     background: Boolean,
-    imageLoader: ImageLoader,
     onImageClick: (String, String) -> Unit,
     onLinkClick: (String) -> Unit,
     showRef: (String) -> Unit
@@ -177,7 +175,6 @@ fun AsyncInfobox(
                                         darkTheme,
                                         background,
                                         false,
-                                        imageLoader,
                                         onLinkClick = onLinkClick,
                                         onClick = onImageClick,
                                         showCaption = false,

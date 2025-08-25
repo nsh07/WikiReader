@@ -29,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -39,7 +38,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
-import coil3.ImageLoader
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
@@ -52,7 +50,6 @@ fun ExpandableSection(
     lang: String,
     fontSize: Int,
     fontFamily: FontFamily,
-    imageLoader: ImageLoader,
     sharedScope: SharedTransitionScope,
     expanded: Boolean,
     renderMath: Boolean,
@@ -126,7 +123,6 @@ fun ExpandableSection(
                 fontSize = fontSize,
                 fontFamily = fontFamily,
                 renderMath = renderMath,
-                imageLoader = imageLoader,
                 darkTheme = darkTheme,
                 dataSaver = dataSaver,
                 background = imageBackground,
@@ -150,7 +146,6 @@ fun ExpandableSectionPreview() {
                 lang = "en",
                 fontSize = 16,
                 fontFamily = FontFamily.SansSerif,
-                imageLoader = ImageLoader(context = LocalContext.current),
                 sharedScope = this@SharedTransitionLayout,
                 expanded = false,
                 renderMath = true,

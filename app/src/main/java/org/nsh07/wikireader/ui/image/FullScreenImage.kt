@@ -52,7 +52,6 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.ImageLoader
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
@@ -69,7 +68,6 @@ fun FullScreenImage(
     sharedScope: SharedTransitionScope,
     title: String,
     background: Boolean,
-    imageLoader: ImageLoader,
     modifier: Modifier = Modifier,
     link: String? = null,
     onBack: () -> Unit,
@@ -87,7 +85,6 @@ fun FullScreenImage(
             .data(photo?.source)
             .crossfade(true)
             .build(),
-        imageLoader = imageLoader,
         contentScale = contentScale,
     )
 
@@ -243,7 +240,6 @@ fun FullScreenArticleImage(
     uri: String,
     description: String,
     sharedScope: SharedTransitionScope,
-    imageLoader: ImageLoader,
     modifier: Modifier = Modifier,
     link: String? = null,
     background: Boolean,
@@ -263,7 +259,6 @@ fun FullScreenArticleImage(
             .data(uri)
             .crossfade(true)
             .build(),
-        imageLoader = imageLoader,
         contentScale = contentScale,
     )
 
