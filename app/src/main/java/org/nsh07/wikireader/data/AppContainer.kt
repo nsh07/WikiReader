@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import org.nsh07.wikireader.BuildConfig
 import org.nsh07.wikireader.network.HostSelectionInterceptor
 import org.nsh07.wikireader.network.WikipediaApiService
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
@@ -33,6 +34,17 @@ class DefaultAppContainer(context: Context) : AppContainer {
 
     private val okHttpClient by lazy {
         OkHttpClient.Builder()
+            .addNetworkInterceptor { chain ->
+                chain.proceed(
+                    chain.request()
+                        .newBuilder()
+                        .header(
+                            "User-Agent",
+                            "WikiReader/${BuildConfig.VERSION_NAME} (https://github.com/nsh07/wikireader; nishant.28@outlook.com) okhttp/5.1.0 retrofit/3.0.0"
+                        )
+                        .build()
+                )
+            }
             .addInterceptor(interceptor)
             .build()
     }
