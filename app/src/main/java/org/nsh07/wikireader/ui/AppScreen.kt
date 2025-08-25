@@ -1,6 +1,5 @@
 package org.nsh07.wikireader.ui
 
-import android.os.Build.VERSION.SDK_INT
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -59,7 +58,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -72,10 +70,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import androidx.window.core.layout.WindowSizeClass
-import coil3.ImageLoader
-import coil3.gif.AnimatedImageDecoder
-import coil3.gif.GifDecoder
-import coil3.svg.SvgDecoder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -100,7 +94,6 @@ fun AppScreen(
     settingsViewModel: SettingsViewModel,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     val preferencesState by settingsViewModel.preferencesState.collectAsStateWithLifecycle()
@@ -148,19 +141,6 @@ fun AppScreen(
         )
         else null
     val textFieldState = viewModel.textFieldState
-
-    val imageLoader = remember {
-        ImageLoader.Builder(context)
-            .components {
-                add(SvgDecoder.Factory(scaleToDensity = true))
-                if (SDK_INT >= 28) {
-                    add(AnimatedImageDecoder.Factory())
-                } else {
-                    add(GifDecoder.Factory())
-                }
-            }
-            .build()
-    }
 
     val snackBarHostState = viewModel.snackBarHostState
 
@@ -322,7 +302,6 @@ fun AppScreen(
                                 searchHistory = searchHistory,
                                 scrollBehavior = searchBarScrollBehavior,
                                 searchBarEnabled = !showArticleLanguageSheet,
-                                imageLoader = imageLoader,
                                 searchListState = searchListState,
                                 windowSizeClass = windowSizeClass,
                                 languageSearchStr = languageSearchStr,
@@ -373,7 +352,6 @@ fun AppScreen(
                         preferencesState = preferencesState,
                         recentLangs = recentLangs,
                         floatingToolbarScrollBehaviour = floatingToolbarScrollBehaviour,
-                        imageLoader = imageLoader,
                         languageSearchStr = languageSearchStr,
                         languageSearchQuery = languageSearchQuery,
                         showLanguageSheet = showArticleLanguageSheet,
@@ -398,7 +376,6 @@ fun AppScreen(
 
             composable<SavedArticlesScreen> {
                 SavedArticlesScreenRoot(
-                    imageLoader = imageLoader,
                     imageBackground = preferencesState.imageBackground,
                     openSavedArticle = { pageId: Int, lang: String ->
                         navController.navigateUp()
@@ -410,7 +387,6 @@ fun AppScreen(
 
             composable<HistoryScreen> {
                 HistoryScreenRoot(
-                    imageLoader = imageLoader,
                     imageBackground = preferencesState.imageBackground,
                     openArticle = { title, lang ->
                         viewModel.onAction(HomeAction.LoadPage(title, lang))

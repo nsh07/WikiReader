@@ -75,7 +75,7 @@
     <string name="settingImmersiveMode">Modo inmersivo</string>
     <string name="settingImmersiveModeDesc">Ocultar la barra de búsqueda y los botones flotantes al desplazarse. Activado por defecto en pantallas pequeñas.</string>
     <string name="settingRenderMath">Mostrar expresiones matemáticas</string>
-    <string name="settingSearchHistoryDesc">Guardar historial de búsqueda. El historial existente no se verá afectado por esta opción.</string>
+    <string name="settingSearchHistoryDesc">Guardar historial de búsqueda</string>
     <string name="settingTheme">Tema</string>
     <string name="settingWikipediaLanguage">Idioma de Wikipedia</string>
     <string name="settings">Ajustes</string>
@@ -135,4 +135,5 @@
     <string name="chooseAppLanguage">Elegir idioma de la aplicación</string>
     <string name="otherLanguages">Otros idiomas</string>
     <string name="infobox">Infobox</string>
+    <string name="historyDesc">Guardar historial de lectura</string>
 </resources>

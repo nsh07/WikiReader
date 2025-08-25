@@ -79,7 +79,6 @@ import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import androidx.window.core.layout.WindowSizeClass
-import coil3.ImageLoader
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.SavedStatus
@@ -103,7 +102,6 @@ import org.nsh07.wikireader.ui.shimmer.FeedLoader
  * @param preferencesState The current state of user preferences.
  * @param recentLangs A list of recently used language codes.
  * @param floatingToolbarScrollBehaviour The [FloatingToolbarScrollBehavior] for the floating action toolbar.
- * @param imageLoader The app-wide [ImageLoader] used for loading images.
  * @param languageSearchStr The current search string for languages in the language bottom sheet.
  * @param languageSearchQuery The current search query for languages after debouncing.
  * @param showLanguageSheet A boolean indicating whether the language selection bottom sheet should be shown.
@@ -127,7 +125,6 @@ fun AppHomeScreen(
     preferencesState: PreferencesState,
     recentLangs: List<String>,
     floatingToolbarScrollBehaviour: FloatingToolbarScrollBehavior?,
-    imageLoader: ImageLoader,
     languageSearchStr: String,
     languageSearchQuery: String,
     showLanguageSheet: Boolean,
@@ -291,7 +288,6 @@ fun AppHomeScreen(
                             pagerState = pagerState,
                             newsCarouselState = newsCarouselState,
                             otdCarouselState = otdCarouselState,
-                            imageLoader = imageLoader,
                             insets = insets,
                             loadPage = { onAction(HomeAction.LoadPage(it)) },
                             refreshFeed = { onAction(HomeAction.LoadFeed()) },
@@ -306,7 +302,6 @@ fun AppHomeScreen(
                                         photoDesc = entry.image?.description?.text?.parseAsHtml()
                                             .toString(),
                                         title = entry.image?.title ?: "",
-                                        imageLoader = imageLoader,
                                         link = entry.image?.filePage,
                                         background = preferencesState.imageBackground,
                                         onBack = backStack::removeLastOrNull
@@ -329,7 +324,6 @@ fun AppHomeScreen(
                             sharedScope = this@SharedTransitionLayout,
                             preferencesState = preferencesState,
                             insets = insets,
-                            imageLoader = imageLoader,
                             showLanguageSheet = showLanguageSheet,
                             recentLangs = recentLangs,
                             languageSearchStr = languageSearchStr,
@@ -343,7 +337,6 @@ fun AppHomeScreen(
                                         photo = entry.photo,
                                         photoDesc = entry.photoDesc,
                                         title = entry.title,
-                                        imageLoader = imageLoader,
                                         background = preferencesState.imageBackground,
                                         link = entry.photo?.source,
                                         onBack = backStack::removeLastOrNull
@@ -355,7 +348,6 @@ fun AppHomeScreen(
                                     HomeSubscreen.Image.FullScreenArticleImage(
                                         uri = uri,
                                         description = description,
-                                        imageLoader = imageLoader,
                                         link = uri,
                                         background = preferencesState.imageBackground,
                                         onBack = backStack::removeLastOrNull
@@ -374,7 +366,6 @@ fun AppHomeScreen(
                             sharedScope = this@SharedTransitionLayout,
                             title = it.title,
                             background = it.background,
-                            imageLoader = it.imageLoader,
                             link = it.link,
                             onBack = it.onBack
                         )
@@ -385,7 +376,6 @@ fun AppHomeScreen(
                             uri = it.uri,
                             description = it.description,
                             sharedScope = this@SharedTransitionLayout,
-                            imageLoader = it.imageLoader,
                             background = it.background,
                             link = it.link,
                             onBack = it.onBack

@@ -1,0 +1,6 @@
+This update contains critical bug fixes:
+- Fixed unreadable/incorrect colors in article sections and navigation items (#267 thanks to @deminearchiver)
+- Fixed a critical bug that caused all content to not load
+- Fixed a critical bug that caused the app to crash when navigating back (predictive back animations have been temporarily disabled as a result)
+- Fixed missing content
+- Removed exclamation mark when image loading fails in feed and other pages

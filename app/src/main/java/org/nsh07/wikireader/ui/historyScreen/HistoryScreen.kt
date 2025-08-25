@@ -57,7 +57,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil3.ImageLoader
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
@@ -76,7 +75,6 @@ import java.time.format.FormatStyle
 
 @Composable
 fun HistoryScreenRoot(
-    imageLoader: ImageLoader,
     imageBackground: Boolean,
     openArticle: (String, String) -> Unit,
     onBack: () -> Unit,
@@ -87,7 +85,6 @@ fun HistoryScreenRoot(
 
     HistoryScreen(
         viewHistory = viewHistory,
-        imageLoader = imageLoader,
         imageBackground = imageBackground,
         openArticle = openArticle,
         onAction = viewModel::onAction,
@@ -100,7 +97,6 @@ fun HistoryScreenRoot(
 @Composable
 fun HistoryScreen(
     viewHistory: List<ViewHistoryItem>,
-    imageLoader: ImageLoader,
     imageBackground: Boolean,
     openArticle: (String, String) -> Unit,
     onAction: (HistoryAction) -> Unit,
@@ -205,12 +201,11 @@ fun HistoryScreen(
                         key = { index: Int, it: ViewHistoryItem -> it.time }
                     ) { index, it ->
                         ListItem(
-                            leadingContent = if (it.description != null) {
+                            leadingContent = if (it.thumbnail != null) {
                                 {
                                     FeedImage(
                                         source = it.thumbnail,
                                         description = it.description,
-                                        imageLoader = imageLoader,
                                         loadingIndicator = true,
                                         background = imageBackground,
                                         modifier = Modifier
@@ -220,7 +215,7 @@ fun HistoryScreen(
                                 }
                             } else {
                                 {
-                                    Spacer(Modifier.width(56.dp))
+                                    Spacer(Modifier.width(64.dp))
                                 }
                             },
                             headlineContent = {

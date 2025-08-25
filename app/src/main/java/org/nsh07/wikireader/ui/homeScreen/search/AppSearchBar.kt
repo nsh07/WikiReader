@@ -88,7 +88,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.util.fastForEach
 import androidx.window.core.layout.WindowSizeClass
-import coil3.ImageLoader
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
@@ -118,7 +117,6 @@ fun AppSearchBar(
     recentLangs: List<String>,
     searchHistory: List<SearchHistoryItem>,
     searchBarEnabled: Boolean,
-    imageLoader: ImageLoader,
     searchListState: LazyListState,
     windowSizeClass: WindowSizeClass,
     scrollBehavior: TopAppBarScrollBehavior?,
@@ -483,7 +481,6 @@ fun AppSearchBar(
                                         if (it.thumbnail != null && !preferencesState.dataSaver)
                                             FeedImage(
                                                 source = it.thumbnail.source,
-                                                imageLoader = imageLoader,
                                                 contentScale = ContentScale.Crop,
                                                 loadingIndicator = true,
                                                 background = preferencesState.imageBackground,
@@ -545,7 +542,6 @@ fun AppSearchBar(
                                         if (it.thumbnail != null && !preferencesState.dataSaver)
                                             FeedImage(
                                                 source = it.thumbnail.source,
-                                                imageLoader = imageLoader,
                                                 contentScale = ContentScale.Crop,
                                                 loadingIndicator = true,
                                                 background = preferencesState.imageBackground,
@@ -675,7 +671,6 @@ fun AppSearchBar(
                                     item = it,
                                     dataSaver = preferencesState.dataSaver,
                                     imageBackground = preferencesState.imageBackground,
-                                    imageLoader = imageLoader,
                                     onSearchBarExpandedChange = onSearchBarExpandedChange,
                                     onAction = onAction,
                                     items = appSearchBarState.prefixSearchResults?.size ?: 0,
@@ -702,7 +697,6 @@ fun AppSearchBar(
                                     items = appSearchBarState.searchResults?.size ?: 0,
                                     dataSaver = preferencesState.dataSaver,
                                     imageBackground = preferencesState.imageBackground,
-                                    imageLoader = imageLoader,
                                     onSearchBarExpandedChange = onSearchBarExpandedChange,
                                     onAction = onAction
                                 )

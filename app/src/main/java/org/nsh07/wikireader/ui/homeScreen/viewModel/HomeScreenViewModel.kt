@@ -927,7 +927,7 @@ class HomeScreenViewModel(
                         )
                         out.add(AnnotatedString(currSubstring))
                         curr = ""
-                        i += currSubstring.length
+                        i += currSubstring.length - 1
                     } else curr += parsed[i]
                 } else curr += parsed[i]
                 i++

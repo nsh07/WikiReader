@@ -18,7 +18,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.ImageLoader
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -41,7 +40,6 @@ import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
 fun SharedTransitionScope.ImageCard(
     photo: WikiPhoto?,
     title: String,
-    imageLoader: ImageLoader,
     animatedVisibilityScope: AnimatedVisibilityScope,
     showPhoto: Boolean,
     background: Boolean,
@@ -56,7 +54,6 @@ fun SharedTransitionScope.ImageCard(
             .data(photo?.source)
             .crossfade(true)
             .build(),
-        imageLoader = imageLoader,
         contentScale = contentScale,
     )
     val painterState by painter.state.collectAsStateWithLifecycle()

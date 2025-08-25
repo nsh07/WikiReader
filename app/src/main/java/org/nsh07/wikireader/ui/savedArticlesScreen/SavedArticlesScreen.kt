@@ -59,7 +59,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil3.ImageLoader
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.ArticleInfo
@@ -75,7 +74,6 @@ import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
 
 @Composable
 fun SavedArticlesScreenRoot(
-    imageLoader: ImageLoader,
     imageBackground: Boolean,
     openSavedArticle: (Int, String) -> Unit,
     onBack: () -> Unit,
@@ -88,7 +86,6 @@ fun SavedArticlesScreenRoot(
     SavedArticlesScreen(
         savedArticles = savedArticles,
         savedArticleLangs = savedArticleLangs,
-        imageLoader = imageLoader,
         imageBackground = imageBackground,
         openSavedArticle = openSavedArticle,
         onAction = viewModel::onAction,
@@ -105,7 +102,6 @@ fun SavedArticlesScreenRoot(
 fun SavedArticlesScreen(
     savedArticles: List<ArticleInfo>,
     savedArticleLangs: List<LanguageInfo>,
-    imageLoader: ImageLoader,
     imageBackground: Boolean,
     openSavedArticle: (Int, String) -> Unit,
     onAction: (SavedArticlesAction) -> WRStatus,
@@ -219,12 +215,11 @@ fun SavedArticlesScreen(
                         key = { index: Int, it: ArticleInfo -> it.pageId.toString() + it.lang }
                     ) { index: Int, it: ArticleInfo ->
                         ListItem(
-                            leadingContent = if (it.description != null) {
+                            leadingContent = if (it.thumbnail != null) {
                                 {
                                     FeedImage(
                                         source = it.thumbnail,
                                         description = it.description,
-                                        imageLoader = imageLoader,
                                         loadingIndicator = true,
                                         background = imageBackground,
                                         modifier = Modifier
@@ -234,7 +229,7 @@ fun SavedArticlesScreen(
                                 }
                             } else {
                                 {
-                                    Spacer(Modifier.width(56.dp))
+                                    Spacer(Modifier.width(64.dp))
                                 }
                             },
                             headlineContent = {

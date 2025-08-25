@@ -716,24 +716,123 @@ fun String.toWikitextAnnotatedString(
 
                             currSubstring.startsWith("{{for", true) -> {
                                 val splitList = currSubstring.substringAfter('|').split('|')
+                                    .fastFilter { !it.contains('=') }
                                 if (splitList.size > 1) {
-                                    append("For ${splitList[0]}, see ")
-                                    splitList.subList(1, splitList.size)
-                                        .fastForEachIndexed { index: Int, it: String ->
-                                            append(
-                                                "[[${it.substringBefore(MAGIC_SEP)}|${
-                                                    it.substringAfter(
-                                                        MAGIC_SEP
-                                                    )
-                                                }]]".twas()
-                                            )
+                                    withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                                        append("For ${splitList[0]}, see ")
+                                        splitList.subList(1, splitList.size)
+                                            .fastForEachIndexed { index: Int, it: String ->
+                                                append(
+                                                    "[[${it.substringBefore(MAGIC_SEP)}|${
+                                                        it.substringAfter(
+                                                            MAGIC_SEP
+                                                        )
+                                                    }]]".twas()
+                                                )
 
-                                            if (index == splitList.size - 2 && splitList.size > 2) append(
-                                                ", and "
+                                                if (index == splitList.size - 2 && splitList.size > 2) append(
+                                                    ", and "
+                                                )
+                                                else if (index < splitList.size - 2) append(", ")
+                                            }
+                                        append('.')
+                                    }
+                                }
+                            }
+
+                            currSubstring.startsWith("{{about", true) -> {
+                                val splitList = currSubstring.substringAfter('|').split('|')
+                                withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                                    when {
+                                        currSubstring.matches("\\{\\{[Aa]bout\\|\\|[^|]+\\|[^|]+".toRegex()) -> {
+                                            append(
+                                                "''For ${splitList[1]}, see [[${
+                                                    splitList[2].replace(
+                                                        MAGIC_SEP,
+                                                        "|"
+                                                    )
+                                                }]]''".twas()
                                             )
-                                            else if (index < splitList.size - 2) append(", ")
                                         }
-                                    append('.')
+
+                                        currSubstring.matches("\\{\\{[Aa]bout\\|\\|\\|[^|]+".toRegex()) -> {
+                                            append(
+                                                "''For other uses, see [[${
+                                                    splitList.last().replace(MAGIC_SEP, "|")
+                                                }]]''".twas()
+                                            )
+                                        }
+
+                                        currSubstring.matches("\\{\\{[Aa]bout\\|[^|]+\\|\\|[^|]+".toRegex()) -> {
+                                            append(
+                                                "''This article is about ${splitList[0]}. For other uses, see [[${
+                                                    splitList[2].replace(
+                                                        MAGIC_SEP,
+                                                        "|"
+                                                    )
+                                                }]]''".twas()
+                                            )
+                                        }
+
+                                        currSubstring.matches("\\{\\{[Aa]bout\\|[^|]+\\|\\|[^|]+\\|and\\|[^|]+".toRegex()) -> {
+                                            append(
+                                                "''This article is about ${splitList[0]}. For other uses, see [[${
+                                                    splitList[2].replace(
+                                                        MAGIC_SEP,
+                                                        "|"
+                                                    )
+                                                }]] and [[${
+                                                    splitList[4].replace(
+                                                        MAGIC_SEP,
+                                                        "|"
+                                                    )
+                                                }]].''".twas()
+                                            )
+                                        }
+
+                                        currSubstring.matches("\\{\\{[Aa]bout\\|[^|]+\\|[^|]+\\|[^|]+".toRegex()) -> {
+                                            append(
+                                                "''This article is about ${splitList[0]}. For ${splitList[1]}, see [[${
+                                                    splitList[2].replace(
+                                                        MAGIC_SEP,
+                                                        "|"
+                                                    )
+                                                }]].''".twas()
+                                            )
+                                        }
+
+                                        currSubstring.matches("\\{\\{[Aa]bout\\|[^|]+\\|[^|]+\\|[^|]+\\|and\\|[^|]+".toRegex()) -> {
+                                            append(
+                                                "''This article is about ${splitList[0]}. For ${splitList[1]}, see [[${
+                                                    splitList[2].replace(
+                                                        MAGIC_SEP,
+                                                        "|"
+                                                    )
+                                                }]] and [[${
+                                                    splitList[4].replace(
+                                                        MAGIC_SEP,
+                                                        "|"
+                                                    )
+                                                }]].''".twas()
+                                            )
+                                        }
+
+                                        currSubstring.matches("\\{\\{[Aa]bout\\|[^|]+\\|[^|]+\\|[^|]+\\|[^|]+\\|[^|]+".toRegex()) -> {
+                                            append(
+                                                "''This article is about ${splitList[0]}. For ${splitList[1]}, see [[${
+                                                    splitList[2].replace(
+                                                        MAGIC_SEP,
+                                                        "|"
+                                                    )
+                                                }]]. For ${splitList[3]}, see [[${
+                                                    splitList[4].replace(
+                                                        MAGIC_SEP,
+                                                        "|"
+                                                    )
+                                                }]].''".twas()
+                                            )
+                                        }
+                                    }
                                 }
                             }
 
@@ -836,6 +935,7 @@ fun String.toWikitextAnnotatedString(
 
                             currSubstring.startsWith("{{further", ignoreCase = true) -> {
                                 val curr = currSubstring.substringAfter('|')
+                                val splitList = curr.split('|').fastFilter { !it.contains('=') }
                                 val topic = curr.substringAfter("topic=", "").substringBefore('|')
                                 withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
                                     append("Further")
@@ -850,10 +950,7 @@ fun String.toWikitextAnnotatedString(
                                     } else {
                                         append(" reading")
                                         append(
-                                            ": [[${
-                                                curr.substringAfter('|').substringBefore('|')
-                                                    .substringBefore('#')
-                                            }]]\n".twas()
+                                            ": [[${splitList.getOrNull(0)}]]\n".twas()
                                         )
                                     }
                                 }

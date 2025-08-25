@@ -29,7 +29,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.ImageLoader
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.parser.toWikitextAnnotatedString
@@ -42,7 +41,6 @@ fun Gallery(
     lang: String,
     fontSize: Int,
     background: Boolean,
-    imageLoader: ImageLoader,
     onLinkClick: (String) -> Unit,
     onClick: (String, String) -> Unit
 ) {
@@ -76,7 +74,6 @@ fun Gallery(
             FeedImage(
                 source = uriLow,
                 description = description,
-                imageLoader = imageLoader,
                 loadingIndicator = false,
                 background = background,
                 modifier = Modifier

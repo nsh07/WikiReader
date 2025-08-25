@@ -33,7 +33,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
-import coil3.ImageLoader
 import kotlinx.coroutines.delay
 import org.nsh07.wikireader.data.WikiLang
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeAction
@@ -49,7 +48,6 @@ fun PageContent(
     sharedScope: SharedTransitionScope,
     preferencesState: PreferencesState,
     insets: PaddingValues,
-    imageLoader: ImageLoader,
     showLanguageSheet: Boolean,
     recentLangs: List<String>,
     languageSearchStr: String,
@@ -164,7 +162,6 @@ fun PageContent(
                                 ImageCard(
                                     photo = photo,
                                     title = content.title,
-                                    imageLoader = imageLoader,
                                     animatedVisibilityScope = LocalNavAnimatedContentScope.current,
                                     showPhoto = !preferencesState.dataSaver,
                                     onClick = onImageClick,
@@ -185,7 +182,6 @@ fun PageContent(
                             fontSize = fontSize,
                             fontFamily = fontFamily,
                             renderMath = preferencesState.renderMath,
-                            imageLoader = imageLoader,
                             sharedScope = sharedScope,
                             darkTheme = colorScheme.isDark(),
                             dataSaver = preferencesState.dataSaver,
@@ -210,7 +206,6 @@ fun PageContent(
                             lang = content.currentLang ?: "en",
                             fontSize = fontSize,
                             fontFamily = fontFamily,
-                            imageLoader = imageLoader,
                             sharedScope = sharedScope,
                             expanded = preferencesState.expandedSections,
                             darkTheme = colorScheme.isDark(),

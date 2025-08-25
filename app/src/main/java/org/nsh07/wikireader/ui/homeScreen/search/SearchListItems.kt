@@ -32,7 +32,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil3.ImageLoader
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.data.SearchHistoryItem
 import org.nsh07.wikireader.data.WikiPrefixSearchResult
@@ -129,7 +128,6 @@ fun LazyItemScope.PrefixSearchResultListItem(
     item: WikiPrefixSearchResult,
     dataSaver: Boolean,
     imageBackground: Boolean,
-    imageLoader: ImageLoader,
     onSearchBarExpandedChange: (Boolean) -> Unit,
     onAction: (HomeAction) -> Unit,
     items: Int,
@@ -178,7 +176,6 @@ fun LazyItemScope.PrefixSearchResultListItem(
             if (item.thumbnail != null && !dataSaver)
                 FeedImage(
                     source = item.thumbnail.source,
-                    imageLoader = imageLoader,
                     contentScale = ContentScale.Crop,
                     loadingIndicator = true,
                     background = imageBackground,
@@ -218,7 +215,6 @@ fun LazyItemScope.SearchResultListItem(
     items: Int,
     dataSaver: Boolean,
     imageBackground: Boolean,
-    imageLoader: ImageLoader,
     onSearchBarExpandedChange: (Boolean) -> Unit,
     onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier
@@ -277,7 +273,6 @@ fun LazyItemScope.SearchResultListItem(
             if (it.thumbnail != null && !dataSaver)
                 FeedImage(
                     source = it.thumbnail.source,
-                    imageLoader = imageLoader,
                     contentScale = ContentScale.Crop,
                     loadingIndicator = true,
                     background = imageBackground,
