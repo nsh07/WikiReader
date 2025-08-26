@@ -137,7 +137,7 @@ fun HistoryScreen(
                 title = { Text(stringResource(R.string.history)) },
                 subtitle = { Text(stringResource(R.string.items, viewHistory.size)) },
                 navigationIcon = {
-                    IconButton(
+                    FilledTonalIconButton(
                         onClick = onBack,
                         shapes = IconButtonDefaults.shapes()
                     ) {
@@ -148,7 +148,7 @@ fun HistoryScreen(
                     }
                 },
                 actions = {
-                    FilledTonalIconButton(
+                    IconButton(
                         onClick = {
                             deletedItems = viewHistory
                             onAction(HistoryAction.RemoveAll)

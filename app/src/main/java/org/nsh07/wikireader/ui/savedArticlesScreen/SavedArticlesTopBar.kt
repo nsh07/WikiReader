@@ -28,7 +28,7 @@ fun SavedArticlesTopBar(
         title = { Text(stringResource(R.string.savedArticles)) },
         subtitle = { Text(articlesInfo) },
         navigationIcon = {
-            IconButton(
+            FilledTonalIconButton(
                 shapes = IconButtonDefaults.shapes(),
                 onClick = onBack
             ) {
@@ -39,7 +39,7 @@ fun SavedArticlesTopBar(
             }
         },
         actions = {
-            FilledTonalIconButton(
+            IconButton(
                 enabled = deleteEnabled,
                 shapes = IconButtonDefaults.shapes(),
                 onClick = onDeleteAll

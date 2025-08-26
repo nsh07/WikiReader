@@ -25,7 +25,7 @@ fun SettingsTopBar(
     LargeFlexibleTopAppBar(
         title = { Text(stringResource(R.string.settings)) },
         navigationIcon = {
-            IconButton(shapes = IconButtonDefaults.shapes(), onClick = onBack) {
+            FilledTonalIconButton(shapes = IconButtonDefaults.shapes(), onClick = onBack) {
                 Icon(
                     painterResource(R.drawable.arrow_back),
                     contentDescription = stringResource(R.string.back)
@@ -33,7 +33,7 @@ fun SettingsTopBar(
             }
         },
         actions = {
-            FilledTonalIconButton(shapes = IconButtonDefaults.shapes(), onClick = onResetSettings) {
+            IconButton(shapes = IconButtonDefaults.shapes(), onClick = onResetSettings) {
                 Icon(
                     painterResource(R.drawable.reset_settings),
                     contentDescription = stringResource(R.string.resetSettingsIconDesc)
