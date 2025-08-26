@@ -231,6 +231,17 @@ fun SettingsScreen(
             trailingIconColor = listItemColors.trailingIconColor.copy(disabledAlpha),
         )
 
+    // Compose Material 3 uses the 3P spec, which hasn't yet been updated with the new
+    // switch tokens, which are already used across Google products.
+    // Therefore we must override certain colors to let the Switch remain accessible
+    // with the new 2025 color spec.
+    // See https://github.com/nsh07/WikiReader/issues/272 for more info
+    //
+    // Once Compose Material 3 updates Switch tokens, this should be removed.
+    val switchColors = SwitchDefaults.colors(
+        checkedIconColor = colorScheme.primary,
+    )
+
     val switchItems = remember(preferencesState) {
         listOf(
             SettingsSwitchItem(
@@ -425,7 +436,8 @@ fun SettingsScreen(
                                     )
                                 }
                             },
-                            enabled = switchItems[0].enabled
+                            enabled = switchItems[0].enabled,
+                            colors = switchColors
                         )
                     },
                     modifier = Modifier
@@ -595,7 +607,8 @@ fun SettingsScreen(
                                     )
                                 }
                             },
-                            enabled = item.enabled
+                            enabled = item.enabled,
+                            colors = switchColors
                         )
                     },
                     colors =
