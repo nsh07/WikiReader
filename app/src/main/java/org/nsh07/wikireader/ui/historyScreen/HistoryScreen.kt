@@ -64,7 +64,7 @@ import org.nsh07.wikireader.data.ViewHistoryItem
 import org.nsh07.wikireader.ui.historyScreen.viewModel.HistoryAction
 import org.nsh07.wikireader.ui.historyScreen.viewModel.HistoryViewModel
 import org.nsh07.wikireader.ui.image.FeedImage
-import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
+import org.nsh07.wikireader.ui.theme.CustomColors.topBarColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape

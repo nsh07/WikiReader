@@ -67,7 +67,7 @@ import org.nsh07.wikireader.data.WRStatus
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.savedArticlesScreen.viewModel.SavedArticlesAction
 import org.nsh07.wikireader.ui.savedArticlesScreen.viewModel.SavedArticlesViewModel
-import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
+import org.nsh07.wikireader.ui.theme.CustomColors.topBarColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape

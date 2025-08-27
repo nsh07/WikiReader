@@ -72,7 +72,7 @@ import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeSubscreen
 import org.nsh07.wikireader.ui.image.FeedImage
-import org.nsh07.wikireader.ui.theme.CustomTopBarColors.cardColors
+import org.nsh07.wikireader.ui.theme.CustomColors.cardColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape

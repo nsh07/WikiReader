@@ -40,7 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.nsh07.wikireader.BuildConfig
 import org.nsh07.wikireader.R
-import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
+import org.nsh07.wikireader.ui.theme.CustomColors.topBarColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape

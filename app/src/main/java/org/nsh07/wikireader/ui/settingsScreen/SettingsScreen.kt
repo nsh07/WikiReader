@@ -84,7 +84,7 @@ import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeSubscreen
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsAction
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsViewModel
-import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
+import org.nsh07.wikireader.ui.theme.CustomColors.topBarColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
