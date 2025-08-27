@@ -140,6 +140,7 @@ fun HistoryScreen(
                 navigationIcon = {
                     FilledTonalIconButton(
                         onClick = onBack,
+                        colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = listItemColors.containerColor),
                         shapes = IconButtonDefaults.shapes()
                     ) {
                         Icon(

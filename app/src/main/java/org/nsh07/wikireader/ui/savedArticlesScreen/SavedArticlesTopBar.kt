@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.ui.theme.CustomColors.listItemColors
 import org.nsh07.wikireader.ui.theme.CustomColors.topBarColors
 
 @Composable
@@ -30,6 +31,7 @@ fun SavedArticlesTopBar(
         navigationIcon = {
             FilledTonalIconButton(
                 shapes = IconButtonDefaults.shapes(),
+                colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = listItemColors.containerColor),
                 onClick = onBack
             ) {
                 Icon(
