@@ -64,6 +64,7 @@ import org.nsh07.wikireader.data.ViewHistoryItem
 import org.nsh07.wikireader.ui.historyScreen.viewModel.HistoryAction
 import org.nsh07.wikireader.ui.historyScreen.viewModel.HistoryViewModel
 import org.nsh07.wikireader.ui.image.FeedImage
+import org.nsh07.wikireader.ui.theme.CustomColors.listItemColors
 import org.nsh07.wikireader.ui.theme.CustomColors.topBarColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
@@ -241,6 +242,7 @@ fun HistoryScreen(
                                     }
                                 )
                             },
+                            colors = listItemColors,
                             modifier = Modifier
                                 .padding(horizontal = 16.dp)
                                 .clip(

@@ -21,6 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.ui.theme.CustomColors.listItemColors
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -65,7 +66,7 @@ fun LanguageListItem(
         } else null,
         colors =
             if (selected) ListItemDefaults.colors(containerColor = colorScheme.primaryContainer)
-            else ListItemDefaults.colors(),
+            else listItemColors,
         modifier = Modifier
             .clip(
                 if (selected) CircleShape

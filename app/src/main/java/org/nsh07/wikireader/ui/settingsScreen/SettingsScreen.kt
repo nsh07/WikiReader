@@ -84,6 +84,7 @@ import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeSubscreen
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsAction
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsViewModel
+import org.nsh07.wikireader.ui.theme.CustomColors.listItemColors
 import org.nsh07.wikireader.ui.theme.CustomColors.topBarColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
@@ -220,7 +221,6 @@ fun SettingsScreen(
 
     val disabledAlpha = 0.5f
 
-    val listItemColors = ListItemDefaults.colors()
     val disabledListColors =
         ListItemDefaults.colors(
             containerColor = colorScheme.surfaceContainerLow,
@@ -371,7 +371,9 @@ fun SettingsScreen(
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(2.dp),
             contentPadding = insets,
-            modifier = Modifier.background(topBarColors.containerColor)
+            modifier = Modifier
+                .background(topBarColors.containerColor)
+                .padding(horizontal = 16.dp)
         ) {
             item { Spacer(Modifier.height(8.dp)) }
             item {
@@ -388,8 +390,8 @@ fun SettingsScreen(
                         if (color == Color.White) Text(stringResource(string.colorSchemeDynamic))
                         else Text(stringResource(string.colorSchemeColor))
                     },
+                    colors = listItemColors,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
                         .clip(topListItemShape)
                         .clickable(onClick = { setShowColorSchemeDialog(true) })
                 )
@@ -404,8 +406,8 @@ fun SettingsScreen(
                     },
                     headlineContent = { Text(stringResource(string.settingTheme)) },
                     supportingContent = { Text(themeMap[theme]!!.second) },
+                    colors = listItemColors,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
                         .clip(middleListItemShape)
                         .clickable(onClick = { setShowThemeDialog(true) })
                 )
@@ -440,8 +442,8 @@ fun SettingsScreen(
                             colors = switchColors
                         )
                     },
+                    colors = listItemColors,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
                         .clip(bottomListItemShape)
                 )
             }
@@ -456,8 +458,8 @@ fun SettingsScreen(
                     },
                     headlineContent = { Text(stringResource(string.settingWikipediaLanguage)) },
                     supportingContent = { Text(langCodeToName(preferencesState.lang)) },
+                    colors = listItemColors,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
                         .clip(topListItemShape)
                         .clickable(onClick = { setShowLanguageSheet(true) })
                 )
@@ -478,8 +480,8 @@ fun SettingsScreen(
                                 else stringResource(string.themeSystemDefault)
                             )
                         },
+                        colors = listItemColors,
                         modifier = Modifier
-                            .padding(horizontal = 16.dp)
                             .clip(middleListItemShape)
                             .clickable(onClick = { setShowAppLocaleSheet(true) })
                     )
@@ -540,8 +542,8 @@ fun SettingsScreen(
                             }
                         }
                     },
+                    colors = listItemColors,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
                         .clip(middleListItemShape)
                 )
             }
@@ -575,8 +577,8 @@ fun SettingsScreen(
                             )
                         }
                     },
+                    colors = listItemColors,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
                         .clip(bottomListItemShape)
                 )
             }
@@ -617,7 +619,6 @@ fun SettingsScreen(
                         else
                             disabledListColors,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
                         .clip(
                             when (index) {
                                 0 -> topListItemShape
@@ -629,9 +630,9 @@ fun SettingsScreen(
             }
             item {
                 Card(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                    modifier = Modifier.padding(vertical = 14.dp),
                     shape = cardShape,
-                    colors = CardDefaults.cardColors(containerColor = ListItemDefaults.colors().containerColor)
+                    colors = CardDefaults.cardColors(containerColor = listItemColors.containerColor)
                 ) {
                     Column(
                         modifier = Modifier.padding(20.dp),

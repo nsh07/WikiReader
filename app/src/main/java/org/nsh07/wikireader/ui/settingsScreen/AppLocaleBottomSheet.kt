@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFilter
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.ui.theme.CustomColors.listItemColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
@@ -116,7 +117,7 @@ fun AppLocaleBottomSheet(
                             colors =
                                 if (currentLocales.isEmpty)
                                     ListItemDefaults.colors(containerColor = colorScheme.primaryContainer)
-                                else ListItemDefaults.colors(),
+                                else listItemColors,
                             modifier = Modifier
                                 .clip(shapes.large)
                                 .clickable(
@@ -155,7 +156,7 @@ fun AppLocaleBottomSheet(
                             colors =
                                 if (!currentLocales.isEmpty && it.locale == currentLocales.get(0))
                                     ListItemDefaults.colors(containerColor = colorScheme.primaryContainer)
-                                else ListItemDefaults.colors(),
+                                else listItemColors,
                             modifier = Modifier
                                 .clip(
                                     if (index == 0) topListItemShape

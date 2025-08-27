@@ -40,6 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.nsh07.wikireader.BuildConfig
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.ui.theme.CustomColors.listItemColors
 import org.nsh07.wikireader.ui.theme.CustomColors.topBarColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
@@ -77,7 +78,7 @@ fun AboutScreen(
                         .padding(horizontal = 16.dp)
                         .clip(topListItemShape)
                         .fillMaxWidth()
-                        .background(colorScheme.surface)
+                        .background(listItemColors.containerColor)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(painterResource(R.drawable.ic_launcher_foreground), null)
@@ -113,6 +114,7 @@ fun AboutScreen(
                         },
                         headlineContent = { Text(stringResource(R.string.version)) },
                         supportingContent = { Text(BuildConfig.VERSION_NAME) },
+                        colors = listItemColors,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .clip(middleListItemShape)
@@ -123,6 +125,7 @@ fun AboutScreen(
                         },
                         headlineContent = { Text(stringResource(R.string.sourceCode)) },
                         supportingContent = { Text("GitHub") },
+                        colors = listItemColors,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .clip(middleListItemShape)
@@ -138,6 +141,7 @@ fun AboutScreen(
                         },
                         headlineContent = { Text(stringResource(R.string.license)) },
                         supportingContent = { Text("GPL v3.0") },
+                        colors = listItemColors,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .clip(middleListItemShape)
@@ -153,6 +157,7 @@ fun AboutScreen(
                         },
                         headlineContent = { Text(stringResource(R.string.releases)) },
                         supportingContent = { Text(stringResource(R.string.releasesDesc)) },
+                        colors = listItemColors,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .clip(middleListItemShape)
@@ -168,6 +173,7 @@ fun AboutScreen(
                         },
                         headlineContent = { Text(stringResource(R.string.translate)) },
                         supportingContent = { Text(stringResource(R.string.translateDesc)) },
+                        colors = listItemColors,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .clip(bottomListItemShape)
@@ -195,6 +201,7 @@ fun AboutScreen(
                         },
                         headlineContent = { Text("Nishant Mishra") },
                         supportingContent = { Text(stringResource(R.string.otherProjectsDesc)) },
+                        colors = listItemColors,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .clip(topListItemShape)
@@ -210,6 +217,7 @@ fun AboutScreen(
                         },
                         headlineContent = { Text(stringResource(R.string.donate)) },
                         supportingContent = { Text(stringResource(R.string.supportMyWork)) },
+                        colors = listItemColors,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .clip(bottomListItemShape)
@@ -237,6 +245,7 @@ fun AboutScreen(
                         },
                         headlineContent = { Text(stringResource(R.string.wikipedia)) },
                         supportingContent = { Text(stringResource(R.string.wikipediaWebsiteDesc)) },
+                        colors = listItemColors,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .clip(topListItemShape)
@@ -254,6 +263,7 @@ fun AboutScreen(
                         },
                         headlineContent = { Text(stringResource(R.string.supportWikipedia)) },
                         supportingContent = { Text(stringResource(R.string.donateToWikipedia)) },
+                        colors = listItemColors,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .clip(bottomListItemShape)
