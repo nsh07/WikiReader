@@ -1,7 +1,6 @@
 package org.nsh07.wikireader.ui.aboutScreen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,9 +39,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.nsh07.wikireader.BuildConfig
 import org.nsh07.wikireader.R
+import org.nsh07.wikireader.ui.settingsScreen.ClickableListItem
 import org.nsh07.wikireader.ui.theme.CustomColors.listItemColors
 import org.nsh07.wikireader.ui.theme.CustomColors.topBarColors
-import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
@@ -68,14 +67,15 @@ fun AboutScreen(
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(2.dp),
             contentPadding = insets,
-            modifier = Modifier.background(topBarColors.containerColor)
+            modifier = Modifier
+                .background(topBarColors.containerColor)
+                .padding(horizontal = 16.dp)
         ) {
             item { Spacer(Modifier.height(8.dp)) }
             item {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
                         .clip(topListItemShape)
                         .fillMaxWidth()
                         .background(listItemColors.containerColor)
@@ -115,74 +115,48 @@ fun AboutScreen(
                         headlineContent = { Text(stringResource(R.string.version)) },
                         supportingContent = { Text(BuildConfig.VERSION_NAME) },
                         colors = listItemColors,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .clip(middleListItemShape)
+                        modifier = Modifier.clip(middleListItemShape)
                     )
-                    ListItem(
+                    ClickableListItem(
                         leadingContent = {
                             Icon(painterResource(R.drawable.code), null)
                         },
                         headlineContent = { Text(stringResource(R.string.sourceCode)) },
                         supportingContent = { Text("GitHub") },
                         colors = listItemColors,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .clip(middleListItemShape)
-                            .clickable(
-                                onClick = {
-                                    uriHandler.openUri("https://github.com/nsh07/WikiReader")
-                                }
-                            )
-                    )
-                    ListItem(
+                        items = 6,
+                        index = 2
+                    ) { uriHandler.openUri("https://github.com/nsh07/WikiReader") }
+                    ClickableListItem(
                         leadingContent = {
                             Icon(painterResource(R.drawable.gavel), null)
                         },
                         headlineContent = { Text(stringResource(R.string.license)) },
                         supportingContent = { Text("GPL v3.0") },
                         colors = listItemColors,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .clip(middleListItemShape)
-                            .clickable(
-                                onClick = {
-                                    uriHandler.openUri("https://github.com/nsh07/WikiReader/blob/main/LICENSE")
-                                }
-                            )
-                    )
-                    ListItem(
+                        items = 6,
+                        index = 3
+                    ) { uriHandler.openUri("https://github.com/nsh07/WikiReader/blob/main/LICENSE") }
+                    ClickableListItem(
                         leadingContent = {
                             Icon(painterResource(R.drawable.update), null)
                         },
                         headlineContent = { Text(stringResource(R.string.releases)) },
                         supportingContent = { Text(stringResource(R.string.releasesDesc)) },
                         colors = listItemColors,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .clip(middleListItemShape)
-                            .clickable(
-                                onClick = {
-                                    uriHandler.openUri("https://github.com/nsh07/WikiReader/releases")
-                                }
-                            )
-                    )
-                    ListItem(
+                        items = 6,
+                        index = 4
+                    ) { uriHandler.openUri("https://github.com/nsh07/WikiReader/releases") }
+                    ClickableListItem(
                         leadingContent = {
                             Icon(painterResource(R.drawable.translate), null)
                         },
                         headlineContent = { Text(stringResource(R.string.translate)) },
                         supportingContent = { Text(stringResource(R.string.translateDesc)) },
                         colors = listItemColors,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .clip(bottomListItemShape)
-                            .clickable(
-                                onClick = {
-                                    uriHandler.openUri("https://hosted.weblate.org/engage/wikireader/")
-                                }
-                            )
-                    )
+                        items = 6,
+                        index = 5
+                    ) { uriHandler.openUri("https://hosted.weblate.org/engage/wikireader/") }
                 }
             }
             item {
@@ -193,7 +167,7 @@ fun AboutScreen(
                         color = colorScheme.primary,
                         modifier = Modifier.padding(horizontal = 32.dp, vertical = 14.dp)
                     )
-                    ListItem(
+                    ClickableListItem(
                         leadingContent = {
                             Icon(
                                 painterResource(R.drawable.github), null
@@ -202,31 +176,19 @@ fun AboutScreen(
                         headlineContent = { Text("Nishant Mishra") },
                         supportingContent = { Text(stringResource(R.string.otherProjectsDesc)) },
                         colors = listItemColors,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .clip(topListItemShape)
-                            .clickable(
-                                onClick = {
-                                    uriHandler.openUri("https://github.com/nsh07")
-                                }
-                            )
-                    )
-                    ListItem(
+                        items = 2,
+                        index = 0
+                    ) { uriHandler.openUri("https://github.com/nsh07") }
+                    ClickableListItem(
                         leadingContent = {
                             Icon(painterResource(R.drawable.heart), null)
                         },
                         headlineContent = { Text(stringResource(R.string.donate)) },
                         supportingContent = { Text(stringResource(R.string.supportMyWork)) },
                         colors = listItemColors,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .clip(bottomListItemShape)
-                            .clickable(
-                                onClick = {
-                                    uriHandler.openUri("https://github.com/sponsors/nsh07")
-                                }
-                            )
-                    )
+                        items = 2,
+                        index = 1
+                    ) { uriHandler.openUri("https://github.com/sponsors/nsh07") }
                 }
             }
             item {
@@ -237,7 +199,7 @@ fun AboutScreen(
                         color = colorScheme.primary,
                         modifier = Modifier.padding(horizontal = 32.dp, vertical = 14.dp)
                     )
-                    ListItem(
+                    ClickableListItem(
                         leadingContent = {
                             Icon(
                                 painterResource(R.drawable.wikipedia_s_w), null
@@ -246,16 +208,10 @@ fun AboutScreen(
                         headlineContent = { Text(stringResource(R.string.wikipedia)) },
                         supportingContent = { Text(stringResource(R.string.wikipediaWebsiteDesc)) },
                         colors = listItemColors,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .clip(topListItemShape)
-                            .clickable(
-                                onClick = {
-                                    uriHandler.openUri("https://wikipedia.org")
-                                }
-                            )
-                    )
-                    ListItem(
+                        items = 2,
+                        index = 0
+                    ) { uriHandler.openUri("https://wikipedia.org") }
+                    ClickableListItem(
                         leadingContent = {
                             Icon(
                                 painterResource(R.drawable.wikimedia_logo_black), null
@@ -264,15 +220,9 @@ fun AboutScreen(
                         headlineContent = { Text(stringResource(R.string.supportWikipedia)) },
                         supportingContent = { Text(stringResource(R.string.donateToWikipedia)) },
                         colors = listItemColors,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .clip(bottomListItemShape)
-                            .clickable(
-                                onClick = {
-                                    uriHandler.openUri("https://wikimediafoundation.org/support/")
-                                }
-                            )
-                    )
+                        items = 2,
+                        index = 1
+                    ) { uriHandler.openUri("https://wikimediafoundation.org/support/") }
                 }
             }
             item { Spacer(Modifier.height(16.dp)) }

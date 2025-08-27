@@ -14,7 +14,6 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -377,7 +376,7 @@ fun SettingsScreen(
         ) {
             item { Spacer(Modifier.height(8.dp)) }
             item {
-                ListItem(
+                ClickableListItem(
                     leadingContent = {
                         Icon(
                             painterResource(R.drawable.palette),
@@ -391,13 +390,12 @@ fun SettingsScreen(
                         else Text(stringResource(string.colorSchemeColor))
                     },
                     colors = listItemColors,
-                    modifier = Modifier
-                        .clip(topListItemShape)
-                        .clickable(onClick = { setShowColorSchemeDialog(true) })
-                )
+                    items = 3,
+                    index = 0
+                ) { setShowColorSchemeDialog(true) }
             }
             item {
-                ListItem(
+                ClickableListItem(
                     leadingContent = {
                         Icon(
                             painterResource(themeMap[theme]!!.first),
@@ -407,10 +405,9 @@ fun SettingsScreen(
                     headlineContent = { Text(stringResource(string.settingTheme)) },
                     supportingContent = { Text(themeMap[theme]!!.second) },
                     colors = listItemColors,
-                    modifier = Modifier
-                        .clip(middleListItemShape)
-                        .clickable(onClick = { setShowThemeDialog(true) })
-                )
+                    items = 3,
+                    index = 1
+                ) { setShowThemeDialog(true) }
             }
             item {
                 ListItem(
@@ -449,7 +446,7 @@ fun SettingsScreen(
             }
             item { Spacer(Modifier.height(12.dp)) }
             item {
-                ListItem(
+                ClickableListItem(
                     leadingContent = {
                         Icon(
                             painterResource(R.drawable.translate),
@@ -459,14 +456,13 @@ fun SettingsScreen(
                     headlineContent = { Text(stringResource(string.settingWikipediaLanguage)) },
                     supportingContent = { Text(langCodeToName(preferencesState.lang)) },
                     colors = listItemColors,
-                    modifier = Modifier
-                        .clip(topListItemShape)
-                        .clickable(onClick = { setShowLanguageSheet(true) })
-                )
+                    items = 4,
+                    index = 0
+                ) { setShowLanguageSheet(true) }
             }
             if (currentLocales != null)
                 item {
-                    ListItem(
+                    ClickableListItem(
                         leadingContent = {
                             Icon(
                                 painterResource(R.drawable.language),
@@ -481,10 +477,9 @@ fun SettingsScreen(
                             )
                         },
                         colors = listItemColors,
-                        modifier = Modifier
-                            .clip(middleListItemShape)
-                            .clickable(onClick = { setShowAppLocaleSheet(true) })
-                    )
+                        items = 4,
+                        index = 1
+                    ) { setShowAppLocaleSheet(true) }
                 }
             item {
                 ListItem(
