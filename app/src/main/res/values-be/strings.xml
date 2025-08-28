@@ -92,7 +92,7 @@
     <string name="settingRenderMath">Візуалізаваць матэматычныя выразы</string>
     <string name="settingRenderMathDesc">Патрабуецца невялікая колькасць дадатковых даных. Выключыце, каб палепшыць прадукцыйнасць за кошт пагаршэння чытальнасці.</string>
     <string name="settingSearchHistory">Гісторыя пошуку</string>
-    <string name="settingSearchHistoryDesc">Захоўваць гісторыю пошука.</string>
+    <string name="settingSearchHistoryDesc">Захоўваць гісторыю пошука</string>
     <string name="settingTheme">Тэма</string>
     <string name="settingWikipediaLanguage">Мова Вікіпедыі</string>
     <string name="settings">Налады</string>
