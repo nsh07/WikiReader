@@ -1,0 +1,11 @@
+New features:
+- Refreshed colors that reflect the M3 expressive colors in Android 16 QPR1
+- Refreshed navigation buttons
+- Click morph animation is now available in all lists
+
+Bug fixes:
+- Fixed some contrast issues with the new color palettes on Android 16
+- Fixed shapes
+- Fixed a crash that occurred when viewing some articles
+- Section handling is now improved and works for more articles
+- Predictive back is available again now

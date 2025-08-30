@@ -10,7 +10,9 @@
     <li><b>Save articles:</b> Download articles to your device for offline reading</li>
     <li><b>One-handed use:</b> Use the floating action buttons at the bottom for a complete one-handed experience</li>
     <li><b>Lightweight:</b> The app starts instantly, and works smoothly</li>
-    <li><b>Material Design 3:</b> Designed according to the latest Material Design 3 guidelines</li>
+    <li><b>Material 3 Expressive:</b> Designed according to the latest Material 3 Expressive design
+        guidelines
+    </li>
     <li><b>Smooth animations:</b> Smooth and fluent animations</li>
     <li><b>Customizable colors:</b> Choose from light/dark themes and customize the Material 3 color palette</li>
     <li><b>Customizable font size:</b> Choose your own comfortable font size</li>
