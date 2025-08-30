@@ -65,7 +65,11 @@ fun LanguageListItem(
             }
         } else null,
         colors =
-            if (selected) ListItemDefaults.colors(containerColor = colorScheme.primaryContainer)
+            if (selected) ListItemDefaults.colors(
+                containerColor = colorScheme.primaryContainer.copy(
+                    alpha = 0.3f
+                ), leadingIconColor = colorScheme.primary
+            )
             else listItemColors,
         modifier = Modifier
             .clip(
