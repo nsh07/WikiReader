@@ -38,7 +38,7 @@ fun String.toColor(): Color {
  * on either side)
  */
 fun parseSections(text: String): List<String> {
-    val out = text.split("\n==(?!=)|(?<!=)==[\n ]".toRegex()).toMutableList()
+    val out = text.split("\n==(?!=)|(?<!=)==\n".toRegex()).toMutableList()
 
     for (i in out.lastIndex downTo 1) {
         val curr = out[i].trim()
