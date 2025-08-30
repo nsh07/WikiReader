@@ -51,7 +51,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.parser.parseInfobox
-import org.nsh07.wikireader.ui.theme.CustomTopBarColors.cardColors
+import org.nsh07.wikireader.ui.theme.CustomColors.cardColors
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalSharedTransitionApi::class)
 @Composable

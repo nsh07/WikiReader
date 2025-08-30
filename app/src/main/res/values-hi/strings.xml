@@ -36,7 +36,7 @@
     <string name="settingRenderMathDesc">इस सुविधा के लिए थोड़ी मात्रा में अतिरिक्त डेटा की आवश्यकता होती है। पठनीयता की कीमत पर ऐप की गति बढ़ाने के लिए इसे बंद करें।</string>
     <string name="fontStyleSansSerif">सैंस-सेरिफ़</string>
     <string name="themeSystemDefault">सिस्टम डिफ़ॉल्ट</string>
-    <string name="settingSearchHistoryDesc">खोज इतिहास सहेजें। मौजूदा इतिहास इस विकल्प से प्रभावित नहीं होता।</string>
+    <string name="settingSearchHistoryDesc">खोज इतिहास सहेजें</string>
     <string name="about">ऐप के बारे में</string>
     <string name="appTagline">विकिपीडिया पृष्ठों को बिना किसी व्यवधान के पढ़ें</string>
     <string name="articleDeleted">लेख हटा दिया गया</string>
@@ -135,4 +135,5 @@
     <string name="infobox">ज्ञानसन्दूक</string>
     <string name="items">%1$s वस्तुएं</string>
     <string name="table">टेबल</string>
+    <string name="historyDesc">लेख पढ़ने का इतिहास सहेजें</string>
 </resources>

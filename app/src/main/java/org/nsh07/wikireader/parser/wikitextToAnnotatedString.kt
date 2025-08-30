@@ -1036,7 +1036,7 @@ fun String.toWikitextAnnotatedString(
                             listOf("{{nowrap", "{{nobr", "{{nobreak", "{{nwr", "{{nbr").fastAny {
                                 currSubstring.startsWith(it, ignoreCase = true)
                             } -> {
-                                val curr = currSubstring.substringAfter('|')
+                                val curr = currSubstring.substringAfter('|', "")
                                 append(curr.replace(' ', nbsp).twas())
                             }
 

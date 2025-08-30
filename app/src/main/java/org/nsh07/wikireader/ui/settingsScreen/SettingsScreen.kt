@@ -14,7 +14,6 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -84,7 +83,8 @@ import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeSubscreen
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsAction
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsViewModel
-import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
+import org.nsh07.wikireader.ui.theme.CustomColors.listItemColors
+import org.nsh07.wikireader.ui.theme.CustomColors.topBarColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
@@ -220,7 +220,6 @@ fun SettingsScreen(
 
     val disabledAlpha = 0.5f
 
-    val listItemColors = ListItemDefaults.colors()
     val disabledListColors =
         ListItemDefaults.colors(
             containerColor = colorScheme.surfaceContainerLow,
@@ -230,6 +229,17 @@ fun SettingsScreen(
             supportingColor = listItemColors.supportingTextColor.copy(disabledAlpha),
             trailingIconColor = listItemColors.trailingIconColor.copy(disabledAlpha),
         )
+
+    // Compose Material 3 uses the 3P spec, which hasn't yet been updated with the new
+    // switch tokens, which are already used across Google products.
+    // Therefore we must override certain colors to let the Switch remain accessible
+    // with the new 2025 color spec.
+    // See https://github.com/nsh07/WikiReader/issues/272 for more info
+    //
+    // Once Compose Material 3 updates Switch tokens, this should be removed.
+    val switchColors = SwitchDefaults.colors(
+        checkedIconColor = colorScheme.primary,
+    )
 
     val switchItems = remember(preferencesState) {
         listOf(
@@ -360,11 +370,13 @@ fun SettingsScreen(
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(2.dp),
             contentPadding = insets,
-            modifier = Modifier.background(topBarColors.containerColor)
+            modifier = Modifier
+                .background(topBarColors.containerColor)
+                .padding(horizontal = 16.dp)
         ) {
             item { Spacer(Modifier.height(8.dp)) }
             item {
-                ListItem(
+                ClickableListItem(
                     leadingContent = {
                         Icon(
                             painterResource(R.drawable.palette),
@@ -377,14 +389,13 @@ fun SettingsScreen(
                         if (color == Color.White) Text(stringResource(string.colorSchemeDynamic))
                         else Text(stringResource(string.colorSchemeColor))
                     },
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .clip(topListItemShape)
-                        .clickable(onClick = { setShowColorSchemeDialog(true) })
-                )
+                    colors = listItemColors,
+                    items = 3,
+                    index = 0
+                ) { setShowColorSchemeDialog(true) }
             }
             item {
-                ListItem(
+                ClickableListItem(
                     leadingContent = {
                         Icon(
                             painterResource(themeMap[theme]!!.first),
@@ -393,11 +404,10 @@ fun SettingsScreen(
                     },
                     headlineContent = { Text(stringResource(string.settingTheme)) },
                     supportingContent = { Text(themeMap[theme]!!.second) },
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .clip(middleListItemShape)
-                        .clickable(onClick = { setShowThemeDialog(true) })
-                )
+                    colors = listItemColors,
+                    items = 3,
+                    index = 1
+                ) { setShowThemeDialog(true) }
             }
             item {
                 ListItem(
@@ -425,17 +435,18 @@ fun SettingsScreen(
                                     )
                                 }
                             },
-                            enabled = switchItems[0].enabled
+                            enabled = switchItems[0].enabled,
+                            colors = switchColors
                         )
                     },
+                    colors = listItemColors,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
                         .clip(bottomListItemShape)
                 )
             }
             item { Spacer(Modifier.height(12.dp)) }
             item {
-                ListItem(
+                ClickableListItem(
                     leadingContent = {
                         Icon(
                             painterResource(R.drawable.translate),
@@ -444,15 +455,14 @@ fun SettingsScreen(
                     },
                     headlineContent = { Text(stringResource(string.settingWikipediaLanguage)) },
                     supportingContent = { Text(langCodeToName(preferencesState.lang)) },
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .clip(topListItemShape)
-                        .clickable(onClick = { setShowLanguageSheet(true) })
-                )
+                    colors = listItemColors,
+                    items = 4,
+                    index = 0
+                ) { setShowLanguageSheet(true) }
             }
             if (currentLocales != null)
                 item {
-                    ListItem(
+                    ClickableListItem(
                         leadingContent = {
                             Icon(
                                 painterResource(R.drawable.language),
@@ -466,11 +476,10 @@ fun SettingsScreen(
                                 else stringResource(string.themeSystemDefault)
                             )
                         },
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .clip(middleListItemShape)
-                            .clickable(onClick = { setShowAppLocaleSheet(true) })
-                    )
+                        colors = listItemColors,
+                        items = 4,
+                        index = 1
+                    ) { setShowAppLocaleSheet(true) }
                 }
             item {
                 ListItem(
@@ -528,8 +537,8 @@ fun SettingsScreen(
                             }
                         }
                     },
+                    colors = listItemColors,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
                         .clip(middleListItemShape)
                 )
             }
@@ -563,8 +572,8 @@ fun SettingsScreen(
                             )
                         }
                     },
+                    colors = listItemColors,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
                         .clip(bottomListItemShape)
                 )
             }
@@ -595,7 +604,8 @@ fun SettingsScreen(
                                     )
                                 }
                             },
-                            enabled = item.enabled
+                            enabled = item.enabled,
+                            colors = switchColors
                         )
                     },
                     colors =
@@ -604,7 +614,6 @@ fun SettingsScreen(
                         else
                             disabledListColors,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
                         .clip(
                             when (index) {
                                 0 -> topListItemShape
@@ -616,9 +625,9 @@ fun SettingsScreen(
             }
             item {
                 Card(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                    modifier = Modifier.padding(vertical = 14.dp),
                     shape = cardShape,
-                    colors = CardDefaults.cardColors(containerColor = ListItemDefaults.colors().containerColor)
+                    colors = CardDefaults.cardColors(containerColor = listItemColors.containerColor)
                 ) {
                     Column(
                         modifier = Modifier.padding(20.dp),

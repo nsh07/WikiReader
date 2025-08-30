@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.ModalBottomSheet
@@ -30,7 +31,7 @@ import org.nsh07.wikireader.data.WikiLang
 import org.nsh07.wikireader.data.langCodeToName
 import org.nsh07.wikireader.ui.settingsScreen.LanguageSearchBar
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ArticleLanguageBottomSheet(
     langs: List<WikiLang>,
@@ -76,7 +77,7 @@ fun ArticleLanguageBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .clip(shapes.large)
+                    .clip(shapes.largeIncreased)
             ) {
                 item {
                     Text(

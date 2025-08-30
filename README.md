@@ -75,7 +75,8 @@ Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia l
   experience
 - **Immersive mode:** Hide UI elements while scrolling and enjoy an immersive reading experience
 - **Lightweight:** The app starts instantly, and works smoothly
-- **Material Design 3:** Designed according to the latest Material Design 3 guidelines
+- **Material 3 Expressive:** Designed according to the latest Material 3 Expressive design
+  guidelines
 - **Smooth animations:** Smooth and fluent animations
 - **Customizable colors:** Choose from light/dark themes and customize the Material 3 color palette
 - **Customizable font size:** Choose your own comfortable font size

@@ -38,6 +38,7 @@ import org.nsh07.wikireader.data.WikiPrefixSearchResult
 import org.nsh07.wikireader.data.WikiSearchResult
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeAction
 import org.nsh07.wikireader.ui.image.FeedImage
+import org.nsh07.wikireader.ui.theme.CustomColors.listItemColors
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -98,6 +99,7 @@ fun LazyItemScope.SearchHistoryListItem(
                 )
             }
         },
+        colors = listItemColors,
         modifier = modifier
             .padding(horizontal = 16.dp)
             .clip(
@@ -186,6 +188,7 @@ fun LazyItemScope.PrefixSearchResultListItem(
                 )
             else null
         },
+        colors = listItemColors,
         modifier = modifier
             .padding(horizontal = 16.dp)
             .clip(
@@ -283,6 +286,7 @@ fun LazyItemScope.SearchResultListItem(
                 )
             else null
         },
+        colors = listItemColors,
         modifier = modifier
             .padding(horizontal = 16.dp)
             .clip(

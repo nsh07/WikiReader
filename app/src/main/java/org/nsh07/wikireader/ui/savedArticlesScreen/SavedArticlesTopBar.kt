@@ -13,7 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import org.nsh07.wikireader.R
-import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
+import org.nsh07.wikireader.ui.theme.CustomColors.listItemColors
+import org.nsh07.wikireader.ui.theme.CustomColors.topBarColors
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -28,8 +29,9 @@ fun SavedArticlesTopBar(
         title = { Text(stringResource(R.string.savedArticles)) },
         subtitle = { Text(articlesInfo) },
         navigationIcon = {
-            IconButton(
+            FilledTonalIconButton(
                 shapes = IconButtonDefaults.shapes(),
+                colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = listItemColors.containerColor),
                 onClick = onBack
             ) {
                 Icon(
@@ -39,7 +41,7 @@ fun SavedArticlesTopBar(
             }
         },
         actions = {
-            FilledTonalIconButton(
+            IconButton(
                 enabled = deleteEnabled,
                 shapes = IconButtonDefaults.shapes(),
                 onClick = onDeleteAll

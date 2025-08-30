@@ -3,6 +3,8 @@ package org.nsh07.wikireader.ui.theme
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ListItemColors
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
@@ -18,7 +20,7 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
-object CustomTopBarColors {
+object CustomColors {
     var black = false
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -32,6 +34,9 @@ object CustomTopBarColors {
 
     val cardColors: CardColors
         @Composable get() = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainer)
+
+    val listItemColors: ListItemColors
+        @Composable get() = ListItemDefaults.colors(containerColor = colorScheme.surfaceBright)
 }
 
 object ColorConstants {

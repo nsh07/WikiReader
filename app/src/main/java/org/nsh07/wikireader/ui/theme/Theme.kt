@@ -69,7 +69,7 @@ fun WikiReaderTheme(
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
-    CustomTopBarColors.black = blackTheme && darkTheme
+    CustomColors.black = blackTheme && darkTheme
 
     val dynamicColorScheme = rememberDynamicColorScheme(
         seedColor = when (seedColor) {

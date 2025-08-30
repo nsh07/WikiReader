@@ -2,12 +2,15 @@ package org.nsh07.wikireader.ui.historyScreen
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalIconButton
@@ -28,7 +32,7 @@ import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -64,10 +68,8 @@ import org.nsh07.wikireader.data.ViewHistoryItem
 import org.nsh07.wikireader.ui.historyScreen.viewModel.HistoryAction
 import org.nsh07.wikireader.ui.historyScreen.viewModel.HistoryViewModel
 import org.nsh07.wikireader.ui.image.FeedImage
-import org.nsh07.wikireader.ui.theme.CustomTopBarColors.topBarColors
-import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
-import org.nsh07.wikireader.ui.theme.WRShapeDefaults.middleListItemShape
-import org.nsh07.wikireader.ui.theme.WRShapeDefaults.topListItemShape
+import org.nsh07.wikireader.ui.theme.CustomColors.listItemColors
+import org.nsh07.wikireader.ui.theme.CustomColors.topBarColors
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -137,8 +139,9 @@ fun HistoryScreen(
                 title = { Text(stringResource(R.string.history)) },
                 subtitle = { Text(stringResource(R.string.items, viewHistory.size)) },
                 navigationIcon = {
-                    IconButton(
+                    FilledTonalIconButton(
                         onClick = onBack,
+                        colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = listItemColors.containerColor),
                         shapes = IconButtonDefaults.shapes()
                     ) {
                         Icon(
@@ -148,7 +151,7 @@ fun HistoryScreen(
                     }
                 },
                 actions = {
-                    FilledTonalIconButton(
+                    IconButton(
                         onClick = {
                             deletedItems = viewHistory
                             onAction(HistoryAction.RemoveAll)
@@ -189,17 +192,44 @@ fun HistoryScreen(
                     .background(topBarColors.containerColor)
             ) {
                 groupedHistory.forEach { item ->
-                    item {
+                    val items = item.value.size
+                    item(key = item.key + "-date") {
                         Text(
                             item.key,
                             style = typography.titleSmall,
-                            modifier = Modifier.padding(horizontal = 32.dp, vertical = 14.dp)
+                            modifier = Modifier
+                                .padding(horizontal = 32.dp, vertical = 14.dp)
+                                .animateItem()
                         )
                     }
                     itemsIndexed(
                         item.value,
                         key = { index: Int, it: ViewHistoryItem -> it.time }
                     ) { index, it ->
+                        val interactionSource = remember { MutableInteractionSource() }
+                        val isPressed by interactionSource.collectIsPressedAsState()
+
+                        val top by animateDpAsState(
+                            if (isPressed) 48.dp
+                            else {
+                                if (items == 1 || index == 0) 20.dp
+                                else 4.dp
+                            },
+                            motionScheme.fastSpatialSpec()
+                        )
+                        val bottom by animateDpAsState(
+                            if (isPressed) 48.dp
+                            else {
+                                if (items == 1 || index == items - 1) 20.dp
+                                else 4.dp
+                            },
+                            motionScheme.fastSpatialSpec()
+                        )
+                        val imageCorners by animateDpAsState(
+                            if (isPressed) 32.dp
+                            else 16.dp
+                        )
+
                         ListItem(
                             leadingContent = if (it.thumbnail != null) {
                                 {
@@ -210,7 +240,7 @@ fun HistoryScreen(
                                         background = imageBackground,
                                         modifier = Modifier
                                             .size(64.dp)
-                                            .clip(shapes.large)
+                                            .clip(RoundedCornerShape(imageCorners))
                                     )
                                 }
                             } else {
@@ -241,13 +271,16 @@ fun HistoryScreen(
                                     }
                                 )
                             },
+                            colors = listItemColors,
                             modifier = Modifier
                                 .padding(horizontal = 16.dp)
                                 .clip(
-                                    if (item.value.size == 1) shapes.large
-                                    else if (index == 0) topListItemShape
-                                    else if (index == item.value.lastIndex) bottomListItemShape
-                                    else middleListItemShape
+                                    RoundedCornerShape(
+                                        topStart = top,
+                                        topEnd = top,
+                                        bottomStart = bottom,
+                                        bottomEnd = bottom
+                                    )
                                 )
                                 .combinedClickable(
                                     onClick = { openArticle(it.title, it.lang) },
@@ -267,7 +300,8 @@ fun HistoryScreen(
                                                 onAction(HistoryAction.InsertItem(lastDeleted))
                                             }
                                         }
-                                    }
+                                    },
+                                    interactionSource = interactionSource
                                 )
                                 .animateItem()
                         )
