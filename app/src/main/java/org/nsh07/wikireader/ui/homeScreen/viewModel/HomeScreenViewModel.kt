@@ -401,7 +401,7 @@ class HomeScreenViewModel(
                         lastQuery = Pair(apiResponse.title, setLang)
 
                     val extractText = if (apiResponse != null)
-                        wikipediaRepository.getPageContent(apiResponse.title)
+                        cleanUpWikitext(wikipediaRepository.getPageContent(apiResponse.title))
                     else ""
                     val extract: List<String> = parseSections(extractText)
 
@@ -713,7 +713,7 @@ class HomeScreenViewModel(
                     jsonInst.decodeFromString<WikiApiPageData>(savedArticle.apiResponse)
                         .query?.pages?.get(0)
 
-                val extractText = savedArticle.pageContent
+                val extractText = cleanUpWikitext(savedArticle.pageContent)
                 val extract: List<String> = parseSections(extractText)
 
                 sections = extract.size
@@ -786,22 +786,21 @@ class HomeScreenViewModel(
      */
     private suspend fun parseWikitext(wikitext: String): List<AnnotatedString> =
         withContext(Dispatchers.IO) {
-            val parsed = cleanUpWikitext(wikitext)
             var curr = ""
             var i = 0
             var stack = 0
             val out = mutableListOf<AnnotatedString>()
 
-            while (i < parsed.length) {
-                if (parsed[i] == '{')
+            while (i < wikitext.length) {
+                if (wikitext[i] == '{')
                     stack++
-                else if (parsed[i] == '}')
+                else if (wikitext[i] == '}')
                     stack--
 
-                if (parsed[i] == '<') {
-                    var currSubstring = parsed.substring(i, min(i + 16, parsed.length))
+                if (wikitext[i] == '<') {
+                    var currSubstring = wikitext.substring(i, min(i + 16, wikitext.length))
                     if (currSubstring.startsWith("<math display")) {
-                        currSubstring = parsed.substring(i).substringBefore("</math>")
+                        currSubstring = wikitext.substring(i).substringBefore("</math>")
                         out.add(
                             curr.toWikitextAnnotatedString(
                                 colorScheme = colorScheme,
@@ -817,7 +816,7 @@ class HomeScreenViewModel(
                         i += currSubstring.length + 7
                         curr = ""
                     } else if (currSubstring.startsWith("<gallery")) {
-                        currSubstring = parsed.substring(i).substringBefore("</gallery>")
+                        currSubstring = wikitext.substring(i).substringBefore("</gallery>")
                         out.add(
                             curr.toWikitextAnnotatedString(
                                 colorScheme = colorScheme,
@@ -830,9 +829,9 @@ class HomeScreenViewModel(
                         out.add(AnnotatedString(currSubstring))
                         i += currSubstring.length + 10
                         curr = ""
-                    } else curr += parsed[i]
-                } else if (stack == 0 && parsed[i] == '[' && parsed.getOrNull(i + 1) == '[') {
-                    val currSubstring = parsed.substringMatchingParen('[', ']', i)
+                    } else curr += wikitext[i]
+                } else if (stack == 0 && wikitext[i] == '[' && wikitext.getOrNull(i + 1) == '[') {
+                    val currSubstring = wikitext.substringMatchingParen('[', ']', i)
                     if (currSubstring.contains(':')) {
                         if (currSubstring
                                 .matches(
@@ -868,13 +867,13 @@ class HomeScreenViewModel(
                             curr = ""
                             i += currSubstring.length - 1
                         } else
-                            curr += parsed[i]
+                            curr += wikitext[i]
                     } else {
-                        curr += parsed[i]
+                        curr += wikitext[i]
                     }
-                } else if (parsed[i] == '{') {
-                    if (parsed.getOrNull(i + 1) == '|') {
-                        val currSubstring = parsed.substringMatchingParen('{', '}', i)
+                } else if (wikitext[i] == '{') {
+                    if (wikitext.getOrNull(i + 1) == '|') {
+                        val currSubstring = wikitext.substringMatchingParen('{', '}', i)
                         if (!currSubstring.substring(min(i + 2, currSubstring.lastIndex))
                                 .contains("{|")
                         ) {
@@ -892,7 +891,11 @@ class HomeScreenViewModel(
                             i += currSubstring.length
                         } else {
                             val currSubstringNestedTable =
-                                parsed.substringMatchingParen('{', '}', parsed.indexOf("{|", i + 2))
+                                wikitext.substringMatchingParen(
+                                    '{',
+                                    '}',
+                                    wikitext.indexOf("{|", i + 2)
+                                )
                             out.add(
                                 curr.toWikitextAnnotatedString(
                                     colorScheme = colorScheme,
@@ -907,15 +910,15 @@ class HomeScreenViewModel(
                             i += currSubstring.length
                         }
                     } else if (
-                        stack < 2 && parsed.getOrNull(i + 1) == '{' &&
-                        parsed.substring(i, min(i + 24, parsed.length))
+                        stack < 2 && wikitext.getOrNull(i + 1) == '{' &&
+                        wikitext.substring(i, min(i + 24, wikitext.length))
                             .let { subStr ->
                                 infoboxTemplates.fastAny {
                                     subStr.startsWith(it, true)
                                 }
                             }
                     ) {
-                        val currSubstring = parsed.substringMatchingParen('{', '}', i)
+                        val currSubstring = wikitext.substringMatchingParen('{', '}', i)
                         out.add(
                             curr.toWikitextAnnotatedString(
                                 colorScheme = colorScheme,
@@ -928,8 +931,8 @@ class HomeScreenViewModel(
                         out.add(AnnotatedString(currSubstring))
                         curr = ""
                         i += currSubstring.length - 1
-                    } else curr += parsed[i]
-                } else curr += parsed[i]
+                    } else curr += wikitext[i]
+                } else curr += wikitext[i]
                 i++
             }
             out.add(
