@@ -10,7 +10,7 @@
     <li><b>Salve artigos:</b> Faça o download de artigos para seu dispositivo para uma leitura offline</li>
     <li><b>Uso com apenas uma mão:</b> Utilize os botões flutuantes de ação na parte inferior para uma experiência completa com uma mão</li>
     <li><b>Leve:</b> O app inicia instantaneamente e funciona com fluidez</li>
-    <li><b>Material Design 3:</b> Desenvolvido de acordo com as diretrizes Material Design 3 mais recentes</li>
+    <li><b>Material 3 Expressive:</b> Desenvolvido de acordo com as diretrizes do design Material 3 Expressive mais recentes</li>
     <li><b>Animações suaves:</b> Animações fluidas e suaves</li>
     <li><b>Cores customizáveis:</b> Escolha entre temas claro/escuro e personalize a paleta de cores Material 3</li>
     <li><b>Tamanho de fonte personalizado:</b> Escolha seu próprio tamanho de fonte confortável </li>
