@@ -10,7 +10,7 @@
     <li><b>儲存條目：</b> 將條目下載到裝置中，方便離線閱讀</li>
     <li><b>單手操作：</b> 使用底部的浮動操作按鈕，輕鬆實現單手操作</li>
     <li><b>輕量化：</b> 應用啟動快速，運作順暢</li>
-    <li><b>Material Design 3：</b> 依據最新 Material Design 3 設計準則開發</li>
+    <li><b>Material 3 Expressive：</b> 依據最新 Material 3 Expressive 設計準則開發</li>
     <li><b>順暢動畫：</b> 流暢自然的動畫效果</li>
     <li><b>自訂顏色：</b> 可從淺色／深色主題中選擇，並自訂 Material 3 的配色</li>
     <li><b>自訂字體大小：</b> 選擇你覺得舒適的字體大小</li>
