@@ -85,7 +85,7 @@
     <string name="settingImmersiveModeDesc">Kaydırma sırasında arama çubuğunu ve kayan eylem düğmelerini gizleyin. Küçük ekran boyutlarında varsayılan olarak etkindir.</string>
     <string name="settingRenderMath">Matematik ifadelerini işle</string>
     <string name="settingSearchHistory">Arama geçmişi</string>
-    <string name="settingSearchHistoryDesc">Arama geçmişini kaydet. Mevcut geçmiş bu seçenekten etkilenmez.</string>
+    <string name="settingSearchHistoryDesc">Arama geçmişini kaydet</string>
     <string name="settingTheme">Tema</string>
     <string name="settingWikipediaLanguage">Vikipedi dili</string>
     <string name="settings">Ayarlar</string>
@@ -128,11 +128,12 @@
     <string name="table">Tablo</string>
     <string name="reference">Referans</string>
     <string name="noHistoryItemsDesc">Yakın zamanda görüntülediğiniz maddeler burada görünür</string>
-    <string name="noHistoryItems">Geçmişte öge yok</string>
+    <string name="noHistoryItems">Geçmişte kayıt bulunmuyor</string>
     <string name="recentLanguages">Yakın zamanda kullanılan diller</string>
     <string name="currentLanguage">Kullanılan dil</string>
     <string name="otherLanguages">Diğer diller</string>
     <string name="items">%1$s öge</string>
     <string name="infobox">Bilgi kutusu</string>
     <string name="allHistoryDeleted">Tüm geçmiş silindi</string>
+    <string name="historyDesc">Makale tarama geçmişini kaydet</string>
 </resources>
