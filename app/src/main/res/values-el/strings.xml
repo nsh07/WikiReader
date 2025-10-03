@@ -93,7 +93,7 @@
     <string name="settingRenderMath">Απεικόνιση μαθηματικών εκφράσεων</string>
     <string name="settingRenderMathDesc">Απαιτεί λίγα παραπάνω δεδομένα. Απενεργοποιήστε για να βελτιώσετε την απόδοση με το κόστος την αναγνωσιμότητα.</string>
     <string name="settingSearchHistory">Ιστορικό αναζήτησης</string>
-    <string name="settingSearchHistoryDesc">Αποθήκευση ιστορικού αναζήτησης. Το υπάρχον ιστορικό δεν επηρεάζεται από αυτή την επιλογή.</string>
+    <string name="settingSearchHistoryDesc">Αποθήκευση ιστορικού αναζήτησης</string>
     <string name="settingTheme">Θέμα</string>
     <string name="settingWikipediaLanguage">Γλώσσα Βικιπαίδειας</string>
     <string name="settings">Ρυθμίσεις</string>
@@ -135,4 +135,5 @@
     <string name="otherLanguages">Άλλες γλώσσες</string>
     <string name="items">%1$s στοιχεία</string>
     <string name="infobox">Infobox</string>
+    <string name="historyDesc">Αποθήκευση ιστορικού περιήγησης άρθρου</string>
 </resources>
