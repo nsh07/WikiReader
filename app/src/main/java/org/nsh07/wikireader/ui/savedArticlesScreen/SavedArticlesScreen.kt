@@ -59,6 +59,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
@@ -251,7 +252,7 @@ fun SavedArticlesScreen(
                                         background = imageBackground,
                                         modifier = Modifier
                                             .size(64.dp)
-                                            .clip(RoundedCornerShape(imageCorners))
+                                            .clip(RoundedCornerShape(imageCorners.coerceAtLeast(0.dp)))
                                     )
                                 }
                             } else {
@@ -281,10 +282,10 @@ fun SavedArticlesScreen(
                                 .padding(horizontal = 16.dp)
                                 .clip(
                                     RoundedCornerShape(
-                                        topStart = top,
-                                        topEnd = top,
-                                        bottomStart = bottom,
-                                        bottomEnd = bottom
+                                        topStart = top.coerceAtLeast(0.dp),
+                                        topEnd = top.coerceAtLeast(0.dp),
+                                        bottomStart = bottom.coerceAtLeast(0.dp),
+                                        bottomEnd = bottom.coerceAtLeast(0.dp)
                                     )
                                 )
                                 .combinedClickable(

@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -59,10 +60,10 @@ fun ClickableListItem(
         modifier = modifier
             .clip(
                 RoundedCornerShape(
-                    topStart = top,
-                    topEnd = top,
-                    bottomStart = bottom,
-                    bottomEnd = bottom
+                    topStart = top.coerceAtLeast(0.dp),
+                    topEnd = top.coerceAtLeast(0.dp),
+                    bottomStart = bottom.coerceAtLeast(0.dp),
+                    bottomEnd = bottom.coerceAtLeast(0.dp)
                 )
             )
             .clickable(
