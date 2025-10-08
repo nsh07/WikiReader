@@ -10,7 +10,7 @@
     <li><b>Enregistrer les articles :</b> Télécharger les articles sur votre appareil pour le lire hors-ligne</li>
     <li><b>Utilisation à une main :</b> Utilisez les boutons d'action flottants en bas pour une expérience complète à une main</li>
     <li><b>Léger :</b> L'application démarre instantanément et fonctionne sans-problème</li>
-    <li><b>Material Design 3:</b> Conçu selon les dernières directives de Material Design 3</li>
+    <li><b>Material 3 Expressive:</b> Conçu selon les dernières directives de Material 3 Expressive</li>
     <li><b>Animations fluides :</b> Animations douces et fluides</li>
     <li><b>Couleurs personnalisables :</b> Choisissez parmi les thèmes clair/sombre et personnalisez la palette de couleurs Material 3</li>
     <li><b>Taille de police personnalisable :</b> Choisissez votre propre taille de police confortable</li>

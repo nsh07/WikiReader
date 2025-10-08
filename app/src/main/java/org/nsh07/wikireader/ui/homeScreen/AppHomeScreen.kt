@@ -75,9 +75,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.core.text.parseAsHtml
-import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import androidx.navigationevent.NavigationEvent
 import androidx.window.core.layout.WindowSizeClass
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
@@ -241,17 +241,15 @@ fun AppHomeScreen(
                 },
                 transitionSpec = { fadeIn().togetherWith(fadeOut()) },
                 popTransitionSpec = { fadeIn().togetherWith(fadeOut()) },
-                predictivePopTransitionSpec = {
+                predictivePopTransitionSpec = { edge ->
                     if (backStack.size > 2 && backStack.last() !is HomeSubscreen.Image)
-                        (slideInHorizontally(
-                            initialOffsetX = { -it / 4 },
-                            animationSpec = motionScheme.defaultSpatialSpec()
-                        ) + fadeIn()).togetherWith(
-                            slideOutHorizontally(
-                                targetOffsetX = { it / 4 },
-                                animationSpec = motionScheme.fastSpatialSpec()
-                            ) + fadeOut()
-                        )
+                        if (edge == NavigationEvent.EDGE_LEFT) {
+                            (slideInHorizontally(initialOffsetX = { -it / 4 }) + fadeIn())
+                                .togetherWith(slideOutHorizontally(targetOffsetX = { it }))
+                        } else {
+                            (slideInHorizontally(initialOffsetX = { it / 4 }) + fadeIn())
+                                .togetherWith(slideOutHorizontally(targetOffsetX = { -it }))
+                        }
                     else fadeIn().togetherWith(fadeOut())
                 },
                 entryProvider = entryProvider {
@@ -355,7 +353,8 @@ fun AppHomeScreen(
                                 )
                             },
                             setSearchStr = { onAction(HomeAction.UpdateLanguageSearchStr(it)) },
-                            onAction = onAction
+                            onAction = onAction,
+                            modifier = Modifier.background(colorScheme.surface)
                         )
                     }
 

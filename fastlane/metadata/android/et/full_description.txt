@@ -10,7 +10,7 @@
     <li><b>Salvesta artikleid:</b> Laadi artiklid oma nutiseadmesse ja loe hiljem ilma võrguühendust kasutamata (näiteks lennukis)</li>
     <li><b>Kasutatav ühe käega:</b> Selleks vajalikud ujuvad juhtnupud asuvadekraani alumises ääres </li>
     <li><b>Väike:</b> Käivitud kiiresti ja toimib sujuvalt</li>
-    <li><b>Material Design 3:</b> Vastab viimastele Material Design 3 reeglitele</li>
+    <li><b>Material Design 3 Expressive:</b> Vastab viimastele Material Design 3 Expressive reeglitele</li>
     <li><b>Sujuvad animatsioonid:</b> Lendleva tunnetusega animatsioonid</li>
     <li><b>Sulle sobivad värvid:</b> Vali heleda ja tumeda kujunduse vahel ning kasuta Material Design 3 värvikohendusi</li>
     <li><b>Sulle sobiv kirjatüüp:</b> Vali selline kirjatüübi suurus, mis vastab sinu lugemisharjumusele </li>
