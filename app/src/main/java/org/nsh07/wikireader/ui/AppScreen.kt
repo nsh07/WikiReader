@@ -215,10 +215,7 @@ fun AppScreen(
             startDestination = HomeScreen(),
             enterTransition = {
                 if (compactWindow)
-                    slideInHorizontally(
-                        initialOffsetX = { it / 4 },
-                        animationSpec = motionScheme.defaultSpatialSpec()
-                    ) + fadeIn(motionScheme.defaultEffectsSpec())
+                    slideInHorizontally(initialOffsetX = { it })
                 else
                     fadeIn(animationSpec = tween(220, delayMillis = 90)) +
                             scaleIn(
@@ -228,19 +225,13 @@ fun AppScreen(
             },
             exitTransition = {
                 if (compactWindow)
-                    slideOutHorizontally(
-                        targetOffsetX = { -it / 4 },
-                        animationSpec = motionScheme.fastSpatialSpec()
-                    ) + fadeOut(motionScheme.fastEffectsSpec())
+                    slideOutHorizontally(targetOffsetX = { -it / 4 })
                 else
                     fadeOut(animationSpec = tween(90))
             },
             popEnterTransition = {
                 if (compactWindow)
-                    slideInHorizontally(
-                        initialOffsetX = { -it / 4 },
-                        animationSpec = motionScheme.defaultSpatialSpec()
-                    ) + fadeIn(motionScheme.defaultEffectsSpec())
+                    slideInHorizontally(initialOffsetX = { -it / 4 }) + fadeIn()
                 else
                     fadeIn(animationSpec = tween(220, delayMillis = 90)) +
                             scaleIn(
@@ -250,10 +241,7 @@ fun AppScreen(
             },
             popExitTransition = {
                 if (compactWindow)
-                    slideOutHorizontally(
-                        targetOffsetX = { it / 4 },
-                        animationSpec = motionScheme.fastSpatialSpec()
-                    ) + fadeOut(motionScheme.fastEffectsSpec())
+                    slideOutHorizontally(targetOffsetX = { it })
                 else
                     fadeOut(animationSpec = tween(90))
             }
