@@ -1,0 +1,5 @@
+New features:
+- New navigation animations
+
+Bug fixes:
+- Fixed a bug that caused the app to crash when trying to delete a saved article
