@@ -539,7 +539,7 @@ fun String.toWikitextAnnotatedString(
                             }
 
                             currSubstring.startsWith("{{efn", ignoreCase = true) -> {
-                                val curr = currSubstring.substringAfter('|')
+                                val curr = currSubstring.substringAfter('|', "")
                                 curr.twas()
                             }
 
