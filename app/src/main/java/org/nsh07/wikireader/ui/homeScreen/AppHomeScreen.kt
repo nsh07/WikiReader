@@ -237,7 +237,7 @@ fun AppHomeScreen(
                 backStack = backStack,
                 onBack = {
                     onAction(HomeAction.StopAll)
-                    repeat(it) { backStack.removeAt(backStack.lastIndex) }
+                    backStack.removeAt(backStack.lastIndex)
                 },
                 transitionSpec = { fadeIn().togetherWith(fadeOut()) },
                 popTransitionSpec = { fadeIn().togetherWith(fadeOut()) },
