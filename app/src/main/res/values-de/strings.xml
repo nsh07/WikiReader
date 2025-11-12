@@ -95,7 +95,7 @@
     <string name="image">Bild</string>
     <string name="topArticlesOTD">Top Artikel des Jahres</string>
     <string name="featuredArticle">Empfolener Artikel</string>
-    <string name="noSavedArticlesDesc">Klicken Sie oben im Artikel auf die Schaltfläche „Herunterladen“, um loszulegen</string>
+    <string name="noSavedArticlesDesc">Klicken Sie im Artikel unten in der Wekzeugleiste auf die Schaltfläche „Herunterladen“, um loszulegen</string>
     <string name="openInBrowser">Im Browser öffnen</string>
     <string name="fontStyleSansSerif">Sans-serif</string>
     <string name="noSavedArticles">Keine gespeicherten Artikel</string>
@@ -128,4 +128,12 @@
     <string name="otherLanguages">Andere Sprachen</string>
     <string name="items">%1$s Objekte</string>
     <string name="deletedFromHistory">\"%1$s\" vom Verlauf löschen</string>
+    <string name="supportMyWork">Unterstützen Sie meine Arbeit</string>
+    <string name="allHistoryDeleted">Gesamter Verlauf gelöscht</string>
+    <string name="undo">Rückgängig</string>
+    <string name="table">Tabelle</string>
+    <string name="recentLanguages">Kürzliche Sprachen</string>
+    <string name="infobox">Infobox</string>
+    <string name="noHistoryItems">Verlauf leer</string>
+    <string name="historyDesc">Artikelsuchverlauf speichern</string>
 </resources>

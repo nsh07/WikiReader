@@ -20,7 +20,7 @@
 
 <li><b>Leichtgewichtig:</b> Die App startet sofort und funktioniert reibungslos.</li>
 
-<li><b>Material Design 3:</b> Entwickelt nach den neuesten Material Design 3-Richtlinien.</li>
+<li><b>Material Design 3 Expressive:</b> Entwickelt nach den neuesten Material Design 3 Expressive-Richtlinien.</li>
 
 <li><b>Flüssige Animationen:</b> Flüssige und flüssige Animationen.</li>
 
