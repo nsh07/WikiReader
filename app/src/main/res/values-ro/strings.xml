@@ -1,3 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="about">Despre</string>
+    <string name="app">Aplicație</string>
+    <string name="appTagline">Citește pagini Wikipedia fară distracții</string>
+    <string name="delete">Șterge</string>
+    <string name="deleteAll">Șterge tot</string>
+    <string name="deleteAllArticles">Șterge toate articolele?</string>
 </resources>
