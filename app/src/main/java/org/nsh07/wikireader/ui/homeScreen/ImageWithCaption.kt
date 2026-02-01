@@ -66,7 +66,9 @@ fun SharedTransitionScope.ImageWithCaption(
             background = background,
             modifier = modifier
                 .sharedBounds(
-                    sharedContentState = rememberSharedContentState(uriHigh),
+                    sharedContentState = rememberSharedContentState(
+                        "caption-image-$uriHigh"
+                    ),
                     animatedVisibilityScope = LocalNavAnimatedContentScope.current
                 )
                 .padding(horizontal = 16.dp)
@@ -91,7 +93,9 @@ fun SharedTransitionScope.ImageWithCaption(
                 color = colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .sharedBounds(
-                        sharedContentState = rememberSharedContentState(description),
+                        sharedContentState = rememberSharedContentState(
+                            "caption-desc-$description"
+                        ),
                         animatedVisibilityScope = LocalNavAnimatedContentScope.current
                     )
                     .padding(horizontal = 16.dp)

@@ -68,7 +68,9 @@ fun SharedTransitionScope.FullScreenImageTopBar(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.sharedBounds(
-                    sharedContentState = rememberSharedContentState(description),
+                    sharedContentState = rememberSharedContentState(
+                        "caption-desc-$description"
+                    ),
                     animatedVisibilityScope = LocalNavAnimatedContentScope.current,
                     zIndexInOverlay = 1f
                 )

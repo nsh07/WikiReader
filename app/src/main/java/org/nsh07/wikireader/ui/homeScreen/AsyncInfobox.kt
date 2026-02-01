@@ -2,7 +2,7 @@ package org.nsh07.wikireader.ui.homeScreen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -59,6 +59,7 @@ fun AsyncInfobox(
     text: String,
     lang: String,
     fontSize: Int,
+    sharedScope: SharedTransitionScope,
     darkTheme: Boolean,
     background: Boolean,
     onImageClick: (String, String) -> Unit,
@@ -82,92 +83,79 @@ fun AsyncInfobox(
 
     var expanded by rememberSaveable { mutableStateOf(false) }
 
-    SharedTransitionLayout {
-        Card(
-            colors = cardColors,
-            shape = shapes.largeIncreased,
-            modifier = Modifier
-                .widthIn(max = 512.dp)
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+    Card(
+        colors = cardColors,
+        shape = shapes.largeIncreased,
+        modifier = Modifier
+            .widthIn(max = 512.dp)
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                ListItem(
-                    leadingContent = {
-                        FilledTonalIconButton(
-                            onClick = { expanded = !expanded },
-                            shapes = IconButtonDefaults.shapes()
-                        ) {
-                            Icon(
-                                if (expanded) painterResource(R.drawable.keyboard_arrow_up)
-                                else painterResource(R.drawable.keyboard_arrow_down),
-                                contentDescription = stringResource(R.string.expand_section)
-                            )
-                        }
-                    },
-                    headlineContent = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(stringResource(R.string.infobox), fontWeight = FontWeight.Medium)
-                            Spacer(Modifier.width(8.dp))
-                            AnimatedVisibility(!expanded) {
-                                Text(
-                                    title ?: AnnotatedString(""),
-                                    color = colorScheme.outline,
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier
-                                        .sharedBounds(
-                                            sharedContentState = rememberSharedContentState(
-                                                title ?: AnnotatedString("")
-                                            ), animatedVisibilityScope = this
-                                        )
-                                )
-                            }
-                        }
-                    },
-                    colors = ListItemDefaults.colors(containerColor = colorScheme.surfaceContainer),
-                    modifier = Modifier
-                        .clip(shapes.largeIncreased)
-                        .padding(vertical = 8.dp)
-                        .clickable(onClick = { expanded = !expanded })
-                )
-
-                AnimatedVisibility(
-                    expanded,
-                    enter = expandVertically(expandFrom = Alignment.CenterVertically) + fadeIn(),
-                    exit = shrinkVertically(shrinkTowards = Alignment.CenterVertically) + fadeOut()
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        if (title != null)
+            ListItem(
+                leadingContent = {
+                    FilledTonalIconButton(
+                        onClick = { expanded = !expanded },
+                        shapes = IconButtonDefaults.shapes()
+                    ) {
+                        Icon(
+                            if (expanded) painterResource(R.drawable.keyboard_arrow_up)
+                            else painterResource(R.drawable.keyboard_arrow_down),
+                            contentDescription = stringResource(R.string.expand_section)
+                        )
+                    }
+                },
+                headlineContent = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(R.string.infobox), fontWeight = FontWeight.Medium)
+                        Spacer(Modifier.width(8.dp))
+                        AnimatedVisibility(!expanded) {
                             Text(
                                 title ?: AnnotatedString(""),
-                                style = typography.headlineSmall,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                    .sharedBounds(
-                                        sharedContentState = rememberSharedContentState(
-                                            key = title ?: AnnotatedString("")
-                                        ),
-                                        animatedVisibilityScope = this@AnimatedVisibility
-                                    )
-                                    .padding(vertical = 8.dp)
+                                color = colorScheme.outline,
+                                textAlign = TextAlign.Center
                             )
-                        infobox.fastForEach { item ->
-                            Row(Modifier.fillMaxWidth()) {
-                                Text(
-                                    item.first,
-                                    fontSize = fontSize.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
-                                    modifier = Modifier
-                                        .padding(8.dp)
-                                        .widthIn(max = 256.dp)
-                                        .weight(1f)
-                                )
-                                if (item.second.matches("\\[\\[.{1,6}:.+]]".toRegex()) ||
-                                    extensions.fastAny { item.second.endsWith(it) }
-                                ) {
+                        }
+                    }
+                },
+                colors = ListItemDefaults.colors(containerColor = colorScheme.surfaceContainer),
+                modifier = Modifier
+                    .clip(shapes.largeIncreased)
+                    .padding(vertical = 8.dp)
+                    .clickable(onClick = { expanded = !expanded })
+            )
+
+            AnimatedVisibility(
+                expanded,
+                enter = expandVertically(expandFrom = Alignment.CenterVertically) + fadeIn(),
+                exit = shrinkVertically(shrinkTowards = Alignment.CenterVertically) + fadeOut()
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    if (title != null)
+                        Text(
+                            title ?: AnnotatedString(""),
+                            style = typography.headlineSmall,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    infobox.fastForEach { item ->
+                        Row(Modifier.fillMaxWidth()) {
+                            Text(
+                                item.first,
+                                fontSize = fontSize.sp,
+                                fontWeight = FontWeight.Bold,
+                                lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .widthIn(max = 256.dp)
+                                    .weight(1f)
+                            )
+                            if (item.second.matches("\\[\\[.{1,6}:.+]]".toRegex()) ||
+                                extensions.fastAny { item.second.endsWith(it) }
+                            ) {
+                                with(sharedScope) {
                                     ImageWithCaption(
                                         item.second.toString(),
                                         fontSize,
@@ -180,32 +168,32 @@ fun AsyncInfobox(
                                         showCaption = false,
                                         modifier = Modifier.weight(2f)
                                     )
-                                } else {
-                                    Text(
-                                        item.second,
-                                        fontSize = fontSize.sp,
-                                        lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
-                                        modifier = Modifier
-                                            .padding(8.dp)
-                                            .widthIn(max = 256.dp)
-                                            .weight(2f)
-                                    )
                                 }
+                            } else {
+                                Text(
+                                    item.second,
+                                    fontSize = fontSize.sp,
+                                    lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                        .widthIn(max = 256.dp)
+                                        .weight(2f)
+                                )
                             }
                         }
-                        FilledTonalIconButton(
-                            onClick = { expanded = false },
-                            shapes = IconButtonDefaults.shapes(),
-                            modifier = Modifier
-                                .align(Alignment.End)
-                                .padding(16.dp)
-                                .width(52.dp)
-                        ) {
-                            Icon(
-                                painterResource(R.drawable.keyboard_arrow_up),
-                                contentDescription = stringResource(R.string.collapse_section)
-                            )
-                        }
+                    }
+                    FilledTonalIconButton(
+                        onClick = { expanded = false },
+                        shapes = IconButtonDefaults.shapes(),
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .padding(16.dp)
+                            .width(52.dp)
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.keyboard_arrow_up),
+                            contentDescription = stringResource(R.string.collapse_section)
+                        )
                     }
                 }
             }

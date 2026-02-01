@@ -125,6 +125,7 @@ fun ParsedBodyText(
                     text = it.toString(),
                     lang = lang,
                     fontSize = fontSize,
+                    sharedScope = sharedScope,
                     darkTheme = darkTheme,
                     background = background,
                     onImageClick = onGalleryImageClick,

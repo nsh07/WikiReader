@@ -44,9 +44,15 @@ fun SharedTransitionScope.PageImage(
                 contentDescription = photoDesc,
                 contentScale = contentScale,
                 modifier = Modifier
-                    .sharedBounds(
-                        sharedContentState = rememberSharedContentState(photo.source),
-                        animatedVisibilityScope = LocalNavAnimatedContentScope.current
+                    .then(
+                        photo.source?.let { src ->
+                            Modifier.sharedBounds(
+                                sharedContentState = rememberSharedContentState(
+                                    "article-image-$src"
+                                ),
+                                animatedVisibilityScope = LocalNavAnimatedContentScope.current
+                            )
+                        } ?: Modifier
                     )
                     .then(modifier)
                     .aspectRatio(photo.width.toFloat() / photo.height.toFloat())
@@ -108,7 +114,9 @@ fun SharedTransitionScope.PageImage(
                 contentScale = contentScale,
                 modifier = Modifier
                     .sharedBounds(
-                        sharedContentState = rememberSharedContentState(uri),
+                        sharedContentState = rememberSharedContentState(
+                            "gallery-image-$uri"
+                        ),
                         animatedVisibilityScope = LocalNavAnimatedContentScope.current
                     )
                     .then(modifier)

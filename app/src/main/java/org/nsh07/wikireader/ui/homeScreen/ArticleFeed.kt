@@ -182,11 +182,15 @@ fun ArticleFeed(
                                     background = imageBackground,
                                     loadingIndicator = false,
                                     modifier = Modifier
-                                        .sharedBounds(
-                                            sharedContentState = rememberSharedContentState(
-                                                feedContent.tfa.originalImage?.source ?: "imgsrc"
-                                            ),
-                                            animatedVisibilityScope = LocalNavAnimatedContentScope.current
+                                        .then(
+                                            feedContent.tfa.originalImage?.source?.let { src ->
+                                                Modifier.sharedBounds(
+                                                    sharedContentState = rememberSharedContentState(
+                                                        "tfa-image-$src"
+                                                    ),
+                                                    animatedVisibilityScope = LocalNavAnimatedContentScope.current
+                                                )
+                                            } ?: Modifier
                                         )
                                         .clip(cardShape)
                                 )
@@ -195,12 +199,16 @@ fun ArticleFeed(
                                     style = typography.headlineMedium,
                                     fontFamily = FontFamily.Serif,
                                     modifier = Modifier
-                                        .sharedBounds(
-                                            sharedContentState = rememberSharedContentState(
-                                                feedContent.tfa.titles?.normalized ?: "title"
-                                            ),
-                                            animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                                            zIndexInOverlay = 1f
+                                        .then(
+                                            feedContent.tfa.titles?.normalized?.let { title ->
+                                                Modifier.sharedBounds(
+                                                    sharedContentState = rememberSharedContentState(
+                                                        "tfa-title-$title"
+                                                    ),
+                                                    animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                                                    zIndexInOverlay = 1f
+                                                )
+                                            } ?: Modifier
                                         )
                                         .padding(horizontal = 16.dp)
                                         .padding(top = 16.dp)
@@ -210,12 +218,16 @@ fun ArticleFeed(
                                     style = typography.bodyMedium,
                                     color = colorScheme.onSurfaceVariant,
                                     modifier = Modifier
-                                        .sharedBounds(
-                                            sharedContentState = rememberSharedContentState(
-                                                feedContent.tfa.description ?: "desc"
-                                            ),
-                                            animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                                            zIndexInOverlay = 1f
+                                        .then(
+                                            feedContent.tfa.description?.let { description ->
+                                                Modifier.sharedBounds(
+                                                    sharedContentState = rememberSharedContentState(
+                                                        "tfa-desc-$description"
+                                                    ),
+                                                    animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                                                    zIndexInOverlay = 1f
+                                                )
+                                            } ?: Modifier
                                         )
                                         .padding(horizontal = 16.dp, vertical = 4.dp)
                                 )
@@ -237,12 +249,15 @@ fun ArticleFeed(
                                         background = imageBackground,
                                         loadingIndicator = false,
                                         modifier = Modifier
-                                            .sharedBounds(
-                                                sharedContentState = rememberSharedContentState(
-                                                    feedContent.tfa.originalImage?.source
-                                                        ?: "imgsrc"
-                                                ),
-                                                animatedVisibilityScope = LocalNavAnimatedContentScope.current
+                                            .then(
+                                                feedContent.tfa.originalImage?.source?.let { src ->
+                                                    Modifier.sharedBounds(
+                                                        sharedContentState = rememberSharedContentState(
+                                                            "tfa-image-$src"
+                                                        ),
+                                                        animatedVisibilityScope = LocalNavAnimatedContentScope.current
+                                                    )
+                                                } ?: Modifier
                                             )
                                             .weight(1f)
                                     )
@@ -252,13 +267,16 @@ fun ArticleFeed(
                                             style = typography.headlineMedium,
                                             fontFamily = FontFamily.Serif,
                                             modifier = Modifier
-                                                .sharedBounds(
-                                                    sharedContentState = rememberSharedContentState(
-                                                        feedContent.tfa.titles?.normalized
-                                                            ?: "title"
-                                                    ),
-                                                    animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                                                    zIndexInOverlay = 1f
+                                                .then(
+                                                    feedContent.tfa.titles?.normalized?.let { title ->
+                                                        Modifier.sharedBounds(
+                                                            sharedContentState = rememberSharedContentState(
+                                                                "tfa-title-$title"
+                                                            ),
+                                                            animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                                                            zIndexInOverlay = 1f
+                                                        )
+                                                    } ?: Modifier
                                                 )
                                                 .padding(horizontal = 16.dp)
                                                 .padding(top = 16.dp)
@@ -268,12 +286,16 @@ fun ArticleFeed(
                                             style = typography.bodyMedium,
                                             color = colorScheme.onSurfaceVariant,
                                             modifier = Modifier
-                                                .sharedBounds(
-                                                    sharedContentState = rememberSharedContentState(
-                                                        feedContent.tfa.description ?: "desc"
-                                                    ),
-                                                    animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                                                    zIndexInOverlay = 1f
+                                                .then(
+                                                    feedContent.tfa.description?.let { description ->
+                                                        Modifier.sharedBounds(
+                                                            sharedContentState = rememberSharedContentState(
+                                                                "tfa-desc-$description"
+                                                            ),
+                                                            animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                                                            zIndexInOverlay = 1f
+                                                        )
+                                                    } ?: Modifier
                                                 )
                                                 .padding(horizontal = 16.dp, vertical = 4.dp)
                                         )
@@ -353,13 +375,16 @@ fun ArticleFeed(
                                                         ?: "",
                                                     style = typography.titleMedium,
                                                     modifier = Modifier
-                                                        .sharedBounds(
-                                                            sharedContentState = rememberSharedContentState(
-                                                                feedContent.mostReadArticles[i].titles?.normalized
-                                                                    ?: "title"
-                                                            ),
-                                                            animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                                                            zIndexInOverlay = 1f
+                                                        .then(
+                                                            feedContent.mostReadArticles[i].titles?.normalized?.let { title ->
+                                                                Modifier.sharedBounds(
+                                                                    sharedContentState = rememberSharedContentState(
+                                                                        "trending-$page-$i-title-$title"
+                                                                    ),
+                                                                    animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                                                                    zIndexInOverlay = 1f
+                                                                )
+                                                            } ?: Modifier
                                                         )
                                                         .padding(top = 16.dp)
                                                 )
@@ -369,13 +394,16 @@ fun ArticleFeed(
                                                     style = typography.bodyMedium,
                                                     maxLines = 2,
                                                     overflow = TextOverflow.Ellipsis,
-                                                    modifier = Modifier.sharedBounds(
-                                                        sharedContentState = rememberSharedContentState(
-                                                            feedContent.mostReadArticles[i].description
-                                                                ?: "desc"
-                                                        ),
-                                                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                                                        zIndexInOverlay = 1f
+                                                    modifier = Modifier.then(
+                                                        feedContent.mostReadArticles[i].description?.let { description ->
+                                                            Modifier.sharedBounds(
+                                                                sharedContentState = rememberSharedContentState(
+                                                                    "trending-$page-$i-desc-$description"
+                                                                ),
+                                                                animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                                                                zIndexInOverlay = 1f
+                                                            )
+                                                        } ?: Modifier
                                                     )
                                                 )
                                                 Row(
@@ -399,7 +427,7 @@ fun ArticleFeed(
                                                             )
                                                     )
                                                     Text(
-                                                        df.format(feedContent.mostReadArticles[i].views),
+                                                        df.format(feedContent.mostReadArticles[i].views ?: 0),
                                                         style = typography.bodyMedium,
                                                         color = colorScheme.primary
                                                     )
@@ -412,12 +440,15 @@ fun ArticleFeed(
                                                     loadingIndicator = true,
                                                     background = imageBackground,
                                                     modifier = Modifier
-                                                        .sharedBounds(
-                                                            sharedContentState = rememberSharedContentState(
-                                                                feedContent.mostReadArticles[i].originalImage?.source
-                                                                    ?: "imgsrc"
-                                                            ),
-                                                            animatedVisibilityScope = LocalNavAnimatedContentScope.current
+                                                        .then(
+                                                            feedContent.mostReadArticles[i].originalImage?.source?.let { src ->
+                                                                Modifier.sharedBounds(
+                                                                    sharedContentState = rememberSharedContentState(
+                                                                        "trending-image-$src"
+                                                                    ),
+                                                                    animatedVisibilityScope = LocalNavAnimatedContentScope.current
+                                                                )
+                                                            } ?: Modifier
                                                         )
                                                         .padding(16.dp)
                                                         .clip(shapes.large)
@@ -509,11 +540,15 @@ fun ArticleFeed(
                                     background = imageBackground,
                                     loadingIndicator = false,
                                     modifier = Modifier
-                                        .sharedBounds(
-                                            sharedContentState = rememberSharedContentState(
-                                                feedContent.image.thumbnail?.source ?: "imgsrc"
-                                            ),
-                                            animatedVisibilityScope = LocalNavAnimatedContentScope.current
+                                        .then(
+                                            feedContent.image.thumbnail?.source?.let { src ->
+                                                Modifier.sharedBounds(
+                                                    sharedContentState = rememberSharedContentState(
+                                                        "potd-image-$src"
+                                                    ),
+                                                    animatedVisibilityScope = LocalNavAnimatedContentScope.current
+                                                )
+                                            } ?: Modifier
                                         )
                                         .clip(cardShape)
                                 )
@@ -668,12 +703,16 @@ fun ArticleFeed(
                                                         maxLines = 1,
                                                         overflow = TextOverflow.Ellipsis,
                                                         color = Color.White,
-                                                        modifier = Modifier.sharedBounds(
-                                                            sharedContentState = rememberSharedContentState(
-                                                                it.titles?.normalized ?: "title"
-                                                            ),
-                                                            animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                                                            zIndexInOverlay = 1f
+                                                        modifier = Modifier.then(
+                                                            it.titles?.normalized?.let { title ->
+                                                                Modifier.sharedBounds(
+                                                                    sharedContentState = rememberSharedContentState(
+                                                                        "news-title-$title"
+                                                                    ),
+                                                                    animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                                                                    zIndexInOverlay = 1f
+                                                                )
+                                                            } ?: Modifier
                                                         )
                                                     )
                                                 }
@@ -795,12 +834,16 @@ fun ArticleFeed(
                                                             maxLines = 1,
                                                             overflow = TextOverflow.Ellipsis,
                                                             color = Color.White,
-                                                            modifier = Modifier.sharedBounds(
-                                                                sharedContentState = rememberSharedContentState(
-                                                                    it.titles?.normalized ?: "title"
-                                                                ),
-                                                                animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                                                                zIndexInOverlay = 1f
+                                                            modifier = Modifier.then(
+                                                                it.titles?.normalized?.let { title ->
+                                                                    Modifier.sharedBounds(
+                                                                        sharedContentState = rememberSharedContentState(
+                                                                            "otd-title-$title"
+                                                                        ),
+                                                                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                                                                        zIndexInOverlay = 1f
+                                                                    )
+                                                                } ?: Modifier
                                                             )
                                                         )
                                                     }
