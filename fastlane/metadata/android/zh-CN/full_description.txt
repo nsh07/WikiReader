@@ -10,7 +10,7 @@
     <li><b>保存文章：</b> 下载文章到设备以供离线阅读</li>
     <li><b>单手操作：</b> 使用底部的悬浮操作按钮 (FAB)，获得完整单手操作体验</li>
     <li><b>轻量级：</b> 应用启动瞬间完成，运行流畅顺滑</li>
-    <li><b>Material Design 3：</b> 遵循最新的 Material Design 3 设计规范</li>
+    <li><b>Material 3 Expressive：</b> 遵循最新的 Material 3 Expressive 设计规范</li>
     <li><b>流畅动画：</b> 平滑流畅的动画效果</li>
     <li><b>可定制颜色：</b> 选择浅色/深色主题，并自定义 Material 3 调色板</li>
     <li><b>可定制字体大小：</b> 选择您舒适的字体大小</li>

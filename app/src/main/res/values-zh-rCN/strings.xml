@@ -39,7 +39,7 @@
     <string name="inArticleMatches">文章内匹配项</string>
     <string name="inTheNews">新闻</string>
     <string name="information">资讯</string>
-    <string name="noSavedArticlesDesc">点击条目顶部的下载按钮即可开始下载</string>
+    <string name="noSavedArticlesDesc">点击条目底部工具栏中的下载按钮即可开始下载</string>
     <string name="noSavedArticles">无保存的条目</string>
     <string name="ok">好的</string>
     <string name="onThisDay">历史上的今天</string>
@@ -65,7 +65,7 @@
     <string name="settingExpandSections">全部展开</string>
     <string name="settingExpandSectionsDesc">默认情况下展开所有选区</string>
     <string name="settingFeed">动态资讯</string>
-    <string name="settingFeedDesc">在APP启动时展示热门文章、新闻等动态咨询</string>
+    <string name="settingFeedDesc">在应用启动时展示热门文章、新闻等动态资讯</string>
     <string name="settingBlackTheme">纯黑主题</string>
     <string name="settingDataSaverDesc">关闭缩略图和动态资讯加载. 通过点击条目的说明卡依旧可以查看图片.</string>
     <string name="settingFontStyle">字体样式</string>
@@ -73,7 +73,7 @@
     <string name="settingImmersiveMode">沉浸模式</string>
     <string name="settingRenderMath">渲染数学表达式</string>
     <string name="settingSearchHistory">搜索历史</string>
-    <string name="settingSearchHistoryDesc">保存搜索过的内容. 已有搜索历史不受该开关影响.</string>
+    <string name="settingSearchHistoryDesc">保存搜索记录</string>
     <string name="settingTheme">主题</string>
     <string name="settingWikipediaLanguage">维基百科语言</string>
     <string name="settings">设置</string>
@@ -101,7 +101,7 @@
     <string name="wikipedia_logo">维基百科Logo</string>
     <string name="titleMatches">标题匹配项</string>
     <string name="about">关于</string>
-    <string name="articlesSize">第%1$s 篇条目, 共%2$s篇</string>
+    <string name="articlesSize">%1$s 篇条目，%2$s 种语言</string>
     <string name="settingFontSize">字体大小</string>
     <string name="translateDesc">为WikiReader添加你的语言</string>
     <string name="clear">清除</string>
@@ -109,7 +109,7 @@
     <string name="fontStyleSansSerif">Sans-serif</string>
     <string name="pageIndicator">第%1$s页，共%2$s页</string>
     <string name="license">开源协议</string>
-    <string name="deleteArticle">删除已下载的条目</string>
+    <string name="deleteArticle">删除条目</string>
     <string name="settingBlackThemeDesc">使用纯黑主题</string>
     <string name="selectedLabel">已选择</string>
     <string name="redirectedFrom">重定向自%1$s</string>
@@ -123,4 +123,17 @@
     <string name="supportMyWork">支持我</string>
     <string name="settingAppLanguage">应用语言</string>
     <string name="chooseAppLanguage">选择应用语言</string>
+    <string name="allHistoryDeleted">所有历史记录均已删除</string>
+    <string name="undo">撤销</string>
+    <string name="deletedFromHistory">“%1$s” 已从历史记录中删除</string>
+    <string name="reference">参考文献</string>
+    <string name="table">表格</string>
+    <string name="noHistoryItems">历史记录中暂无条目</string>
+    <string name="noHistoryItemsDesc">最近打开的条目将显示在此处</string>
+    <string name="currentLanguage">当前语言</string>
+    <string name="recentLanguages">最近的语言</string>
+    <string name="otherLanguages">其他语言</string>
+    <string name="items">%1$s 篇条目</string>
+    <string name="infobox">信息框</string>
+    <string name="historyDesc">保存条目浏览记录</string>
 </resources>
