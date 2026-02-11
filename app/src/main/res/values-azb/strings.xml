@@ -1,3 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="about">درباره</string>
+    <string name="app">اپلیکاسیون</string>
+    <string name="appTagline">ویکی‌پدیا صفحه‌لرینی دیققَت یایندیرمادان اوخو</string>
+    <string name="app_name">ویکی‌ریدر</string>
+    <string name="articleDeleted">مقاله تشخیص وئریلدی</string>
+    <string name="articlesSize">%1$s مقاله، %2$s دیل</string>
+    <string name="author">نویسنده</string>
+    <string name="back">گِری قایت</string>
+    <string name="cancel">لغو</string>
+    <string name="chooseColorScheme">رنگ طرحینی سئچ</string>
+    <string name="chooseTheme">رنگ طرحینی سئچ</string>
+    <string name="chooseWikipediaLanguage">ویکی‌پدیا دیلینی سئچ</string>
+    <string name="clear">پاکلا</string>
+    <string name="clearSearchField">جست‌وجو ساحه‌سینی پاکلا</string>
+    <string name="collapse_section">بولومو یوم</string>
+    <string name="colorSchemeColor">رنگ</string>
+    <string name="colorSchemeDynamic">داینامیک</string>
+    <string name="delete">سِیل</string>
+    <string name="deleteAll">همه‌سینی سِیل</string>
+    <string name="deleteAllArticles">همه مقاله‌لری سِیلَم؟</string>
+    <string name="deleteAllArticlesDesc">همه مقاله‌لر دائمی‌نه دستگاهینیزدن سِیلینه‌جک</string>
+    <string name="deleteArticle">مقاله‌نی سِیل</string>
+    <string name="deleteSavedArticleDesc">\"%1$s\" دائمی‌نه دستگاهینیزدن سِیلینه‌جک</string>
+    <string name="dialogDeleteHistoryItem">\"%1$s\" جست‌وجو تاریخچه‌نینیزدن دائمی‌نه سِیلینه‌جک.</string>
+    <string name="dialogDeleteHistoryItemDesc">جست‌وجو تاریخچه‌نینیز دائمی‌نه سِیلینه‌جک.</string>
+    <string name="dialogDeleteSearchHistory">بو جست‌وجو تاریخچه‌نینیزدن سِیلنسین؟</string>
 </resources>
