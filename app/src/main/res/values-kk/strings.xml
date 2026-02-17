@@ -1,3 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="about">Туралы</string>
+    <string name="app">Бағдарлама</string>
+    <string name="appTagline">Уикипедияны ештеңеге алаңдамай оқыңыз</string>
+    <string name="app_name">WikiReader</string>
+    <string name="articleDeleted">Мақала жойылды</string>
+    <string name="articlesSize">%1$s мақала, %2$s тіл</string>
+    <string name="author">Құрастырушы</string>
+    <string name="back">Кері қайту</string>
+    <string name="cancel">Бас тарту</string>
+    <string name="chooseColorScheme">Түс схемасын таңдау</string>
+    <string name="chooseTheme">Тақырыпты таңдау</string>
+    <string name="chooseWikipediaLanguage">Уикипедия тілін таңдау</string>
+    <string name="clear">Тазарту</string>
+    <string name="clearSearchField">Іздеу өрісін тазарту</string>
+    <string name="collapse_section">Бөлімді жинау</string>
+    <string name="colorSchemeColor">Түс</string>
+    <string name="colorSchemeDynamic">Динамикалық</string>
+    <string name="delete">Жою</string>
 </resources>
