@@ -12,7 +12,7 @@
     <string name="author">作者</string>
     <string name="back">返回</string>
     <string name="cancel">取消</string>
-    <string name="chooseColorScheme">选择你偏好的的主题色</string>
+    <string name="chooseColorScheme">选择主题颜色</string>
     <string name="chooseTheme">选择主题</string>
     <string name="chooseWikipediaLanguage">选择维基百科的语言</string>
     <string name="clearSearchField">清空搜索栏</string>
@@ -23,7 +23,7 @@
     <string name="deleteSavedArticle">删除保存的文章？</string>
     <string name="deleteSavedArticleDesc">“%1$s”将从你的设备上永久消失</string>
     <string name="dialogDeleteHistoryItemDesc">你的搜索记录将被清空.</string>
-    <string name="dialogDeleteSearchHistory">从搜索记录中将此项删除？</string>
+    <string name="dialogDeleteSearchHistory">从搜索记录中删除此项？</string>
     <string name="dialogDeleteSearchHistoryDesc">删除你的搜索记录？</string>
     <string name="donateToWikipedia">为维基百科捐款或助其丰富内容</string>
     <string name="errorLoadingImage">图片加载失败</string>
