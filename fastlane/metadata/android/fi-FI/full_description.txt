@@ -1,0 +1,101 @@
+<p>Kevyt Android-sovellus Wikipedia-artikkeleiden häiriöttömään lukemiseen. Tukee vaaleaa tilaa, tummaa tilaa, Material You -dynaamisia värejä ja yli 300 kieltä, räätälöitävällä yksinkertaisella käyttöliittymällä</p>
+
+
+
+
+<p>Ominaisuudet
+</p>
+
+
+<ul>
+
+
+    <li>
+<b>Nopea lataus:
+</b> Artikkelin teksti ladataan ennen kaikkea muuta, jotta pääset nopeasti lukemaan
+</li>
+
+
+    <li>
+<b>Syöte:
+</b> Lue päivän artikkeli, löydä suosittuja artikkeleita ja pysy ajan tasalla uutisista Wikipedia-syötteen avulla
+</li>
+
+
+    <li>
+<b>Artikkelikuva:
+</b> Näytä aiheeseen liittyvä kuva sen Wikipedia-sivulta. Klikkaa kuvaa suurentaaksesi sen ja nähdäksesi sen koko näytöllä
+</li>
+
+
+    <li>
+<b>Satunnainen artikkeli:
+</b> Kokeiletko onneasi? Klikkaa satunnainen artikkeli -painiketta lukeaksesi satunnaisen artikkelin
+</li>
+
+
+    <li>
+<b>Valitse kielesi: Valitse kielesi yli 300 kielen joukosta
+</b>
+</li>
+
+
+    <li>
+<b>Tallenna artikkeleita:
+</b> Tallenna artikkeleita laitteellesi offline-lukemista varten
+</li>
+
+
+    <li>
+<b>Yhden käden käyttö:
+</b> Käytä alaosan kelluvia toimintopainikkeita täydelliseen yhden käden käyttökokemukseen
+</li>
+
+
+    <li>
+<b>Kevyt:
+</b> Sovellus käynnistyy välittömästi ja toimii sujuvasti
+</li>
+
+
+    <li>
+<b>Material 3 Expressive:
+</b> Suunniteltu uusimpien Material 3 Expressive -suunnitteluohjeiden mukaisesti
+
+
+        
+
+    </li>
+
+
+    <li>
+<b>Sulavat animaatiot:
+</b> Sulavat ja sujuvat animaatiot
+</li>
+
+
+    <li>
+<b>Muokattavat värit:
+</b> Valitse vaalea tai tumma teema ja mukauta Material 3 -väripalettia
+</li>
+
+
+    <li>
+<b>Muokattava fontin koko:
+</b> Valitse itsellesi sopiva fonttikoko
+</li>
+
+
+    <li>
+<b>Datan käytön vähentäminen:
+</b> Säästä rajallista datapakettiasi lataamalla pelkkä teksti
+</li>
+
+
+    <li>
+<b>Matemaattiset kaavat:
+</b> Näytä sujuvasti latautuvat matemaattiset kaavat lukeaksi helposti matemaattisia artikkeleita
+</li>
+
+
+</ul>
