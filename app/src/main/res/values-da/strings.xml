@@ -1,3 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="about">Om</string>
+    <string name="app">App</string>
+    <string name="appTagline">Læs Wikipedia sider fri for distraktioner</string>
+    <string name="app_name">WikiLæser</string>
+    <string name="articleDeleted">Artikel slettet</string>
+    <string name="articlesSize">%1$s artikler, %2$s sprog</string>
+    <string name="author">Forfatter</string>
 </resources>

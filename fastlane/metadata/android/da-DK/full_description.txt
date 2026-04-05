@@ -1,0 +1,20 @@
+<p>En letvægts Android-app til distraktionsfri læsning af Wikipedia-artikler. Understøtter lys tilstand, mørk tilstand, Material You dynamiske farver og 300+ Wikipedia-sprog, med en tilpasselig og enkel grænseflade.</p>
+
+<p>Funktioner</p>
+
+<ul>
+    <li><b>Hurtig indlæsning:</b> Artiklens tekst indlæses før alt andet, så du hurtigt kan komme i gang med at læse</li>
+    <li><b>Forside:</b> Læs dagens artikel, find populære artikler og bliv opdateret med nyheder via Wikipedias forside</li>
+    <li><b>Artikelbillede:</b> Se et billede af emnet fra dets Wikipedia-side. Tryk på det for at forstørre og se det i fuld skærm</li>
+    <li><b>Tilfældig artikel:</b> Føler du dig heldig? Tryk på knappen for tilfældig artikel og læs noget nyt</li>
+    <li><b>Vælg dit sprog:</b> Vælg mellem over 300 sprog på Wikipedia</li>
+    <li><b>Gem artikler:</b> Download artikler til din enhed til offlinelæsning</li>
+    <li><b>Betjening med én hånd:</b> Brug de svævende handlingsknapper nederst for en komplet én-hånds-oplevelse</li>
+    <li><b>Letvægts:</b> Appen starter med det samme og fungerer gnidningsløst</li>
+    <li><b>Material 3 Expressive:</b> Designet efter de nyeste retningslinjer for Material 3 Expressive design</li>
+    <li><b>Bløde animationer:</b> Glatte og flydende animationer</li>
+    <li><b>Tilpasselige farver:</b> Vælg mellem lyse/mørke temaer og tilpas Material 3-farvepaletten</li>
+    <li><b>Tilpasselig skriftstørrelse:</b> Vælg din egen behagelige skriftstørrelse</li>
+    <li><b>Databesparelse:</b> Spar på din dataplan ved kun at indlæse tekst</li>
+    <li><b>Matematiske udtryk:</b> Se korrekt gengivne matematiske udtryk, så du nemt kan læse matematiske artikler</li>
+</ul>
