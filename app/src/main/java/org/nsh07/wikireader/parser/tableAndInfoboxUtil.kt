@@ -46,14 +46,16 @@ suspend fun parseWikitable(
     var insideTable = false
 
     for (line in lines) {
-        val currSize = currentRow.size
-        if (rowSpan[currSize] != null) {
-            if (rowSpan[currSize]!! - 1 > 0) {
-                currentRow.add(AnnotatedString(""))
-                rowSpan[currSize] = rowSpan[currSize]!! - 1
-            } else
-                rowSpan.remove(currSize)
+        var currColumnIndex = currentRow.size
+
+        while(rowSpan[currColumnIndex] != null && rowSpan[currColumnIndex]!! - 1 > 0) {
+            currentRow.add(AnnotatedString(""))
+            rowSpan[currColumnIndex] = rowSpan[currColumnIndex]!! - 1
+            if (rowSpan[currColumnIndex]!! <= 1)
+                rowSpan.remove(currColumnIndex)
+            currColumnIndex++
         }
+
         when {
             line.startsWith("{|") -> {
                 // Table begin
