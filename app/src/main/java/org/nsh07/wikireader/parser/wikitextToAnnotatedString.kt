@@ -569,14 +569,17 @@ fun String.toWikitextAnnotatedString(
                             currSubstring.startsWith("{{convert", ignoreCase = true) ||
                                     currSubstring.startsWith("{{cvt", ignoreCase = true)
                                 -> {
-                                val curr = currSubstring.substringAfter('|')
+                                val curr = currSubstring.substringAfter('|', "")
                                 val currSplit = curr.split('|')
                                 var toAdd = ""
-                                toAdd += currSplit[0]
-                                toAdd += if (currSplit[1] in listOf("-", "to", "and")) {
-                                    " " + currSplit[1] + " " + currSplit[2] + " " + currSplit[3]
-                                } else {
-                                    " " + currSplit[1]
+                                if (curr.isNotEmpty()) {
+                                    toAdd += currSplit[0]
+                                    val part1 = currSplit.getOrNull(1)
+                                    toAdd += if (part1 in listOf("-", "to", "and")) {
+                                        " " + part1 + " " + (currSplit.getOrNull(2) ?: "") + " " + (currSplit.getOrNull(3) ?: "")
+                                    } else {
+                                        if (part1 != null) " $part1" else ""
+                                    }
                                 }
                                 append(toAdd)
                             }
