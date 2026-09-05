@@ -83,6 +83,7 @@ Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia l
 - **Data saver:** Save your limited data plan by loading text only
 - **Math expressions:** View properly rendered mathematical expressions for easily reading
   mathematical articles
+- **Tables:** Read Wikipedia tables in a mobile-friendly layout
 
 ## Translation
 

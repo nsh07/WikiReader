@@ -318,10 +318,11 @@ suspend fun parseInfobox(
     val lines = infoboxSource.lines().fastFilter { it.isNotEmpty() }.drop(1)
     var currentRowKey = ""
     var currentRowVal = ""
+    var templateDepth = 0
 
     lines.fastForEach { item ->
         val it = item.trim()
-        if (it.startsWith('|') && it.contains('=')) {
+        if (templateDepth == 0 && it.startsWith('|') && it.contains('=')) {
             if (currentRowVal.matches(".{1,6}:.+".toRegex())) { // Add image data in plaintext
                 rows.add(Pair(AnnotatedString(currentRowKey), AnnotatedString(currentRowVal)))
             } else if (currentRowVal.isNotBlank()) {
@@ -351,11 +352,14 @@ suspend fun parseInfobox(
             currentRowKey = thisRow[0]
                 .trim(' ', '|')
                 .replace('_', ' ')
+                .replace("currentowner", "current owner", ignoreCase = true)
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
             currentRowVal = thisRow[1].trim()
-        } else {
+        } else if (templateDepth > 0 || it != "}}") {
             currentRowVal += '\n' + it
         }
+        templateDepth = (templateDepth + it.windowed(2).count { braces -> braces == "{{" }
+                - it.windowed(2).count { braces -> braces == "}}" }).coerceAtLeast(0)
     }
 
     if (currentRowVal.isNotBlank()) {
@@ -368,7 +372,7 @@ suspend fun parseInfobox(
                     fontSize,
                     showRef = showRef
                 ),
-                currentRowVal.trim('\n', ' ', '}').toWikitextAnnotatedString(
+                currentRowVal.trim('\n', ' ').toWikitextAnnotatedString(
                     colorScheme,
                     typography,
                     loadPage,

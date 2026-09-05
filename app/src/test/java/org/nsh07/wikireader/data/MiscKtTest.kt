@@ -1,9 +1,15 @@
 package org.nsh07.wikireader.data
 
+import androidx.compose.material3.Typography
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import org.nsh07.wikireader.parser.cleanUpWikitext
+import org.nsh07.wikireader.parser.parseInfobox
+import org.nsh07.wikireader.parser.toWikitextAnnotatedString
 import kotlin.math.pow
 
 class MiscKtTest {
@@ -55,6 +61,157 @@ class MiscKtTest {
             "\nHello\n\n=== Subheading ===\n\nHello"
         )
         assertEquals(expectedSections, sections)
+    }
+
+    @Test
+    fun cleanUpWikitext_noIncludeTag_removesTag() {
+        assertEquals("Content", cleanUpWikitext("</noinclude>Content"))
+    }
+
+    @Test
+    fun cleanUpWikitext_onlyIncludeWrappedTable_removesWrapper() {
+        val table = "{| class=\"wikitable\"\n| Cell\n|}"
+
+        assertEquals(table, cleanUpWikitext("<onlyInclude>$table</onlyInclude>"))
+    }
+
+    @Test
+    fun sectionTransclusion_matchesPageAndSection() {
+        val match = sectionTransclusion.find("{{#section:Marvel Cinematic Universe: Phase One|Films}}")
+
+        assertEquals("Marvel Cinematic Universe: Phase One", match?.groupValues?.get(1))
+        assertEquals("Films", match?.groupValues?.get(2))
+    }
+
+    @Test
+    fun expandSectionTransclusions_insertsRequestedTable() = runBlocking {
+        val article = "==== Phase One ====\n{{#section:Marvel Cinematic Universe: Phase One|Films}}"
+        val table = "{| class=\"wikitable\"\n| Iron Man\n|}"
+        val phasePage = "Before<section begin=Films />$table<section end=Films />After"
+
+        val result = expandSectionTransclusions(article) { phasePage }
+
+        assertEquals("==== Phase One ====\n$table", result)
+    }
+
+    @Test
+    fun extractSection_returnsMarkedContent() {
+        val table = "{| class=\"wikitable\"\n| Cell\n|}"
+        val source = "Before<section begin=Films />$table<section end=Films />After"
+
+        assertEquals(table, source.extractSection("Films"))
+    }
+
+    @Test
+    fun cleanUpWikitext_sectionMarkers_removesBothMarkers() {
+        val table = "{| class=\"wikitable\"\n| Cell\n|}"
+
+        assertEquals(table, cleanUpWikitext("<section begin=Films />$table<section end=Films />"))
+    }
+
+    @Test
+    fun parseInfobox_nestedPriceTemplates_renderCurrencies() = runBlocking {
+        val infobox = """{{Infobox computing device
+            | currentowner = [[Microsoft]]
+            | price = {{Unbulleted list
+             | '''Base''' / '''Digital Edition''' / '''Pro'''
+             | {{USD|499|link=yes}} / {{USD|399|link=yes}} / {{USD|699|link=yes}}
+             | {{Euro|499|link=yes}} / {{Euro|399|link=yes}} / {{Euro|799|link=yes}}
+             | {{JPY|49,980|link=yes}} / {{JPY|39,980|link=yes}} / {{JPY|119,980|link=yes}}
+             }}
+            }}""".trimIndent()
+
+        val rows = parseInfobox(
+            infobox,
+            lightColorScheme(),
+            Typography(),
+            {},
+            {},
+            16
+        )
+        val price = rows.first { it.first.text == "Price" }.second.text
+
+        assertEquals("Current owner", rows.first().first.text)
+        assertEquals(true, price.contains("$499 / $399 / $699"))
+        assertEquals(true, price.contains("€499 / €399 / €799"))
+        assertEquals(true, price.contains("¥49,980 / ¥39,980 / ¥119,980"))
+        assertEquals(false, price.contains("yes}}"))
+    }
+
+    @Test
+    fun toWikitextAnnotatedString_mainWithLabel_rendersSingleLabelledLink() {
+        val result = "{{main|Reacher season 1|l1=''Reacher'' season 1}}".toWikitextAnnotatedString(
+            colorScheme = lightColorScheme(),
+            typography = Typography(),
+            loadPage = {},
+            fontSize = 16,
+            showRef = {}
+        )
+
+        assertEquals("Main article: Reacher season 1\n", result.text)
+    }
+
+    @Test
+    fun toWikitextAnnotatedString_startDate_rendersReadableDate() {
+        val result = "{{Start date|2022|2|4}}".toWikitextAnnotatedString(
+            colorScheme = lightColorScheme(),
+            typography = Typography(),
+            loadPage = {},
+            fontSize = 16,
+            showRef = {}
+        )
+
+        assertEquals("February 4, 2022", result.text)
+    }
+
+    @Test
+    fun cleanUpWikitext_episodeTable_convertsToWikitable() {
+        val input = """<onlyinclude>{{Episode table |background=#3B3D3E |overall=5 |episodes=
+            {{Episode list/sublist|Reacher season 1
+            | EpisodeNumber   = 1
+            | EpisodeNumber2  = 1
+            | Title           = Welcome to Margrave
+            | DirectedBy      = [[Thomas Vincent (director)|Thomas Vincent]]
+            | WrittenBy       = [[Nick Santora]]
+            | OriginalAirDate = {{Start date|2022|2|4}}
+            | ShortSummary    = At midnight, a man is shot dead.
+            | LineColor       = 3B3D3E
+            }}
+            }}</onlyinclude>""".trimIndent()
+
+        val result = cleanUpWikitext(input)
+
+        assertEquals(true, result.startsWith("{| class=\"wikitable\""))
+        assertEquals(true, result.contains("! No. !! Title !! Directed by !! Written by !! Original air date"))
+        assertEquals(true, result.contains("| \"Welcome to Margrave\""))
+        assertEquals(true, result.contains("| [[Thomas Vincent (director)|Thomas Vincent]]"))
+        assertEquals(true, result.contains("| {{Start date|2022|2|4}}"))
+        assertEquals(false, result.contains("ShortSummary"))
+        assertEquals(false, result.contains("Episode table"))
+    }
+
+    @Test
+    fun expandPageTransclusions_insertsOnlyIncludeContent() = runBlocking {
+        val article = "=== Season 1 (2022) ===\n{{:Reacher season 1}}"
+        val table = "{| class=\"wikitable\"\n| Episode\n|}"
+        val seasonPage = "==Episodes==\n<onlyinclude>$table</onlyinclude>\n==Cast=="
+
+        val result = expandPageTransclusions(article) { seasonPage }
+
+        assertEquals("=== Season 1 (2022) ===\n$table", result)
+    }
+
+    @Test
+    fun toWikitextAnnotatedString_numberedMainLink_hidesParameterName() {
+        val result = "{{main|1=Example}}".toWikitextAnnotatedString(
+            colorScheme = lightColorScheme(),
+            typography = Typography(),
+            loadPage = {},
+            fontSize = 16,
+            showRef = {}
+        )
+
+        assertEquals("Main article: Example\n", result.text)
     }
 
     @Test

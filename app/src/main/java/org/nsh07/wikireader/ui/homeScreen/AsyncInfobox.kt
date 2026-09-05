@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalIconButton
@@ -160,6 +161,12 @@ fun AsyncInfobox(
                                     fontSize = fontSize.sp,
                                     fontWeight = FontWeight.Bold,
                                     lineHeight = (24 * (fontSize / 16.0)).toInt().sp,
+                                    autoSize = TextAutoSize.StepBased(
+                                        minFontSize = 10.sp,
+                                        maxFontSize = fontSize.sp
+                                    ),
+                                    maxLines = 1,
+                                    softWrap = false,
                                     modifier = Modifier
                                         .padding(8.dp)
                                         .widthIn(max = 256.dp)
