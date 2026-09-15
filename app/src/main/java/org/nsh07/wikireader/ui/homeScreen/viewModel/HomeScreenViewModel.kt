@@ -22,6 +22,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import coil3.network.HttpException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -314,6 +315,8 @@ class HomeScreenViewModel(
                         else throw NetworkException()
                     } else
                         loadPage(title = null, random = true)
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     if (e is NetworkException) {
                         backStack.add(
@@ -482,6 +485,8 @@ class HomeScreenViewModel(
                     _homeScreenState.update { currentState ->
                         currentState.copy(isLoading = false)
                     }
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     Log.e("ViewModel", "Error in fetching results: ${e.message}")
                     e.printStackTrace()
@@ -607,6 +612,8 @@ class HomeScreenViewModel(
                     _homeScreenState.update { currentState ->
                         currentState.copy(isLoading = false)
                     }
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     Log.e("ViewModel", "Error in loading feed: ${e.message}")
                     backStack[0] = HomeSubscreen.Logo
@@ -673,6 +680,8 @@ class HomeScreenViewModel(
                 (backStack[lastIndex] as HomeSubscreen.Article).copy(savedStatus = SavedStatus.SAVED)
 
             return WRStatus.SUCCESS
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e("ViewModel", "Cannot save article, network error")
             e.printStackTrace()
